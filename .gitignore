@@ -1,0 +1,15 @@
+.env
+.env.local
+.env.*.local
+*.key
+*.pem
+
+.DS_Store
+Thumbs.db
+
+.vscode/
+.idea/
+
+*.log
+
+*.tmp
