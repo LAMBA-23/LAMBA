@@ -39,6 +39,7 @@ http://localhost:8000
 The database is seeded automatically and idempotently:
 
 - user: `demo` / `demo`
+- temporary Android compatibility login: `demo` / `password`
 - car: `BMW M4`, year `2020`, mileage `125000`
 
 Smoke-check with curl:

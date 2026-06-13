@@ -18,6 +18,10 @@ Response:
 
 Demo login. JWT and registration are not used in MVP v0.
 
+Primary demo credentials: `demo` / `demo`.
+
+Temporary Android compatibility credentials: `demo` / `password`.
+
 Request:
 
 ```json
