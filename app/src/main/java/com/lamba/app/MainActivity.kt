@@ -26,5 +26,11 @@ class MainActivity : AppCompatActivity() {
             val intent = Intent(this, ChatActivity::class.java)
             startActivity(intent)
         }
+        // Переход на экран истории и статистики
+        val navHistory = findViewById<android.widget.LinearLayout>(R.id.btnTalkToCar)
+        navHistory.setOnClickListener {
+            val intent = Intent(this, com.lamba.app.network.HistoryActivity::class.java)
+            startActivity(intent)
+        }
     }
 }
