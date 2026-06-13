@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="16.dp">
+
+    <TextView
+        android:id="@+id/tvTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="История и Статистика"
+        android:textSize="22sp"
+        android:textStyle="bold"
+        android:layout_marginBottom="16.dp" />
+
+    <LinearLayout
+        android:id="@+id/layoutStats"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/tvTitle"
+        android:orientation="vertical"
+        android:background="#F0F0F0"
+        android:padding="12.dp"
+        android:layout_marginBottom="16.dp">
+
+        <TextView
+            android:id="@+id/tvTotalSpent"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Общие расходы: Загрузка..."
+            android:textSize="16sp"
+            android:textStyle="bold"/>
+
+        <TextView
+            android:id="@+id/tvFuelSpent"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Из них на топливо: Загрузка..."
+            android:textSize="14sp"
+            android:layout_marginTop="4.dp"/>
+    </LinearLayout>
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/layoutStats"
+        android:layout_above="@id/btnAddEvent"
+        android:layout_marginBottom="16.dp">
+
+        <LinearLayout
+            android:id="@+id/layoutTimeline"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical" />
+    </ScrollView>
+
+    <Button
+        android:id="@+id/btnAddEvent"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:text="Добавить событие (+)" />
+
+    <ProgressBar
+        android:id="@+id/progressBar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:visibility="gone" />
+</RelativeLayout>
