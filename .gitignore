@@ -1,17 +1,19 @@
+
 .env
 .env.local
 .env.*.local
 *.key
 *.pem
-
 .DS_Store
 Thumbs.db
-
 .vscode/
 .idea/
-
 *.log
+*.tmp
 
 *.tmp
 __pycache__/
 *.pyc
+app/build/
+.gradle/
+build/
