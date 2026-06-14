@@ -87,7 +87,6 @@ Relationship to the initial proposed MVP v1 stories from [user-stories.md](./use
 - AI / Mistral integration is not part of the current deployed backend scope.
 - `/chat` is not implemented in the current deployed backend scope.
 - Advanced recommendation logic, notifications, multiple vehicles, ownership transfer, voice input, and receipt parsing remain outside MVP v0.
-- Public video demonstration link is pending and must be added after recording.
 
 ## Local Setup Instructions
 
