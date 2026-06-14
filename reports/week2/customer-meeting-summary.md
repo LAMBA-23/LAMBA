@@ -3,7 +3,7 @@
 ## Date
 
 - Exact customer meeting date: not documented in the repository
-- Summary preparation basis: [customer-meeting-transcript.md](./customer-meeting-transcript.md), published in the repository on June 14, 2026
+- Summary preparation basis: [customer-meeting-transcript.md](./customer-meeting-transcript.md), published in the repository on June 11, 2026
 
 ## Participants and Roles
 
