@@ -53,8 +53,10 @@ Public interactive prototype link:
 - Runnable artifact: [docker-compose.yml](../../docker-compose.yml)
 - Run instructions: [root README local setup](../../README.md#local-setup)
 - API contract for MVP integration: [docs/api-contract.md](../../docs/api-contract.md)
-- Public deployed MVP URL: no public deployment URL is documented in the repository.
-- Public video demonstration: no public video demo link is documented in the repository as of June 14, 2026.
+- Deployed MVP v0 backend URL: [http://10.93.26.193:8000](http://10.93.26.193:8000)
+- Deployed health check: [http://10.93.26.193:8000/health](http://10.93.26.193:8000/health)
+- Deployed Swagger UI: [http://10.93.26.193:8000/docs](http://10.93.26.193:8000/docs)
+- Public video demonstration: TODO, add the public video link after `@lisa_va_si` records the integration demo.
 
 ## PR / MR Process Evidence
 
@@ -75,17 +77,19 @@ Current exclusions configured in [lychee.toml](../../lychee.toml):
 
 - `http://localhost:.*`
 - `http://127.0.0.1:.*`
+- `http://10.93.26.193:.*`
 
 Justification:
 
 - these are local development URLs that are valid for repository setup and testing instructions but are not reachable from GitHub Actions runners
 - `localhost` is required for backend run instructions, Swagger UI, and API smoke-check examples
 - `127.0.0.1` is excluded for the same local-only reason, even when not currently used in Week 2 markdown files
+- `10.93.26.193` is the university VM address for the deployed MVP v0 backend; it is reachable from the university network but may not be reachable from GitHub Actions runners
 
 Manual verification status:
 
-- the excluded links are intended only for local execution and must be checked in a browser on the machine running the backend before final submission
-- this repository currently documents local access, not a public hosted endpoint
+- local links are intended only for local execution and must be checked in a browser on the machine running the backend before final submission
+- the university VM links were manually checked on June 14, 2026: `/health` returned `{"status":"ok"}` and `/docs` opened Swagger UI
 
 Additional note:
 
@@ -105,7 +109,7 @@ Additional note:
 
 - Protected default branch settings screenshot: not yet present under `reports/week2/images/`
 - Reviewed PR screenshot with another team member's review: not yet present under `reports/week2/images/`
-- Runnable artifact / deployed MVP screenshot: not yet present under `reports/week2/images/`
+- Runnable artifact / deployed MVP screenshot: not yet present under `reports/week2/images/`; deployed URL and smoke-check are documented in [mvp-v0-report.md](./mvp-v0-report.md)
 
 ## Coverage
 
@@ -123,9 +127,9 @@ Prototype and interface coverage represented by the published Week 2 artifacts:
 
 MVP v0 foundation coverage:
 
-- [mvp-v0-report.md](./mvp-v0-report.md) documents the repeatable smoke-check scenario and the technical foundation `Android -> FastAPI -> PostgreSQL`
+- [mvp-v0-report.md](./mvp-v0-report.md) documents the deployed backend URL, repeatable smoke-check scenario, and the technical foundation `Android / API client -> FastAPI -> PostgreSQL`
 - `US-01` is represented by the demo login flow and backend `POST /auth/login` foundation, even though full production authentication is not in scope
-- `US-03` is represented by the chat screen and backend chat endpoint foundation
+- `US-03` is represented by the chat screen prototype; backend AI/chat behavior is not part of the current deployed MVP v0 foundation
 - `US-04` is represented by the save-event flow through backend persistence
 - `US-05` is represented by the history / timeline flow in the smoke-check scenario
 - `US-07` is represented by statistics updates after saving an event
