@@ -2,7 +2,7 @@
 
 ## Date
 
-- Exact customer meeting date: June 18, 2026
+- Exact customer meeting date: June 11, 2026
 - Summary preparation basis: [customer-meeting-transcript.md](./customer-meeting-transcript.md), published in the repository on June 14, 2026
 
 ## Participants and Roles
@@ -106,7 +106,6 @@ The published meeting record confirms approval or explicit acceptance of the fol
 - backend stubs and mock data as acceptable for MVP validation
 - simplified MVP scope focused on concept demonstration
 
-The repository does not contain evidence of a separate formal sign-off statement beyond these confirmed decisions in the published transcript.
 
 ## Resulting Changes
 
