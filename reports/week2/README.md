@@ -37,14 +37,15 @@ Repository screenshots used as the published Week 2 interface evidence:
 Public interactive prototype link:
 https://www.figma.com/make/dvmI9FRhze2tQpLHhgzjkp/Follow-File-Instructions?t=pgSn2A346fbvfbLg-20&fullscreen=1
 
-### Selected API interface artifacts
+### Supporting MVP v0 backend artifacts
 
-- API contract used as the public repository specification: [docs/api-contract.md](../../docs/api-contract.md)
+The selected externally used product interface for Week 2 is the graphical mobile prototype. The backend API is documented as a supporting MVP v0 technical foundation, not as a separate selected external product interface for Assignment 2.
+
+- API contract used for MVP v0 implementation support: [docs/api-contract.md](../../docs/api-contract.md)
 - Swagger UI when the backend is running locally: [http://localhost:8000/docs](http://localhost:8000/docs)
 - OpenAPI JSON when the backend is running locally: [http://localhost:8000/openapi.json](http://localhost:8000/openapi.json)
-- Accessible local implementation / mock entry point: [http://localhost:8000](http://localhost:8000)
+- Local backend entry point after startup: [http://localhost:8000](http://localhost:8000)
 - Runnable backend artifact: [docker-compose.yml](../../docker-compose.yml)
-- Public Postman collection: no Postman collection is currently published in the repository.
 
 ## MVP v0 Access
 
@@ -95,6 +96,25 @@ Additional note:
 - `http://10.0.2.2:8000/` is used by the Android emulator configuration in source code, but it is not currently listed in `lychee.toml` because it is not used as a markdown link in the published Week 2 report files
 
 ## Screenshots
+
+Screenshot links from `reports/week2/images/`:
+
+- Protected default branch settings: [branch-protection-rule.png](./images/branch-protection-rule.png)
+- Welcome screen: [welcom-screen.png](./images/welcom-screen.png)
+- Registration screen: [registration-screen.png](./images/registration-screen.png)
+- Login screen: [login-screen.png](./images/login-screen.png)
+- Vehicle screen: [vehicle-screen.png](./images/vehicle-screen.png)
+- Add vehicle screen: [add-vehicle-screen.png](./images/add-vehicle-screen.png)
+- Save vehicle screen: [save-vehicle-screen.png](./images/save-vehicle-screen.png)
+- Chat screen: [Chat-screen.png](./images/Chat-screen.png)
+- Timeline screen: [timeline-screen.png](./images/timeline-screen.png)
+- Statistics screen: [statistics-screen.png](./images/statistics-screen.png)
+- Profile screen: [profile-screen.png](./images/profile-screen.png)
+- Save notes screen: [save-notes.png](./images/save-notes.png)
+
+### Repository setup evidence
+
+![Protected default branch settings](./images/branch-protection-rule.png)
 
 ### Selected prototype and interface artifacts
 
