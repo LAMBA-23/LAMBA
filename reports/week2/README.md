@@ -36,7 +36,6 @@ Repository screenshots used as the published Week 2 interface evidence:
 
 Public interactive prototype link:
 
-- No public view-only prototype URL is committed in the repository as of June 14, 2026.
 
 ### Selected API interface artifacts
 
