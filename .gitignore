@@ -11,6 +11,9 @@ Thumbs.db
 *.log
 *.tmp
 
+*.tmp
+__pycache__/
+*.pyc
 app/build/
 .gradle/
 build/
