@@ -139,7 +139,6 @@ MVP v0 foundation coverage:
 
 - Published customer transcript / notes: [customer-meeting-transcript.md](./customer-meeting-transcript.md)
 - Customer meeting summary: [customer-meeting-summary.md](./customer-meeting-summary.md)
-- Customer consent evidence image: [customer-consent.png](./images/customer-consent.png)
 
 ## Analysis And AI Usage
 
