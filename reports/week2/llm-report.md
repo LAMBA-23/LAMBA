@@ -1,4 +1,4 @@
-# Week 2 – AI/LLM Usage Report
+# Week 2 - AI/LLM Usage Report
 
 ## Overview
 

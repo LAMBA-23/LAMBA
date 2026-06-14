@@ -105,12 +105,6 @@ Additional note:
 ![Timeline screen](./images/timeline-screen.png)
 ![Statistics screen](./images/statistics-screen.png)
 
-### Required screenshot evidence not yet committed as dedicated PNG files
-
-- Protected default branch settings screenshot: not yet present under `reports/week2/images/`
-- Reviewed PR screenshot with another team member's review: not yet present under `reports/week2/images/`
-- Runnable artifact / deployed MVP screenshot: not yet present under `reports/week2/images/`; deployed URL and smoke-check are documented in [mvp-v0-report.md](./mvp-v0-report.md)
-
 ## Coverage
 
 Stable user-story IDs selected for the initial MVP scope in [user-stories.md](./user-stories.md): `US-01`, `US-02`, `US-03`, `US-04`, `US-05`.
