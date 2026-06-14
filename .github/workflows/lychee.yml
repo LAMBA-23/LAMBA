@@ -16,12 +16,7 @@ jobs:
       - name: Run Lychee
         uses: lycheeverse/lychee-action@v2
         with:
-          args: >
-            --verbose 
-            --no-progress 
-            --exclude "https://unstable-site\.com"
-            --exclude "https://api\.github\.com/.*"
-            "**/*.md"
+          args: --config ./lychee.toml --verbose --no-progress "**/*.md"
           fail: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
