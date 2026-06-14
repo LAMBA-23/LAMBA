@@ -4,6 +4,16 @@
 .env.*.local
 *.key
 *.pem
+local.properties
+.venv/
+venv/
+node_modules/
+.pytest_cache/
+.mypy_cache/
+.coverage
+.coverage.*
+.envrc
+.secrets/
 .DS_Store
 Thumbs.db
 .vscode/

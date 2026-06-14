@@ -1,0 +1,8 @@
+[default]
+exclude = [
+  "http://localhost:8000",
+  "http://10.0.2.2:8000/"
+]
+
+# Local development endpoints are intentionally excluded because they are
+# required for setup documentation but are unreachable from GitHub Actions.
