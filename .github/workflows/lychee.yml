@@ -1,19 +1,22 @@
-name: Links
+name: Link Check
 
 on:
   push:
-    branches: [ main, master ]
+    branches: [main]
   pull_request:
-    branches: [ main, master ]
+    branches: [main]
 
 jobs:
-  linkChecker:
+  link-check:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4 
-      - name: Link Checker
-        id: lychee
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Run Lychee
         uses: lycheeverse/lychee-action@v2
         with:
-          args: --verbose --no-progress "**/*.md"
+          args: --config ./lychee.toml --verbose --no-progress "**/*.md"
           fail: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
