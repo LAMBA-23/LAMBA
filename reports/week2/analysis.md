@@ -17,7 +17,7 @@ Developing multiple interface concepts before selecting a final design improved 
 ### MVP v0 Deployment
 
 The MVP v0 work confirmed that the selected technology stack and repository structure provide a suitable foundation for future development.
-
+    
 The team also gained experience organizing development through Git branches and collaborative workflows.
 
 ---
