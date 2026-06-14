@@ -13,22 +13,20 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
         val btnTalkToCar = findViewById<ConstraintLayout>(R.id.btnTalkToCar)
+        val btnHistory = findViewById<ConstraintLayout>(R.id.btnHistory)
         val navChat = findViewById<LinearLayout>(R.id.navChat)
 
-        // "Talk to car" goes to chat screen
         btnTalkToCar.setOnClickListener {
             val intent = Intent(this, ChatActivity::class.java)
             startActivity(intent)
         }
 
-        // "Chat" goes to chat screen
         navChat.setOnClickListener {
             val intent = Intent(this, ChatActivity::class.java)
             startActivity(intent)
         }
-        // Переход на экран истории и статистики
-        val navHistory = findViewById<android.widget.LinearLayout>(R.id.btnTalkToCar)
-        navHistory.setOnClickListener {
+
+        btnHistory.setOnClickListener {
             val intent = Intent(this, com.lamba.app.network.HistoryActivity::class.java)
             startActivity(intent)
         }
