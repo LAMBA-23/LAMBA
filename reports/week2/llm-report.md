@@ -1,25 +1,62 @@
-# LLM Usage Report
+# Week 2 – AI/LLM Usage Report
 
-## Правило заполнения
+## Overview
 
-Для каждого использования AI/LLM нужно фиксировать:
+AI and LLM tools were used throughout Assignment 2 for research, documentation, prototyping, software development, and interview processing.
 
-- Tool
-- Used for
-- What was accepted
-- What was changed manually
-- How result was verified
+## Research and Documentation
 
-## Entries
+AI assisted with:
 
-### Entry 1
+* Competitor research and analysis.
+* Report writing, editing, and translation support.
 
-- Tool: TODO
-- Used for: TODO
-- What was accepted: TODO
-- What was changed manually: TODO
-- How result was verified: TODO
+Tools used:
 
-## Final Summary
+* GPT-5.5
+* Gemini
 
-TODO: добавить итоговое резюме по использованию AI в Week 2 после завершения работ.
+## Customer Interview Processing
+
+AI was used to:
+
+* Transcribe the customer interview.
+* Translate selected interview materials into English.
+* Summarize key findings and requirements.
+
+Tools used:
+
+* Google AI Studio (Gemini)
+* GPT-5.5
+
+## Prototyping and Design
+
+AI-assisted design tools were used to help with interface concepts and accelerate prototype creation.
+
+Tool used:
+
+* Figma Make
+
+## Frontend Development
+
+AI supported Android development by:
+
+* Converting design mockups into Android XML layouts.
+* Detecting bugs in Kotlin code.
+* Improving code structure and readability.
+
+Tool used:
+
+* Gemini
+
+## Backend Development
+
+AI supported MVP v0 implementation by:
+
+* Assisting with FastAPI development.
+* Reviewing and improving backend code.
+
+Tools used:
+
+* ChatGPT GPT-5.5
+* Codex
