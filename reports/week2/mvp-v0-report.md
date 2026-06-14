@@ -1,59 +1,35 @@
 # MVP v0 Report
 
-## Purpose / Description
+## Purpose and Foundation Description
 
-MVP v0 для LAMBA - это запускаемая техническая основа продукта. Его цель - показать, что у проекта есть рабочий backend и слой хранения данных, которые поддерживают минимальный MVP-сценарий Android-приложения.
+MVP v0 is the technical foundation used to demonstrate that the core LAMBA workflow is feasible before full MVP v1 implementation. Its purpose is to validate the path `Android / API client -> FastAPI -> PostgreSQL -> backend response` and prove that the team can run a minimal but working vehicle-history flow.
 
-Текущий MVP v0 включает:
+At this stage, the system is not presented as a complete production product. Instead, MVP v0 confirms that the selected stack, repository structure, API contract, demo data, deployed backend, and basic UI screens are sufficient to support the next implementation step.
 
-- FastAPI backend
-- PostgreSQL storage
-- SQLAlchemy ORM модели для пользователей, автомобиля и событий
-- Docker Compose runnable artifact
-- deployed backend на университетской VM
-- повторяемый API smoke-check для login, создания события, получения списка событий и обновления статистики
+Validated foundation in MVP v0:
 
-MVP v0 не является полноценным production-продуктом. Он проверяет техническую цепочку:
+- Android client screens for login, chat, history, and statistics
+- FastAPI backend with demo endpoints
+- PostgreSQL persistence started through Docker Compose
+- SQLAlchemy ORM models for users, cars, and events
+- Seeded demo user and demo car
+- Deployed backend on the university VM
+- Repeatable smoke-check flow for health, login, event creation, history, and statistics
+- API contract for login, vehicle retrieval, event creation, history, and statistics
 
-```text
-Android / API client -> FastAPI backend -> PostgreSQL storage -> backend response
-```
+## Deployment URL or Runnable Artifact
 
-## Deployment And Access
+- Deployed MVP v0 backend URL: [http://10.93.26.193:8000](http://10.93.26.193:8000)
+- Deployed health check: [http://10.93.26.193:8000/health](http://10.93.26.193:8000/health)
+- Deployed Swagger UI: [http://10.93.26.193:8000/docs](http://10.93.26.193:8000/docs)
+- Runnable artifact: [docker-compose.yml](../../docker-compose.yml)
+- Local backend entry point after startup: [http://localhost:8000](http://localhost:8000)
+- Local Swagger UI: [http://localhost:8000/docs](http://localhost:8000/docs)
+- Local setup instructions: [README.md#local-setup](../../README.md#local-setup)
 
-Deployed backend base URL:
+## Backend Endpoints in MVP v0
 
-```text
-http://10.93.26.193:8000
-```
-
-Health check:
-
-```text
-http://10.93.26.193:8000/health
-```
-
-Swagger UI:
-
-```text
-http://10.93.26.193:8000/docs
-```
-
-Local runnable artifact:
-
-- [docker-compose.yml](../../docker-compose.yml)
-
-Local setup instructions:
-
-- [Root README local setup](../../README.md#local-setup)
-
-API contract:
-
-- [docs/api-contract.md](../../docs/api-contract.md)
-
-## Backend Endpoints In MVP v0
-
-Текущий deployed backend предоставляет:
+The deployed backend provides these MVP v0 endpoints:
 
 - `GET /health`
 - `POST /auth/login`
@@ -62,72 +38,84 @@ API contract:
 - `POST /events`
 - `GET /stats`
 
-Swagger UI с актуальным OpenAPI описанием доступен по адресу:
+The current OpenAPI / Swagger documentation is available at:
 
 ```text
 http://10.93.26.193:8000/docs
 ```
 
-## Demo Credentials
+## Public Video Demonstration Link
 
-Основные demo credentials:
+- Public video demonstration: TODO, add the public sanitized video link after `@lisa_va_si` records the integration demo.
 
-```text
-username: demo
-password: demo
-```
+## Relationship to the Prototype and Proposed MVP v1 Stories
 
-Временные Android compatibility credentials:
+MVP v0 is the implementation foundation behind the Week 2 prototype artifacts. The prototype shows the intended user flow, while MVP v0 verifies that the core parts of this flow can already be executed with backend support and demo data.
 
-```text
-username: demo
-password: password
-```
+Prototype alignment:
 
-Эти credentials используются только для публичного MVP demo. Реальные приватные credentials и API keys в репозиторий не добавлены.
+- Login and onboarding flow are represented by the published UI screenshots
+- Chat remains the main interaction concept
+- Timeline/history is treated as the central vehicle record view
+- Statistics are already represented as a visible follow-up screen
 
-## Public Video Demonstration
+Relevant prototype artifacts:
 
-Public sanitized video demonstration link:
+- [Week 2 repository index](./README.md)
+- [Login screen](./images/login-screen.png)
+- [Chat screen](./images/Chat-screen.png)
+- [Timeline screen](./images/timeline-screen.png)
+- [Statistics screen](./images/statistics-screen.png)
 
-```text
-TODO: add public video link after the integration QA demo is recorded.
-```
+Relationship to the initial proposed MVP v1 stories from [user-stories.md](./user-stories.md):
 
-Owner: `@lisa_va_si` according to the Week 2 responsibility split.
+- `US-01` User registration/login: partially supported through demo login foundation via `POST /auth/login`
+- `US-02` Add a vehicle: partially supported through the seeded single-vehicle model and vehicle endpoint foundation
+- `US-03` Send messages: represented by the Android chat screen prototype; backend AI/chat behavior is not part of the current deployed backend scope
+- `US-04` Automatically create records: partially supported through structured event creation with `POST /events`
+- `US-05` View vehicle timeline: supported through the history flow backed by `GET /events`
+- `US-07` View basic statistics: supported through `GET /stats`
 
-## Relationship To Prototype And MVP v1 Stories
+## Current Limitations, Placeholders, and Mocks
 
-Prototype показывает предполагаемый пользовательский опыт MVP v1: login, экран автомобиля, chat, history и statistics.
+- MVP v0 uses a seeded demo user and demo vehicle instead of full production account management.
+- Registration and JWT-based authentication are not implemented in the backend for this version.
+- Demo authentication is intentionally simple for the smoke-check scenario.
+- Android compatibility currently allows temporary demo login with `demo` / `password`.
+- The implementation is limited to one vehicle per user.
+- Event types are limited to `fuel`, `repair`, `trip`, and `issue`.
+- AI / Mistral integration is not part of the current deployed backend scope.
+- `/chat` is not implemented in the current deployed backend scope.
+- Advanced recommendation logic, notifications, multiple vehicles, ownership transfer, voice input, and receipt parsing remain outside MVP v0.
+- Public video demonstration link is pending and must be added after recording.
 
-MVP v0 уже по объёму. Он фиксирует запускаемую backend-основу для продукта:
+## Local Setup Instructions
 
-- `US-01` authentication foundation: demo login через `POST /auth/login`
-- `US-02` vehicle foundation: один demo car хранится в PostgreSQL
-- `US-05` history foundation: события сохраняются и возвращаются через `GET /events`
-- `US-07` statistics foundation: расходы и пробег считаются через `GET /stats`
-
-Текущий backend не реализует полный production user story. Он даёт техническую основу для smoke-check scenario.
+- Main local setup guide: [README.md](../../README.md)
+- Local setup section: [README.md#local-setup](../../README.md#local-setup)
+- API contract: [docs/api-contract.md](../../docs/api-contract.md)
 
 ## Repeatable Smoke-Check Scenario
 
+Goal: confirm that the MVP v0 foundation works from backend startup or deployed access to event persistence and statistics refresh.
+
 ### Access
 
-Использовать deployed backend:
+Use the deployed backend:
 
 ```text
 http://10.93.26.193:8000
 ```
 
-Или запустить локально:
+Or run locally:
 
 ```bash
 docker compose up --build
 ```
 
-### Steps And Expected Results
+### Steps and Expected Results
 
-1. Открыть health endpoint.
+1. Open the health endpoint.
 
    URL:
 
@@ -141,7 +129,7 @@ docker compose up --build
    {"status":"ok"}
    ```
 
-2. Открыть Swagger UI.
+2. Open Swagger UI.
 
    URL:
 
@@ -149,9 +137,9 @@ docker compose up --build
    http://10.93.26.193:8000/docs
    ```
 
-   Expected result: Swagger UI открывается и показывает endpoints LAMBA Backend API.
+   Expected result: Swagger UI opens and shows the LAMBA Backend API endpoints.
 
-3. Выполнить login с demo credentials.
+3. Log in with demo credentials.
 
    Command:
 
@@ -167,7 +155,17 @@ docker compose up --build
    {"success":true,"user_id":1}
    ```
 
-4. Проверить список событий.
+4. Check the vehicle endpoint.
+
+   Command:
+
+   ```bash
+   curl http://10.93.26.193:8000/vehicle
+   ```
+
+   Expected result: backend returns the seeded demo vehicle, `BMW M4`, year `2020`, mileage `125000`.
+
+5. Check the current event list.
 
    Command:
 
@@ -175,16 +173,16 @@ docker compose up --build
    curl http://10.93.26.193:8000/events
    ```
 
-   Expected result: backend возвращает JSON array событий. На чистой базе список может быть пустым.
+   Expected result: backend returns a JSON array of events. It may be empty on a clean database.
 
-5. Создать событие заправки.
+6. Create a fuel event.
 
    Command:
 
    ```bash
    curl -X POST http://10.93.26.193:8000/events \
      -H "Content-Type: application/json" \
-     -d '{"type":"fuel","description":"Заправка 40 литров","amount":3000,"mileage":125000}'
+     -d '{"type":"fuel","description":"Full tank","amount":3000,"mileage":125000}'
    ```
 
    Expected result:
@@ -193,14 +191,14 @@ docker compose up --build
    {
      "id": 1,
      "type": "fuel",
-     "description": "Заправка 40 литров",
+     "description": "Full tank",
      "amount": 3000,
      "mileage": 125000,
      "created_at": "..."
    }
    ```
 
-6. Проверить, что статистика обновилась.
+7. Verify that statistics were updated.
 
    Command:
 
@@ -219,6 +217,27 @@ docker compose up --build
    }
    ```
 
+8. Open the Android app in the emulator.
+
+   Expected result: login screen is visible.
+
+9. Log in with demo credentials:
+
+   - primary: `demo` / `demo`
+   - temporary Android compatibility login: `demo` / `password`
+
+   Expected result: main screen opens.
+
+10. Open the history/timeline screen, create an event, and check statistics.
+
+    Expected result: Android sends requests to the backend, the event appears in history, and statistics are refreshed.
+
+## Demo Credentials
+
+- Demo user: `demo`
+- Demo password: `demo`
+- Temporary Android compatibility password: `password`
+
 ## Verified Status
 
 Smoke-check date:
@@ -227,22 +246,10 @@ Smoke-check date:
 June 14, 2026
 ```
 
-Проверено на университетской VM:
+Verified on the university VM:
 
 - `GET /health` returned `{"status":"ok"}`
 - `POST /auth/login` with `demo` / `demo` returned success
 - `POST /events` saved a fuel event
-- `GET /stats` returned `fuel_expenses: 3000`
+- `GET /stats` returned updated fuel expenses
 - Swagger UI was reachable at `/docs`
-
-## Current Limitations, Placeholders, And Mocks
-
-- Demo authentication only; JWT и registration не используются.
-- Есть один seeded demo user и один seeded demo car.
-- PostgreSQL запущен через Docker Compose на университетской VM.
-- Event types ограничены значениями `fuel`, `repair`, `trip`, `issue`.
-- Android compatibility password `demo` / `password` временный и нужен только для MVP integration.
-- AI / Mistral integration не входит в текущий backend deployment.
-- `/chat` не реализован в рамках текущего backend scope.
-- Нет production-grade security, monitoring, backups или domain name.
-- Public video demo link нужно добавить после записи demo.
