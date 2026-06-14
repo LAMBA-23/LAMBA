@@ -1,0 +1,8 @@
+root_dir = "."
+include_verbatim = false
+check_localhost = false
+
+exclude = [
+    'http://localhost:.*',
+    'http://127.0.0.1:.*'
+]
