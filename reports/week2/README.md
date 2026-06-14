@@ -35,8 +35,7 @@ Repository screenshots used as the published Week 2 interface evidence:
 - Save notes screen: [save-notes.png](./images/save-notes.png)
 
 Public interactive prototype link:
-
-- No public view-only prototype URL is committed in the repository as of June 14, 2026.
+https://www.figma.com/make/dvmI9FRhze2tQpLHhgzjkp/Follow-File-Instructions?t=pgSn2A346fbvfbLg-20&fullscreen=1
 
 ### Selected API interface artifacts
 
