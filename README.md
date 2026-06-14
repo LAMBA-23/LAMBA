@@ -36,6 +36,18 @@ Backend will be available at:
 http://localhost:8000
 ```
 
+Deployed MVP v0 backend is available at:
+
+```text
+http://10.93.26.193:8000
+```
+
+Swagger UI for the deployed backend:
+
+```text
+http://10.93.26.193:8000/docs
+```
+
 The database is seeded automatically and idempotently:
 
 - user: `demo` / `demo`
@@ -79,6 +91,8 @@ docker compose down
 - [API contract](docs/api-contract.md)
 - [Week 2 report](reports/week2/README.md)
 - [MVP v0](reports/week2/mvp-v0-report.md)
+
+The Week 2 MVP v0 smoke-check scenario, deployed URL, demo credentials, and current limitations are documented in [reports/week2/mvp-v0-report.md](reports/week2/mvp-v0-report.md).
 
 ## Runnable Artifact
 
