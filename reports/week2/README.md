@@ -54,7 +54,7 @@ Public interactive prototype link:
 - Run instructions: [root README local setup](../../README.md#local-setup)
 - API contract for MVP integration: [docs/api-contract.md](../../docs/api-contract.md)
 - Public deployed MVP URL: no public deployment URL is documented in the repository.
-- Public video demonstration: no public video demo link is documented in the repository as of June 14, 2026.
+- Public video demonstration: https://drive.google.com/drive/folders/1e6Er7lzkrpa83KdF2lnWaJwzvdv-bmwR?usp=sharing
 
 ## PR / MR Process Evidence
 

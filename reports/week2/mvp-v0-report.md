@@ -23,7 +23,7 @@ Validated foundation in MVP v0:
 
 ## Public Video Demonstration Link
 
-- Public video demonstration: no public video demo link is documented in the repository as of June 14, 2026
+- Public video demonstration: https://drive.google.com/drive/folders/1e6Er7lzkrpa83KdF2lnWaJwzvdv-bmwR?usp=sharing
 
 ## Relationship to the Prototype and Proposed MVP v1 Stories
 
