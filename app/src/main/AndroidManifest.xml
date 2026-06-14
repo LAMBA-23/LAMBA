@@ -5,6 +5,7 @@
         android:allowBackup="true"
         android:label="LAMBA"
         android:supportsRtl="true"
+        android:usesCleartextTraffic="true"
         android:theme="@style/Theme.AppCompat.Light.NoActionBar">
         
         <activity
