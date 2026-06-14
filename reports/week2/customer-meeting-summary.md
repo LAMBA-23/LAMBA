@@ -1,18 +1,3 @@
-# Customer Meeting Summary
+# Meeting Summary
 
-## Статус
-
-TODO: добавить краткое саммари встречи с заказчиком после ручной проверки заметок команды.
-
-## Что должно быть в финальной версии
-
-- дата встречи;
-- участники;
-- ключевые потребности заказчика;
-- подтвержденный MVP scope;
-- решения, влияющие на Week 2;
-- открытые вопросы.
-
-## Safety Note
-
-Этот файл пока не содержит выдуманных подтверждений или фиктивных согласований.
+The meeting focused on defining the scope of the first MVP for the vehicle digital twin project. The customer confirmed that the main concept is an AI-powered chat interface that allows users to interact with their vehicle, record vehicle-related events, and receive information based on the vehicle's history. The team and customer agreed on a simplified MVP that includes user registration, vehicle registration, an AI chat interface, and basic vehicle statistics. Advanced features such as recommendation systems, predictive analytics, OBD-II integration, and vehicle ownership transfer were postponed to future iterations. The team will prioritize delivering a functional prototype that demonstrates the core project idea and validates the main user workflow.
