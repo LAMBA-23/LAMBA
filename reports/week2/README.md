@@ -56,7 +56,7 @@ Public interactive prototype link:
 - Deployed MVP v0 backend URL: [http://10.93.26.193:8000](http://10.93.26.193:8000)
 - Deployed health check: [http://10.93.26.193:8000/health](http://10.93.26.193:8000/health)
 - Deployed Swagger UI: [http://10.93.26.193:8000/docs](http://10.93.26.193:8000/docs)
-- Public video demonstration: TODO, add the public video link after `@lisa_va_si` records the integration demo.
+- Public video demonstration: https://drive.google.com/drive/folders/1e6Er7lzkrpa83KdF2lnWaJwzvdv-bmwR?usp=sharing
 
 ## PR / MR Process Evidence
 
