@@ -46,7 +46,7 @@ http://10.93.26.193:8000/docs
 
 ## Public Video Demonstration Link
 
-- Public video demonstration: TODO, add the public sanitized video link after `@lisa_va_si` records the integration demo.
+- Public video demonstration: https://drive.google.com/drive/folders/1e6Er7lzkrpa83KdF2lnWaJwzvdv-bmwR?usp=sharing
 
 ## Relationship to the Prototype and Proposed MVP v1 Stories
 
