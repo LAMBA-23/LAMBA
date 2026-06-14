@@ -1,58 +1,143 @@
 # Week 2 Repository Index
 
-## Проект
+## Project
 
-- Название: LAMBA
-- Краткое описание: мобильное приложение и backend для ведения цифровой истории автомобиля.
-- Лицензия: [MIT LICENSE](../../LICENSE)
+- Project name: `LAMBA`
+- Short description: mobile app and backend for creating a digital twin of a vehicle, including vehicle history, chat-based interaction, and MVP integration through Android -> FastAPI -> PostgreSQL.
+- Root repository overview: [README.md](../../README.md)
+- License: [LICENSE](../../LICENSE)
 
-## Основные документы
+## Required Week 2 Files
 
 - User stories: [user-stories.md](./user-stories.md)
 - MVP v0 report: [mvp-v0-report.md](./mvp-v0-report.md)
 - Customer meeting summary: [customer-meeting-summary.md](./customer-meeting-summary.md)
-- Customer meeting transcript/status: [customer-meeting-transcript.md](./customer-meeting-transcript.md)
-- Analysis: [analysis.md](./analysis.md)
+- Customer transcript / published notes: [customer-meeting-transcript.md](./customer-meeting-transcript.md)
+- Week 2 analysis: [analysis.md](./analysis.md)
 - LLM report: [llm-report.md](./llm-report.md)
 
-## Prototype / Interface Artifacts
+## Prototype And Interface Artifacts
 
-- TODO: добавить ссылку на view-only prototype или приложить статус отсутствия готового прототипа
-- TODO: добавить скриншоты интерфейса в [images](./images/)
+### Selected graphical interface artifacts
+
+Repository screenshots used as the published Week 2 interface evidence:
+
+- Welcome screen: [welcom-screen.png](./images/welcom-screen.png)
+- Registration screen: [registration-screen.png](./images/registration-screen.png)
+- Login screen: [login-screen.png](./images/login-screen.png)
+- Vehicle screen: [vehicle-screen.png](./images/vehicle-screen.png)
+- Add vehicle screen: [add-vehicle-screen.png](./images/add-vehicle-screen.png)
+- Save vehicle screen: [save-vehicle-screen.png](./images/save-vehicle-screen.png)
+- Chat screen: [Chat-screen.png](./images/Chat-screen.png)
+- Timeline screen: [timeline-screen.png](./images/timeline-screen.png)
+- Statistics screen: [statistics-screen.png](./images/statistics-screen.png)
+- Profile screen: [profile-screen.png](./images/profile-screen.png)
+- Save notes screen: [save-notes.png](./images/save-notes.png)
+
+Public interactive prototype link:
+
+- No public view-only prototype URL is committed in the repository as of June 14, 2026.
+
+### Selected API interface artifacts
+
+- API contract used as the public repository specification: [docs/api-contract.md](../../docs/api-contract.md)
+- Swagger UI when the backend is running locally: [http://localhost:8000/docs](http://localhost:8000/docs)
+- OpenAPI JSON when the backend is running locally: [http://localhost:8000/openapi.json](http://localhost:8000/openapi.json)
+- Accessible local implementation / mock entry point: [http://localhost:8000](http://localhost:8000)
+- Runnable backend artifact: [docker-compose.yml](../../docker-compose.yml)
+- Public Postman collection: no Postman collection is currently published in the repository.
 
 ## MVP v0 Access
 
-- Runnable artifact: Docker Compose в корне репозитория
-- Local setup instructions: [root README](../../README.md)
-- TODO: добавить ссылку на deployed MVP v0 или явно отметить, что доступен только локальный запуск
-- TODO: добавить ссылку на видео-демо MVP v0
+- MVP v0 report: [mvp-v0-report.md](./mvp-v0-report.md)
+- Runnable artifact: [docker-compose.yml](../../docker-compose.yml)
+- Run instructions: [root README local setup](../../README.md#local-setup)
+- API contract for MVP integration: [docs/api-contract.md](../../docs/api-contract.md)
+- Public deployed MVP URL: no public deployment URL is documented in the repository.
+- Public video demonstration: no public video demo link is documented in the repository as of June 14, 2026.
 
-## Repository Process Evidence
+## PR / MR Process Evidence
 
-- PR template: [../../.github/pull_request_template.md](../../.github/pull_request_template.md)
-- Lychee config: [../../lychee.toml](../../lychee.toml)
-- Latest successful Lychee run: [GitHub Actions run 27492706537](https://github.com/LAMBA-23/LAMBA/actions/runs/27492706537)
-- TODO: добавить ссылки на reviewed PRs
+- PR template: [.github/pull_request_template.md](../../.github/pull_request_template.md)
+- Reviewed PR example: [PR #14 - feat: connected backend and frontend via POST /auth/login](https://github.com/LAMBA-23/LAMBA/pull/14)
+- Reviewed PR example: [PR #15 - Add files via upload](https://github.com/LAMBA-23/LAMBA/pull/15)
+- Reviewed PR example: [PR #18 - docs: add customer transcript and llm usage report](https://github.com/LAMBA-23/LAMBA/pull/18)
 
-## Lychee Exclusions
+## Link Checking
 
-- `http://localhost:8000`
-- `http://10.0.2.2:8000/`
+- Lychee workflow: [.github/workflows/lychee.yml](../../.github/workflows/lychee.yml)
+- Lychee configuration: [lychee.toml](../../lychee.toml)
+- Latest successful protected-default-branch run on `main`: [Link Check #24](https://github.com/LAMBA-23/LAMBA/actions/runs/27503163826)
 
-Обоснование: это локальные адреса для разработки и Android emulator access, они нужны в инструкциях по запуску, но не доступны из GitHub Actions.
+### Lychee exclusions
 
-## Coverage Status
+Current exclusions configured in [lychee.toml](../../lychee.toml):
 
-- TODO: подтвердить финальный Week 2 coverage по user stories после фиксации MVP v0 smoke-check
+- `http://localhost:.*`
+- `http://127.0.0.1:.*`
 
-## Customer Materials Status
+Justification:
 
-- Transcript / notes status: [customer-meeting-transcript.md](./customer-meeting-transcript.md)
-- Meeting summary: [customer-meeting-summary.md](./customer-meeting-summary.md)
+- these are local development URLs that are valid for repository setup and testing instructions but are not reachable from GitHub Actions runners
+- `localhost` is required for backend run instructions, Swagger UI, and API smoke-check examples
+- `127.0.0.1` is excluded for the same local-only reason, even when not currently used in Week 2 markdown files
 
-## Screenshot Placeholders
+Manual verification status:
 
-- TODO: protected default branch screenshot
-- TODO: reviewed PR screenshot
-- TODO: prototype or interface artifact screenshot
-- TODO: deployed MVP v0 or runnable artifact screenshot
+- the excluded links are intended only for local execution and must be checked in a browser on the machine running the backend before final submission
+- this repository currently documents local access, not a public hosted endpoint
+
+Additional note:
+
+- `http://10.0.2.2:8000/` is used by the Android emulator configuration in source code, but it is not currently listed in `lychee.toml` because it is not used as a markdown link in the published Week 2 report files
+
+## Screenshots
+
+### Selected prototype and interface artifacts
+
+![Welcome screen](./images/welcom-screen.png)
+![Login screen](./images/login-screen.png)
+![Chat screen](./images/Chat-screen.png)
+![Timeline screen](./images/timeline-screen.png)
+![Statistics screen](./images/statistics-screen.png)
+
+### Required screenshot evidence not yet committed as dedicated PNG files
+
+- Protected default branch settings screenshot: not yet present under `reports/week2/images/`
+- Reviewed PR screenshot with another team member's review: not yet present under `reports/week2/images/`
+- Runnable artifact / deployed MVP screenshot: not yet present under `reports/week2/images/`
+
+## Coverage
+
+Stable user-story IDs selected for the initial MVP scope in [user-stories.md](./user-stories.md): `US-01`, `US-02`, `US-03`, `US-04`, `US-05`.
+
+Prototype and interface coverage represented by the published Week 2 artifacts:
+
+- `US-01` User registration: represented by [registration-screen.png](./images/registration-screen.png) and [login-screen.png](./images/login-screen.png)
+- `US-02` Add a vehicle: represented by [vehicle-screen.png](./images/vehicle-screen.png), [add-vehicle-screen.png](./images/add-vehicle-screen.png), and [save-vehicle-screen.png](./images/save-vehicle-screen.png)
+- `US-03` Send messages: represented by [Chat-screen.png](./images/Chat-screen.png)
+- `US-04` Automatically create records: represented by [save-notes.png](./images/save-notes.png) as the event/record capture concept
+- `US-05` View vehicle timeline: represented by [timeline-screen.png](./images/timeline-screen.png)
+- `US-07` View basic statistics: represented by [statistics-screen.png](./images/statistics-screen.png)
+- `US-06` Ask AI assistant: partially represented by [Chat-screen.png](./images/Chat-screen.png) as the conversational interface
+
+MVP v0 foundation coverage:
+
+- [mvp-v0-report.md](./mvp-v0-report.md) documents the repeatable smoke-check scenario and the technical foundation `Android -> FastAPI -> PostgreSQL`
+- `US-01` is represented by the demo login flow and backend `POST /auth/login` foundation, even though full production authentication is not in scope
+- `US-03` is represented by the chat screen and backend chat endpoint foundation
+- `US-04` is represented by the save-event flow through backend persistence
+- `US-05` is represented by the history / timeline flow in the smoke-check scenario
+- `US-07` is represented by statistics updates after saving an event
+- `US-02` is partially represented by the single-vehicle MVP data model and vehicle endpoint foundation
+
+## Customer Materials
+
+- Published customer transcript / notes: [customer-meeting-transcript.md](./customer-meeting-transcript.md)
+- Customer meeting summary: [customer-meeting-summary.md](./customer-meeting-summary.md)
+- Customer consent evidence image: [customer-consent.png](./images/customer-consent.png)
+
+## Analysis And AI Usage
+
+- Week 2 analysis: [analysis.md](./analysis.md)
+- Week 2 LLM report: [llm-report.md](./llm-report.md)
