@@ -12,17 +12,74 @@ A mobile app for creating a digital twin of a car. The system collects data on t
 ## Tech Stack
 
 - Frontend: Kotlin
-- Backend:
+- Backend: FastAPI, SQLAlchemy
 - Database: PostgreSQL
-- Deployment:
+- Deployment: Docker Compose
 
 ## Local Setup
 
+### Backend + PostgreSQL
+
+Requirements:
+
+- Docker and Docker Compose
+
+Run:
+
+```bash
+docker compose up --build
+```
+
+Backend will be available at:
+
+```text
+http://localhost:8000
+```
+
+The database is seeded automatically and idempotently:
+
+- user: `demo` / `demo`
+- temporary Android compatibility login: `demo` / `password`
+- car: `BMW M4`, year `2020`, mileage `125000`
+
+Smoke-check with curl:
+
+```bash
+curl http://localhost:8000/health
+curl -X POST http://localhost:8000/auth/login -H "Content-Type: application/json" -d "{\"username\":\"demo\",\"password\":\"demo\"}"
+curl http://localhost:8000/events
+curl -X POST http://localhost:8000/events -H "Content-Type: application/json" -d "{\"type\":\"fuel\",\"description\":\"Full tank\",\"amount\":60,\"mileage\":125000}"
+curl http://localhost:8000/stats
+```
+
+Smoke-check in PowerShell:
+
+```powershell
+Invoke-RestMethod -Uri http://localhost:8000/health
+
+$login = @{username='demo'; password='demo'} | ConvertTo-Json -Compress
+Invoke-RestMethod -Uri http://localhost:8000/auth/login -Method Post -ContentType 'application/json' -Body $login
+
+Invoke-RestMethod -Uri http://localhost:8000/events
+
+$event = @{type='fuel'; description='Full tank'; amount=60; mileage=125000} | ConvertTo-Json -Compress
+Invoke-RestMethod -Uri http://localhost:8000/events -Method Post -ContentType 'application/json' -Body $event
+
+Invoke-RestMethod -Uri http://localhost:8000/stats
+```
+
+Stop:
+
+```bash
+docker compose down
+```
+
 ## Documentation
 
+- [API contract](docs/api-contract.md)
 - [Week 2 report](reports/week2/README.md)
 - [MVP v0](reports/week2/mvp-v0-report.md)
 
-## Deploy
+## Runnable Artifact
 
-link to the deploy
+The runnable backend artifact is Docker Compose: `docker-compose.yml` starts PostgreSQL and the FastAPI backend.
