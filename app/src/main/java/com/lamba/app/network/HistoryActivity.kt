@@ -10,9 +10,6 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.lamba.app.R
-import com.lamba.app.network.Event
-import com.lamba.app.network.LoginRequest
-import com.lamba.app.network.RetrofitClient
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -30,32 +27,38 @@ class HistoryActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_history)
 
-        // Инициализация UI компонентов
         tvTotalSpent = findViewById(R.id.tvTotalSpent)
         tvFuelSpent = findViewById(R.id.tvFuelSpent)
         layoutTimeline = findViewById(R.id.layoutTimeline)
         btnAddEvent = findViewById(R.id.btnAddEvent)
         progressBar = findViewById(R.id.progressBar)
 
-        // Кнопка вызова формы (Диалогового окна)
         btnAddEvent.setOnClickListener { showAddEventDialog() }
 
-        // Запуск логики MVP v0: Авторизация -> Загрузка данных
         executeMvpFlow()
     }
 
     private fun executeMvpFlow() {
         progressBar.visibility = View.VISIBLE
+
         CoroutineScope(Dispatchers.IO).launch {
             try {
-                // 1. Запрос к /auth/login (демо-вход по требованиям MVP)
-                val authResponse = RetrofitClient.apiService.login(LoginRequest("demo", "password"))
-                if (authResponse.isSuccessful) {
+                val authResponse = RetrofitClient.apiService.login(
+                    LoginRequest(username = "demo", password = "demo")
+                )
+
+                if (authResponse.isSuccessful && authResponse.body()?.success == true) {
                     loadDataFromBackend()
                 } else {
+                    withContext(Dispatchers.Main) {
+                        progressBar.visibility = View.GONE
+                    }
                     showToast("Ошибка авторизации бэкенда")
                 }
             } catch (e: Exception) {
+                withContext(Dispatchers.Main) {
+                    progressBar.visibility = View.GONE
+                }
                 showToast("Не удалось подключиться к бэкенду: ${e.message}")
             }
         }
@@ -71,8 +74,12 @@ class HistoryActivity : AppCompatActivity() {
 
                 if (statsResponse.isSuccessful && statsResponse.body() != null) {
                     val stats = statsResponse.body()!!
-                    tvTotalSpent.text = "Общие расходы: ${stats.totalSpent} ₽"
-                    tvFuelSpent.text = "Из них на топливо: ${stats.fuelSpent} ₽"
+                    val totalSpent = stats.fuelExpenses + stats.repairExpenses
+
+                    tvTotalSpent.text = "Общие расходы: $totalSpent ₽"
+                    tvFuelSpent.text = "Из них на топливо: ${stats.fuelExpenses} ₽"
+                } else {
+                    showToast("Не удалось загрузить статистику")
                 }
 
                 if (eventsResponse.isSuccessful && eventsResponse.body() != null) {
@@ -80,17 +87,23 @@ class HistoryActivity : AppCompatActivity() {
                     val events = eventsResponse.body()!!
 
                     for (event in events) {
-                        val itemView = layoutInflater.inflate(android.R.layout.simple_list_item_2, null)
+                        val itemView = layoutInflater.inflate(android.R.layout.simple_list_item_2, layoutTimeline, false)
                         val text1 = itemView.findViewById<TextView>(android.R.id.text1)
                         val text2 = itemView.findViewById<TextView>(android.R.id.text2)
 
-                        text1.text = "${event.title} — ${event.amount} ₽"
-                        text2.text = "Тип: ${event.type} | Дата: ${event.date}"
+                        text1.text = "${event.description} — ${event.amount} ₽"
+                        text2.text = "Тип: ${event.type} | Пробег: ${event.mileage} км"
+
                         layoutTimeline.addView(itemView)
                     }
+                } else {
+                    showToast("Не удалось загрузить историю")
                 }
             }
         } catch (e: Exception) {
+            withContext(Dispatchers.Main) {
+                progressBar.visibility = View.GONE
+            }
             showToast("Ошибка загрузки данных")
         }
     }
@@ -105,43 +118,71 @@ class HistoryActivity : AppCompatActivity() {
             setPadding(50, 40, 50, 10)
         }
 
-        val etTitle = EditText(context).apply { hint = "Название (например, Заправка Лукойл)" }
-        val etType = EditText(context).apply { hint = "Тип (например, Заправка)" }
-        val etAmount = EditText(context).apply { hint = "Сумма расходов (₽)" }
+        val etTitle = EditText(context).apply {
+            hint = "Название (например, Заправка Лукойл)"
+        }
+        val etType = EditText(context).apply {
+            hint = "Тип (например, Заправка)"
+        }
+        val etAmount = EditText(context).apply {
+            hint = "Сумма расходов (₽)"
+        }
+        val etMileage = EditText(context).apply {
+            hint = "Пробег (можно оставить пустым)"
+        }
 
         layout.addView(etTitle)
         layout.addView(etType)
         layout.addView(etAmount)
+        layout.addView(etMileage)
         builder.setView(layout)
 
         builder.setPositiveButton("Сохранить") { dialog, _ ->
             val title = etTitle.text.toString()
             val type = etType.text.toString()
-            val amount = etAmount.text.toString().toDoubleOrNull() ?: 0.0
+            val amount = etAmount.text.toString().toIntOrNull() ?: 0
+            val mileage = etMileage.text.toString().toIntOrNull() ?: 125000
 
             if (title.isNotBlank() && type.isNotBlank()) {
-                sendNewEventToBackend(Event(title = title, type = type, amount = amount, date = "2026-06-13"))
+                val event = Event(
+                    type = Event.mapUiTypeToBackend(type),
+                    description = title,
+                    amount = amount,
+                    mileage = mileage
+                )
+
+                sendNewEventToBackend(event)
             } else {
-                Toast.makeText(context, "Заполните все поля!", Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, "Заполните название и тип события", Toast.LENGTH_SHORT).show()
             }
+
             dialog.dismiss()
         }
+
         builder.setNegativeButton("Отмена") { dialog, _ -> dialog.dismiss() }
         builder.show()
     }
 
     private fun sendNewEventToBackend(event: Event) {
         progressBar.visibility = View.VISIBLE
+
         CoroutineScope(Dispatchers.IO).launch {
             try {
                 val response = RetrofitClient.apiService.createEvent(event)
+
                 if (response.isSuccessful) {
                     loadDataFromBackend()
-                    showToast("Событие сохранено!")
+                    showToast("Событие сохранено")
                 } else {
+                    withContext(Dispatchers.Main) {
+                        progressBar.visibility = View.GONE
+                    }
                     showToast("Бэкенд отклонил сохранение")
                 }
             } catch (e: Exception) {
+                withContext(Dispatchers.Main) {
+                    progressBar.visibility = View.GONE
+                }
                 showToast("Ошибка при отправке события")
             }
         }
