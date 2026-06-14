@@ -1,4 +1,0 @@
-include = ["**/*.md"]
-verbose = "info"
-no_progress = true
-exclude = ["localhost", "127.0.0.1", "\\{\\{.*\\}\\}"]
