@@ -2,33 +2,153 @@ name: Bug Report
 description: Report a reproducible defect in the product.
 labels: ["bug", "pbi"]
 body:
+  - type: dropdown
+    id: work-status
+    attributes:
+      label: Work Status
+      description: Use the canonical Process Requirements values.
+      options:
+        - To Do
+        - Ready
+        - In Progress
+        - Review
+        - Done
+    validations:
+      required: true
+
+  - type: dropdown
+    id: moscow-priority
+    attributes:
+      label: MoSCoW priority
+      options:
+        - Must Have
+        - Should Have
+        - Could Have
+        - Won't Have
+    validations:
+      required: true
+
+  - type: dropdown
+    id: story-points
+    attributes:
+      label: Story Points
+      description: Use the Modified Fibonacci scale from Process Requirements.
+      options:
+        - TBD
+        - "1"
+        - "2"
+        - "3"
+        - "5"
+        - "8"
+        - "13"
+        - "20"
+        - "40"
+        - "100"
+    validations:
+      required: true
+
+  - type: input
+    id: mvp-version
+    attributes:
+      label: MVP version
+      placeholder: "e.g., MVP v1 / MVP v2 / Not selected"
+    validations:
+      required: true
+
+  - type: input
+    id: sprint-milestone
+    attributes:
+      label: Sprint / Milestone
+      placeholder: "e.g., Sprint 1 or not assigned"
+
   - type: textarea
     id: problem
     attributes:
       label: Problem Description
+      value: |
+        ## Problem Description
+
+        <!-- Describe the defect and its product impact. -->
+
+        ## Related Scope
+
+        - Related user story/PBI:
+        - MVP version impact:
+        - Sprint impact:
     validations:
       required: true
+
   - type: textarea
     id: steps
     attributes:
       label: Reproduction Steps
-      placeholder: "1. Go to... 2. Click on..."
+      value: |
+        ## Reproduction Steps
+
+        1. 
+        2. 
+        3. 
+    validations:
+      required: true
+
   - type: textarea
-    id: expected-actual
+    id: expected
     attributes:
-      label: Expected vs Actual Behavior
+      label: Expected Behavior
+      value: |
+        ## Expected Behavior
+
+        <!-- What should happen? -->
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual Behavior
+      value: |
+        ## Actual Behavior
+
+        <!-- What actually happens? Include errors, screenshots, logs, or observed symptoms where useful. -->
+    validations:
+      required: true
+
   - type: input
     id: environment
     attributes:
       label: Environment
       placeholder: "e.g., Chrome v120, Node.js v20"
+    validations:
+      required: true
+
   - type: textarea
     id: acceptance-criteria
     attributes:
       label: Acceptance Criteria for Fix
       description: How do we know the bug is safely resolved?
+      value: |
+        ## Acceptance Criteria for Fix
+
+        - [ ] Given ..., when ..., then ...
+        - [ ] Given ..., when ..., then ...
+        - [ ] Given ..., when ..., then ...
     validations:
       required: true
+
+  - type: textarea
+    id: verification-evidence
+    attributes:
+      label: Verification Evidence
+      description: Record how the fix will be or was verified.
+      value: |
+        ## Verification Evidence
+
+        - Linked PR/MR:
+        - Tests/checks:
+        - Screenshots, logs, deployment links, or other evidence:
+    validations:
+      required: true
+
   - type: input
     id: implementer
     attributes:

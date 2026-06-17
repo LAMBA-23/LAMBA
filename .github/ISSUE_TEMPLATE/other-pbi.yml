@@ -2,20 +2,133 @@ name: Other PBI
 description: Technical work, infrastructure, design, or documentation that improves the product.
 labels: ["pbi"]
 body:
+  - type: dropdown
+    id: issue-type
+    attributes:
+      label: Type
+      description: Select the kind of product backlog item.
+      options:
+        - Technical
+        - Infrastructure
+        - Design
+        - Testing
+        - Deployment
+        - Documentation
+        - Research
+        - Other product work
+    validations:
+      required: true
+
+  - type: dropdown
+    id: work-status
+    attributes:
+      label: Work Status
+      description: Use the canonical Process Requirements values.
+      options:
+        - To Do
+        - Ready
+        - In Progress
+        - Review
+        - Done
+    validations:
+      required: true
+
+  - type: dropdown
+    id: moscow-priority
+    attributes:
+      label: MoSCoW priority
+      options:
+        - Must Have
+        - Should Have
+        - Could Have
+        - Won't Have
+    validations:
+      required: true
+
+  - type: dropdown
+    id: story-points
+    attributes:
+      label: Story Points
+      description: Use the Modified Fibonacci scale from Process Requirements.
+      options:
+        - TBD
+        - "1"
+        - "2"
+        - "3"
+        - "5"
+        - "8"
+        - "13"
+        - "20"
+        - "40"
+        - "100"
+    validations:
+      required: true
+
+  - type: input
+    id: mvp-version
+    attributes:
+      label: MVP version
+      placeholder: "e.g., MVP v1 / MVP v2 / Not selected"
+    validations:
+      required: true
+
+  - type: input
+    id: sprint-milestone
+    attributes:
+      label: Sprint / Milestone
+      placeholder: "e.g., Sprint 1 or not assigned"
+
   - type: textarea
     id: description
     attributes:
       label: Description
       description: What needs to be done and why.
+      value: |
+        ## Description
+
+        <!-- Describe the product improvement and the expected outcome. -->
+
+        ## Context
+
+        <!-- Add links to parent user stories, related PBIs, docs, designs, or decisions. -->
+
+        ## Notes, Constraints, Assumptions, and Open Questions
+
+        - Notes:
+        - Constraints:
+        - Assumptions:
+        - Open questions:
     validations:
       required: true
+
   - type: textarea
     id: acceptance-criteria
     attributes:
       label: Acceptance Criteria
       description: Clear, testable outcomes required to mark this done.
+      value: |
+        ## Acceptance Criteria
+
+        - [ ] Given ..., when ..., then ...
+        - [ ] Given ..., when ..., then ...
+        - [ ] Given ..., when ..., then ...
     validations:
       required: true
+
+  - type: textarea
+    id: deliverables-evidence
+    attributes:
+      label: Deliverables / Verification Evidence
+      description: Add explicit evidence notes when the expected evidence is not obvious from a linked PR.
+      value: |
+        ## Deliverables / Verification Evidence
+
+        - Linked PR/MR:
+        - Tests/checks:
+        - Screenshots, logs, deployment links, or other evidence:
+    validations:
+      required: true
+
   - type: input
     id: implementer
     attributes:

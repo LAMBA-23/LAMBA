@@ -2,16 +2,61 @@ name: Course Task
 description: Administrative work, reporting, grading evidence, or submission packaging.
 labels: ["course-task"]
 body:
+  - type: markdown
+    attributes:
+      value: |
+        Course Task issues are not Product Backlog Items and do not count toward the Assignment 3 backlog-size minimum.
+
   - type: textarea
     id: description
     attributes:
       label: Task Description
+      value: |
+        ## Task Description
+
+        <!-- Describe the reporting, grading evidence, submission packaging, or course administration work. -->
+
+        ## Assignment Context
+
+        - Assignment/week:
+        - Related requirement:
+        - Related repository artifact:
     validations:
       required: true
+
   - type: textarea
     id: deliverables
     attributes:
       label: Expected Evidence / Deliverables
-      placeholder: "e.g., Report PDF under reports/"
+      value: |
+        ## Expected Evidence / Deliverables
+
+        - Required artifact:
+        - Link or path:
+        - Evidence needed for submission:
+        - Verification/check before closing:
     validations:
       required: true
+
+  - type: input
+    id: assignee
+    attributes:
+      label: Assignee / Owner
+      placeholder: "@username"
+
+  - type: input
+    id: reviewer
+    attributes:
+      label: Reviewer
+      placeholder: "@username, if review is needed"
+
+  - type: textarea
+    id: notes
+    attributes:
+      label: Notes / Links
+      value: |
+        ## Notes / Links
+
+        - Related issue/PR:
+        - Related milestone/report:
+        - Open questions:
