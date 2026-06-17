@@ -126,27 +126,27 @@ Screenshot links from `reports/week2/images/`:
 
 ## Coverage
 
-Stable user-story IDs selected for the initial MVP scope in [user-stories.md](./user-stories.md): `US-01`, `US-02`, `US-03`, `US-04`, `US-05`.
+Stable user-story IDs selected for the initial MVP scope in [docs/user-stories.md](../../docs/user-stories.md): [US-01](https://github.com/LAMBA-23/LAMBA/issues/44), [US-02](https://github.com/LAMBA-23/LAMBA/issues/45), [US-03](https://github.com/LAMBA-23/LAMBA/issues/46), [US-04](https://github.com/LAMBA-23/LAMBA/issues/47), [US-05](https://github.com/LAMBA-23/LAMBA/issues/48).
 
 Prototype and interface coverage represented by the published Week 2 artifacts:
 
-- `US-01` User registration: represented by [registration-screen.png](./images/registration-screen.png) and [login-screen.png](./images/login-screen.png)
-- `US-02` Add a vehicle: represented by [vehicle-screen.png](./images/vehicle-screen.png), [add-vehicle-screen.png](./images/add-vehicle-screen.png), and [save-vehicle-screen.png](./images/save-vehicle-screen.png)
-- `US-03` Send messages: represented by [Chat-screen.png](./images/Chat-screen.png)
-- `US-04` Automatically create records: represented by [save-notes.png](./images/save-notes.png) as the event/record capture concept
-- `US-05` View vehicle timeline: represented by [timeline-screen.png](./images/timeline-screen.png)
-- `US-07` View basic statistics: represented by [statistics-screen.png](./images/statistics-screen.png)
-- `US-06` Ask AI assistant: partially represented by [Chat-screen.png](./images/Chat-screen.png) as the conversational interface
+- [US-01](https://github.com/LAMBA-23/LAMBA/issues/44) User registration: represented by [registration-screen.png](./images/registration-screen.png) and [login-screen.png](./images/login-screen.png)
+- [US-02](https://github.com/LAMBA-23/LAMBA/issues/45) Add a vehicle: represented by [vehicle-screen.png](./images/vehicle-screen.png), [add-vehicle-screen.png](./images/add-vehicle-screen.png), and [save-vehicle-screen.png](./images/save-vehicle-screen.png)
+- [US-03](https://github.com/LAMBA-23/LAMBA/issues/46) Send messages: represented by [Chat-screen.png](./images/Chat-screen.png)
+- [US-04](https://github.com/LAMBA-23/LAMBA/issues/47) Automatically create records: represented by [save-notes.png](./images/save-notes.png) as the event/record capture concept
+- [US-05](https://github.com/LAMBA-23/LAMBA/issues/48) View vehicle timeline: represented by [timeline-screen.png](./images/timeline-screen.png)
+- [US-07](https://github.com/LAMBA-23/LAMBA/issues/50) View basic statistics: represented by [statistics-screen.png](./images/statistics-screen.png)
+- [US-06](https://github.com/LAMBA-23/LAMBA/issues/49) Ask AI assistant: partially represented by [Chat-screen.png](./images/Chat-screen.png) as the conversational interface
 
 MVP v0 foundation coverage:
 
 - [mvp-v0-report.md](./mvp-v0-report.md) documents the deployed backend URL, repeatable smoke-check scenario, and the technical foundation `Android / API client -> FastAPI -> PostgreSQL`
-- `US-01` is represented by the demo login flow and backend `POST /auth/login` foundation, even though full production authentication is not in scope
-- `US-03` is represented by the chat screen prototype; backend AI/chat behavior is not part of the current deployed MVP v0 foundation
-- `US-04` is represented by the save-event flow through backend persistence
-- `US-05` is represented by the history / timeline flow in the smoke-check scenario
-- `US-07` is represented by statistics updates after saving an event
-- `US-02` is partially represented by the single-vehicle MVP data model and vehicle endpoint foundation
+- [US-01](https://github.com/LAMBA-23/LAMBA/issues/44) is represented by the demo login flow and backend `POST /auth/login` foundation, even though full production authentication is not in scope
+- [US-03](https://github.com/LAMBA-23/LAMBA/issues/46) is represented by the chat screen prototype; backend AI/chat behavior is not part of the current deployed MVP v0 foundation
+- [US-04](https://github.com/LAMBA-23/LAMBA/issues/47) is represented by the save-event flow through backend persistence
+- [US-05](https://github.com/LAMBA-23/LAMBA/issues/48) is represented by the history / timeline flow in the smoke-check scenario
+- [US-07](https://github.com/LAMBA-23/LAMBA/issues/50) is represented by statistics updates after saving an event
+- [US-02](https://github.com/LAMBA-23/LAMBA/issues/45) is partially represented by the single-vehicle MVP data model and vehicle endpoint foundation
 
 ## Customer Materials
 
