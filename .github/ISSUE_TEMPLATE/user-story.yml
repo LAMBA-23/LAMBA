@@ -130,3 +130,16 @@ body:
     attributes:
       label: Reviewer
       placeholder: "@different_username"
+
+  - type: checkboxes
+    id: dod-checklist
+    attributes:
+      label: Definition of Done (DoD) Checklist
+      description: "A PBI may be marked Done only according to the team Definition of Done."
+      options:
+        - label: "Code reviewed and approved"
+        - label: "Acceptance criteria met and verified"
+        - label: "Documentation updated (CHANGELOG.md, README.md)"
+        - label: "Traceability ensured (Related issue linked)"
+    validations:
+      required: true
