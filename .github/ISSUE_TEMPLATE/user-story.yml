@@ -1,0 +1,145 @@
+name: User Story
+description: File a new formal product requirement user story.
+labels: ["user-story", "pbi"]
+body:
+  - type: input
+    id: story-id
+    attributes:
+      label: Stable User Story ID
+      placeholder: "e.g., US-01"
+    validations:
+      required: true
+
+  - type: textarea
+    id: statement
+    attributes:
+      label: User Story Statement
+      description: "As a [role], I want [action], so that [value]."
+      placeholder: |
+        As a vehicle owner,
+        I want to add my vehicle's brand, model, production year, and current mileage,
+        so that the system can create a digital profile of my vehicle.
+    validations:
+      required: true
+
+  - type: dropdown
+    id: requirement-status
+    attributes:
+      label: Requirement status
+      options:
+        - Active
+        - Removed
+    validations:
+      required: true
+
+  - type: dropdown
+    id: work-status
+    attributes:
+      label: Work Status
+      options:
+        - To Do
+        - In Progress
+        - In Review
+        - Done
+        - Blocked
+    validations:
+      required: true
+
+  - type: dropdown
+    id: moscow-priority
+    attributes:
+      label: MoSCoW priority
+      options:
+        - Must Have
+        - Should Have
+        - Could Have
+        - Won't Have
+    validations:
+      required: true
+
+  - type: input
+    id: story-points
+    attributes:
+      label: Story Points
+      placeholder: "e.g., 1, 2, 3, 5, 8, 13, 20, 40, 100 or TBD"
+    validations:
+      required: true
+
+  - type: input
+    id: mvp-version
+    attributes:
+      label: MVP version
+      placeholder: "e.g., MVP v1 / Not selected for MVP v1 / Not planned"
+    validations:
+      required: true
+
+  - type: input
+    id: sprint-milestone
+    attributes:
+      label: Sprint / Milestone
+      placeholder: "e.g., Sprint 1 or TBD"
+
+  - type: textarea
+    id: notes-constraints
+    attributes:
+      label: Notes and constraints
+      placeholder: "Add notes, technical constraints, or scope limitations."
+    validations:
+      required: true
+
+  - type: textarea
+    id: assumptions
+    attributes:
+      label: Assumptions
+      placeholder: |
+        - The user is logged in.
+        - The user has one vehicle profile.
+    validations:
+      required: true
+
+  - type: textarea
+    id: open-questions
+    attributes:
+      label: Open questions
+      placeholder: |
+        - Should this be included in MVP v1?
+        - What validation rules are required?
+    validations:
+      required: true
+
+  - type: textarea
+    id: acceptance-criteria
+    attributes:
+      label: Acceptance Criteria
+      description: "Specific, observable, and testable criteria. Given/When/Then recommended."
+      placeholder: |
+        - [ ] Given ..., when ..., then ...
+        - [ ] Given ..., when ..., then ...
+        - [ ] Given ..., when ..., then ...
+    validations:
+      required: true
+
+  - type: input
+    id: implementer
+    attributes:
+      label: Implementer
+      placeholder: "@username"
+
+  - type: input
+    id: reviewer
+    attributes:
+      label: Reviewer
+      placeholder: "@different_username"
+
+  - type: checkboxes
+    id: dod-checklist
+    attributes:
+      label: Definition of Done (DoD) Checklist
+      description: "A PBI may be marked Done only according to the team Definition of Done."
+      options:
+        - label: "Code reviewed and approved"
+        - label: "Acceptance criteria met and verified"
+        - label: "Documentation updated (CHANGELOG.md, README.md)"
+        - label: "Traceability ensured (Related issue linked)"
+    validations:
+      required: true
