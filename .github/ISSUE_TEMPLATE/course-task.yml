@@ -1,0 +1,17 @@
+name: Course Task
+description: Administrative work, reporting, grading evidence, or submission packaging.
+labels: ["course-task"]
+body:
+  - type: textarea
+    id: description
+    attributes:
+      label: Task Description
+    validations:
+      required: true
+  - type: textarea
+    id: deliverables
+    attributes:
+      label: Expected Evidence / Deliverables
+      placeholder: "e.g., Report PDF under reports/"
+    validations:
+      required: true

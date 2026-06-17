@@ -1,0 +1,45 @@
+name: Bug Report
+description: Report a reproducible defect in the product.
+labels: ["bug", "pbi"]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem Description
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Reproduction Steps
+      placeholder: "1. Go to... 2. Click on..."
+  - type: textarea
+    id: expected-actual
+    attributes:
+      label: Expected vs Actual Behavior
+  - type: input
+    id: environment
+    attributes:
+      label: Environment
+      placeholder: "e.g., Chrome v120, Node.js v20"
+  - type: textarea
+    id: acceptance-criteria
+    attributes:
+      label: Acceptance Criteria for Fix
+      description: How do we know the bug is safely resolved?
+    validations:
+      required: true
+  - type: input
+    id: implementer
+    attributes:
+      label: Implementer
+      placeholder: "@username"
+    validations:
+      required: true
+  - type: input
+    id: reviewer
+    attributes:
+      label: Reviewer
+      placeholder: "@different_username"
+    validations:
+      required: true
