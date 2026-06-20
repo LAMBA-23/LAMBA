@@ -7,6 +7,12 @@ import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import com.lamba.app.network.RegisterRequest
+import com.lamba.app.network.RetrofitClient
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class RegisterActivity : AppCompatActivity() {
 
@@ -22,46 +28,68 @@ class RegisterActivity : AppCompatActivity() {
         val btnBack = findViewById<View>(R.id.btnRegisterBack)
         val tvToLogin = findViewById<TextView>(R.id.tvToLogin)
 
-        // go back
         btnBack.setOnClickListener {
             finish()
         }
 
-        // Continue button
         btnSubmit.setOnClickListener {
             val name = etName.text.toString().trim()
             val email = etEmail.text.toString().trim()
             val password = etPassword.text.toString().trim()
             val confirmPassword = etConfirmPassword.text.toString().trim()
 
-            // check if some of the fields is empty
             if (name.isEmpty() || email.isEmpty() || password.isEmpty() || confirmPassword.isEmpty()) {
                 Toast.makeText(this, "Пожалуйста, заполните все поля", Toast.LENGTH_LONG).show()
                 return@setOnClickListener
             }
 
-            // check if the password has appropriate format
             if (password.length < 8) {
                 Toast.makeText(this, "Пароль должен содержать минимум 8 символов", Toast.LENGTH_LONG).show()
                 return@setOnClickListener
             }
 
-            // check if passwords are equal
             if (password != confirmPassword) {
                 Toast.makeText(this, "Пароли не совпадают", Toast.LENGTH_LONG).show()
                 return@setOnClickListener
             }
 
-            // if all checks  completed
-            Toast.makeText(this, "Регистрация успешна!", Toast.LENGTH_SHORT).show()
-            
-            // go to the main app screen
-            val intent = Intent(this, MainActivity::class.java)
-            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-            startActivity(intent)
+            btnSubmit.isEnabled = false
+            Toast.makeText(this, "Регистрация...", Toast.LENGTH_SHORT).show()
+
+            CoroutineScope(Dispatchers.IO).launch {
+                try {
+                    val response = RetrofitClient.apiService.register(
+                        RegisterRequest(username = email, password = password)
+                    )
+                    val registrationSuccessful = response.isSuccessful && response.body()?.success == true
+
+                    withContext(Dispatchers.Main) {
+                        btnSubmit.isEnabled = true
+
+                        if (registrationSuccessful) {
+                            Toast.makeText(this@RegisterActivity, "Регистрация успешна!", Toast.LENGTH_SHORT).show()
+
+                            val intent = Intent(this@RegisterActivity, MainActivity::class.java)
+                            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                            startActivity(intent)
+                        } else {
+                            val message = when (response.code()) {
+                                400 -> "Пользователь с таким email уже существует"
+                                422 -> "Проверьте правильность данных"
+                                else -> "Не удалось зарегистрироваться"
+                            }
+                            Toast.makeText(this@RegisterActivity, message, Toast.LENGTH_LONG).show()
+                        }
+                    }
+                } catch (e: Exception) {
+                    withContext(Dispatchers.Main) {
+                        btnSubmit.isEnabled = true
+                        Toast.makeText(this@RegisterActivity, "Не удалось подключиться к бэкенду", Toast.LENGTH_LONG).show()
+                    }
+                }
+            }
         }
 
-        // go to login
         tvToLogin.setOnClickListener {
             val intent = Intent(this, LoginActivity::class.java)
             startActivity(intent)
