@@ -40,6 +40,12 @@ class RegisterActivity : AppCompatActivity() {
                 return@setOnClickListener
             }
 
+            // check if the password has appropriate format
+            if (password.length < 8) {
+                Toast.makeText(this, "Пароль должен содержать минимум 8 символов", Toast.LENGTH_LONG).show()
+                return@setOnClickListener
+            }
+
             // check if passwords are equal
             if (password != confirmPassword) {
                 Toast.makeText(this, "Пароли не совпадают", Toast.LENGTH_LONG).show()
