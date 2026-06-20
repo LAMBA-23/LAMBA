@@ -6,6 +6,7 @@ from sqlalchemy.orm import Session
 from .database import Base, engine, get_db
 from .models import Car, Event, User
 from .schemas import (
+    CarCreate,
     CarResponse,
     EventCreate,
     EventResponse,
@@ -93,9 +94,37 @@ def login(payload: LoginRequest, db: Session = Depends(get_db)) -> LoginResponse
     return LoginResponse(success=True, user_id=user.id)
 
 
-@app.get("/vehicle", response_model=CarResponse)
-def get_vehicle(db: Session = Depends(get_db)) -> Car:
-    return get_demo_car(db)
+@app.get("/vehicle/{user_id}", response_model=CarResponse)
+def get_vehicle(user_id: int, db: Session = Depends(get_db)) -> Car:
+    car = db.scalar(select(Car).where(Car.user_id == user_id))
+    if car is None:
+        raise HTTPException(status_code=404, detail="Vehicle not found")
+    return car
+
+
+@app.post("/vehicle", response_model=CarResponse, status_code=201)
+def create_vehicle(payload: CarCreate, db: Session = Depends(get_db)) -> Car:
+    existing_car = db.scalar(select(Car).where(Car.user_id == payload.user_id))
+    if existing_car is not None:
+        raise HTTPException(
+            status_code=409,
+            detail="User already has a vehicle. Only one vehicle per user is allowed in MVP v1.",
+        )
+    user = db.scalar(select(User).where(User.id == payload.user_id))
+    if user is None:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    car = Car(
+        user_id=payload.user_id,
+        brand=payload.brand,
+        model=payload.model,
+        production_year=payload.production_year,
+        current_mileage=payload.current_mileage,
+    )
+    db.add(car)
+    db.commit()
+    db.refresh(car)
+    return car
 
 
 @app.get("/events", response_model=list[EventResponse])

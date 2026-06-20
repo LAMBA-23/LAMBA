@@ -53,6 +53,7 @@ class LoginActivity : AppCompatActivity() {
 
                             if (loginSuccessful) {
                                 val intent = Intent(this@LoginActivity, MainActivity::class.java)
+                                intent.putExtra("USER_ID", response.body()?.userId ?: -1)
                                 startActivity(intent)
                                 finish()
                             } else {
