@@ -16,7 +16,7 @@ Response:
 
 ## POST /auth/login
 
-Demo login. JWT and registration are not used in MVP v0.
+Login with an existing user account. JWT is not used yet.
 
 Primary demo credentials: `demo` / `demo`.
 
@@ -45,6 +45,55 @@ Error response:
 ```json
 {
   "success": false
+}
+```
+
+## POST /auth/register
+
+Creates a new user account.
+
+Required fields:
+
+- `username`: 1-64 characters after trimming whitespace.
+- `password`: 8-128 characters.
+
+Request:
+
+```json
+{
+  "username": "new-user",
+  "password": "password123"
+}
+```
+
+Success response (`201 Created`):
+
+```json
+{
+  "success": true,
+  "user_id": 2
+}
+```
+
+Duplicate username response (`400 Bad Request`):
+
+```json
+{
+  "detail": "Username is already registered"
+}
+```
+
+Validation error response (`422 Unprocessable Entity`):
+
+```json
+{
+  "detail": [
+    {
+      "loc": ["body", "password"],
+      "msg": "String should have at least 8 characters",
+      "type": "string_too_short"
+    }
+  ]
 }
 ```
 

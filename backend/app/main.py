@@ -11,6 +11,8 @@ from .schemas import (
     EventResponse,
     LoginRequest,
     LoginResponse,
+    RegisterRequest,
+    RegisterResponse,
     StatsResponse,
 )
 
@@ -91,6 +93,19 @@ def login(payload: LoginRequest, db: Session = Depends(get_db)) -> LoginResponse
     if user is None or (user.password != payload.password and not is_demo_compatible_login):
         return LoginResponse(success=False)
     return LoginResponse(success=True, user_id=user.id)
+
+
+@app.post("/auth/register", response_model=RegisterResponse, status_code=201)
+def register(payload: RegisterRequest, db: Session = Depends(get_db)) -> RegisterResponse:
+    existing_user = db.scalar(select(User).where(User.username == payload.username))
+    if existing_user is not None:
+        raise HTTPException(status_code=400, detail="Username is already registered")
+
+    user = User(username=payload.username, password=payload.password)
+    db.add(user)
+    db.commit()
+    db.refresh(user)
+    return RegisterResponse(success=True, user_id=user.id)
 
 
 @app.get("/vehicle", response_model=CarResponse)
