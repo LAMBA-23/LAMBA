@@ -20,6 +20,21 @@ data class RegisterRequest(
 data class RegisterResponse(
     @SerializedName("success") val success: Boolean = false,
     @SerializedName("user_id") val userId: Int? = null
+data class ChatParseRequest(
+    @SerializedName("message") val message: String
+)
+
+data class ParsedEventPayload(
+    @SerializedName("type") val type: String,
+    @SerializedName("description") val description: String,
+    @SerializedName("amount") val amount: Int? = null,
+    @SerializedName("mileage") val mileage: Int? = null
+)
+
+data class ChatParseResponse(
+    @SerializedName("status") val status: String,
+    @SerializedName("parsed_event") val parsedEvent: ParsedEventPayload? = null,
+    @SerializedName("clarification_question") val clarificationQuestion: String? = null
 )
 
 data class Event(
