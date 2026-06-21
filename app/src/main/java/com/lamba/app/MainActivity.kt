@@ -8,6 +8,7 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
 import com.lamba.app.network.RetrofitClient
+import com.lamba.app.network.SessionManager
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -22,12 +23,22 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
         userId = intent.getIntExtra("USER_ID", -1)
+        if (userId == -1) {
+            userId = SessionManager.getUserId(this) ?: -1
+        }
 
         val tvCarName = findViewById<TextView>(R.id.tvCarName)
         val tvCarInfo = findViewById<TextView>(R.id.tvCarInfo)
+        val cardCar = findViewById<ConstraintLayout>(R.id.cardCar)
         val btnTalkToCar = findViewById<ConstraintLayout>(R.id.btnTalkToCar)
         val btnHistory = findViewById<ConstraintLayout>(R.id.btnHistory)
         val navChat = findViewById<LinearLayout>(R.id.navChat)
+
+        cardCar.setOnClickListener {
+            val intent = Intent(this, AddVehicleActivity::class.java)
+            intent.putExtra("USER_ID", userId)
+            startActivity(intent)
+        }
 
         btnTalkToCar.setOnClickListener {
             val intent = Intent(this, ChatActivity::class.java)
