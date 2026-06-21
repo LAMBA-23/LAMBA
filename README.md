@@ -110,6 +110,7 @@ docker compose down
 
 - [API contract](docs/api-contract.md)
 - [Week 2 report](reports/week2/README.md)
+- [Week 3 report](reports/week3/README.md)
 - [MVP v0](reports/week2/mvp-v0-report.md)
 
 The Week 2 MVP v0 smoke-check scenario, deployed URL, demo credentials, and current limitations are documented in [reports/week2/mvp-v0-report.md](reports/week2/mvp-v0-report.md).
