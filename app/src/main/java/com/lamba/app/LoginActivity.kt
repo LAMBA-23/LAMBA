@@ -10,6 +10,7 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.lamba.app.network.LoginRequest
 import com.lamba.app.network.RetrofitClient
+import com.lamba.app.network.SessionManager
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -46,12 +47,16 @@ class LoginActivity : AppCompatActivity() {
                         val response = RetrofitClient.apiService.login(
                             LoginRequest(username = username, password = password)
                         )
-                        val loginSuccessful = response.isSuccessful && response.body()?.success == true
+                        val loggedInUserId = response.body()?.userId
+                        val loginSuccessful = response.isSuccessful &&
+                            response.body()?.success == true &&
+                            loggedInUserId != null
 
                         withContext(Dispatchers.Main) {
                             btnLogin.isEnabled = true
 
                             if (loginSuccessful) {
+                                SessionManager.saveUserId(this@LoginActivity, loggedInUserId!!)
                                 val intent = Intent(this@LoginActivity, MainActivity::class.java)
                                 intent.putExtra("USER_ID", response.body()?.userId ?: -1)
                                 startActivity(intent)
@@ -71,7 +76,8 @@ class LoginActivity : AppCompatActivity() {
         }
 
         tvRegisterLink.setOnClickListener {
-            Toast.makeText(this, "Переход на экран регистрации", Toast.LENGTH_SHORT).show()
+            val intent = Intent(this, RegisterActivity::class.java)
+            startActivity(intent)
         }
     }
 }
