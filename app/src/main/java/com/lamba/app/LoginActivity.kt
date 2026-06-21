@@ -11,6 +11,7 @@ import androidx.appcompat.app.AppCompatActivity
 import com.lamba.app.network.LoginRequest
 import com.lamba.app.network.RetrofitClient
 import com.lamba.app.network.SessionManager
+import com.lamba.app.network.Vehicle
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -91,8 +92,13 @@ class LoginActivity : AppCompatActivity() {
                 withContext(Dispatchers.Main) {
                     btnLogin.isEnabled = true
 
-                    if (vehicleResponse.isSuccessful) {
-                        openMainFlow(userId)
+                    val vehicle = vehicleResponse.body()
+                    if (vehicleResponse.isSuccessful && vehicle != null) {
+                        if (isPlaceholderVehicle(vehicle)) {
+                            openVehicleSetup(userId)
+                        } else {
+                            openMainFlow(userId)
+                        }
                     } else if (vehicleResponse.code() == 404) {
                         openVehicleSetup(userId)
                     } else {
@@ -114,6 +120,13 @@ class LoginActivity : AppCompatActivity() {
                 }
             }
         }
+    }
+
+    private fun isPlaceholderVehicle(vehicle: Vehicle): Boolean {
+        return vehicle.brand == "Not set" &&
+                vehicle.model == "Not set" &&
+                vehicle.productionYear == 0 &&
+                vehicle.currentMileage == 0
     }
 
     private fun openVehicleSetup(userId: Int) {
