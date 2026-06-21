@@ -6,7 +6,7 @@ from typing import Any, Literal
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 
-EventType = Literal["fuel", "repair", "trip", "issue"]
+EventType = Literal["fuel", "repair", "trip", "issue", "condition"]
 ChatParseStatus = Literal["parsed", "clarification_needed"]
 
 
