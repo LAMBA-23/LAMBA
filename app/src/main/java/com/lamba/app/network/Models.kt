@@ -12,6 +12,16 @@ data class LoginResponse(
     @SerializedName("user_id") val userId: Int? = null
 )
 
+data class RegisterRequest(
+    @SerializedName("username") val username: String,
+    @SerializedName("password") val password: String
+)
+
+data class RegisterResponse(
+    @SerializedName("success") val success: Boolean = false,
+    @SerializedName("user_id") val userId: Int? = null
+)
+
 data class Vehicle(
     @SerializedName("id") val id: Int? = null,
     @SerializedName("brand") val brand: String,
@@ -27,16 +37,6 @@ data class VehicleRequest(
     @SerializedName("model") val model: String,
     @SerializedName("production_year") val productionYear: Int,
     @SerializedName("current_mileage") val currentMileage: Int
-)
-
-data class RegisterRequest(
-    @SerializedName("username") val username: String,
-    @SerializedName("password") val password: String
-)
-
-data class RegisterResponse(
-    @SerializedName("success") val success: Boolean = false,
-    @SerializedName("user_id") val userId: Int? = null
 )
 
 data class ChatParseRequest(
