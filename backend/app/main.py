@@ -1,4 +1,4 @@
-from fastapi import Depends, FastAPI, HTTPException
+from fastapi import Depends, FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session
@@ -36,6 +36,7 @@ app.add_middleware(
 
 
 def seed_demo_data(db: Session) -> None:
+    # Demo stays available as a normal seeded account for smoke checks.
     user = db.scalar(select(User).where(User.username == DEMO_USERNAME))
     if user is None:
         user = User(username=DEMO_USERNAME, password=DEMO_PASSWORD)
@@ -57,13 +58,6 @@ def seed_demo_data(db: Session) -> None:
     db.commit()
 
 
-def get_demo_user(db: Session) -> User:
-    user = db.scalar(select(User).where(User.username == DEMO_USERNAME))
-    if user is None:
-        raise HTTPException(status_code=500, detail="Demo user is not initialized")
-    return user
-
-
 def create_default_car(user_id: int) -> Car:
     return Car(
         user_id=user_id,
@@ -74,10 +68,7 @@ def create_default_car(user_id: int) -> Car:
     )
 
 
-def get_user(db: Session, user_id: int | None) -> User:
-    if user_id is None:
-        return get_demo_user(db)
-
+def get_user(db: Session, user_id: int) -> User:
     user = db.get(User, user_id)
     if user is None:
         raise HTTPException(status_code=404, detail="User not found")
@@ -96,7 +87,7 @@ def get_or_create_user_car(db: Session, user: User) -> Car:
     return car
 
 
-def get_car_for_user_id(db: Session, user_id: int | None) -> Car:
+def get_car_for_user_id(db: Session, user_id: int) -> Car:
     user = get_user(db, user_id)
     return get_or_create_user_car(db, user)
 
@@ -144,12 +135,12 @@ def register(payload: RegisterRequest, db: Session = Depends(get_db)) -> Registe
 
 
 @app.get("/vehicle", response_model=CarResponse)
-def get_vehicle(user_id: int | None = None, db: Session = Depends(get_db)) -> Car:
+def get_vehicle(user_id: int = Query(...), db: Session = Depends(get_db)) -> Car:
     return get_car_for_user_id(db, user_id)
 
 
 @app.get("/events", response_model=list[EventResponse])
-def get_events(user_id: int | None = None, db: Session = Depends(get_db)) -> list[Event]:
+def get_events(user_id: int = Query(...), db: Session = Depends(get_db)) -> list[Event]:
     car = get_car_for_user_id(db, user_id)
     return list(db.scalars(select(Event).where(Event.car_id == car.id).order_by(Event.id)))
 
@@ -157,7 +148,7 @@ def get_events(user_id: int | None = None, db: Session = Depends(get_db)) -> lis
 @app.post("/events", response_model=EventResponse)
 def create_event(
     payload: EventCreate,
-    user_id: int | None = None,
+    user_id: int = Query(...),
     db: Session = Depends(get_db),
 ) -> Event:
     car = get_car_for_user_id(db, user_id)
@@ -175,7 +166,7 @@ def create_event(
 
 
 @app.get("/stats", response_model=StatsResponse)
-def get_stats(user_id: int | None = None, db: Session = Depends(get_db)) -> StatsResponse:
+def get_stats(user_id: int = Query(...), db: Session = Depends(get_db)) -> StatsResponse:
     car = get_car_for_user_id(db, user_id)
 
     fuel_expenses = db.scalar(
