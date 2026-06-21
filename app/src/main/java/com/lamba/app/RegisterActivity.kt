@@ -11,6 +11,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.AppCompatButton
 import com.lamba.app.network.RegisterRequest
 import com.lamba.app.network.RetrofitClient
+import com.lamba.app.network.SessionManager
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -79,7 +80,7 @@ class RegisterActivity : AppCompatActivity() {
                         progressBar.visibility = View.GONE
 
                         if (response.isSuccessful && body?.success == true && body.userId != null) {
-                            SessionStore.saveUserId(this@RegisterActivity, body.userId)
+                            SessionManager.saveUserId(this@RegisterActivity, body.userId)
                             openVehicleSetup(body.userId)
                         } else {
                             btnSubmit.isEnabled = true

@@ -3,14 +3,19 @@ from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
+from .chat_parser import parse_chat_message
 from .database import Base, engine, get_db
 from .models import Car, Event, User
 from .schemas import (
+    CarCreate,
     CarResponse,
+    ChatParseRequest,
+    ChatParseResponse,
     EventCreate,
     EventResponse,
     LoginRequest,
     LoginResponse,
+    ParsedEventPayload,
     RegisterRequest,
     RegisterResponse,
     StatsResponse,
@@ -137,6 +142,94 @@ def register(payload: RegisterRequest, db: Session = Depends(get_db)) -> Registe
 @app.get("/vehicle", response_model=CarResponse)
 def get_vehicle(user_id: int = Query(...), db: Session = Depends(get_db)) -> Car:
     return get_car_for_user_id(db, user_id)
+
+
+@app.post("/vehicle", response_model=CarResponse, status_code=201)
+def create_vehicle(payload: CarCreate, db: Session = Depends(get_db)) -> Car:
+    user = db.scalar(select(User).where(User.id == payload.user_id))
+    if user is None:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    existing_car = db.scalar(select(Car).where(Car.user_id == payload.user_id))
+    if existing_car is not None:
+        existing_car.brand = payload.brand
+        existing_car.model = payload.model
+        existing_car.production_year = payload.production_year
+        existing_car.current_mileage = payload.current_mileage
+        db.commit()
+        db.refresh(existing_car)
+        return existing_car
+
+    car = Car(
+        user_id=payload.user_id,
+        brand=payload.brand,
+        model=payload.model,
+        production_year=payload.production_year,
+        current_mileage=payload.current_mileage,
+    )
+    db.add(car)
+    db.commit()
+    db.refresh(car)
+    return car
+
+
+@app.post("/chat/parse-event", response_model=ChatParseResponse)
+def parse_event_from_chat(payload: ChatParseRequest) -> ChatParseResponse:
+    parsed = parse_chat_message(payload.message)
+
+    if parsed.needs_clarification:
+        return ChatParseResponse(
+            status="clarification_needed",
+            clarification_question=parsed.clarification_question
+            or (
+                "\u0423\u0442\u043e\u0447\u043d\u0438\u0442\u0435, "
+                "\u043f\u043e\u0436\u0430\u043b\u0443\u0439\u0441\u0442\u0430, "
+                "\u0434\u0435\u0442\u0430\u043b\u0438 "
+                "\u0437\u0430\u043f\u0438\u0441\u0438."
+            ),
+        )
+
+    if parsed.type is None or parsed.description is None or not parsed.description.strip():
+        return ChatParseResponse(
+            status="clarification_needed",
+            clarification_question=(
+                "\u0423\u0442\u043e\u0447\u043d\u0438\u0442\u0435, "
+                "\u043f\u043e\u0436\u0430\u043b\u0443\u0439\u0441\u0442\u0430, "
+                "\u0442\u0438\u043f \u0441\u043e\u0431\u044b\u0442\u0438\u044f "
+                "\u0438 \u0434\u0435\u0442\u0430\u043b\u0438 \u0437\u0430\u043f\u0438\u0441\u0438."
+            ),
+        )
+
+    if parsed.amount is not None and parsed.amount < 0:
+        return ChatParseResponse(
+            status="clarification_needed",
+            clarification_question=(
+                "\u0423\u0442\u043e\u0447\u043d\u0438\u0442\u0435, "
+                "\u043f\u043e\u0436\u0430\u043b\u0443\u0439\u0441\u0442\u0430, "
+                "\u0441\u0443\u043c\u043c\u0443 \u0437\u0430\u043f\u0438\u0441\u0438."
+            ),
+        )
+
+    if parsed.mileage is not None and parsed.mileage < 0:
+        return ChatParseResponse(
+            status="clarification_needed",
+            clarification_question=(
+                "\u0423\u0442\u043e\u0447\u043d\u0438\u0442\u0435, "
+                "\u043f\u043e\u0436\u0430\u043b\u0443\u0439\u0441\u0442\u0430, "
+                "\u043f\u0440\u043e\u0431\u0435\u0433 "
+                "\u0430\u0432\u0442\u043e\u043c\u043e\u0431\u0438\u043b\u044f."
+            ),
+        )
+
+    return ChatParseResponse(
+        status="parsed",
+        parsed_event=ParsedEventPayload(
+            type=parsed.type,
+            description=parsed.description.strip(),
+            amount=parsed.amount,
+            mileage=parsed.mileage,
+        ),
+    )
 
 
 @app.get("/events", response_model=list[EventResponse])

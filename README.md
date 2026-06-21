@@ -87,6 +87,19 @@ Invoke-RestMethod -Uri http://localhost:8000/events -Method Post -ContentType 'a
 Invoke-RestMethod -Uri http://localhost:8000/stats
 ```
 
+Chat parsing smoke-check in PowerShell:
+
+```powershell
+$chat = @{message='Заправился на 2500 рублей, пробег 125300'} | ConvertTo-Json -Compress
+Invoke-RestMethod -Uri http://localhost:8000/chat/parse-event -Method Post -ContentType 'application/json' -Body $chat
+```
+
+Backend tests:
+
+```bash
+docker compose run --rm backend pytest tests/test_chat_parse.py
+```
+
 Stop:
 
 ```bash

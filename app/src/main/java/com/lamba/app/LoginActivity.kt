@@ -10,6 +10,7 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.lamba.app.network.LoginRequest
 import com.lamba.app.network.RetrofitClient
+import com.lamba.app.network.SessionManager
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -52,7 +53,7 @@ class LoginActivity : AppCompatActivity() {
 
                     withContext(Dispatchers.Main) {
                         if (response.isSuccessful && body?.success == true && body.userId != null) {
-                            SessionStore.saveUserId(this@LoginActivity, body.userId)
+                            SessionManager.saveUserId(this@LoginActivity, body.userId)
                             routeAfterLogin(body.userId, btnLogin)
                         } else {
                             btnLogin.isEnabled = true

@@ -6,7 +6,7 @@ import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.POST
-import retrofit2.http.Path
+import retrofit2.http.Query
 
 interface LambaApiService {
     @POST("auth/login")
@@ -16,22 +16,28 @@ interface LambaApiService {
     suspend fun register(@Body request: RegisterRequest): Response<RegisterResponse>
 
     @GET("vehicle")
-    suspend fun getDemoVehicle(): Response<Vehicle>
-
-    @GET("vehicle/{userId}")
-    suspend fun getVehicle(@Path("userId") userId: Int): Response<Vehicle>
+    suspend fun getVehicle(@Query("user_id") userId: Int): Response<Vehicle>
 
     @POST("vehicle")
-    suspend fun createVehicle(@Body request: VehicleRequest): Response<Vehicle>
+    suspend fun createVehicle(@Body vehicle: VehicleRequest): Response<Vehicle>
+
+    @POST("chat/parse-event")
+    suspend fun parseChatEvent(@Body request: ChatParseRequest): Response<ChatParseResponse>
 
     @GET("events")
-    suspend fun getEvents(): Response<List<Event>>
+    suspend fun getEvents(@Query("user_id") userId: Int? = null): Response<List<Event>>
 
     @POST("events")
-    suspend fun createEvent(@Body event: Event): Response<Event>
+    suspend fun createEvent(
+        @Body event: Event,
+        @Query("user_id") userId: Int? = null
+    ): Response<Event>
+
+    @POST("events")
+    suspend fun createEventFromChat(@Body event: EventCreateRequest): Response<Event>
 
     @GET("stats")
-    suspend fun getStats(): Response<Stats>
+    suspend fun getStats(@Query("user_id") userId: Int? = null): Response<Stats>
 }
 
 object RetrofitClient {
