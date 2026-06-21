@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Issue templates for User Stories, PBIs, Bug Reports, and Course Tasks.
 - Pull Request template with acceptance criteria and changelog enforcement.
 - Definition of Done (`docs/definition-of-done.md`) and Roadmap (`docs/roadmap.md`).
+- Chat-to-event parsing: AI-assisted conversion of Russian chat messages into structured vehicle events via Mistral API (`POST /chat/parse-event`).
 
 ## [0.1.0] - 2026-06-16
 

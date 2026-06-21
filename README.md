@@ -58,7 +58,9 @@ Smoke-check with curl:
 
 ```bash
 curl http://localhost:8000/health
+curl -X POST http://localhost:8000/auth/register -H "Content-Type: application/json" -d "{\"username\":\"new-user\",\"password\":\"password123\"}"
 curl -X POST http://localhost:8000/auth/login -H "Content-Type: application/json" -d "{\"username\":\"demo\",\"password\":\"demo\"}"
+curl "http://localhost:8000/vehicle?user_id=2"
 curl http://localhost:8000/events
 curl -X POST http://localhost:8000/events -H "Content-Type: application/json" -d "{\"type\":\"fuel\",\"description\":\"Full tank\",\"amount\":60,\"mileage\":125000}"
 curl http://localhost:8000/stats
@@ -69,8 +71,13 @@ Smoke-check in PowerShell:
 ```powershell
 Invoke-RestMethod -Uri http://localhost:8000/health
 
+$registration = @{username='new-user'; password='password123'} | ConvertTo-Json -Compress
+$registeredUser = Invoke-RestMethod -Uri http://localhost:8000/auth/register -Method Post -ContentType 'application/json' -Body $registration
+
 $login = @{username='demo'; password='demo'} | ConvertTo-Json -Compress
 Invoke-RestMethod -Uri http://localhost:8000/auth/login -Method Post -ContentType 'application/json' -Body $login
+
+Invoke-RestMethod -Uri "http://localhost:8000/vehicle?user_id=$($registeredUser.user_id)"
 
 Invoke-RestMethod -Uri http://localhost:8000/events
 
@@ -78,6 +85,19 @@ $event = @{type='fuel'; description='Full tank'; amount=60; mileage=125000} | Co
 Invoke-RestMethod -Uri http://localhost:8000/events -Method Post -ContentType 'application/json' -Body $event
 
 Invoke-RestMethod -Uri http://localhost:8000/stats
+```
+
+Chat parsing smoke-check in PowerShell:
+
+```powershell
+$chat = @{message='Заправился на 2500 рублей, пробег 125300'} | ConvertTo-Json -Compress
+Invoke-RestMethod -Uri http://localhost:8000/chat/parse-event -Method Post -ContentType 'application/json' -Body $chat
+```
+
+Backend tests:
+
+```bash
+docker compose run --rm backend pytest tests/test_chat_parse.py
 ```
 
 Stop:
