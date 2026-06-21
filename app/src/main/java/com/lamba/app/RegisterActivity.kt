@@ -9,6 +9,7 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.lamba.app.network.RegisterRequest
 import com.lamba.app.network.RetrofitClient
+import com.lamba.app.network.SessionManager
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -61,12 +62,16 @@ class RegisterActivity : AppCompatActivity() {
                     val response = RetrofitClient.apiService.register(
                         RegisterRequest(username = email, password = password)
                     )
-                    val registrationSuccessful = response.isSuccessful && response.body()?.success == true
+                    val registeredUserId = response.body()?.userId
+                    val registrationSuccessful = response.isSuccessful &&
+                        response.body()?.success == true &&
+                        registeredUserId != null
 
                     withContext(Dispatchers.Main) {
                         btnSubmit.isEnabled = true
 
                         if (registrationSuccessful) {
+                            SessionManager.saveUserId(this@RegisterActivity, registeredUserId!!)
                             Toast.makeText(this@RegisterActivity, "Регистрация успешна!", Toast.LENGTH_SHORT).show()
 
                             val intent = Intent(this@RegisterActivity, MainActivity::class.java)
