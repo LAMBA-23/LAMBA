@@ -43,6 +43,13 @@ def _register_and_clean(username: str) -> int:
     return user_id
 
 
+def _register_user(username: str) -> int:
+    return client.post(
+        "/auth/register",
+        json={"username": username, "password": "password123"},
+    ).json()["user_id"]
+
+
 class TestCreateVehicle:
     def test_create_vehicle_success(self) -> None:
         user_id = _register_and_clean("v1")
@@ -65,21 +72,24 @@ class TestCreateVehicle:
         assert "id" in data
         assert "created_at" in data
 
-    def test_create_vehicle_duplicate_prevention(self) -> None:
-        user_id = _register_and_clean("v2")
-        vehicle_data = {
-            "user_id": user_id,
-            "brand": "Toyota",
-            "model": "Camry",
-            "production_year": 2023,
-            "current_mileage": 10000,
-        }
-        response1 = client.post("/vehicle", json=vehicle_data)
-        assert response1.status_code == 201
-
-        response2 = client.post("/vehicle", json=vehicle_data)
-        assert response2.status_code == 409
-        assert "already has a vehicle" in response2.json()["detail"]
+    def test_create_vehicle_updates_existing_default(self) -> None:
+        user_id = _register_user("v2")
+        response = client.post(
+            "/vehicle",
+            json={
+                "user_id": user_id,
+                "brand": "Toyota",
+                "model": "Camry",
+                "production_year": 2023,
+                "current_mileage": 10000,
+            },
+        )
+        assert response.status_code == 201
+        data = response.json()
+        assert data["brand"] == "Toyota"
+        assert data["model"] == "Camry"
+        assert data["production_year"] == 2023
+        assert data["current_mileage"] == 10000
 
     def test_create_vehicle_user_not_found(self) -> None:
         response = client.post(

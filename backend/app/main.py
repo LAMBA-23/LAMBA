@@ -146,15 +146,19 @@ def get_vehicle(user_id: int = Query(...), db: Session = Depends(get_db)) -> Car
 
 @app.post("/vehicle", response_model=CarResponse, status_code=201)
 def create_vehicle(payload: CarCreate, db: Session = Depends(get_db)) -> Car:
-    existing_car = db.scalar(select(Car).where(Car.user_id == payload.user_id))
-    if existing_car is not None:
-        raise HTTPException(
-            status_code=409,
-            detail="User already has a vehicle. Only one vehicle per user is allowed in MVP v1.",
-        )
     user = db.scalar(select(User).where(User.id == payload.user_id))
     if user is None:
         raise HTTPException(status_code=404, detail="User not found")
+
+    existing_car = db.scalar(select(Car).where(Car.user_id == payload.user_id))
+    if existing_car is not None:
+        existing_car.brand = payload.brand
+        existing_car.model = payload.model
+        existing_car.production_year = payload.production_year
+        existing_car.current_mileage = payload.current_mileage
+        db.commit()
+        db.refresh(existing_car)
+        return existing_car
 
     car = Car(
         user_id=payload.user_id,
