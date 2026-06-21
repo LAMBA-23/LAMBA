@@ -17,7 +17,8 @@ class WelcomeActivity : AppCompatActivity() {
 
         // Create an account button
         btnCreateAccount?.setOnClickListener {
-            Toast.makeText(this, "Регистрация будет доступна в MVP-v1", Toast.LENGTH_SHORT).show()
+            val intent = Intent(this, RegisterActivity::class.java)
+            startActivity(intent)
         }
 
         //  go to log in screen after pressing log in button
