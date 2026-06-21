@@ -144,6 +144,18 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:tint="#FFFFFF" />
+
+        <ProgressBar
+            android:id="@+id/progressChatSend"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:indeterminate="true"
+            android:indeterminateTint="#D32F2F"
+            android:visibility="gone"
+            app:layout_constraintBottom_toBottomOf="@id/btnChatSend"
+            app:layout_constraintEnd_toEndOf="@id/btnChatSend"
+            app:layout_constraintStart_toStartOf="@id/btnChatSend"
+            app:layout_constraintTop_toTopOf="@id/btnChatSend" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <LinearLayout

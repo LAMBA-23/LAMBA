@@ -26,6 +26,9 @@ interface LambaApiService {
         @Query("user_id") userId: Int? = null
     ): Response<Event>
 
+    @POST("events")
+    suspend fun createEventFromChat(@Body event: EventCreateRequest): Response<Event>
+
     @GET("stats")
     suspend fun getStats(@Query("user_id") userId: Int? = null): Response<Stats>
 }
