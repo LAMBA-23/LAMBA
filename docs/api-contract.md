@@ -50,7 +50,7 @@ Error response:
 
 ## POST /auth/register
 
-Creates a new user account.
+Creates a new user account and initializes an empty default car for that user.
 
 Required fields:
 
@@ -99,7 +99,17 @@ Validation error response (`422 Unprocessable Entity`):
 
 ## GET /vehicle
 
-Returns the demo user's car.
+Returns a user's car.
+
+Query parameters:
+
+- `user_id` optional. If omitted, backend returns the demo user's car for MVP v0 compatibility.
+
+Example:
+
+```text
+GET /vehicle?user_id=2
+```
 
 Response:
 
@@ -116,7 +126,17 @@ Response:
 
 ## GET /events
 
-Returns all events for the demo user's car.
+Returns all events for a user's car.
+
+Query parameters:
+
+- `user_id` optional. If omitted, backend returns the demo user's events for MVP v0 compatibility.
+
+Example:
+
+```text
+GET /events?user_id=2
+```
 
 Response:
 
@@ -135,7 +155,17 @@ Response:
 
 ## POST /events
 
-Creates an event for the demo user's car. Android does not send `car_id`; backend finds the demo user and the demo user's car itself.
+Creates an event for a user's car.
+
+Query parameters:
+
+- `user_id` optional. If omitted, backend creates the event for the demo user's car for MVP v0 compatibility.
+
+Example:
+
+```text
+POST /events?user_id=2
+```
 
 Allowed event types: `fuel`, `repair`, `trip`, `issue`.
 
@@ -183,7 +213,17 @@ Validation error response:
 
 ## GET /stats
 
-Returns statistics for the demo user's car.
+Returns statistics for a user's car.
+
+Query parameters:
+
+- `user_id` optional. If omitted, backend returns stats for the demo user's car for MVP v0 compatibility.
+
+Example:
+
+```text
+GET /stats?user_id=2
+```
 
 Rules:
 

@@ -60,6 +60,7 @@ Smoke-check with curl:
 curl http://localhost:8000/health
 curl -X POST http://localhost:8000/auth/register -H "Content-Type: application/json" -d "{\"username\":\"new-user\",\"password\":\"password123\"}"
 curl -X POST http://localhost:8000/auth/login -H "Content-Type: application/json" -d "{\"username\":\"demo\",\"password\":\"demo\"}"
+curl "http://localhost:8000/vehicle?user_id=2"
 curl http://localhost:8000/events
 curl -X POST http://localhost:8000/events -H "Content-Type: application/json" -d "{\"type\":\"fuel\",\"description\":\"Full tank\",\"amount\":60,\"mileage\":125000}"
 curl http://localhost:8000/stats
@@ -71,10 +72,12 @@ Smoke-check in PowerShell:
 Invoke-RestMethod -Uri http://localhost:8000/health
 
 $registration = @{username='new-user'; password='password123'} | ConvertTo-Json -Compress
-Invoke-RestMethod -Uri http://localhost:8000/auth/register -Method Post -ContentType 'application/json' -Body $registration
+$registeredUser = Invoke-RestMethod -Uri http://localhost:8000/auth/register -Method Post -ContentType 'application/json' -Body $registration
 
 $login = @{username='demo'; password='demo'} | ConvertTo-Json -Compress
 Invoke-RestMethod -Uri http://localhost:8000/auth/login -Method Post -ContentType 'application/json' -Body $login
+
+Invoke-RestMethod -Uri "http://localhost:8000/vehicle?user_id=$($registeredUser.user_id)"
 
 Invoke-RestMethod -Uri http://localhost:8000/events
 
