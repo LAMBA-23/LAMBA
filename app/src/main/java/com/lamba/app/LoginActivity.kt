@@ -37,40 +37,95 @@ class LoginActivity : AppCompatActivity() {
 
             if (username.isEmpty() || password.isEmpty()) {
                 Toast.makeText(this, "Пожалуйста, заполните все поля", Toast.LENGTH_SHORT).show()
-            } else {
-                btnLogin.isEnabled = false
-                Toast.makeText(this, "Выполняется вход...", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
 
-                CoroutineScope(Dispatchers.IO).launch {
-                    try {
-                        val response = RetrofitClient.apiService.login(
-                            LoginRequest(username = username, password = password)
-                        )
-                        val loginSuccessful = response.isSuccessful && response.body()?.success == true
+            btnLogin.isEnabled = false
+            Toast.makeText(this, "Выполняется вход...", Toast.LENGTH_SHORT).show()
 
-                        withContext(Dispatchers.Main) {
+            CoroutineScope(Dispatchers.IO).launch {
+                try {
+                    val response = RetrofitClient.apiService.login(
+                        LoginRequest(username = username, password = password)
+                    )
+                    val body = response.body()
+
+                    withContext(Dispatchers.Main) {
+                        if (response.isSuccessful && body?.success == true && body.userId != null) {
+                            SessionStore.saveUserId(this@LoginActivity, body.userId)
+                            routeAfterLogin(body.userId, btnLogin)
+                        } else {
                             btnLogin.isEnabled = true
-
-                            if (loginSuccessful) {
-                                val intent = Intent(this@LoginActivity, MainActivity::class.java)
-                                startActivity(intent)
-                                finish()
-                            } else {
-                                Toast.makeText(this@LoginActivity, "Неверный логин или пароль", Toast.LENGTH_SHORT).show()
-                            }
+                            Toast.makeText(
+                                this@LoginActivity,
+                                "Неверный логин или пароль",
+                                Toast.LENGTH_SHORT
+                            ).show()
                         }
-                    } catch (e: Exception) {
-                        withContext(Dispatchers.Main) {
-                            btnLogin.isEnabled = true
-                            Toast.makeText(this@LoginActivity, "Не удалось подключиться к бэкенду", Toast.LENGTH_LONG).show()
-                        }
+                    }
+                } catch (e: Exception) {
+                    withContext(Dispatchers.Main) {
+                        btnLogin.isEnabled = true
+                        Toast.makeText(
+                            this@LoginActivity,
+                            "Не удалось подключиться к бэкенду",
+                            Toast.LENGTH_LONG
+                        ).show()
                     }
                 }
             }
         }
 
         tvRegisterLink.setOnClickListener {
-            Toast.makeText(this, "Переход на экран регистрации", Toast.LENGTH_SHORT).show()
+            val intent = Intent(this, RegisterActivity::class.java)
+            startActivity(intent)
         }
+    }
+
+    private fun routeAfterLogin(userId: Int, btnLogin: Button) {
+        CoroutineScope(Dispatchers.IO).launch {
+            try {
+                val vehicleResponse = RetrofitClient.apiService.getVehicle(userId)
+
+                withContext(Dispatchers.Main) {
+                    btnLogin.isEnabled = true
+
+                    if (vehicleResponse.isSuccessful) {
+                        openMainFlow(userId)
+                    } else if (vehicleResponse.code() == 404) {
+                        openVehicleSetup(userId)
+                    } else {
+                        Toast.makeText(
+                            this@LoginActivity,
+                            "Не удалось проверить данные автомобиля",
+                            Toast.LENGTH_LONG
+                        ).show()
+                    }
+                }
+            } catch (e: Exception) {
+                withContext(Dispatchers.Main) {
+                    btnLogin.isEnabled = true
+                    Toast.makeText(
+                        this@LoginActivity,
+                        "Не удалось подключиться к бэкенду",
+                        Toast.LENGTH_LONG
+                    ).show()
+                }
+            }
+        }
+    }
+
+    private fun openVehicleSetup(userId: Int) {
+        val intent = Intent(this, AddVehicleActivity::class.java)
+        intent.putExtra("USER_ID", userId)
+        startActivity(intent)
+        finish()
+    }
+
+    private fun openMainFlow(userId: Int) {
+        val intent = Intent(this, MainActivity::class.java)
+        intent.putExtra("USER_ID", userId)
+        startActivity(intent)
+        finish()
     }
 }
