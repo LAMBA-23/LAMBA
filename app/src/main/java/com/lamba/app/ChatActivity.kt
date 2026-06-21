@@ -8,6 +8,7 @@ import android.widget.ImageButton
 import android.widget.LinearLayout
 import android.widget.ProgressBar
 import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -69,7 +70,11 @@ class ChatActivity : AppCompatActivity() {
 
         btnChatSend.setOnClickListener {
             val text = etChatBackMessage.text.toString().trim()
-            if (text.isNotEmpty() && !isSending) {
+            if (text.isEmpty()) {
+                Toast.makeText(this, "Введите сообщение", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+            if (!isSending) {
                 etChatBackMessage.text.clear()
                 sendMessage(text)
             }

@@ -20,6 +20,8 @@ data class RegisterRequest(
 data class RegisterResponse(
     @SerializedName("success") val success: Boolean = false,
     @SerializedName("user_id") val userId: Int? = null
+)
+
 data class ChatParseRequest(
     @SerializedName("message") val message: String
 )

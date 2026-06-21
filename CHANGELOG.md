@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Chat screen now prevents empty sends and shows a visible assistant response after a text message is sent (#46).
 - Issue templates for User Stories, PBIs, Bug Reports, and Course Tasks.
 - Pull Request template with acceptance criteria and changelog enforcement.
 - Definition of Done (`docs/definition-of-done.md`) and Roadmap (`docs/roadmap.md`).
