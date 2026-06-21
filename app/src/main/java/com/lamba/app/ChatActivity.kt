@@ -43,23 +43,19 @@ class ChatActivity : AppCompatActivity() {
 
         setupSuggestion(
             R.id.suggestStatus,
-            "\u041f\u0440\u043e\u0432\u0435\u0440\u0438\u0442\u044c "
-                + "\u0441\u043e\u0441\u0442\u043e\u044f\u043d\u0438\u0435",
+            "Проверить состояние",
         )
         setupSuggestion(
             R.id.suggestExpenses,
-            "\u041f\u043e\u0441\u043b\u0435\u0434\u043d\u0438\u0435 "
-                + "\u0440\u0430\u0441\u0445\u043e\u0434\u044b",
+            "Последние расходы",
         )
         setupSuggestion(
             R.id.suggestService,
-            "\u041a\u043e\u0433\u0434\u0430 "
-                + "\u0431\u044b\u043b\u043e \u0422\u041e?",
+            "Когда было ТО?",
         )
         setupSuggestion(
             R.id.suggestAddRecord,
-            "\u0414\u043e\u0431\u0430\u0432\u0438\u0442\u044c "
-                + "\u0437\u0430\u043f\u0438\u0441\u044c",
+            "Добавить запись",
         )
 
         btnChatSend.setOnClickListener {
@@ -103,19 +99,13 @@ class ChatActivity : AppCompatActivity() {
                         } else {
                             addMessage(
                                 body.clarificationQuestion
-                                    ?: "\u0423\u0442\u043e\u0447\u043d\u0438\u0442\u0435, "
-                                    + "\u043f\u043e\u0436\u0430\u043b\u0443\u0439\u0441\u0442\u0430, "
-                                    + "\u0434\u0435\u0442\u0430\u043b\u0438 "
-                                    + "\u0437\u0430\u043f\u0438\u0441\u0438.",
+                                    ?: "Уточните, пожалуйста, детали записи.",
                                 isFromUser = false,
                             )
                         }
                     } else {
                         addMessage(
-                            "\u0411\u044d\u043a\u0435\u043d\u0434 "
-                                + "\u043d\u0435 \u0441\u043c\u043e\u0433 "
-                                + "\u0440\u0430\u0441\u043f\u043e\u0437\u043d\u0430\u0442\u044c "
-                                + "\u0437\u0430\u043f\u0438\u0441\u044c.",
+                            "Бэкенд не смог распознать запись.",
                             isFromUser = false,
                         )
                     }
@@ -124,10 +114,7 @@ class ChatActivity : AppCompatActivity() {
             } catch (_: Exception) {
                 withContext(Dispatchers.Main) {
                     addMessage(
-                        "\u041d\u0435 \u0443\u0434\u0430\u043b\u043e\u0441\u044c "
-                            + "\u0441\u0432\u044f\u0437\u0430\u0442\u044c\u0441\u044f "
-                            + "\u0441 \u0441\u0435\u0440\u0432\u0438\u0441\u043e\u043c "
-                            + "\u0440\u0430\u0441\u043f\u043e\u0437\u043d\u0430\u0432\u0430\u043d\u0438\u044f.",
+                        "Не удалось связаться с сервисом распознавания.",
                         isFromUser = false,
                     )
                     setSendingState(isSending = false)
@@ -149,21 +136,14 @@ class ChatActivity : AppCompatActivity() {
 
     private fun formatParsedEvent(event: ParsedEventPayload): String {
         val lines = mutableListOf<String>()
-        lines.add(
-            "\u0420\u0430\u0441\u043f\u043e\u0437\u043d\u0430\u043b "
-                + "\u0437\u0430\u043f\u0438\u0441\u044c:"
-        )
-        lines.add(
-            "\u0422\u0438\u043f: ${event.type}"
-        )
-        lines.add(
-            "\u041e\u043f\u0438\u0441\u0430\u043d\u0438\u0435: ${event.description}"
-        )
+        lines.add("Распознал запись:")
+        lines.add("Тип: ${event.type}")
+        lines.add("Описание: ${event.description}")
         event.amount?.let {
-            lines.add("\u0421\u0443\u043c\u043c\u0430: $it")
+            lines.add("Сумма: $it")
         }
         event.mileage?.let {
-            lines.add("\u041f\u0440\u043e\u0431\u0435\u0433: $it")
+            lines.add("Пробег: $it")
         }
         return lines.joinToString(separator = "\n")
     }
