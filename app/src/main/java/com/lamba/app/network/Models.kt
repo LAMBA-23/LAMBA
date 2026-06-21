@@ -12,6 +12,14 @@ data class LoginResponse(
     @SerializedName("user_id") val userId: Int? = null
 )
 
+data class RegisterRequest(
+    @SerializedName("username") val username: String,
+    @SerializedName("password") val password: String
+)
+
+data class RegisterResponse(
+    @SerializedName("success") val success: Boolean = false,
+    @SerializedName("user_id") val userId: Int? = null
 data class ChatParseRequest(
     @SerializedName("message") val message: String
 )

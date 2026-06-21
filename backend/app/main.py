@@ -1,4 +1,4 @@
-from fastapi import Depends, FastAPI, HTTPException
+from fastapi import Depends, FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session
@@ -15,12 +15,18 @@ from .schemas import (
     LoginRequest,
     LoginResponse,
     ParsedEventPayload,
+    RegisterRequest,
+    RegisterResponse,
     StatsResponse,
 )
 
 DEMO_USERNAME = "demo"
 DEMO_PASSWORD = "demo"
 DEMO_COMPATIBLE_PASSWORDS = {DEMO_PASSWORD, "password"}
+DEFAULT_CAR_BRAND = "Not set"
+DEFAULT_CAR_MODEL = "Not set"
+DEFAULT_CAR_PRODUCTION_YEAR = 0
+DEFAULT_CAR_MILEAGE = 0
 
 app = FastAPI(title="LAMBA Backend", version="0.1.0")
 
@@ -34,6 +40,7 @@ app.add_middleware(
 
 
 def seed_demo_data(db: Session) -> None:
+    # Demo stays available as a normal seeded account for smoke checks.
     user = db.scalar(select(User).where(User.username == DEMO_USERNAME))
     if user is None:
         user = User(username=DEMO_USERNAME, password=DEMO_PASSWORD)
@@ -55,19 +62,38 @@ def seed_demo_data(db: Session) -> None:
     db.commit()
 
 
-def get_demo_user(db: Session) -> User:
-    user = db.scalar(select(User).where(User.username == DEMO_USERNAME))
+def create_default_car(user_id: int) -> Car:
+    return Car(
+        user_id=user_id,
+        brand=DEFAULT_CAR_BRAND,
+        model=DEFAULT_CAR_MODEL,
+        production_year=DEFAULT_CAR_PRODUCTION_YEAR,
+        current_mileage=DEFAULT_CAR_MILEAGE,
+    )
+
+
+def get_user(db: Session, user_id: int) -> User:
+    user = db.get(User, user_id)
     if user is None:
-        raise HTTPException(status_code=500, detail="Demo user is not initialized")
+        raise HTTPException(status_code=404, detail="User not found")
     return user
 
 
-def get_demo_car(db: Session) -> Car:
-    user = get_demo_user(db)
+def get_or_create_user_car(db: Session, user: User) -> Car:
     car = db.scalar(select(Car).where(Car.user_id == user.id))
-    if car is None:
-        raise HTTPException(status_code=500, detail="Demo car is not initialized")
+    if car is not None:
+        return car
+
+    car = create_default_car(user.id)
+    db.add(car)
+    db.commit()
+    db.refresh(car)
     return car
+
+
+def get_car_for_user_id(db: Session, user_id: int) -> Car:
+    user = get_user(db, user_id)
+    return get_or_create_user_car(db, user)
 
 
 @app.on_event("startup")
@@ -97,9 +123,24 @@ def login(payload: LoginRequest, db: Session = Depends(get_db)) -> LoginResponse
     return LoginResponse(success=True, user_id=user.id)
 
 
+@app.post("/auth/register", response_model=RegisterResponse, status_code=201)
+def register(payload: RegisterRequest, db: Session = Depends(get_db)) -> RegisterResponse:
+    existing_user = db.scalar(select(User).where(User.username == payload.username))
+    if existing_user is not None:
+        raise HTTPException(status_code=400, detail="Username is already registered")
+
+    user = User(username=payload.username, password=payload.password)
+    db.add(user)
+    db.flush()
+    db.add(create_default_car(user.id))
+    db.commit()
+    db.refresh(user)
+    return RegisterResponse(success=True, user_id=user.id)
+
+
 @app.get("/vehicle", response_model=CarResponse)
-def get_vehicle(db: Session = Depends(get_db)) -> Car:
-    return get_demo_car(db)
+def get_vehicle(user_id: int = Query(...), db: Session = Depends(get_db)) -> Car:
+    return get_car_for_user_id(db, user_id)
 
 
 @app.post("/chat/parse-event", response_model=ChatParseResponse)
@@ -161,14 +202,18 @@ def parse_event_from_chat(payload: ChatParseRequest) -> ChatParseResponse:
 
 
 @app.get("/events", response_model=list[EventResponse])
-def get_events(db: Session = Depends(get_db)) -> list[Event]:
-    car = get_demo_car(db)
+def get_events(user_id: int = Query(...), db: Session = Depends(get_db)) -> list[Event]:
+    car = get_car_for_user_id(db, user_id)
     return list(db.scalars(select(Event).where(Event.car_id == car.id).order_by(Event.id)))
 
 
 @app.post("/events", response_model=EventResponse)
-def create_event(payload: EventCreate, db: Session = Depends(get_db)) -> Event:
-    car = get_demo_car(db)
+def create_event(
+    payload: EventCreate,
+    user_id: int = Query(...),
+    db: Session = Depends(get_db),
+) -> Event:
+    car = get_car_for_user_id(db, user_id)
     event = Event(
         car_id=car.id,
         type=payload.type,
@@ -183,8 +228,8 @@ def create_event(payload: EventCreate, db: Session = Depends(get_db)) -> Event:
 
 
 @app.get("/stats", response_model=StatsResponse)
-def get_stats(db: Session = Depends(get_db)) -> StatsResponse:
-    car = get_demo_car(db)
+def get_stats(user_id: int = Query(...), db: Session = Depends(get_db)) -> StatsResponse:
+    car = get_car_for_user_id(db, user_id)
 
     fuel_expenses = db.scalar(
         select(func.coalesce(func.sum(Event.amount), 0)).where(

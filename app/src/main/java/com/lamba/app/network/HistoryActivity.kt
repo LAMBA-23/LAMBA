@@ -42,13 +42,21 @@ class HistoryActivity : AppCompatActivity() {
         progressBar.visibility = View.VISIBLE
 
         CoroutineScope(Dispatchers.IO).launch {
+            val savedUserId = SessionManager.getUserId(this@HistoryActivity)
+            if (savedUserId != null) {
+                loadDataFromBackend(savedUserId)
+                return@launch
+            }
+
             try {
                 val authResponse = RetrofitClient.apiService.login(
                     LoginRequest(username = "demo", password = "demo")
                 )
 
-                if (authResponse.isSuccessful && authResponse.body()?.success == true) {
-                    loadDataFromBackend()
+                val demoUserId = authResponse.body()?.userId
+                if (authResponse.isSuccessful && authResponse.body()?.success == true && demoUserId != null) {
+                    SessionManager.saveUserId(this@HistoryActivity, demoUserId)
+                    loadDataFromBackend(demoUserId)
                 } else {
                     withContext(Dispatchers.Main) {
                         progressBar.visibility = View.GONE
@@ -64,10 +72,10 @@ class HistoryActivity : AppCompatActivity() {
         }
     }
 
-    private suspend fun loadDataFromBackend() {
+    private suspend fun loadDataFromBackend(userId: Int?) {
         try {
-            val statsResponse = RetrofitClient.apiService.getStats()
-            val eventsResponse = RetrofitClient.apiService.getEvents()
+            val statsResponse = RetrofitClient.apiService.getStats(userId)
+            val eventsResponse = RetrofitClient.apiService.getEvents(userId)
 
             withContext(Dispatchers.Main) {
                 progressBar.visibility = View.GONE
@@ -168,10 +176,11 @@ class HistoryActivity : AppCompatActivity() {
 
         CoroutineScope(Dispatchers.IO).launch {
             try {
-                val response = RetrofitClient.apiService.createEvent(event)
+                val userId = SessionManager.getUserId(this@HistoryActivity)
+                val response = RetrofitClient.apiService.createEvent(event, userId)
 
                 if (response.isSuccessful) {
-                    loadDataFromBackend()
+                    loadDataFromBackend(userId)
                     showToast("Событие сохранено")
                 } else {
                     withContext(Dispatchers.Main) {

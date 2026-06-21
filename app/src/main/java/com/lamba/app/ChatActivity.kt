@@ -52,23 +52,19 @@ class ChatActivity : AppCompatActivity() {
 
         setupSuggestion(
             R.id.suggestStatus,
-            "\u041f\u0440\u043e\u0432\u0435\u0440\u0438\u0442\u044c "
-                + "\u0441\u043e\u0441\u0442\u043e\u044f\u043d\u0438\u0435",
+            "Проверить состояние",
         )
         setupSuggestion(
             R.id.suggestExpenses,
-            "\u041f\u043e\u0441\u043b\u0435\u0434\u043d\u0438\u0435 "
-                + "\u0440\u0430\u0441\u0445\u043e\u0434\u044b",
+            "Последние расходы",
         )
         setupSuggestion(
             R.id.suggestService,
-            "\u041a\u043e\u0433\u0434\u0430 "
-                + "\u0431\u044b\u043b\u043e \u0422\u041e?",
+            "Когда было ТО?",
         )
         setupSuggestion(
             R.id.suggestAddRecord,
-            "\u0414\u043e\u0431\u0430\u0432\u0438\u0442\u044c "
-                + "\u0437\u0430\u043f\u0438\u0441\u044c",
+            "Добавить запись",
         )
 
         btnChatSend.setOnClickListener {
