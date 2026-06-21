@@ -1,6 +1,6 @@
 `docs/user-stories.md` is the authoritative current registry of stable user-story IDs and current user-story membership. It is not the detailed Sprint execution plan.
 
-When adding a new user story after migration, assign the next unused stable ID after the highest existing `US-xxx` value already present in this file.
+When adding a new user story after migration, assign the next unused stable ID after the highest existing `US-xx` value already present in this file.
 
 | ID | Short title | MoSCoW priority | Issue | Requirement status | Work Status | Sprint |
 | --- | --- | --- | --- | --- | --- | --- |
