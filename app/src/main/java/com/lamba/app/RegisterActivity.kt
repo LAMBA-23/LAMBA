@@ -4,9 +4,11 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import android.widget.EditText
+import android.widget.ImageView
+import android.widget.ProgressBar
 import android.widget.TextView
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.AppCompatButton
 import com.lamba.app.network.RegisterRequest
 import com.lamba.app.network.RetrofitClient
 import com.lamba.app.network.SessionManager
@@ -21,15 +23,23 @@ class RegisterActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_register)
 
+        val btnBack = findViewById<ImageView>(R.id.btnRegisterBack)
         val etName = findViewById<EditText>(R.id.etRegisterName)
         val etEmail = findViewById<EditText>(R.id.etRegisterEmail)
         val etPassword = findViewById<EditText>(R.id.etRegisterPassword)
         val etConfirmPassword = findViewById<EditText>(R.id.etRegisterConfirmPassword)
-        val btnSubmit = findViewById<View>(R.id.btnSubmitRegister)
-        val btnBack = findViewById<View>(R.id.btnRegisterBack)
+        val btnSubmit = findViewById<AppCompatButton>(R.id.btnSubmitRegister)
         val tvToLogin = findViewById<TextView>(R.id.tvToLogin)
+        val tvError = findViewById<TextView>(R.id.tvRegisterError)
+        val progressBar = findViewById<ProgressBar>(R.id.progressBar)
 
         btnBack.setOnClickListener {
+            finish()
+        }
+
+        tvToLogin.setOnClickListener {
+            val intent = Intent(this, LoginActivity::class.java)
+            startActivity(intent)
             finish()
         }
 
@@ -39,66 +49,69 @@ class RegisterActivity : AppCompatActivity() {
             val password = etPassword.text.toString().trim()
             val confirmPassword = etConfirmPassword.text.toString().trim()
 
-            if (name.isEmpty() || email.isEmpty() || password.isEmpty() || confirmPassword.isEmpty()) {
-                Toast.makeText(this, "Пожалуйста, заполните все поля", Toast.LENGTH_LONG).show()
-                return@setOnClickListener
-            }
+            tvError.visibility = View.GONE
 
-            if (password.length < 8) {
-                Toast.makeText(this, "Пароль должен содержать минимум 8 символов", Toast.LENGTH_LONG).show()
-                return@setOnClickListener
-            }
-
-            if (password != confirmPassword) {
-                Toast.makeText(this, "Пароли не совпадают", Toast.LENGTH_LONG).show()
-                return@setOnClickListener
+            when {
+                name.isEmpty() || email.isEmpty() || password.isEmpty() || confirmPassword.isEmpty() -> {
+                    showError(tvError, "Пожалуйста, заполните все поля")
+                    return@setOnClickListener
+                }
+                password.length < 8 -> {
+                    showError(tvError, "Пароль должен содержать минимум 8 символов")
+                    return@setOnClickListener
+                }
+                password != confirmPassword -> {
+                    showError(tvError, "Пароли не совпадают")
+                    return@setOnClickListener
+                }
             }
 
             btnSubmit.isEnabled = false
-            Toast.makeText(this, "Регистрация...", Toast.LENGTH_SHORT).show()
+            progressBar.visibility = View.VISIBLE
 
             CoroutineScope(Dispatchers.IO).launch {
                 try {
                     val response = RetrofitClient.apiService.register(
                         RegisterRequest(username = email, password = password)
                     )
-                    val registeredUserId = response.body()?.userId
-                    val registrationSuccessful = response.isSuccessful &&
-                        response.body()?.success == true &&
-                        registeredUserId != null
+                    val body = response.body()
 
                     withContext(Dispatchers.Main) {
-                        btnSubmit.isEnabled = true
+                        progressBar.visibility = View.GONE
 
-                        if (registrationSuccessful) {
-                            SessionManager.saveUserId(this@RegisterActivity, registeredUserId!!)
-                            Toast.makeText(this@RegisterActivity, "Регистрация успешна!", Toast.LENGTH_SHORT).show()
-
-                            val intent = Intent(this@RegisterActivity, MainActivity::class.java)
-                            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-                            startActivity(intent)
+                        if (response.isSuccessful && body?.success == true && body.userId != null) {
+                            SessionManager.saveUserId(this@RegisterActivity, body.userId)
+                            openVehicleSetup(body.userId)
                         } else {
+                            btnSubmit.isEnabled = true
                             val message = when (response.code()) {
-                                400 -> "Пользователь с таким email уже существует"
-                                422 -> "Проверьте правильность данных"
-                                else -> "Не удалось зарегистрироваться"
+                                400 -> "Такой аккаунт уже существует"
+                                422 -> "Проверьте правильность введённых данных"
+                                else -> "Не удалось создать аккаунт"
                             }
-                            Toast.makeText(this@RegisterActivity, message, Toast.LENGTH_LONG).show()
+                            showError(tvError, message)
                         }
                     }
                 } catch (e: Exception) {
                     withContext(Dispatchers.Main) {
+                        progressBar.visibility = View.GONE
                         btnSubmit.isEnabled = true
-                        Toast.makeText(this@RegisterActivity, "Не удалось подключиться к бэкенду", Toast.LENGTH_LONG).show()
+                        showError(tvError, "Не удалось подключиться к бэкенду")
                     }
                 }
             }
         }
+    }
 
-        tvToLogin.setOnClickListener {
-            val intent = Intent(this, LoginActivity::class.java)
-            startActivity(intent)
-            finish()
-        }
+    private fun showError(tvError: TextView, message: String) {
+        tvError.text = message
+        tvError.visibility = View.VISIBLE
+    }
+
+    private fun openVehicleSetup(userId: Int) {
+        val intent = Intent(this, AddVehicleActivity::class.java)
+        intent.putExtra("USER_ID", userId)
+        startActivity(intent)
+        finish()
     }
 }

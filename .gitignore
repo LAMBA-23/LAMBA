@@ -24,6 +24,7 @@ Thumbs.db
 *.tmp
 __pycache__/
 *.pyc
+test.db
 app/build/
 .gradle/
 build/
