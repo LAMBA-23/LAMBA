@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.0] - 2026-06-21
+
 ### Added
 
 - Backend registration endpoint (`POST /auth/register`) with username/password validation (#68, #72).
@@ -44,9 +46,3 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Android `ChatActivity` escaped Unicode strings replaced with readable Cyrillic (#75).
 - Merge conflicts resolved across multiple PRs (#73, #81).
 - API documentation updated to reflect current endpoint contracts (#73, #81).
-
-## [0.1.0] - 2026-06-16
-
-### Added
-
-- MVP v1 Initial release setup.
