@@ -20,6 +20,8 @@ data class RegisterRequest(
 data class RegisterResponse(
     @SerializedName("success") val success: Boolean = false,
     @SerializedName("user_id") val userId: Int? = null
+)
+
 data class ChatParseRequest(
     @SerializedName("message") val message: String
 )
@@ -59,6 +61,7 @@ data class Event(
                 "ремонт", "сервис", "repair" -> "repair"
                 "поездка", "trip" -> "trip"
                 "проблема", "поломка", "issue" -> "issue"
+                "техническое состояние", "состояние", "condition" -> "condition"
                 else -> "issue"
             }
         }
