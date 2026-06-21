@@ -16,29 +16,39 @@ Deliver an Android-first vehicle digital twin that lets a vehicle owner keep a u
 
 - Sprint milestone: [Sprint 1 - MVP v1 Foundation](https://github.com/LAMBA-23/LAMBA/milestone/1)
 - Dates: 2026-06-15 to 2026-06-21
-- Sprint Goal: Establish the core MVP v1 foundation for account access, vehicle profile data, timeline visibility, statistics, and maintained planning artifacts.
-- Focus / expected outcome: A user can start from account access, reach the basic vehicle-history experience, and the team has the maintained roadmap needed for Sprint planning and traceability.
+- Sprint Goal: Establish the core MVP v1 foundation: user registration, vehicle profile, chat-to-event parsing, onboarding-to-backend connection, and timeline visibility.
+- Focus / expected outcome: A user can register, add a vehicle, send chat messages that get parsed into structured events, and view the vehicle timeline. All supporting backend endpoints and Android integrations are in place.
 
 Planned items:
 
+User Stories:
 - [#44 US-01: User registration](https://github.com/LAMBA-23/LAMBA/issues/44)
 - [#45 US-02: Add a vehicle](https://github.com/LAMBA-23/LAMBA/issues/45)
+- [#46 US-03: Send messages](https://github.com/LAMBA-23/LAMBA/issues/46)
+- [#47 US-04: Automatically create records](https://github.com/LAMBA-23/LAMBA/issues/47)
 - [#48 US-05: View vehicle timeline](https://github.com/LAMBA-23/LAMBA/issues/48)
-- [#50 US-07: View basic statistics](https://github.com/LAMBA-23/LAMBA/issues/50)
+
+Supporting PBIs:
+- [#67 PBI - Implement vehicle creation endpoint](https://github.com/LAMBA-23/LAMBA/issues/67)
+- [#68 PBI - Implement backend registration endpoint](https://github.com/LAMBA-23/LAMBA/issues/68)
+- [#69 PBI - Implement chat-to-event parsing baseline](https://github.com/LAMBA-23/LAMBA/issues/69)
+- [#70 PBI - Connect Android chat send flow to backend](https://github.com/LAMBA-23/LAMBA/issues/70)
+- [#71 PBI - Connect Android onboarding to backend](https://github.com/LAMBA-23/LAMBA/issues/71)
+
+Planning:
 - [#64 Create roadmap](https://github.com/LAMBA-23/LAMBA/issues/64)
 
-## Sprint 2 - Chat Event Capture
+## Sprint 2 - Assistant & Statistics
 
-- Sprint milestone: [Sprint 2 - Chat Event Capture](https://github.com/LAMBA-23/LAMBA/milestone/2)
+- Sprint milestone: [Sprint 2 - Assistant & Statistics](https://github.com/LAMBA-23/LAMBA/milestone/2)
 - Dates: 2026-06-22 to 2026-06-28
-- Sprint Goal: Connect the chat-first interaction model to vehicle-history creation and question answering.
-- Focus / expected outcome: A logged-in user can send chat messages, supported vehicle events can become structured records, and the assistant can answer basic questions from saved vehicle history.
+- Sprint Goal: Let the user ask questions about their vehicle history and view basic statistics.
+- Focus / expected outcome: The AI assistant can answer questions from saved vehicle data, and the user can see fuel/repair expenses and trip statistics.
 
 Planned items:
 
-- [#46 US-03: Send messages](https://github.com/LAMBA-23/LAMBA/issues/46)
-- [#47 US-04: Automatically create records](https://github.com/LAMBA-23/LAMBA/issues/47)
 - [#49 US-06: Ask AI assistant](https://github.com/LAMBA-23/LAMBA/issues/49)
+- [#50 US-07: View basic statistics](https://github.com/LAMBA-23/LAMBA/issues/50)
 
 ## Sprint 3 - Maintenance Follow-up
 
