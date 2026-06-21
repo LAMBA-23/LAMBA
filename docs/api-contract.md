@@ -1,4 +1,4 @@
-# LAMBA MVP v0 API contract
+# LAMBA MVP v1 API contract
 
 Base URL for local development: `http://localhost:8000`
 
@@ -121,6 +121,88 @@ Response:
   "production_year": 2020,
   "current_mileage": 125000,
   "created_at": "2026-06-13T12:00:00"
+}
+```
+
+## POST /vehicle
+
+Creates a vehicle profile for a user. Each user can have only one vehicle in MVP v1.
+
+Request:
+
+```json
+{
+  "user_id": 1,
+  "brand": "Toyota",
+  "model": "Camry",
+  "production_year": 2023,
+  "current_mileage": 10000
+}
+```
+
+Success response (201):
+
+```json
+{
+  "id": 1,
+  "brand": "Toyota",
+  "model": "Camry",
+  "production_year": 2023,
+  "current_mileage": 10000,
+  "created_at": "2026-06-20T12:00:00"
+}
+```
+
+Error responses:
+
+- 404 — User not found:
+
+```json
+{
+  "detail": "User not found"
+}
+```
+
+- 422 — Validation error (empty brand, invalid year, negative mileage, etc.):
+
+```json
+{
+  "detail": [
+    {
+      "loc": ["body", "brand"],
+      "msg": "brand must not be empty",
+      "type": "value_error"
+    }
+  ]
+}
+```
+
+## GET /vehicle
+
+Returns the vehicle profile for a given user.
+
+Query parameters:
+
+- `user_id` (int, required) — the user ID.
+
+Response:
+
+```json
+{
+  "id": 1,
+  "brand": "BMW",
+  "model": "M4",
+  "production_year": 2020,
+  "current_mileage": 125000,
+  "created_at": "2026-06-13T12:00:00"
+}
+```
+
+Error response (404):
+
+```json
+{
+  "detail": "Vehicle not found"
 }
 ```
 

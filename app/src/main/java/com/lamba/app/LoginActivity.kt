@@ -58,6 +58,7 @@ class LoginActivity : AppCompatActivity() {
                             if (loginSuccessful) {
                                 SessionManager.saveUserId(this@LoginActivity, loggedInUserId!!)
                                 val intent = Intent(this@LoginActivity, MainActivity::class.java)
+                                intent.putExtra("USER_ID", response.body()?.userId ?: -1)
                                 startActivity(intent)
                                 finish()
                             } else {
