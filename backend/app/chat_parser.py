@@ -20,6 +20,7 @@ Supported event types:
 - repair
 - trip
 - issue
+- condition (a technical condition/status update without a malfunction)
 
 Return only valid JSON with exactly these fields:
 type, description, amount, mileage, needs_clarification, clarification_question
@@ -35,8 +36,9 @@ General rules:
 - amount and mileage must be integers when present.
 
 Interpretation rules:
-- Do not assume fuel, repair, trip, or issue unless the text clearly indicates it.
+- Do not assume fuel, repair, trip, issue, or condition unless the text clearly indicates it.
 - If the message explicitly indicates a problem, malfunction, warning light, damage, failure, error, or check-engine symptom, classify it as issue unless the text clearly says a repair was performed.
+- If the message reports a normal technical state, inspection result, fluid level, tyre pressure, or odometer update without a malfunction, classify it as condition.
 - If the message explicitly says the user drove, traveled, completed a route, or covered a distance, classify it as trip unless other words clearly indicate another type.
 - Treat amount as money spent only when the wording clearly indicates price, payment, cost, or currency.
 - Treat mileage as odometer mileage only when the wording clearly indicates current vehicle mileage or odometer reading.
@@ -52,7 +54,7 @@ You must ask for clarification if any of the following is true:
 - the message is not clearly about a supported vehicle event.
 
 Clarification behavior:
-- If the event type is unclear, ask whether it was fuel, repair, trip, or issue.
+- If the event type is unclear, ask whether it was fuel, repair, trip, issue, or a technical condition update.
 - If a number could mean amount, distance, mileage, fuel volume, or another metric, ask what the number refers to.
 - If the event is clearly a trip and only the distance unit is unclear, keep the event as trip and ask whether the distance is kilometers or miles.
 - If the message contains multiple events, ask the user to send one event at a time.
@@ -74,6 +76,9 @@ Output: {"type":"issue","description":"Загорелся чек двигате�
 
 Input: "Машина не заводится"
 Output: {"type":"issue","description":"Машина не заводится","amount":null,"mileage":null,"needs_clarification":false,"clarification_question":null}
+
+Input: "Техническое состояние хорошее, пробег 125500"
+Output: {"type":"condition","description":"Техническое состояние хорошее","amount":null,"mileage":125500,"needs_clarification":false,"clarification_question":null}
 
 Input: "Заправился на 2500 и поменял масло за 8000"
 Output: {"type":null,"description":null,"amount":null,"mileage":null,"needs_clarification":true,"clarification_question":"Уточните, пожалуйста, одно событие за сообщение: это была заправка или ремонт?"}
@@ -160,6 +165,16 @@ def _apply_guardrails(message: str, parsed_event: ParsedChatEvent) -> ParsedChat
             clarification_question=None,
         )
 
+    if _looks_like_condition_message(normalized_message):
+        return ParsedChatEvent(
+            type="condition",
+            description=message.strip(),
+            amount=None,
+            mileage=parsed_event.mileage,
+            needs_clarification=False,
+            clarification_question=None,
+        )
+
     if _looks_like_trip_with_unclear_units(normalized_message):
         distance_match = re.search(r"\b(\d+)\b", normalized_message)
         distance_value = distance_match.group(1) if distance_match else None
@@ -193,12 +208,22 @@ def _contains_multiple_distinct_events(message: str) -> bool:
             _contains_repair_keywords(message),
             _contains_trip_keywords(message),
             _contains_issue_keywords(message),
+            _contains_condition_keywords(message),
         )
     ) > 1
 
 
 def _looks_like_issue_message(message: str) -> bool:
     return _contains_issue_keywords(message) and not _contains_repair_keywords(message)
+
+
+def _looks_like_condition_message(message: str) -> bool:
+    return _contains_condition_keywords(message) and not (
+        _contains_fuel_keywords(message)
+        or _contains_repair_keywords(message)
+        or _contains_trip_keywords(message)
+        or _contains_issue_keywords(message)
+    )
 
 
 def _looks_like_trip_with_unclear_units(message: str) -> bool:
@@ -259,6 +284,20 @@ def _contains_issue_keywords(message: str) -> bool:
             "не работает",
             "warning",
             "fail",
+        )
+    )
+
+
+def _contains_condition_keywords(message: str) -> bool:
+    return any(
+        keyword in message
+        for keyword in (
+            "техническое состояние",
+            "состояние автомобиля",
+            "состояние машины",
+            "уровень жидкости",
+            "давление в шинах",
+            "показания одометра",
         )
     )
 

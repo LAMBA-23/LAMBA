@@ -19,6 +19,7 @@ import com.lamba.app.network.ChatSendResult
 import com.lamba.app.network.Event
 import com.lamba.app.network.RetrofitChatBackend
 import com.lamba.app.network.RetrofitClient
+import com.lamba.app.network.SessionManager
 import kotlinx.coroutines.launch
 
 class ChatActivity : AppCompatActivity() {
@@ -33,7 +34,9 @@ class ChatActivity : AppCompatActivity() {
     private var isSending = false
 
     private val chatRepository by lazy {
-        ChatRepository(RetrofitChatBackend(RetrofitClient.apiService))
+        SessionManager.getUserId(this)?.let { userId ->
+            ChatRepository(RetrofitChatBackend(RetrofitClient.apiService, userId))
+        }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -102,9 +105,19 @@ class ChatActivity : AppCompatActivity() {
         addMessage(message, isFromUser = true)
         setSendingState(isSending = true)
 
+        val repository = chatRepository
+        if (repository == null) {
+            addMessage(
+                "\u0412\u043e\u0439\u0434\u0438\u0442\u0435 \u0432 \u0430\u043a\u043a\u0430\u0443\u043d\u0442, \u0447\u0442\u043e\u0431\u044b \u0441\u043e\u0445\u0440\u0430\u043d\u044f\u0442\u044c \u0437\u0430\u043f\u0438\u0441\u0438 \u0430\u0432\u0442\u043e\u043c\u043e\u0431\u0438\u043b\u044f.",
+                isFromUser = false,
+            )
+            setSendingState(isSending = false)
+            return
+        }
+
         lifecycleScope.launch {
             try {
-                when (val result = chatRepository.sendMessage(message)) {
+                when (val result = repository.sendMessage(message)) {
                     is ChatSendResult.Saved -> {
                         addMessage(formatSavedEvent(result.event), isFromUser = false)
                     }
@@ -143,6 +156,7 @@ class ChatActivity : AppCompatActivity() {
             "repair" -> "\u0420\u0435\u043c\u043e\u043d\u0442"
             "trip" -> "\u041f\u043e\u0435\u0437\u0434\u043a\u0430"
             "issue" -> "\u041f\u0440\u043e\u0431\u043b\u0435\u043c\u0430"
+            "condition" -> "\u0422\u0435\u0445\u043d\u0438\u0447\u0435\u0441\u043a\u043e\u0435 \u0441\u043e\u0441\u0442\u043e\u044f\u043d\u0438\u0435"
             else -> event.type
         }
         val lines = mutableListOf(
@@ -159,12 +173,12 @@ class ChatActivity : AppCompatActivity() {
     private fun failureMessage(stage: ChatFailureStage): String {
         return when (stage) {
             ChatFailureStage.PARSING ->
-                "\u041d\u0435 \u0443\u0434\u0430\u043b\u043e\u0441\u044c \u043e\u0431\u0440\u0430\u0431\u043e\u0442\u0430\u0442\u044c \u0441\u043e\u043e\u0431\u0449\u0435\u043d\u0438\u0435. "
-                    + "\u041f\u0440\u043e\u0432\u0435\u0440\u044c\u0442\u0435 \u043f\u043e\u0434\u043a\u043b\u044e\u0447\u0435\u043d\u0438\u0435 \u0438 \u043f\u043e\u043f\u0440\u043e\u0431\u0443\u0439\u0442\u0435 \u0435\u0449\u0451 \u0440\u0430\u0437."
+                "\u041d\u0435 \u0443\u0434\u0430\u043b\u043e\u0441\u044c \u043e\u0431\u0440\u0430\u0431\u043e\u0442\u0430\u0442\u044c \u0441\u043e\u043e\u0431\u0449\u0435\u043d\u0438\u0435. " +
+                    "\u041f\u0440\u043e\u0432\u0435\u0440\u044c\u0442\u0435 \u043f\u043e\u0434\u043a\u043b\u044e\u0447\u0435\u043d\u0438\u0435 \u0438 \u043f\u043e\u043f\u0440\u043e\u0431\u0443\u0439\u0442\u0435 \u0435\u0449\u0451 \u0440\u0430\u0437."
 
             ChatFailureStage.SAVING ->
-                "\u042f \u043f\u043e\u043d\u044f\u043b\u0430 \u0437\u0430\u043f\u0438\u0441\u044c, \u043d\u043e \u043d\u0435 \u0441\u043c\u043e\u0433\u043b\u0430 \u0441\u043e\u0445\u0440\u0430\u043d\u0438\u0442\u044c \u0435\u0451 \u0432 \u0438\u0441\u0442\u043e\u0440\u0438\u044e. "
-                    + "\u041f\u043e\u043f\u0440\u043e\u0431\u0443\u0439\u0442\u0435 \u0435\u0449\u0451 \u0440\u0430\u0437."
+                "\u042f \u043f\u043e\u043d\u044f\u043b\u0430 \u0437\u0430\u043f\u0438\u0441\u044c, \u043d\u043e \u043d\u0435 \u0441\u043c\u043e\u0433\u043b\u0430 \u0441\u043e\u0445\u0440\u0430\u043d\u0438\u0442\u044c \u0435\u0451 \u0432 \u0438\u0441\u0442\u043e\u0440\u0438\u044e. " +
+                    "\u041f\u043e\u043f\u0440\u043e\u0431\u0443\u0439\u0442\u0435 \u0435\u0449\u0451 \u0440\u0430\u0437."
         }
     }
 }
