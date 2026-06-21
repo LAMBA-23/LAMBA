@@ -49,11 +49,12 @@ The customer feedback used for Week 3 refinement is documented in the [customer 
 
 ## 6. Product Backlog view
 
-- [Product Backlog view](https://github.com/LAMBA-23/LAMBA/issues?q=is%3Aissue%20label%3Apbi)
+- Product Backlog board/view: [LAMBA Product Backlog](https://github.com/orgs/LAMBA-23/projects/1/views/1)
 
 ## 7. Current Sprint Backlog view
 
-- [Current Sprint Backlog view](https://github.com/LAMBA-23/LAMBA/issues?q=is%3Aissue%20label%3Apbi%20milestone%3A%22Sprint%201%20-%20MVP%20v1%20Foundation%22)
+- Sprint Backlog board/view: [LAMBA Sprint Backlog](https://github.com/orgs/LAMBA-23/projects/1/views/3)
+
 
 ## 8. Current Sprint milestone
 
