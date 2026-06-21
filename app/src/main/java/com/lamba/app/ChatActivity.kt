@@ -7,6 +7,7 @@ import android.widget.EditText
 import android.widget.ImageButton
 import android.widget.LinearLayout
 import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -16,38 +17,38 @@ class ChatActivity : AppCompatActivity() {
     private val messageList = mutableListOf<Message>()
     private lateinit var adapter: ChatAdapter
     private lateinit var layoutSuggestions: LinearLayout
+    private lateinit var rvChatMessages: RecyclerView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_chat)
 
         layoutSuggestions = findViewById(R.id.layoutSuggestions)
-        val rvChatMessages = findViewById<RecyclerView>(R.id.rvChatMessages)
+        rvChatMessages = findViewById(R.id.rvChatMessages)
         val etChatBackMessage = findViewById<EditText>(R.id.etChatBackMessage)
         val btnChatSend = findViewById<ImageButton>(R.id.btnChatSend)
         val navBackToCar = findViewById<LinearLayout>(R.id.navBackToCar)
 
-        // list of messages
         adapter = ChatAdapter(messageList)
         rvChatMessages.layoutManager = LinearLayoutManager(this)
         rvChatMessages.adapter = adapter
 
-        // hints text
         setupSuggestion(R.id.suggestStatus, "Проверить состояние")
         setupSuggestion(R.id.suggestExpenses, "Последние расходы")
         setupSuggestion(R.id.suggestService, "Когда было ТО?")
         setupSuggestion(R.id.suggestAddRecord, "Добавить запись")
 
-        // processing of send button
         btnChatSend.setOnClickListener {
             val text = etChatBackMessage.text.toString().trim()
-            if (text.isNotEmpty()) {
-                sendMessage(text)
-                etChatBackMessage.text.clear()
+            if (text.isEmpty()) {
+                Toast.makeText(this, "Введите сообщение", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
             }
+
+            sendMessage(text, btnChatSend)
+            etChatBackMessage.text.clear()
         }
 
-        // bakc to main screen when button "back to car" was pressed
         navBackToCar.setOnClickListener {
             startActivity(Intent(this, MainActivity::class.java))
             finish()
@@ -58,22 +59,25 @@ class ChatActivity : AppCompatActivity() {
         val layout = findViewById<View>(viewId)
         layout.findViewById<TextView>(R.id.tvSuggestionText).text = title
         layout.setOnClickListener {
-            sendMessage(title)
+            sendMessage(title, null)
         }
     }
 
-    private fun sendMessage(text: String) {
-        // hide hints when the conversation started
+    private fun sendMessage(text: String, btnChatSend: ImageButton?) {
         layoutSuggestions.visibility = View.GONE
-        
-        // add user's message
-        messageList.add(Message(text, true))
-        adapter.notifyItemInserted(messageList.size - 1)
+        btnChatSend?.isEnabled = false
 
-        // IMITATION for the car answer (FOR MVP-V0)
+        appendMessage(Message(text, true))
+
         layoutSuggestions.postDelayed({
-            messageList.add(Message("Запись: '$text' сохранена в историю автомобиля", false))
-            adapter.notifyItemInserted(messageList.size - 1)
+            appendMessage(Message("Ответ ассистента: сообщение \"$text\" получено.", false))
+            btnChatSend?.isEnabled = true
         }, 1000)
+    }
+
+    private fun appendMessage(message: Message) {
+        messageList.add(message)
+        adapter.notifyItemInserted(messageList.size - 1)
+        rvChatMessages.scrollToPosition(messageList.size - 1)
     }
 }
