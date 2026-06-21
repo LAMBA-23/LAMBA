@@ -16,7 +16,7 @@ Response:
 
 ## POST /auth/login
 
-Demo login. JWT and registration are not used in MVP v0.
+Login with an existing user account. JWT is not used yet.
 
 Primary demo credentials: `demo` / `demo`.
 
@@ -48,9 +48,68 @@ Error response:
 }
 ```
 
+## POST /auth/register
+
+Creates a new user account and initializes an empty default car for that user.
+
+Required fields:
+
+- `username`: 1-64 characters after trimming whitespace.
+- `password`: 8-128 characters.
+
+Request:
+
+```json
+{
+  "username": "new-user",
+  "password": "password123"
+}
+```
+
+Success response (`201 Created`):
+
+```json
+{
+  "success": true,
+  "user_id": 2
+}
+```
+
+Duplicate username response (`400 Bad Request`):
+
+```json
+{
+  "detail": "Username is already registered"
+}
+```
+
+Validation error response (`422 Unprocessable Entity`):
+
+```json
+{
+  "detail": [
+    {
+      "loc": ["body", "password"],
+      "msg": "String should have at least 8 characters",
+      "type": "string_too_short"
+    }
+  ]
+}
+```
+
 ## GET /vehicle
 
-Returns the demo user's car.
+Returns a user's car.
+
+Query parameters:
+
+- `user_id` optional. If omitted, backend returns the demo user's car for MVP v0 compatibility.
+
+Example:
+
+```text
+GET /vehicle?user_id=2
+```
 
 Response:
 
@@ -67,7 +126,17 @@ Response:
 
 ## GET /events
 
-Returns all events for the demo user's car.
+Returns all events for a user's car.
+
+Query parameters:
+
+- `user_id` optional. If omitted, backend returns the demo user's events for MVP v0 compatibility.
+
+Example:
+
+```text
+GET /events?user_id=2
+```
 
 Response:
 
@@ -86,7 +155,17 @@ Response:
 
 ## POST /events
 
-Creates an event for the demo user's car. Android does not send `car_id`; backend finds the demo user and the demo user's car itself.
+Creates an event for a user's car.
+
+Query parameters:
+
+- `user_id` optional. If omitted, backend creates the event for the demo user's car for MVP v0 compatibility.
+
+Example:
+
+```text
+POST /events?user_id=2
+```
 
 Allowed event types: `fuel`, `repair`, `trip`, `issue`.
 
@@ -134,7 +213,17 @@ Validation error response:
 
 ## GET /stats
 
-Returns statistics for the demo user's car.
+Returns statistics for a user's car.
+
+Query parameters:
+
+- `user_id` optional. If omitted, backend returns stats for the demo user's car for MVP v0 compatibility.
+
+Example:
+
+```text
+GET /stats?user_id=2
+```
 
 Rules:
 
