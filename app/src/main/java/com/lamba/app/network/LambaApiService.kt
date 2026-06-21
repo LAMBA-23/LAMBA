@@ -6,7 +6,6 @@ import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.POST
-import retrofit2.http.Path
 import retrofit2.http.Query
 
 interface LambaApiService {
@@ -16,8 +15,8 @@ interface LambaApiService {
     @POST("auth/register")
     suspend fun register(@Body request: RegisterRequest): Response<RegisterResponse>
 
-    @GET("vehicle/{userId}")
-    suspend fun getVehicle(@Path("userId") userId: Int): Response<Vehicle>
+    @GET("vehicle")
+    suspend fun getVehicle(@Query("user_id") userId: Int): Response<Vehicle>
 
     @POST("vehicle")
     suspend fun createVehicle(@Body vehicle: VehicleRequest): Response<Vehicle>

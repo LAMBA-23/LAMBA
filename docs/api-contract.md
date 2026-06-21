@@ -155,14 +155,6 @@ Success response (201):
 
 Error responses:
 
-- 409 — User already has a vehicle:
-
-```json
-{
-  "detail": "User already has a vehicle. Only one vehicle per user is allowed in MVP v1."
-}
-```
-
 - 404 — User not found:
 
 ```json
@@ -185,9 +177,13 @@ Error responses:
 }
 ```
 
-## GET /vehicle/{user_id}
+## GET /vehicle
 
 Returns the vehicle profile for a given user.
+
+Query parameters:
+
+- `user_id` (int, required) — the user ID.
 
 Response:
 

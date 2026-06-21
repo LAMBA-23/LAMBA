@@ -55,7 +55,6 @@ data class ChatParseResponse(
     @SerializedName("parsed_event") val parsedEvent: ParsedEventPayload? = null,
     @SerializedName("clarification_question") val clarificationQuestion: String? = null
 )
-)
 
 data class EventCreateRequest(
     @SerializedName("type") val type: String,
