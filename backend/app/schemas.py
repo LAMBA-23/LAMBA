@@ -5,6 +5,7 @@ from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 
 EventType = Literal["fuel", "repair", "trip", "issue"]
+ChatParseStatus = Literal["parsed", "clarification_needed"]
 
 
 class LoginRequest(BaseModel):
@@ -64,6 +65,32 @@ class EventResponse(BaseModel):
     amount: int
     mileage: int
     created_at: datetime
+
+
+class ChatParseRequest(BaseModel):
+    message: str
+
+
+class ParsedEventPayload(BaseModel):
+    type: EventType
+    description: str
+    amount: int | None = None
+    mileage: int | None = None
+
+
+class ParsedChatEvent(BaseModel):
+    type: EventType | None = None
+    description: str | None = None
+    amount: int | None = None
+    mileage: int | None = None
+    needs_clarification: bool
+    clarification_question: str | None = None
+
+
+class ChatParseResponse(BaseModel):
+    status: ChatParseStatus
+    parsed_event: ParsedEventPayload | None = None
+    clarification_question: str | None = None
 
 
 class StatsResponse(BaseModel):

@@ -11,6 +11,9 @@ interface LambaApiService {
     @POST("auth/login")
     suspend fun login(@Body request: LoginRequest): Response<LoginResponse>
 
+    @POST("chat/parse-event")
+    suspend fun parseChatEvent(@Body request: ChatParseRequest): Response<ChatParseResponse>
+
     @GET("events")
     suspend fun getEvents(): Response<List<Event>>
 

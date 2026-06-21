@@ -153,6 +153,45 @@ Response:
 ]
 ```
 
+## POST /chat/parse-event
+
+Parses a free-form chat message into a structured event draft. This endpoint does not create an event in the database; it only returns parsed JSON for the next persistence step.
+
+Allowed parsed event types: `fuel`, `repair`, `trip`, `issue`.
+
+Request:
+
+```json
+{
+  "message": "Заправился на 2500 рублей, пробег 125300"
+}
+```
+
+Parsed response:
+
+```json
+{
+  "status": "parsed",
+  "parsed_event": {
+    "type": "fuel",
+    "description": "Заправка на 2500 рублей",
+    "amount": 2500,
+    "mileage": 125300
+  },
+  "clarification_question": null
+}
+```
+
+Clarification response:
+
+```json
+{
+  "status": "clarification_needed",
+  "parsed_event": null,
+  "clarification_question": "Вы имеете в виду 1500 километров пробега?"
+}
+```
+
 ## POST /events
 
 Creates an event for a user's car.
