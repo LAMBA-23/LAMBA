@@ -212,7 +212,9 @@ Returns all events for a user's car.
 
 Query parameters:
 
-- `user_id` optional. If omitted, backend returns the demo user's events for MVP v0 compatibility.
+- `user_id` (int, required) — the ID of the user whose vehicle events should be returned.
+
+Events are returned in ascending ID order.
 
 Example:
 
@@ -280,7 +282,7 @@ Creates an event for a user's car.
 
 Query parameters:
 
-- `user_id` optional. If omitted, backend creates the event for the demo user's car for MVP v0 compatibility.
+- `user_id` (int, required) — the ID of the user whose vehicle should receive the event.
 
 Example:
 
@@ -288,7 +290,7 @@ Example:
 POST /events?user_id=2
 ```
 
-Allowed event types: `fuel`, `repair`, `trip`, `issue`.
+Allowed event types: `fuel`, `repair`, `trip`, `issue`, `condition`.
 
 If `amount` is missing, backend stores `0`.
 
@@ -325,7 +327,7 @@ Validation error response:
   "detail": [
     {
       "loc": ["body", "type"],
-      "msg": "Input should be 'fuel', 'repair', 'trip' or 'issue'",
+      "msg": "Input should be 'fuel', 'repair', 'trip', 'issue' or 'condition'",
       "type": "literal_error"
     }
   ]
