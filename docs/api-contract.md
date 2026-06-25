@@ -212,7 +212,7 @@ Returns all events for a user's car.
 
 Query parameters:
 
-- `user_id` (int, required) вЂ” the user ID.
+- `user_id` (int, required) — the ID of the user whose vehicle events should be returned.
 
 Events are returned in ascending ID order.
 
@@ -282,7 +282,7 @@ Creates an event for a user's car.
 
 Query parameters:
 
-- `user_id` (int, required) вЂ” the user ID.
+- `user_id` (int, required) — the ID of the user whose vehicle should receive the event.
 
 Example:
 

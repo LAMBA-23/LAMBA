@@ -61,8 +61,8 @@ curl http://localhost:8000/health
 curl -X POST http://localhost:8000/auth/register -H "Content-Type: application/json" -d "{\"username\":\"new-user\",\"password\":\"password123\"}"
 curl -X POST http://localhost:8000/auth/login -H "Content-Type: application/json" -d "{\"username\":\"demo\",\"password\":\"demo\"}"
 curl "http://localhost:8000/vehicle?user_id=2"
-curl http://localhost:8000/events
-curl -X POST http://localhost:8000/events -H "Content-Type: application/json" -d "{\"type\":\"fuel\",\"description\":\"Full tank\",\"amount\":60,\"mileage\":125000}"
+curl "http://localhost:8000/events?user_id=1"
+curl -X POST "http://localhost:8000/events?user_id=1" -H "Content-Type: application/json" -d "{\"type\":\"fuel\",\"description\":\"Full tank\",\"amount\":60,\"mileage\":125000}"
 curl http://localhost:8000/stats
 ```
 
@@ -79,10 +79,10 @@ Invoke-RestMethod -Uri http://localhost:8000/auth/login -Method Post -ContentTyp
 
 Invoke-RestMethod -Uri "http://localhost:8000/vehicle?user_id=$($registeredUser.user_id)"
 
-Invoke-RestMethod -Uri http://localhost:8000/events
+Invoke-RestMethod -Uri "http://localhost:8000/events?user_id=$($registeredUser.user_id)"
 
 $event = @{type='fuel'; description='Full tank'; amount=60; mileage=125000} | ConvertTo-Json -Compress
-Invoke-RestMethod -Uri http://localhost:8000/events -Method Post -ContentType 'application/json' -Body $event
+Invoke-RestMethod -Uri "http://localhost:8000/events?user_id=$($registeredUser.user_id)" -Method Post -ContentType 'application/json' -Body $event
 
 Invoke-RestMethod -Uri http://localhost:8000/stats
 ```
