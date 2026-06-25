@@ -10,6 +10,7 @@ interface ChatBackend {
 
 class RetrofitChatBackend(
     private val api: LambaApiService,
+    private val userId: Int,
 ) : ChatBackend {
 
     override suspend fun parseMessage(message: String): ChatParseResponse {
@@ -28,7 +29,8 @@ class RetrofitChatBackend(
                 description = event.description,
                 amount = event.amount,
                 mileage = event.mileage,
-            )
+            ),
+            userId,
         )
         if (!response.isSuccessful) {
             throw ChatBackendException("Event saving failed with HTTP ${response.code()}")

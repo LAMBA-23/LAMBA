@@ -19,6 +19,14 @@
         </activity>
         <activity android:name=".network.HistoryActivity" android:exported="false" />
         <activity
+            android:name=".RegisterActivity"
+            android:exported="false"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".AddVehicleActivity"
+            android:exported="false"
+            android:screenOrientation="portrait" />
+        <activity
             android:name=".LoginActivity"
             android:exported="false"
             android:screenOrientation="portrait" />
@@ -30,16 +38,6 @@
 
         <activity 
             android:name=".ChatActivity"
-            android:exported="false" 
-            android:screenOrientation="portrait" />
-
-        <activity
-            android:name=".AddVehicleActivity"
-            android:exported="false"
-            android:screenOrientation="portrait" />
-
-        <activity 
-            android:name=".RegisterActivity"
             android:exported="false" 
             android:screenOrientation="portrait" />
 

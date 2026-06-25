@@ -212,7 +212,9 @@ Returns all events for a user's car.
 
 Query parameters:
 
-- `user_id` optional. If omitted, backend returns the demo user's events for MVP v0 compatibility.
+- `user_id` (int, required) — the ID of the user whose vehicle events should be returned.
+
+Events are returned in ascending ID order.
 
 Example:
 
@@ -239,7 +241,7 @@ Response:
 
 Parses a free-form chat message into a structured event draft. This endpoint does not create an event in the database; it only returns parsed JSON for the next persistence step.
 
-Allowed parsed event types: `fuel`, `repair`, `trip`, `issue`.
+Allowed parsed event types: `fuel`, `repair`, `trip`, `issue`, `condition`.
 
 Request:
 
@@ -280,7 +282,7 @@ Creates an event for a user's car.
 
 Query parameters:
 
-- `user_id` optional. If omitted, backend creates the event for the demo user's car for MVP v0 compatibility.
+- `user_id` (int, required) — the ID of the user whose vehicle should receive the event.
 
 Example:
 
@@ -288,7 +290,11 @@ Example:
 POST /events?user_id=2
 ```
 
-Allowed event types: `fuel`, `repair`, `trip`, `issue`.
+Allowed event types: `fuel`, `repair`, `trip`, `issue`, `condition`.
+
+`description` must not be empty.
+
+`amount` and `mileage` must not be negative when provided.
 
 If `amount` is missing, backend stores `0`.
 
@@ -325,7 +331,7 @@ Validation error response:
   "detail": [
     {
       "loc": ["body", "type"],
-      "msg": "Input should be 'fuel', 'repair', 'trip' or 'issue'",
+      "msg": "Input should be 'fuel', 'repair', 'trip', 'issue' or 'condition'",
       "type": "literal_error"
     }
   ]
@@ -338,7 +344,7 @@ Returns statistics for a user's car.
 
 Query parameters:
 
-- `user_id` optional. If omitted, backend returns stats for the demo user's car for MVP v0 compatibility.
+- `user_id` (int, required) — the ID of the user whose vehicle statistics should be returned.
 
 Example:
 
@@ -348,18 +354,70 @@ GET /stats?user_id=2
 
 Rules:
 
-- `fuel_expenses`: sum of `amount` for `fuel` events.
-- `repair_expenses`: sum of `amount` for `repair` events.
-- `trip_count`: count of `trip` events.
-- `total_recorded_mileage`: max event `mileage`, otherwise car `current_mileage`.
+- `week` includes events whose `created_at` is within the last 7 days.
+- `month` includes events whose `created_at` is within the last 30 days.
+- `all_time` includes all events for the user's car.
+- Only `fuel`, `repair`, and `trip` events affect statistics.
+- `issue` and `condition` events do not affect statistics.
+- `amount = null` is treated as `0`.
+- `mileage = null` is treated as `0`.
+- `mileage` / `mileage_km`: sum of `mileage` for `trip` events in the period.
+- `fuel_expenses`: sum of `amount` for `fuel` events in the period.
+- `repair_expenses`: sum of `amount` for `repair` events in the period.
+- `total_expenses` / `expenses_rub`: `fuel_expenses + repair_expenses`.
+- `records_count`: number of statistics-relevant events in the period.
+- `fuel_liters`: return `0` when liters cannot be derived from existing event fields.
+- `avg_fuel_consumption` and `avg_fuel_consumption_l_per_100km`: return `0` until a liters source exists.
+- `avg_expense_consumption`: return `0` when it cannot be computed from the available period data.
+- Top-level legacy fields remain available: `fuel_expenses`, `repair_expenses`, `trip_count`, `total_recorded_mileage`.
+- Empty/no-data case returns numeric zeroes, not `null`.
 
 Response:
 
 ```json
 {
-  "fuel_expenses": 60,
-  "repair_expenses": 0,
-  "trip_count": 0,
-  "total_recorded_mileage": 125000
+  "fuel_expenses": 2500,
+  "repair_expenses": 7000,
+  "trip_count": 1,
+  "total_recorded_mileage": 500,
+  "week": {
+    "mileage": 0,
+    "total_expenses": 2500,
+    "fuel_expenses": 2500,
+    "repair_expenses": 0,
+    "avg_fuel_consumption": 0,
+    "avg_expense_consumption": 0,
+    "mileage_km": 0,
+    "expenses_rub": 2500,
+    "fuel_liters": 0,
+    "records_count": 1,
+    "avg_fuel_consumption_l_per_100km": 0
+  },
+  "month": {
+    "mileage": 0,
+    "total_expenses": 9500,
+    "fuel_expenses": 2500,
+    "repair_expenses": 7000,
+    "avg_fuel_consumption": 0,
+    "avg_expense_consumption": 0,
+    "mileage_km": 0,
+    "expenses_rub": 9500,
+    "fuel_liters": 0,
+    "records_count": 2,
+    "avg_fuel_consumption_l_per_100km": 0
+  },
+  "all_time": {
+    "mileage": 500,
+    "total_expenses": 9500,
+    "fuel_expenses": 2500,
+    "repair_expenses": 7000,
+    "avg_fuel_consumption": 0,
+    "avg_expense_consumption": 0,
+    "mileage_km": 500,
+    "expenses_rub": 9500,
+    "fuel_liters": 0,
+    "records_count": 3,
+    "avg_fuel_consumption_l_per_100km": 0
+  }
 }
 ```

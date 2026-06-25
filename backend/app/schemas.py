@@ -6,7 +6,7 @@ from typing import Any, Literal
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 
-EventType = Literal["fuel", "repair", "trip", "issue"]
+EventType = Literal["fuel", "repair", "trip", "issue", "condition"]
 ChatParseStatus = Literal["parsed", "clarification_needed"]
 
 
@@ -93,6 +93,28 @@ class EventCreate(BaseModel):
     amount: int | None = None
     mileage: int | None = None
 
+    @field_validator("description")
+    @classmethod
+    def description_not_empty(cls, v: str) -> str:
+        description = v.strip()
+        if not description:
+            raise ValueError("description must not be empty")
+        return description
+
+    @field_validator("amount")
+    @classmethod
+    def non_negative_amount(cls, v: int | None) -> int | None:
+        if v is not None and v < 0:
+            raise ValueError("amount must not be negative")
+        return v
+
+    @field_validator("mileage")
+    @classmethod
+    def non_negative_event_mileage(cls, v: int | None) -> int | None:
+        if v is not None and v < 0:
+            raise ValueError("mileage must not be negative")
+        return v
+
 
 class EventResponse(BaseModel):
     model_config = ConfigDict(from_attributes=True)
@@ -131,8 +153,25 @@ class ChatParseResponse(BaseModel):
     clarification_question: str | None = None
 
 
+class StatsPeriodResponse(BaseModel):
+    mileage: int
+    total_expenses: int
+    fuel_expenses: int
+    repair_expenses: int
+    records_count: int
+    avg_fuel_consumption: int
+    avg_expense_consumption: int
+    mileage_km: int
+    expenses_rub: int
+    fuel_liters: int
+    avg_fuel_consumption_l_per_100km: int
+
+
 class StatsResponse(BaseModel):
     fuel_expenses: int
     repair_expenses: int
     trip_count: int
     total_recorded_mileage: int
+    week: StatsPeriodResponse
+    month: StatsPeriodResponse
+    all_time: StatsPeriodResponse

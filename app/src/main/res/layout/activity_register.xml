@@ -1,194 +1,202 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout 
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#FFFFFF"
-    android:paddingHorizontal="24dp">
+    android:background="#FDFDFD"
+    android:fillViewport="true">
 
-    <ImageView
-        android:id="@+id/btnRegisterBack"
-        android:layout_width="32dp"
-        android:layout_height="32dp"
-        android:layout_marginTop="20dp"
-        android:clickable="true"
-        android:focusable="true"
-        android:background="?attr/selectableItemBackgroundBorderless"
-        android:src="@android:drawable/ic_menu_revert" 
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <TextView
-        android:id="@+id/tvRegisterTitle"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="40dp"
-        android:text="Создать аккаунт"
-        android:textColor="#111111"
-        android:textSize="32sp"
-        android:textStyle="bold"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/btnRegisterBack" />
-
-    <TextView
-        android:id="@+id/tvRegisterSubtitle"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:text="Зарегистрируйся, чтобы начать общаться со своим автомобилем"
-        android:textColor="#7A869A"
-        android:textSize="16sp"
-        android:lineSpacingMultiplier="1.2"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/tvRegisterTitle" />
-
-    <TextView
-        android:id="@+id/lblRegisterName"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="28dp"
-        android:text="Имя"
-        android:textColor="#111111"
-        android:textSize="15sp"
-        android:textStyle="bold"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/tvRegisterSubtitle" />
-
-    <EditText
-        android:id="@+id/etRegisterName"
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="56dp"
-        android:layout_marginTop="8dp"
-        android:background="@drawable/bg_input_field"
-        android:hint="Ваше имя"
-        android:inputType="textPersonName"
-        android:paddingHorizontal="16dp"
-        android:textColor="#111111"
-        android:textColorHint="#A5ADBA"
-        android:textSize="16sp"
-        app:layout_constraintTop_toBottomOf="@id/lblRegisterName" />
-
-    <TextView
-        android:id="@+id/lblRegisterEmail"
-        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
-        android:text="Email"
-        android:textColor="#111111"
-        android:textSize="15sp"
-        android:textStyle="bold"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/etRegisterName" />
+        android:minHeight="780dp">
 
-    <EditText
-        android:id="@+id/etRegisterEmail"
-        android:layout_width="match_parent"
-        android:layout_height="56dp"
-        android:layout_marginTop="8dp"
-        android:background="@drawable/bg_input_field"
-        android:hint="your@email.com"
-        android:inputType="textEmailAddress"
-        android:paddingHorizontal="16dp"
-        android:textColor="#111111"
-        android:textColorHint="#A5ADBA"
-        android:textSize="16sp"
-        app:layout_constraintTop_toBottomOf="@id/lblRegisterEmail" />
+        <ImageView
+            android:id="@+id/btnRegisterBack"
+            android:layout_width="52dp"
+            android:layout_height="52dp"
+            android:layout_marginStart="14dp"
+            android:layout_marginTop="18dp"
+            android:contentDescription="Назад"
+            android:padding="10dp"
+            android:src="@drawable/ic_lamba_arrow_back"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:tint="#101114" />
 
-    <TextView
-        android:id="@+id/lblRegisterPassword"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
-        android:text="Пароль"
-        android:textColor="#111111"
-        android:textSize="15sp"
-        android:textStyle="bold"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/etRegisterEmail" />
-
-    <EditText
-        android:id="@+id/etRegisterPassword"
-        android:layout_width="match_parent"
-        android:layout_height="56dp"
-        android:layout_marginTop="8dp"
-        android:background="@drawable/bg_input_field"
-        android:hint="Введите пароль"
-        android:inputType="textPassword"
-        android:paddingHorizontal="16dp"
-        android:textColor="#111111"
-        android:textColorHint="#A5ADBA"
-        android:textSize="16sp"
-        app:layout_constraintTop_toBottomOf="@id/lblRegisterPassword" />
-
-    <TextView
-        android:id="@+id/lblRegisterConfirmPassword"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
-        android:text="Повторите пароль"
-        android:textColor="#111111"
-        android:textSize="15sp"
-        android:textStyle="bold"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/etRegisterPassword" />
-
-    <EditText
-        android:id="@+id/etRegisterConfirmPassword"
-        android:layout_width="match_parent"
-        android:layout_height="56dp"
-        android:layout_marginTop="8dp"
-        android:background="@drawable/bg_input_field"
-        android:hint="Повторите пароль"
-        android:inputType="textPassword"
-        android:paddingHorizontal="16dp"
-        android:textColor="#111111"
-        android:textColorHint="#A5ADBA"
-        android:textSize="16sp"
-        app:layout_constraintTop_toBottomOf="@id/lblRegisterConfirmPassword" />
-
-    <TextView
-        android:id="@+id/btnSubmitRegister"
-        android:layout_width="match_parent"
-        android:layout_height="56dp"
-        android:layout_marginTop="40dp"
-        android:background="@drawable/bg_button_circle_red"
-        android:gravity="center"
-        android:text="Продолжить"
-        android:textColor="#FFFFFF"
-        android:textSize="16sp"
-        android:textStyle="bold"
-        android:clickable="true"
-        android:focusable="true"
-        app:layout_constraintTop_toBottomOf="@id/etRegisterConfirmPassword" />
-
-    <LinearLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="32dp"
-        android:orientation="horizontal"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent">
+        <View
+            android:id="@+id/topDivider"
+            android:layout_width="0dp"
+            android:layout_height="1dp"
+            android:background="#E7E7EA"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/btnRegisterBack" />
 
         <TextView
-            android:layout_width="wrap_content"
+            android:id="@+id/tvRegisterTitle"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:text="Уже есть аккаунт? "
-            android:textColor="#7A869A"
-            android:textSize="15sp" />
-
-        <TextView
-            android:id="@+id/tvToLogin"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Войти"
-            android:textColor="#D33A2C"
-            android:textSize="15sp"
+            android:layout_marginStart="34dp"
+            android:layout_marginTop="44dp"
+            android:layout_marginEnd="34dp"
+            android:text="Создать аккаунт"
+            android:textColor="#101114"
+            android:textSize="38sp"
             android:textStyle="bold"
-            android:clickable="true"
-            android:focusable="true" />
-    </LinearLayout>
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/topDivider" />
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+        <TextView
+            android:id="@+id/tvRegisterSubtitle"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="34dp"
+            android:layout_marginTop="6dp"
+            android:layout_marginEnd="34dp"
+            android:lineSpacingExtra="2dp"
+            android:text="Зарегистрируйся, чтобы начать общаться со своим автомобилем"
+            android:textColor="#77777E"
+            android:textSize="19sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tvRegisterTitle" />
+
+        <TextView
+            android:id="@+id/lblRegisterName"
+            style="@style/LambaFormLabel"
+            android:layout_marginTop="32dp"
+            android:text="Имя"
+            app:layout_constraintStart_toStartOf="@id/tvRegisterTitle"
+            app:layout_constraintTop_toBottomOf="@id/tvRegisterSubtitle" />
+
+        <EditText
+            android:id="@+id/etRegisterName"
+            style="@style/LambaFormInput"
+            android:hint="Имя"
+            android:inputType="textPersonName"
+            app:layout_constraintEnd_toEndOf="@id/tvRegisterTitle"
+            app:layout_constraintStart_toStartOf="@id/tvRegisterTitle"
+            app:layout_constraintTop_toBottomOf="@id/lblRegisterName" />
+
+        <TextView
+            android:id="@+id/lblRegisterEmail"
+            style="@style/LambaFormLabel"
+            android:layout_marginTop="18dp"
+            android:text="Email"
+            app:layout_constraintStart_toStartOf="@id/tvRegisterTitle"
+            app:layout_constraintTop_toBottomOf="@id/etRegisterName" />
+
+        <EditText
+            android:id="@+id/etRegisterEmail"
+            style="@style/LambaFormInput"
+            android:hint="your@email.com"
+            android:inputType="textEmailAddress"
+            app:layout_constraintEnd_toEndOf="@id/tvRegisterTitle"
+            app:layout_constraintStart_toStartOf="@id/tvRegisterTitle"
+            app:layout_constraintTop_toBottomOf="@id/lblRegisterEmail" />
+
+        <TextView
+            android:id="@+id/lblRegisterPassword"
+            style="@style/LambaFormLabel"
+            android:layout_marginTop="18dp"
+            android:text="Пароль"
+            app:layout_constraintStart_toStartOf="@id/tvRegisterTitle"
+            app:layout_constraintTop_toBottomOf="@id/etRegisterEmail" />
+
+        <EditText
+            android:id="@+id/etRegisterPassword"
+            style="@style/LambaFormInput"
+            android:hint="Введите пароль"
+            android:inputType="textPassword"
+            app:layout_constraintEnd_toEndOf="@id/tvRegisterTitle"
+            app:layout_constraintStart_toStartOf="@id/tvRegisterTitle"
+            app:layout_constraintTop_toBottomOf="@id/lblRegisterPassword" />
+
+        <TextView
+            android:id="@+id/lblRegisterConfirmPassword"
+            style="@style/LambaFormLabel"
+            android:layout_marginTop="18dp"
+            android:text="Повторите пароль"
+            app:layout_constraintStart_toStartOf="@id/tvRegisterTitle"
+            app:layout_constraintTop_toBottomOf="@id/etRegisterPassword" />
+
+        <EditText
+            android:id="@+id/etRegisterConfirmPassword"
+            style="@style/LambaFormInput"
+            android:hint="Повторите пароль"
+            android:inputType="textPassword"
+            app:layout_constraintEnd_toEndOf="@id/tvRegisterTitle"
+            app:layout_constraintStart_toStartOf="@id/tvRegisterTitle"
+            app:layout_constraintTop_toBottomOf="@id/lblRegisterConfirmPassword" />
+
+        <TextView
+            android:id="@+id/tvRegisterError"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:textColor="#960018"
+            android:textSize="16sp"
+            android:visibility="gone"
+            app:layout_constraintEnd_toEndOf="@id/tvRegisterTitle"
+            app:layout_constraintStart_toStartOf="@id/tvRegisterTitle"
+            app:layout_constraintTop_toBottomOf="@id/etRegisterConfirmPassword" />
+
+        <ProgressBar
+            android:id="@+id/progressBar"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:layout_marginTop="10dp"
+            android:indeterminateTint="#960018"
+            android:visibility="gone"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tvRegisterError" />
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/btnSubmitRegister"
+            android:layout_width="0dp"
+            android:layout_height="58dp"
+            android:layout_marginTop="18dp"
+            android:background="@drawable/bg_lamba_send_button"
+            android:text="Продолжить"
+            android:textAllCaps="false"
+            android:textColor="#FFFFFF"
+            android:textSize="19sp"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="@id/tvRegisterTitle"
+            app:layout_constraintStart_toStartOf="@id/tvRegisterTitle"
+            app:layout_constraintTop_toBottomOf="@id/progressBar" />
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="30dp"
+            android:layout_marginBottom="20dp"
+            android:orientation="horizontal"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/btnSubmitRegister"
+            app:layout_constraintVertical_bias="0">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Уже есть аккаунт? "
+                android:textColor="#77777E"
+                android:textSize="19sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/tvToLogin"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Войти"
+                android:textColor="#960018"
+                android:textSize="19sp"
+                android:textStyle="bold" />
+        </LinearLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</ScrollView>

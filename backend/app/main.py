@@ -1,6 +1,8 @@
+from datetime import UTC, datetime, timedelta
+
 from fastapi import Depends, FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
-from sqlalchemy import func, select
+from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from .chat_parser import parse_chat_message
@@ -18,6 +20,7 @@ from .schemas import (
     ParsedEventPayload,
     RegisterRequest,
     RegisterResponse,
+    StatsPeriodResponse,
     StatsResponse,
 )
 
@@ -95,6 +98,66 @@ def get_or_create_user_car(db: Session, user: User) -> Car:
 def get_car_for_user_id(db: Session, user_id: int) -> Car:
     user = get_user(db, user_id)
     return get_or_create_user_car(db, user)
+
+
+STATISTICS_EVENT_TYPES = {"fuel", "repair", "trip"}
+
+
+def _coalesce_int(value: int | None) -> int:
+    return value if value is not None else 0
+
+
+def _is_statistics_relevant(event: Event) -> bool:
+    return event.type in STATISTICS_EVENT_TYPES
+
+
+def build_stats_period(events: list[Event], start_at: datetime | None = None) -> StatsPeriodResponse:
+    period_events = [
+        event for event in events if start_at is None or event.created_at >= start_at
+    ]
+    relevant_events = [event for event in period_events if _is_statistics_relevant(event)]
+    mileage = sum(
+        _coalesce_int(event.mileage) for event in relevant_events if event.type == "trip"
+    )
+    fuel_expenses = sum(
+        _coalesce_int(event.amount) for event in relevant_events if event.type == "fuel"
+    )
+    repair_expenses = sum(
+        _coalesce_int(event.amount) for event in relevant_events if event.type == "repair"
+    )
+    total_expenses = fuel_expenses + repair_expenses
+
+    return StatsPeriodResponse(
+        mileage=mileage,
+        total_expenses=total_expenses,
+        fuel_expenses=fuel_expenses,
+        repair_expenses=repair_expenses,
+        records_count=len(relevant_events),
+        avg_fuel_consumption=0,
+        avg_expense_consumption=0,
+        mileage_km=mileage,
+        expenses_rub=total_expenses,
+        fuel_liters=0,
+        avg_fuel_consumption_l_per_100km=0,
+    )
+
+
+def build_stats_response(events: list[Event], now: datetime) -> StatsResponse:
+    week = build_stats_period(events, start_at=now - timedelta(days=7))
+    month = build_stats_period(events, start_at=now - timedelta(days=30))
+    all_time = build_stats_period(events)
+
+    trip_count = sum(1 for event in events if event.type == "trip")
+
+    return StatsResponse(
+        fuel_expenses=all_time.fuel_expenses,
+        repair_expenses=all_time.repair_expenses,
+        trip_count=trip_count,
+        total_recorded_mileage=all_time.mileage,
+        week=week,
+        month=month,
+        all_time=all_time,
+    )
 
 
 @app.on_event("startup")
@@ -261,32 +324,8 @@ def create_event(
 @app.get("/stats", response_model=StatsResponse)
 def get_stats(user_id: int = Query(...), db: Session = Depends(get_db)) -> StatsResponse:
     car = get_car_for_user_id(db, user_id)
-
-    fuel_expenses = db.scalar(
-        select(func.coalesce(func.sum(Event.amount), 0)).where(
-            Event.car_id == car.id,
-            Event.type == "fuel",
-        )
+    now = datetime.now(UTC).replace(tzinfo=None)
+    events = list(
+        db.scalars(select(Event).where(Event.car_id == car.id).order_by(Event.created_at, Event.id))
     )
-    repair_expenses = db.scalar(
-        select(func.coalesce(func.sum(Event.amount), 0)).where(
-            Event.car_id == car.id,
-            Event.type == "repair",
-        )
-    )
-    trip_count = db.scalar(
-        select(func.count(Event.id)).where(
-            Event.car_id == car.id,
-            Event.type == "trip",
-        )
-    )
-    max_mileage = db.scalar(
-        select(func.max(Event.mileage)).where(Event.car_id == car.id)
-    )
-
-    return StatsResponse(
-        fuel_expenses=fuel_expenses or 0,
-        repair_expenses=repair_expenses or 0,
-        trip_count=trip_count or 0,
-        total_recorded_mileage=max_mileage or car.current_mileage,
-    )
+    return build_stats_response(events, now)

@@ -47,3 +47,22 @@ def test_guardrails_force_single_event_question_for_multiple_events() -> None:
     assert result.needs_clarification is True
     assert result.type is None
     assert "одно событие" in (result.clarification_question or "")
+
+
+def test_guardrails_recognize_technical_condition_update() -> None:
+    result = _apply_guardrails(
+        "Техническое состояние хорошее, пробег 125500",
+        ParsedChatEvent(
+            type="condition",
+            description="Техническое состояние хорошее",
+            amount=None,
+            mileage=125500,
+            needs_clarification=False,
+            clarification_question=None,
+        ),
+    )
+
+    assert result.type == "condition"
+    assert result.description == "Техническое состояние хорошее, пробег 125500"
+    assert result.mileage == 125500
+    assert result.needs_clarification is False

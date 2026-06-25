@@ -9,11 +9,14 @@ from fastapi.testclient import TestClient
 TEST_DB_PATH = Path(__file__).resolve().parent / "test_chat_parse.db"
 os.environ["DATABASE_URL"] = f"sqlite:///{TEST_DB_PATH.as_posix()}"
 
-for module_name in ["app.main", "app.database", "app.chat_parser"]:
+for module_name in ["app.main", "app.database", "app.models", "app.chat_parser"]:
     sys.modules.pop(module_name, None)
 
 main_module = importlib.import_module("app.main")
+database_module = importlib.import_module("app.database")
 schemas_module = importlib.import_module("app.schemas")
+
+database_module.Base.metadata.create_all(bind=database_module.engine)
 
 ParsedChatEvent = schemas_module.ParsedChatEvent
 client = TestClient(main_module.app)
@@ -21,6 +24,7 @@ client = TestClient(main_module.app)
 
 def teardown_module() -> None:
     client.close()
+    database_module.engine.dispose()
     if TEST_DB_PATH.exists():
         TEST_DB_PATH.unlink()
 
@@ -103,3 +107,64 @@ def test_parse_event_rejects_invalid_negative_amount(monkeypatch) -> None:
     assert response.status_code == 200
     assert response.json()["status"] == "clarification_needed"
     assert response.json()["parsed_event"] is None
+
+
+def test_parse_event_accepts_technical_condition_update(monkeypatch) -> None:
+    def fake_parser(_: str) -> ParsedChatEvent:
+        return ParsedChatEvent(
+            type="condition",
+            description="Техническое состояние хорошее",
+            amount=None,
+            mileage=125500,
+            needs_clarification=False,
+            clarification_question=None,
+        )
+
+    monkeypatch.setattr(main_module, "parse_chat_message", fake_parser)
+
+    response = client.post(
+        "/chat/parse-event",
+        json={"message": "Техническое состояние хорошее, пробег 125500"},
+    )
+
+    assert response.status_code == 200
+    assert response.json()["parsed_event"] == {
+        "type": "condition",
+        "description": "Техническое состояние хорошее",
+        "amount": None,
+        "mileage": 125500,
+    }
+
+
+def test_parsed_event_is_saved_for_user_and_visible_in_timeline(monkeypatch) -> None:
+    def fake_parser(_: str) -> ParsedChatEvent:
+        return ParsedChatEvent(
+            type="condition",
+            description="Техническое состояние хорошее",
+            amount=None,
+            mileage=125500,
+            needs_clarification=False,
+            clarification_question=None,
+        )
+
+    monkeypatch.setattr(main_module, "parse_chat_message", fake_parser)
+    user_id = client.post(
+        "/auth/register",
+        json={"username": "us04-user", "password": "password123"},
+    ).json()["user_id"]
+
+    parse_response = client.post(
+        "/chat/parse-event",
+        json={"message": "Техническое состояние хорошее, пробег 125500"},
+    )
+    parsed_event = parse_response.json()["parsed_event"]
+    create_response = client.post(
+        f"/events?user_id={user_id}",
+        json=parsed_event,
+    )
+    timeline_response = client.get(f"/events?user_id={user_id}")
+
+    assert create_response.status_code == 200
+    assert create_response.json()["type"] == "condition"
+    assert timeline_response.status_code == 200
+    assert timeline_response.json() == [create_response.json()]
