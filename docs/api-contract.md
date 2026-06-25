@@ -241,7 +241,7 @@ Response:
 
 Parses a free-form chat message into a structured event draft. This endpoint does not create an event in the database; it only returns parsed JSON for the next persistence step.
 
-Allowed parsed event types: `fuel`, `repair`, `trip`, `issue`.
+Allowed parsed event types: `fuel`, `repair`, `trip`, `issue`, `condition`.
 
 Request:
 
@@ -291,6 +291,10 @@ POST /events?user_id=2
 ```
 
 Allowed event types: `fuel`, `repair`, `trip`, `issue`, `condition`.
+
+`description` must not be empty.
+
+`amount` and `mileage` must not be negative when provided.
 
 If `amount` is missing, backend stores `0`.
 

@@ -93,6 +93,28 @@ class EventCreate(BaseModel):
     amount: int | None = None
     mileage: int | None = None
 
+    @field_validator("description")
+    @classmethod
+    def description_not_empty(cls, v: str) -> str:
+        description = v.strip()
+        if not description:
+            raise ValueError("description must not be empty")
+        return description
+
+    @field_validator("amount")
+    @classmethod
+    def non_negative_amount(cls, v: int | None) -> int | None:
+        if v is not None and v < 0:
+            raise ValueError("amount must not be negative")
+        return v
+
+    @field_validator("mileage")
+    @classmethod
+    def non_negative_event_mileage(cls, v: int | None) -> int | None:
+        if v is not None and v < 0:
+            raise ValueError("mileage must not be negative")
+        return v
+
 
 class EventResponse(BaseModel):
     model_config = ConfigDict(from_attributes=True)
