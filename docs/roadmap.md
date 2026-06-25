@@ -7,6 +7,7 @@ Authoritative references:
 - User-story registry: [docs/user-stories.md](./user-stories.md)
 - Definition of Done: [docs/definition-of-done.md](./definition-of-done.md)
 - Live backlog and Sprint execution: [GitHub issues](https://github.com/LAMBA-23/LAMBA/issues)
+- Product Backlog and Sprint Backlog board: [GitHub Project](https://github.com/orgs/LAMBA-23/projects?query=is%3Aopen)
 
 ## Product Goal
 
@@ -38,17 +39,37 @@ Supporting PBIs:
 Planning:
 - [#64 Create roadmap](https://github.com/LAMBA-23/LAMBA/issues/64)
 
-## Sprint 2 - Assistant & Statistics
+## Sprint 2 - Chat Event Capture & Assistant & Statistics
 
-- Sprint milestone: [Sprint 2 - Assistant & Statistics](https://github.com/LAMBA-23/LAMBA/milestone/2)
+- Sprint milestone: [Sprint 2 - Chat Event Capture & Assistant & Statistics](https://github.com/LAMBA-23/LAMBA/milestone/2)
 - Dates: 2026-06-22 to 2026-06-28
-- Sprint Goal: Let the user ask questions about their vehicle history and view basic statistics.
-- Focus / expected outcome: The AI assistant can answer questions from saved vehicle data, and the user can see fuel/repair expenses and trip statistics.
+- Sprint Goal: Enable the vehicle owner to inspect saved vehicle history through a visible timeline, ask the assistant questions about vehicle data, and view basic statistics from recorded events.
+- Focus / expected outcome: A vehicle owner can open the vehicle timeline, inspect saved fuel, repair, trip, and issue records, ask the assistant questions about the saved history, and view basic statistics generated from recorded events.
 
 Planned items:
 
+- [#48 US-05: View vehicle timeline](https://github.com/LAMBA-23/LAMBA/issues/48)
 - [#49 US-06: Ask AI assistant](https://github.com/LAMBA-23/LAMBA/issues/49)
 - [#50 US-07: View basic statistics](https://github.com/LAMBA-23/LAMBA/issues/50)
+
+### Continuing Quality and Automation Work
+
+The team will continue improving product quality and delivery reliability during later Sprints. Current follow-up work includes:
+
+- Add or improve automated tests for backend event, assistant, and statistics logic.
+- Keep Android-backend integration checks current as the API evolves.
+- Improve validation and error handling for incomplete or inconsistent vehicle event data.
+- Keep docs/definition-of-done.md, docs/roadmap.md, and maintained product documentation aligned with the current implementation.
+- Preserve traceability between user stories, supporting PBIs, pull requests, and verification evidence.
+
+### Scope Justification
+
+The Sprint 2 scope is selected for product value and risk reduction, not for the number of issues. The selected PBIs extend the MVP from basic data capture toward useful vehicle-history inspection and interpretation.
+
+- Customer value: the vehicle owner can inspect saved records, ask questions about vehicle history, and view basic statistics.
+- Quality improvement: the selected work requires clearer verification of timeline display, assistant responses, and statistics calculations.
+- Risk reduction: the scope focuses on integration points between saved backend data and Android-facing user workflows.
+- Done evidence: selected work will be considered complete only when acceptance criteria are satisfied, required review is completed, verification evidence is preserved, and the team Definition of Done is met.
 
 ## Sprint 3 - Maintenance Follow-up
 
