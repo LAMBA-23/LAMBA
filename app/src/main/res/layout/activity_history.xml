@@ -1,70 +1,484 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="16.dp">
+    android:background="#F8F9FA">
 
-    <TextView
-        android:id="@+id/tvTitle"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="История и Статистика"
-        android:textSize="22sp"
-        android:textStyle="bold"
-        android:layout_marginBottom="16.dp" />
-
-    <LinearLayout
-        android:id="@+id/layoutStats"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/tvTitle"
-        android:orientation="vertical"
-        android:background="#F0F0F0"
-        android:padding="12.dp"
-        android:layout_marginBottom="16.dp">
-
-        <TextView
-            android:id="@+id/tvTotalSpent"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Общие расходы: Загрузка..."
-            android:textSize="16sp"
-            android:textStyle="bold"/>
-
-        <TextView
-            android:id="@+id/tvFuelSpent"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Из них на топливо: Загрузка..."
-            android:textSize="14sp"
-            android:layout_marginTop="4.dp"/>
-    </LinearLayout>
+    <ImageButton
+        android:id="@+id/btnBack"
+        android:layout_width="44dp"
+        android:layout_height="44dp"
+        android:layout_marginStart="20dp"
+        android:layout_marginTop="24dp"
+        android:background="@drawable/bg_history_back"
+        android:contentDescription="Назад"
+        android:elevation="2dp"
+        android:padding="12dp"
+        android:src="@drawable/abc_ic_ab_back_material"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:tint="#000000" />
 
     <ScrollView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_below="@id/layoutStats"
-        android:layout_above="@id/btnAddEvent"
-        android:layout_marginBottom="16.dp">
+        android:id="@+id/historyScroll"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:clipToPadding="false"
+        android:fillViewport="true"
+        android:paddingBottom="24dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/btnBack">
 
-        <LinearLayout
-            android:id="@+id/layoutTimeline"
+        <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical" />
+            android:paddingStart="20dp"
+            android:paddingTop="18dp"
+            android:paddingEnd="20dp"
+            android:paddingBottom="28dp">
+
+            <TextView
+                android:id="@+id/tvTitle"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:text="История"
+                android:textColor="#000000"
+                android:textSize="34sp"
+                android:textStyle="bold"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
+                android:id="@+id/tvSubtitle"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:lineSpacingExtra="2dp"
+                android:text="Всё, что ты рассказывал машине."
+                android:textColor="#7D7D7D"
+                android:textSize="16sp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/tvTitle" />
+
+            <View
+                android:id="@+id/timelineLine"
+                android:layout_width="2dp"
+                android:layout_height="0dp"
+                android:layout_marginStart="13dp"
+                android:background="@drawable/bg_history_timeline_line"
+                app:layout_constraintBottom_toBottomOf="@id/cardDamage"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="@id/cardFuel" />
+
+            <View
+                android:id="@+id/dotFuel"
+                android:layout_width="14dp"
+                android:layout_height="14dp"
+                android:background="@drawable/bg_history_timeline_dot"
+                android:elevation="3dp"
+                app:layout_constraintBottom_toBottomOf="@id/cardFuel"
+                app:layout_constraintEnd_toEndOf="@id/timelineLine"
+                app:layout_constraintStart_toStartOf="@id/timelineLine"
+                app:layout_constraintTop_toTopOf="@id/cardFuel" />
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/cardFuel"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="36dp"
+                android:layout_marginTop="28dp"
+                android:background="@drawable/bg_history_card"
+                android:elevation="4dp"
+                android:minHeight="112dp"
+                android:padding="18dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/tvSubtitle">
+
+                <TextView
+                    android:id="@+id/iconFuel"
+                    android:layout_width="42dp"
+                    android:layout_height="42dp"
+                    android:background="@drawable/bg_history_icon"
+                    android:gravity="center"
+                    android:text="АЗ"
+                    android:textColor="#D32F2F"
+                    android:textSize="13sp"
+                    android:textStyle="bold"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <TextView
+                    android:id="@+id/titleFuel"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="14dp"
+                    android:text="Заправка"
+                    android:textColor="#000000"
+                    android:textSize="18sp"
+                    android:textStyle="bold"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toEndOf="@id/iconFuel"
+                    app:layout_constraintTop_toTopOf="@id/iconFuel" />
+
+                <TextView
+                    android:id="@+id/detailsFuel"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:text="95 АИ • 55 л"
+                    android:textColor="#555555"
+                    android:textSize="15sp"
+                    app:layout_constraintEnd_toEndOf="@id/titleFuel"
+                    app:layout_constraintStart_toStartOf="@id/titleFuel"
+                    app:layout_constraintTop_toBottomOf="@id/titleFuel" />
+
+                <TextView
+                    android:id="@+id/dateFuel"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="18dp"
+                    android:text="12 май"
+                    android:textColor="#7D7D7D"
+                    android:textSize="14sp"
+                    app:layout_constraintEnd_toStartOf="@id/costFuel"
+                    app:layout_constraintStart_toStartOf="@id/titleFuel"
+                    app:layout_constraintTop_toBottomOf="@id/detailsFuel" />
+
+                <TextView
+                    android:id="@+id/costFuel"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="12dp"
+                    android:text="2 450 ₽"
+                    android:textColor="#D32F2F"
+                    android:textSize="15sp"
+                    android:textStyle="bold"
+                    app:layout_constraintBaseline_toBaselineOf="@id/dateFuel"
+                    app:layout_constraintEnd_toEndOf="parent" />
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <View
+                android:id="@+id/dotOil"
+                android:layout_width="14dp"
+                android:layout_height="14dp"
+                android:background="@drawable/bg_history_timeline_dot"
+                android:elevation="3dp"
+                app:layout_constraintBottom_toBottomOf="@id/cardOil"
+                app:layout_constraintEnd_toEndOf="@id/timelineLine"
+                app:layout_constraintStart_toStartOf="@id/timelineLine"
+                app:layout_constraintTop_toTopOf="@id/cardOil" />
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/cardOil"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="36dp"
+                android:layout_marginTop="16dp"
+                android:background="@drawable/bg_history_card"
+                android:elevation="4dp"
+                android:minHeight="112dp"
+                android:padding="18dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/cardFuel">
+
+                <TextView
+                    android:id="@+id/iconOil"
+                    android:layout_width="42dp"
+                    android:layout_height="42dp"
+                    android:background="@drawable/bg_history_icon"
+                    android:gravity="center"
+                    android:text="МА"
+                    android:textColor="#D32F2F"
+                    android:textSize="13sp"
+                    android:textStyle="bold"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <TextView
+                    android:id="@+id/titleOil"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="14dp"
+                    android:text="Замена масла"
+                    android:textColor="#000000"
+                    android:textSize="18sp"
+                    android:textStyle="bold"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toEndOf="@id/iconOil"
+                    app:layout_constraintTop_toTopOf="@id/iconOil" />
+
+                <TextView
+                    android:id="@+id/detailsOil"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:text="5W-30 • 4.5 л"
+                    android:textColor="#555555"
+                    android:textSize="15sp"
+                    app:layout_constraintEnd_toEndOf="@id/titleOil"
+                    app:layout_constraintStart_toStartOf="@id/titleOil"
+                    app:layout_constraintTop_toBottomOf="@id/titleOil" />
+
+                <TextView
+                    android:id="@+id/dateOil"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="18dp"
+                    android:text="3 май"
+                    android:textColor="#7D7D7D"
+                    android:textSize="14sp"
+                    app:layout_constraintEnd_toStartOf="@id/costOil"
+                    app:layout_constraintStart_toStartOf="@id/titleOil"
+                    app:layout_constraintTop_toBottomOf="@id/detailsOil" />
+
+                <TextView
+                    android:id="@+id/costOil"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="12dp"
+                    android:text="8 200 ₽"
+                    android:textColor="#D32F2F"
+                    android:textSize="15sp"
+                    android:textStyle="bold"
+                    app:layout_constraintBaseline_toBaselineOf="@id/dateOil"
+                    app:layout_constraintEnd_toEndOf="parent" />
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <View
+                android:id="@+id/dotService"
+                android:layout_width="14dp"
+                android:layout_height="14dp"
+                android:background="@drawable/bg_history_timeline_dot"
+                android:elevation="3dp"
+                app:layout_constraintBottom_toBottomOf="@id/cardService"
+                app:layout_constraintEnd_toEndOf="@id/timelineLine"
+                app:layout_constraintStart_toStartOf="@id/timelineLine"
+                app:layout_constraintTop_toTopOf="@id/cardService" />
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/cardService"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="36dp"
+                android:layout_marginTop="16dp"
+                android:background="@drawable/bg_history_card"
+                android:elevation="4dp"
+                android:minHeight="112dp"
+                android:padding="18dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/cardOil">
+
+                <TextView
+                    android:id="@+id/iconService"
+                    android:layout_width="42dp"
+                    android:layout_height="42dp"
+                    android:background="@drawable/bg_history_icon"
+                    android:gravity="center"
+                    android:text="ТО"
+                    android:textColor="#D32F2F"
+                    android:textSize="13sp"
+                    android:textStyle="bold"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <TextView
+                    android:id="@+id/titleService"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="14dp"
+                    android:text="Тех. обслуживание"
+                    android:textColor="#000000"
+                    android:textSize="18sp"
+                    android:textStyle="bold"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toEndOf="@id/iconService"
+                    app:layout_constraintTop_toTopOf="@id/iconService" />
+
+                <TextView
+                    android:id="@+id/detailsService"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:text="Официальный сервис"
+                    android:textColor="#555555"
+                    android:textSize="15sp"
+                    app:layout_constraintEnd_toEndOf="@id/titleService"
+                    app:layout_constraintStart_toStartOf="@id/titleService"
+                    app:layout_constraintTop_toBottomOf="@id/titleService" />
+
+                <TextView
+                    android:id="@+id/dateService"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="18dp"
+                    android:text="20 апр"
+                    android:textColor="#7D7D7D"
+                    android:textSize="14sp"
+                    app:layout_constraintEnd_toEndOf="@id/titleService"
+                    app:layout_constraintStart_toStartOf="@id/titleService"
+                    app:layout_constraintTop_toBottomOf="@id/detailsService" />
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <View
+                android:id="@+id/dotTrip"
+                android:layout_width="14dp"
+                android:layout_height="14dp"
+                android:background="@drawable/bg_history_timeline_dot"
+                android:elevation="3dp"
+                app:layout_constraintBottom_toBottomOf="@id/cardTrip"
+                app:layout_constraintEnd_toEndOf="@id/timelineLine"
+                app:layout_constraintStart_toStartOf="@id/timelineLine"
+                app:layout_constraintTop_toTopOf="@id/cardTrip" />
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/cardTrip"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="36dp"
+                android:layout_marginTop="16dp"
+                android:background="@drawable/bg_history_card"
+                android:elevation="4dp"
+                android:minHeight="112dp"
+                android:padding="18dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/cardService">
+
+                <TextView
+                    android:id="@+id/iconTrip"
+                    android:layout_width="42dp"
+                    android:layout_height="42dp"
+                    android:background="@drawable/bg_history_icon"
+                    android:gravity="center"
+                    android:text="КМ"
+                    android:textColor="#D32F2F"
+                    android:textSize="13sp"
+                    android:textStyle="bold"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <TextView
+                    android:id="@+id/titleTrip"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="14dp"
+                    android:text="Поездка"
+                    android:textColor="#000000"
+                    android:textSize="18sp"
+                    android:textStyle="bold"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toEndOf="@id/iconTrip"
+                    app:layout_constraintTop_toTopOf="@id/iconTrip" />
+
+                <TextView
+                    android:id="@+id/detailsTrip"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:text="320 км"
+                    android:textColor="#555555"
+                    android:textSize="15sp"
+                    app:layout_constraintEnd_toEndOf="@id/titleTrip"
+                    app:layout_constraintStart_toStartOf="@id/titleTrip"
+                    app:layout_constraintTop_toBottomOf="@id/titleTrip" />
+
+                <TextView
+                    android:id="@+id/dateTrip"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="18dp"
+                    android:text="28 апр"
+                    android:textColor="#7D7D7D"
+                    android:textSize="14sp"
+                    app:layout_constraintEnd_toEndOf="@id/titleTrip"
+                    app:layout_constraintStart_toStartOf="@id/titleTrip"
+                    app:layout_constraintTop_toBottomOf="@id/detailsTrip" />
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <View
+                android:id="@+id/dotDamage"
+                android:layout_width="14dp"
+                android:layout_height="14dp"
+                android:background="@drawable/bg_history_timeline_dot"
+                android:elevation="3dp"
+                app:layout_constraintBottom_toBottomOf="@id/cardDamage"
+                app:layout_constraintEnd_toEndOf="@id/timelineLine"
+                app:layout_constraintStart_toStartOf="@id/timelineLine"
+                app:layout_constraintTop_toTopOf="@id/cardDamage" />
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/cardDamage"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="36dp"
+                android:layout_marginTop="16dp"
+                android:background="@drawable/bg_history_card"
+                android:elevation="4dp"
+                android:minHeight="112dp"
+                android:padding="18dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/cardTrip">
+
+                <TextView
+                    android:id="@+id/iconDamage"
+                    android:layout_width="42dp"
+                    android:layout_height="42dp"
+                    android:background="@drawable/bg_history_icon"
+                    android:gravity="center"
+                    android:text="!"
+                    android:textColor="#D32F2F"
+                    android:textSize="18sp"
+                    android:textStyle="bold"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <TextView
+                    android:id="@+id/titleDamage"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="14dp"
+                    android:text="Повреждение"
+                    android:textColor="#000000"
+                    android:textSize="18sp"
+                    android:textStyle="bold"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toEndOf="@id/iconDamage"
+                    app:layout_constraintTop_toTopOf="@id/iconDamage" />
+
+                <TextView
+                    android:id="@+id/detailsDamage"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:text="Правая дверь"
+                    android:textColor="#555555"
+                    android:textSize="15sp"
+                    app:layout_constraintEnd_toEndOf="@id/titleDamage"
+                    app:layout_constraintStart_toStartOf="@id/titleDamage"
+                    app:layout_constraintTop_toBottomOf="@id/titleDamage" />
+
+                <TextView
+                    android:id="@+id/dateDamage"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="18dp"
+                    android:text="15 апр"
+                    android:textColor="#7D7D7D"
+                    android:textSize="14sp"
+                    app:layout_constraintEnd_toEndOf="@id/titleDamage"
+                    app:layout_constraintStart_toStartOf="@id/titleDamage"
+                    app:layout_constraintTop_toBottomOf="@id/detailsDamage" />
+            </androidx.constraintlayout.widget.ConstraintLayout>
+        </androidx.constraintlayout.widget.ConstraintLayout>
     </ScrollView>
-
-    <Button
-        android:id="@+id/btnAddEvent"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:text="Добавить событие (+)" />
-
-    <ProgressBar
-        android:id="@+id/progressBar"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerInParent="true"
-        android:visibility="gone" />
-</RelativeLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>
