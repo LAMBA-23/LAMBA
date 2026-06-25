@@ -344,7 +344,7 @@ Returns statistics for a user's car.
 
 Query parameters:
 
-- `user_id` optional. If omitted, backend returns stats for the demo user's car for MVP v0 compatibility.
+- `user_id` (int, required) — the ID of the user whose vehicle statistics should be returned.
 
 Example:
 
@@ -354,18 +354,40 @@ GET /stats?user_id=2
 
 Rules:
 
-- `fuel_expenses`: sum of `amount` for `fuel` events.
-- `repair_expenses`: sum of `amount` for `repair` events.
-- `trip_count`: count of `trip` events.
-- `total_recorded_mileage`: max event `mileage`, otherwise car `current_mileage`.
+- `week` includes events whose `created_at` is within the last 7 days.
+- `month` includes events whose `created_at` is within the last 30 days.
+- `all_time` includes all events for the user's car.
+- `expenses_rub`: sum of `amount` for all events in the period.
+- `records_count`: number of events in the period.
+- `mileage_km`: `max(mileage) - min(mileage)` within the period; if fewer than 2 mileage records exist, return `0`.
+- `fuel_liters`: return `0` when liters cannot be derived from existing event fields.
+- `avg_fuel_consumption_l_per_100km`: derived liters per 100 km; if required source data is missing, return `0`.
+- Empty/no-data case returns numeric zeroes, not `null`.
 
 Response:
 
 ```json
 {
-  "fuel_expenses": 60,
-  "repair_expenses": 0,
-  "trip_count": 0,
-  "total_recorded_mileage": 125000
+  "week": {
+    "mileage_km": 0,
+    "expenses_rub": 2500,
+    "fuel_liters": 0,
+    "records_count": 1,
+    "avg_fuel_consumption_l_per_100km": 0
+  },
+  "month": {
+    "mileage_km": 200,
+    "expenses_rub": 9500,
+    "fuel_liters": 0,
+    "records_count": 2,
+    "avg_fuel_consumption_l_per_100km": 0
+  },
+  "all_time": {
+    "mileage_km": 500,
+    "expenses_rub": 9500,
+    "fuel_liters": 0,
+    "records_count": 3,
+    "avg_fuel_consumption_l_per_100km": 0
+  }
 }
 ```
