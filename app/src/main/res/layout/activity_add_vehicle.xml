@@ -1,197 +1,177 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#FFFFFF"
-    android:padding="24dp">
+    android:background="#FDFDFD"
+    android:fillViewport="true">
 
-    <ImageView
-        android:id="@+id/btnBack"
-        android:layout_width="32dp"
-        android:layout_height="32dp"
-        android:layout_marginTop="16dp"
-        android:contentDescription="Назад"
-        android:src="@drawable/abc_ic_ab_back_material"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:tint="#000000" />
-
-    <TextView
-        android:id="@+id/tvTitle"
-        android:layout_width="wrap_content"
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="40dp"
-        android:text="Добавить автомобиль"
-        android:textColor="#000000"
-        android:textSize="28sp"
-        android:textStyle="bold"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/btnBack" />
+        android:minHeight="760dp">
 
-    <TextView
-        android:id="@+id/tvSubtitle"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:text="Введите данные вашего автомобиля"
-        android:textColor="#7D7D7D"
-        android:textSize="16sp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/tvTitle" />
+        <ImageView
+            android:id="@+id/btnBack"
+            android:layout_width="52dp"
+            android:layout_height="52dp"
+            android:layout_marginStart="14dp"
+            android:layout_marginTop="18dp"
+            android:contentDescription="Назад"
+            android:padding="10dp"
+            android:src="@drawable/ic_lamba_arrow_back"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:tint="#101114" />
 
-    <TextView
-        android:id="@+id/lblBrand"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="32dp"
-        android:text="Марка"
-        android:textColor="#000000"
-        android:textSize="14sp"
-        android:textStyle="bold"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/tvSubtitle" />
+        <View
+            android:id="@+id/topDivider"
+            android:layout_width="0dp"
+            android:layout_height="1dp"
+            android:background="#E7E7EA"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/btnBack" />
 
-    <EditText
-        android:id="@+id/etBrand"
-        android:layout_width="0dp"
-        android:layout_height="54dp"
-        android:layout_marginTop="8dp"
-        android:background="@drawable/bg_input_field"
-        android:hint="Например, BMW"
-        android:inputType="text"
-        android:maxLength="64"
-        android:paddingHorizontal="16dp"
-        android:textColor="#000000"
-        android:textColorHint="#9E9E9E"
-        android:textSize="16sp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/lblBrand" />
+        <TextView
+            android:id="@+id/tvTitle"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="34dp"
+            android:layout_marginTop="52dp"
+            android:layout_marginEnd="34dp"
+            android:lineSpacingExtra="2dp"
+            android:text="Расскажи мне о\nмашине"
+            android:textColor="#101114"
+            android:textSize="38sp"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/topDivider" />
 
-    <TextView
-        android:id="@+id/lblModel"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
-        android:text="Модель"
-        android:textColor="#000000"
-        android:textSize="14sp"
-        android:textStyle="bold"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/etBrand" />
+        <TextView
+            android:id="@+id/tvSubtitle"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="34dp"
+            android:layout_marginTop="6dp"
+            android:layout_marginEnd="34dp"
+            android:lineSpacingExtra="2dp"
+            android:text="Я буду помнить её историю и помогать следить за состоянием."
+            android:textColor="#77777E"
+            android:textSize="19sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tvTitle" />
 
-    <EditText
-        android:id="@+id/etModel"
-        android:layout_width="0dp"
-        android:layout_height="54dp"
-        android:layout_marginTop="8dp"
-        android:background="@drawable/bg_input_field"
-        android:hint="Например, M4 Competition"
-        android:inputType="text"
-        android:maxLength="64"
-        android:paddingHorizontal="16dp"
-        android:textColor="#000000"
-        android:textColorHint="#9E9E9E"
-        android:textSize="16sp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/lblModel" />
+        <TextView
+            android:id="@+id/lblBrand"
+            style="@style/LambaFormLabel"
+            android:layout_marginTop="40dp"
+            android:text="Марка"
+            app:layout_constraintStart_toStartOf="@id/tvTitle"
+            app:layout_constraintTop_toBottomOf="@id/tvSubtitle" />
 
-    <TextView
-        android:id="@+id/lblYear"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
-        android:text="Год выпуска"
-        android:textColor="#000000"
-        android:textSize="14sp"
-        android:textStyle="bold"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/etModel" />
+        <EditText
+            android:id="@+id/etBrand"
+            style="@style/LambaFormInput"
+            android:hint="Марка"
+            android:inputType="text"
+            android:maxLength="64"
+            app:layout_constraintEnd_toEndOf="@id/tvTitle"
+            app:layout_constraintStart_toStartOf="@id/tvTitle"
+            app:layout_constraintTop_toBottomOf="@id/lblBrand" />
 
-    <EditText
-        android:id="@+id/etYear"
-        android:layout_width="0dp"
-        android:layout_height="54dp"
-        android:layout_marginTop="8dp"
-        android:background="@drawable/bg_input_field"
-        android:hint="Например, 2022"
-        android:inputType="number"
-        android:maxLength="4"
-        android:paddingHorizontal="16dp"
-        android:textColor="#000000"
-        android:textColorHint="#9E9E9E"
-        android:textSize="16sp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/lblYear" />
+        <TextView
+            android:id="@+id/lblModel"
+            style="@style/LambaFormLabel"
+            android:layout_marginTop="18dp"
+            android:text="Модель"
+            app:layout_constraintStart_toStartOf="@id/tvTitle"
+            app:layout_constraintTop_toBottomOf="@id/etBrand" />
 
-    <TextView
-        android:id="@+id/lblMileage"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
-        android:text="Текущий пробег (км)"
-        android:textColor="#000000"
-        android:textSize="14sp"
-        android:textStyle="bold"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/etYear" />
+        <EditText
+            android:id="@+id/etModel"
+            style="@style/LambaFormInput"
+            android:hint="Модель"
+            android:inputType="text"
+            android:maxLength="64"
+            app:layout_constraintEnd_toEndOf="@id/tvTitle"
+            app:layout_constraintStart_toStartOf="@id/tvTitle"
+            app:layout_constraintTop_toBottomOf="@id/lblModel" />
 
-    <EditText
-        android:id="@+id/etMileage"
-        android:layout_width="0dp"
-        android:layout_height="54dp"
-        android:layout_marginTop="8dp"
-        android:background="@drawable/bg_input_field"
-        android:hint="Например, 125000"
-        android:inputType="number"
-        android:maxLength="10"
-        android:paddingHorizontal="16dp"
-        android:textColor="#000000"
-        android:textColorHint="#9E9E9E"
-        android:textSize="16sp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/lblMileage" />
+        <TextView
+            android:id="@+id/lblYear"
+            style="@style/LambaFormLabel"
+            android:layout_marginTop="18dp"
+            android:text="Год выпуска"
+            app:layout_constraintStart_toStartOf="@id/tvTitle"
+            app:layout_constraintTop_toBottomOf="@id/etModel" />
 
-    <TextView
-        android:id="@+id/tvError"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:textColor="#D32F2F"
-        android:textSize="14sp"
-        android:visibility="gone"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/etMileage" />
+        <EditText
+            android:id="@+id/etYear"
+            style="@style/LambaFormInput"
+            android:hint="2022"
+            android:inputType="number"
+            android:maxLength="4"
+            app:layout_constraintEnd_toEndOf="@id/tvTitle"
+            app:layout_constraintStart_toStartOf="@id/tvTitle"
+            app:layout_constraintTop_toBottomOf="@id/lblYear" />
 
-    <androidx.appcompat.widget.AppCompatButton
-        android:id="@+id/btnSave"
-        android:layout_width="0dp"
-        android:layout_height="56dp"
-        android:layout_marginTop="24dp"
-        android:background="@drawable/bg_button_red"
-        android:text="Сохранить"
-        android:textAllCaps="false"
-        android:textColor="#FFFFFF"
-        android:textSize="18sp"
-        android:textStyle="bold"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/tvError" />
+        <TextView
+            android:id="@+id/lblMileage"
+            style="@style/LambaFormLabel"
+            android:layout_marginTop="18dp"
+            android:text="Текущий пробег (км)"
+            app:layout_constraintStart_toStartOf="@id/tvTitle"
+            app:layout_constraintTop_toBottomOf="@id/etYear" />
 
-    <ProgressBar
-        android:id="@+id/progressBar"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:visibility="gone"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/btnSave" />
+        <EditText
+            android:id="@+id/etMileage"
+            style="@style/LambaFormInput"
+            android:hint="12450"
+            android:inputType="number"
+            android:maxLength="10"
+            app:layout_constraintEnd_toEndOf="@id/tvTitle"
+            app:layout_constraintStart_toStartOf="@id/tvTitle"
+            app:layout_constraintTop_toBottomOf="@id/lblMileage" />
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+        <TextView
+            android:id="@+id/tvError"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:textColor="#960018"
+            android:textSize="16sp"
+            android:visibility="gone"
+            app:layout_constraintEnd_toEndOf="@id/tvTitle"
+            app:layout_constraintStart_toStartOf="@id/tvTitle"
+            app:layout_constraintTop_toBottomOf="@id/etMileage" />
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/btnSave"
+            android:layout_width="0dp"
+            android:layout_height="58dp"
+            android:layout_marginTop="42dp"
+            android:background="@drawable/bg_lamba_send_button"
+            android:text="Сохранить машину"
+            android:textAllCaps="false"
+            android:textColor="#FFFFFF"
+            android:textSize="19sp"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="@id/tvTitle"
+            app:layout_constraintStart_toStartOf="@id/tvTitle"
+            app:layout_constraintTop_toBottomOf="@id/tvError" />
+
+        <ProgressBar
+            android:id="@+id/progressBar"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:layout_marginTop="14dp"
+            android:indeterminateTint="#960018"
+            android:visibility="gone"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/btnSave" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</ScrollView>

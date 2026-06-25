@@ -24,6 +24,11 @@ import kotlinx.coroutines.launch
 
 class ChatActivity : AppCompatActivity() {
 
+    companion object {
+        const val EXTRA_INITIAL_MESSAGE = "com.lamba.app.extra.INITIAL_MESSAGE"
+        const val EXTRA_VEHICLE_NAME = "com.lamba.app.extra.VEHICLE_NAME"
+    }
+
     private val messageList = mutableListOf<Message>()
     private lateinit var adapter: ChatAdapter
     private lateinit var layoutSuggestions: LinearLayout
@@ -31,7 +36,9 @@ class ChatActivity : AppCompatActivity() {
     private lateinit var etChatBackMessage: EditText
     private lateinit var btnChatSend: ImageButton
     private lateinit var progressChatSend: ProgressBar
+    private lateinit var tvChatStatus: TextView
     private var isSending = false
+    private var vehicleName = "машина"
 
     private val chatRepository by lazy {
         SessionManager.getUserId(this)?.let { userId ->
@@ -43,28 +50,38 @@ class ChatActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_chat)
 
+        vehicleName = intent.getStringExtra(EXTRA_VEHICLE_NAME)
+            ?.trim()
+            ?.takeIf { it.isNotEmpty() }
+            ?: "машина"
+
         layoutSuggestions = findViewById(R.id.layoutSuggestions)
         rvChatMessages = findViewById(R.id.rvChatMessages)
         etChatBackMessage = findViewById(R.id.etChatBackMessage)
         btnChatSend = findViewById(R.id.btnChatSend)
         progressChatSend = findViewById(R.id.progressChatSend)
+        tvChatStatus = findViewById(R.id.tvChatStatus)
         val navBackToCar = findViewById<LinearLayout>(R.id.navBackToCar)
+
+        tvChatStatus.text = vehicleName
 
         adapter = ChatAdapter(messageList)
         rvChatMessages.layoutManager = LinearLayoutManager(this)
         rvChatMessages.adapter = adapter
+        addMessage(initialGreeting(), isFromUser = false)
+        loadVehicleNameIfNeeded()
 
         setupSuggestion(
             R.id.suggestStatus,
-            "Проверить состояние",
+            "Проверь состояние автомобиля",
         )
         setupSuggestion(
             R.id.suggestExpenses,
-            "Последние расходы",
+            "Покажи последние расходы",
         )
         setupSuggestion(
             R.id.suggestService,
-            "Когда было ТО?",
+            "Когда было последнее ТО?",
         )
         setupSuggestion(
             R.id.suggestAddRecord,
@@ -87,6 +104,13 @@ class ChatActivity : AppCompatActivity() {
             startActivity(Intent(this, MainActivity::class.java))
             finish()
         }
+
+        if (savedInstanceState == null) {
+            intent.getStringExtra(EXTRA_INITIAL_MESSAGE)
+                ?.trim()
+                ?.takeIf { it.isNotEmpty() }
+                ?.let { sendMessage(it) }
+        }
     }
 
     private fun setupSuggestion(viewId: Int, title: String) {
@@ -97,18 +121,47 @@ class ChatActivity : AppCompatActivity() {
         }
     }
 
+    private fun loadVehicleNameIfNeeded() {
+        if (vehicleName != "машина") return
+        val userId = SessionManager.getUserId(this) ?: return
+
+        lifecycleScope.launch {
+            runCatching { RetrofitClient.apiService.getVehicle(userId) }
+                .onSuccess { response ->
+                    val vehicle = response.body()
+                    if (response.isSuccessful && vehicle != null) {
+                        vehicleName = "${vehicle.brand} ${vehicle.model}".trim()
+                        tvChatStatus.text = vehicleName
+                        if (messageList.isNotEmpty() && !messageList[0].isFromUser) {
+                            messageList[0] = Message(initialGreeting(), isFromUser = false)
+                            adapter.notifyItemChanged(0)
+                        }
+                    }
+                }
+        }
+    }
+
+    private fun initialGreeting(): String {
+        return if (vehicleName == "машина") {
+            "Привет. Я твоя машина. До следующей замены масла осталось примерно 1 250 км. Что хочешь узнать?"
+        } else {
+            "Привет. Я твоя $vehicleName. До следующей замены масла осталось примерно 1 250 км. Что хочешь узнать?"
+        }
+    }
+
     private fun sendMessage(text: String) {
         val message = text.trim()
         if (message.isEmpty() || isSending) return
 
         layoutSuggestions.visibility = View.GONE
+        SessionManager.addChatRequest(this, message)
         addMessage(message, isFromUser = true)
         setSendingState(isSending = true)
 
         val repository = chatRepository
         if (repository == null) {
             addMessage(
-                "\u0412\u043e\u0439\u0434\u0438\u0442\u0435 \u0432 \u0430\u043a\u043a\u0430\u0443\u043d\u0442, \u0447\u0442\u043e\u0431\u044b \u0441\u043e\u0445\u0440\u0430\u043d\u044f\u0442\u044c \u0437\u0430\u043f\u0438\u0441\u0438 \u0430\u0432\u0442\u043e\u043c\u043e\u0431\u0438\u043b\u044f.",
+                "Войдите в аккаунт, чтобы сохранять записи автомобиля.",
                 isFromUser = false,
             )
             setSendingState(isSending = false)
@@ -152,33 +205,33 @@ class ChatActivity : AppCompatActivity() {
 
     private fun formatSavedEvent(event: Event): String {
         val eventType = when (event.type) {
-            "fuel" -> "\u0417\u0430\u043f\u0440\u0430\u0432\u043a\u0430"
-            "repair" -> "\u0420\u0435\u043c\u043e\u043d\u0442"
-            "trip" -> "\u041f\u043e\u0435\u0437\u0434\u043a\u0430"
-            "issue" -> "\u041f\u0440\u043e\u0431\u043b\u0435\u043c\u0430"
-            "condition" -> "\u0422\u0435\u0445\u043d\u0438\u0447\u0435\u0441\u043a\u043e\u0435 \u0441\u043e\u0441\u0442\u043e\u044f\u043d\u0438\u0435"
+            "fuel" -> "Заправка"
+            "repair" -> "Ремонт"
+            "trip" -> "Поездка"
+            "issue" -> "Проблема"
+            "condition" -> "Техническое состояние"
             else -> event.type
         }
         val lines = mutableListOf(
-            "\u042f \u0441\u043e\u0445\u0440\u0430\u043d\u0438\u043b\u0430 \u0437\u0430\u043f\u0438\u0441\u044c \u0432 \u0438\u0441\u0442\u043e\u0440\u0438\u0438 BMW M4.",
+            "Я сохранила запись в истории $vehicleName.",
             "$eventType: ${event.description}",
         )
         if (event.amount > 0) {
-            lines.add("\u0421\u0443\u043c\u043c\u0430: ${event.amount} \u20bd")
+            lines.add("Сумма: ${event.amount} ₽")
         }
-        lines.add("\u041f\u0440\u043e\u0431\u0435\u0433: ${event.mileage} \u043a\u043c")
+        lines.add("Пробег: ${event.mileage} км")
         return lines.joinToString(separator = "\n")
     }
 
     private fun failureMessage(stage: ChatFailureStage): String {
         return when (stage) {
             ChatFailureStage.PARSING ->
-                "\u041d\u0435 \u0443\u0434\u0430\u043b\u043e\u0441\u044c \u043e\u0431\u0440\u0430\u0431\u043e\u0442\u0430\u0442\u044c \u0441\u043e\u043e\u0431\u0449\u0435\u043d\u0438\u0435. " +
-                    "\u041f\u0440\u043e\u0432\u0435\u0440\u044c\u0442\u0435 \u043f\u043e\u0434\u043a\u043b\u044e\u0447\u0435\u043d\u0438\u0435 \u0438 \u043f\u043e\u043f\u0440\u043e\u0431\u0443\u0439\u0442\u0435 \u0435\u0449\u0451 \u0440\u0430\u0437."
+                "Не удалось обработать сообщение. " +
+                    "Проверьте подключение и попробуйте ещё раз."
 
             ChatFailureStage.SAVING ->
-                "\u042f \u043f\u043e\u043d\u044f\u043b\u0430 \u0437\u0430\u043f\u0438\u0441\u044c, \u043d\u043e \u043d\u0435 \u0441\u043c\u043e\u0433\u043b\u0430 \u0441\u043e\u0445\u0440\u0430\u043d\u0438\u0442\u044c \u0435\u0451 \u0432 \u0438\u0441\u0442\u043e\u0440\u0438\u044e. " +
-                    "\u041f\u043e\u043f\u0440\u043e\u0431\u0443\u0439\u0442\u0435 \u0435\u0449\u0451 \u0440\u0430\u0437."
+                "Я поняла запись, но не смогла сохранить её в историю. " +
+                    "Попробуйте ещё раз."
         }
     }
 }

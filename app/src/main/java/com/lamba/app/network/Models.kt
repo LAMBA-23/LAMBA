@@ -9,7 +9,9 @@ data class LoginRequest(
 
 data class LoginResponse(
     @SerializedName("success") val success: Boolean = false,
-    @SerializedName("user_id") val userId: Int? = null
+    @SerializedName("user_id") val userId: Int? = null,
+    @SerializedName("username") val username: String? = null,
+    @SerializedName("name") val name: String? = null
 )
 
 data class RegisterRequest(
@@ -19,7 +21,9 @@ data class RegisterRequest(
 
 data class RegisterResponse(
     @SerializedName("success") val success: Boolean = false,
-    @SerializedName("user_id") val userId: Int? = null
+    @SerializedName("user_id") val userId: Int? = null,
+    @SerializedName("username") val username: String? = null,
+    @SerializedName("name") val name: String? = null
 )
 
 data class Vehicle(

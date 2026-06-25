@@ -29,58 +29,50 @@ class LoginActivity : AppCompatActivity() {
         val btnLogin = findViewById<Button>(R.id.btnLogin)
         val tvRegisterLink = findViewById<TextView>(R.id.tvRegisterLink)
 
-        btnBack.setOnClickListener {
-            onBackPressedDispatcher.onBackPressed()
-        }
+        btnBack.setOnClickListener { onBackPressedDispatcher.onBackPressed() }
 
         btnLogin.setOnClickListener {
             val username = etEmail.text.toString().trim()
             val password = etPassword.text.toString().trim()
 
             if (username.isEmpty() || password.isEmpty()) {
-                Toast.makeText(this, "Пожалуйста, заполните все поля", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "Заполните email и пароль", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
 
             btnLogin.isEnabled = false
-            Toast.makeText(this, "Выполняется вход...", Toast.LENGTH_SHORT).show()
 
             CoroutineScope(Dispatchers.IO).launch {
                 try {
                     val response = RetrofitClient.apiService.login(
-                        LoginRequest(username = username, password = password)
+                        LoginRequest(username = username, password = password),
                     )
                     val body = response.body()
 
                     withContext(Dispatchers.Main) {
                         if (response.isSuccessful && body?.success == true && body.userId != null) {
                             SessionManager.saveUserId(this@LoginActivity, body.userId)
+                            SessionManager.saveUserName(
+                                this@LoginActivity,
+                                body.name ?: body.username ?: username,
+                            )
                             routeAfterLogin(body.userId, btnLogin)
                         } else {
                             btnLogin.isEnabled = true
-                            Toast.makeText(
-                                this@LoginActivity,
-                                "Неверный логин или пароль",
-                                Toast.LENGTH_SHORT
-                            ).show()
+                            Toast.makeText(this@LoginActivity, "Неверный логин или пароль", Toast.LENGTH_SHORT).show()
                         }
                     }
                 } catch (e: Exception) {
                     withContext(Dispatchers.Main) {
                         btnLogin.isEnabled = true
-                        Toast.makeText(
-                            this@LoginActivity,
-                            "Не удалось подключиться к бэкенду",
-                            Toast.LENGTH_LONG
-                        ).show()
+                        Toast.makeText(this@LoginActivity, "Не удалось подключиться к бэкенду", Toast.LENGTH_LONG).show()
                     }
                 }
             }
         }
 
         tvRegisterLink.setOnClickListener {
-            val intent = Intent(this, RegisterActivity::class.java)
-            startActivity(intent)
+            startActivity(Intent(this, RegisterActivity::class.java))
         }
     }
 
@@ -91,32 +83,21 @@ class LoginActivity : AppCompatActivity() {
 
                 withContext(Dispatchers.Main) {
                     btnLogin.isEnabled = true
-
                     val vehicle = vehicleResponse.body()
-                    if (vehicleResponse.isSuccessful && vehicle != null) {
-                        if (isPlaceholderVehicle(vehicle)) {
-                            openVehicleSetup(userId)
-                        } else {
-                            openMainFlow(userId)
-                        }
-                    } else if (vehicleResponse.code() == 404) {
-                        openVehicleSetup(userId)
-                    } else {
-                        Toast.makeText(
+                    when {
+                        vehicleResponse.isSuccessful && vehicle != null && !isPlaceholderVehicle(vehicle) -> openMainFlow(userId)
+                        vehicleResponse.isSuccessful || vehicleResponse.code() == 404 -> openVehicleSetup(userId)
+                        else -> Toast.makeText(
                             this@LoginActivity,
                             "Не удалось проверить данные автомобиля",
-                            Toast.LENGTH_LONG
+                            Toast.LENGTH_LONG,
                         ).show()
                     }
                 }
             } catch (e: Exception) {
                 withContext(Dispatchers.Main) {
                     btnLogin.isEnabled = true
-                    Toast.makeText(
-                        this@LoginActivity,
-                        "Не удалось подключиться к бэкенду",
-                        Toast.LENGTH_LONG
-                    ).show()
+                    Toast.makeText(this@LoginActivity, "Не удалось подключиться к бэкенду", Toast.LENGTH_LONG).show()
                 }
             }
         }
@@ -124,14 +105,15 @@ class LoginActivity : AppCompatActivity() {
 
     private fun isPlaceholderVehicle(vehicle: Vehicle): Boolean {
         return vehicle.brand == "Not set" &&
-                vehicle.model == "Not set" &&
-                vehicle.productionYear == 0 &&
-                vehicle.currentMileage == 0
+            vehicle.model == "Not set" &&
+            vehicle.productionYear == 0 &&
+            vehicle.currentMileage == 0
     }
 
     private fun openVehicleSetup(userId: Int) {
         val intent = Intent(this, AddVehicleActivity::class.java)
         intent.putExtra("USER_ID", userId)
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
         startActivity(intent)
         finish()
     }
@@ -139,6 +121,7 @@ class LoginActivity : AppCompatActivity() {
     private fun openMainFlow(userId: Int) {
         val intent = Intent(this, MainActivity::class.java)
         intent.putExtra("USER_ID", userId)
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
         startActivity(intent)
         finish()
     }

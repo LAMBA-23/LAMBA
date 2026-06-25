@@ -27,7 +27,7 @@ class AddVehicleActivity : AppCompatActivity() {
 
         userId = intent.getIntExtra("USER_ID", -1)
         if (userId == -1) {
-            Toast.makeText(this, "Ошибка: пользователь не определён", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, "Пользователь не определён", Toast.LENGTH_SHORT).show()
             finish()
             return
         }
@@ -41,99 +41,89 @@ class AddVehicleActivity : AppCompatActivity() {
         val tvError = findViewById<TextView>(R.id.tvError)
         val progressBar = findViewById<ProgressBar>(R.id.progressBar)
 
-        btnBack.setOnClickListener {
-            onBackPressedDispatcher.onBackPressed()
-        }
+        btnBack.setOnClickListener { onBackPressedDispatcher.onBackPressed() }
 
         btnSave.setOnClickListener {
             val brand = etBrand.text.toString().trim()
             val model = etModel.text.toString().trim()
-            val yearStr = etYear.text.toString().trim()
-            val mileageStr = etMileage.text.toString().trim()
+            val year = etYear.text.toString().trim().toIntOrNull()
+            val mileage = etMileage.text.toString().trim().toIntOrNull()
 
             tvError.visibility = View.GONE
 
-            if (brand.isEmpty()) {
-                tvError.text = "Введите марку автомобиля"
-                tvError.visibility = View.VISIBLE
-                return@setOnClickListener
+            when {
+                brand.isEmpty() -> {
+                    showError(tvError, "Введите марку автомобиля")
+                    return@setOnClickListener
+                }
+                model.isEmpty() -> {
+                    showError(tvError, "Введите модель автомобиля")
+                    return@setOnClickListener
+                }
+                year == null || year < 1886 || year > 2100 -> {
+                    showError(tvError, "Год выпуска должен быть от 1886 до 2100")
+                    return@setOnClickListener
+                }
+                mileage == null || mileage < 0 -> {
+                    showError(tvError, "Пробег не может быть отрицательным")
+                    return@setOnClickListener
+                }
             }
-            if (model.isEmpty()) {
-                tvError.text = "Введите модель автомобиля"
-                tvError.visibility = View.VISIBLE
-                return@setOnClickListener
-            }
-            if (yearStr.isEmpty()) {
-                tvError.text = "Введите год выпуска"
-                tvError.visibility = View.VISIBLE
-                return@setOnClickListener
-            }
-            if (mileageStr.isEmpty()) {
-                tvError.text = "Введите текущий пробег"
-                tvError.visibility = View.VISIBLE
-                return@setOnClickListener
-            }
-
-            val year = yearStr.toIntOrNull()
-            if (year == null || year < 1886 || year > 2100) {
-                tvError.text = "Год выпуска должен быть от 1886 до 2100"
-                tvError.visibility = View.VISIBLE
-                return@setOnClickListener
-            }
-
-            val mileage = mileageStr.toIntOrNull()
-            if (mileage == null || mileage < 0) {
-                tvError.text = "Пробег не может быть отрицательным"
-                tvError.visibility = View.VISIBLE
-                return@setOnClickListener
-            }
+            val productionYear = year ?: return@setOnClickListener
+            val currentMileage = mileage ?: return@setOnClickListener
 
             btnSave.isEnabled = false
             progressBar.visibility = View.VISIBLE
 
             CoroutineScope(Dispatchers.IO).launch {
                 try {
-                    val request = VehicleRequest(
-                        userId = userId,
-                        brand = brand,
-                        model = model,
-                        productionYear = year,
-                        currentMileage = mileage
+                    val response = RetrofitClient.apiService.createVehicle(
+                        VehicleRequest(
+                            userId = userId,
+                            brand = brand,
+                            model = model,
+                            productionYear = productionYear,
+                            currentMileage = currentMileage,
+                        ),
                     )
-                    val response = RetrofitClient.apiService.createVehicle(request)
 
                     withContext(Dispatchers.Main) {
                         progressBar.visibility = View.GONE
                         if (response.isSuccessful) {
-                            Toast.makeText(
-                                this@AddVehicleActivity,
-                                "Автомобиль успешно добавлен!",
-                                Toast.LENGTH_SHORT
-                            ).show()
-                            val intent = Intent(this@AddVehicleActivity, MainActivity::class.java)
-                            intent.putExtra("USER_ID", userId)
-                            startActivity(intent)
-                            finish()
+                            openMainFlow()
                         } else {
                             btnSave.isEnabled = true
-                            val errorMsg = when (response.code()) {
-                                409 -> "У пользователя уже есть автомобиль. В MVP v1 допускается только один автомобиль."
-                                422 -> "Проверьте правильность введённых данных"
-                                else -> "Ошибка при сохранении: ${response.code()}"
-                            }
-                            tvError.text = errorMsg
-                            tvError.visibility = View.VISIBLE
+                            showError(
+                                tvError,
+                                when (response.code()) {
+                                    409 -> "У пользователя уже есть автомобиль"
+                                    422 -> "Проверьте введённые данные"
+                                    else -> "Ошибка сохранения: ${response.code()}"
+                                },
+                            )
                         }
                     }
                 } catch (e: Exception) {
                     withContext(Dispatchers.Main) {
                         progressBar.visibility = View.GONE
                         btnSave.isEnabled = true
-                        tvError.text = "Не удалось подключиться к бэкенду"
-                        tvError.visibility = View.VISIBLE
+                        showError(tvError, "Не удалось подключиться к бэкенду")
                     }
                 }
             }
         }
+    }
+
+    private fun showError(tvError: TextView, message: String) {
+        tvError.text = message
+        tvError.visibility = View.VISIBLE
+    }
+
+    private fun openMainFlow() {
+        val intent = Intent(this, MainActivity::class.java)
+        intent.putExtra("USER_ID", userId)
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
+        startActivity(intent)
+        finish()
     }
 }

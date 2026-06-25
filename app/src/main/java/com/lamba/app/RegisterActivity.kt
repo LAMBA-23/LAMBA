@@ -33,13 +33,9 @@ class RegisterActivity : AppCompatActivity() {
         val tvError = findViewById<TextView>(R.id.tvRegisterError)
         val progressBar = findViewById<ProgressBar>(R.id.progressBar)
 
-        btnBack.setOnClickListener {
-            finish()
-        }
-
+        btnBack.setOnClickListener { finish() }
         tvToLogin.setOnClickListener {
-            val intent = Intent(this, LoginActivity::class.java)
-            startActivity(intent)
+            startActivity(Intent(this, LoginActivity::class.java))
             finish()
         }
 
@@ -53,7 +49,7 @@ class RegisterActivity : AppCompatActivity() {
 
             when {
                 name.isEmpty() || email.isEmpty() || password.isEmpty() || confirmPassword.isEmpty() -> {
-                    showError(tvError, "Пожалуйста, заполните все поля")
+                    showError(tvError, "Заполните все поля")
                     return@setOnClickListener
                 }
                 password.length < 8 -> {
@@ -72,24 +68,26 @@ class RegisterActivity : AppCompatActivity() {
             CoroutineScope(Dispatchers.IO).launch {
                 try {
                     val response = RetrofitClient.apiService.register(
-                        RegisterRequest(username = email, password = password)
+                        RegisterRequest(username = email, password = password),
                     )
                     val body = response.body()
 
                     withContext(Dispatchers.Main) {
                         progressBar.visibility = View.GONE
-
                         if (response.isSuccessful && body?.success == true && body.userId != null) {
                             SessionManager.saveUserId(this@RegisterActivity, body.userId)
+                            SessionManager.saveUserName(this@RegisterActivity, body.name ?: body.username ?: name)
                             openVehicleSetup(body.userId)
                         } else {
                             btnSubmit.isEnabled = true
-                            val message = when (response.code()) {
-                                400 -> "Такой аккаунт уже существует"
-                                422 -> "Проверьте правильность введённых данных"
-                                else -> "Не удалось создать аккаунт"
-                            }
-                            showError(tvError, message)
+                            showError(
+                                tvError,
+                                when (response.code()) {
+                                    400 -> "Такой аккаунт уже существует"
+                                    422 -> "Проверьте введённые данные"
+                                    else -> "Не удалось создать аккаунт"
+                                },
+                            )
                         }
                     }
                 } catch (e: Exception) {
@@ -111,6 +109,7 @@ class RegisterActivity : AppCompatActivity() {
     private fun openVehicleSetup(userId: Int) {
         val intent = Intent(this, AddVehicleActivity::class.java)
         intent.putExtra("USER_ID", userId)
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
         startActivity(intent)
         finish()
     }
