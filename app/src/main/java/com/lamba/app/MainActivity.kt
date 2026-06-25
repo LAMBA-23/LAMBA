@@ -20,6 +20,8 @@ import kotlinx.coroutines.withContext
 class MainActivity : AppCompatActivity() {
 
     private var userId: Int = -1
+    private lateinit var drawerOverlay: View
+    private lateinit var menuRequests: LinearLayout
     private var vehicleName: String = "машина"
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -43,12 +45,12 @@ class MainActivity : AppCompatActivity() {
         val etHomeMessage = findViewById<EditText>(R.id.etHomeMessage)
         val btnHomeSend = findViewById<ImageButton>(R.id.btnHomeSend)
         val btnMenu = findViewById<ImageButton>(R.id.btnMenu)
-        val drawerOverlay = findViewById<View>(R.id.drawerOverlay)
+        drawerOverlay = findViewById(R.id.drawerOverlay)
         val drawerScrim = findViewById<View>(R.id.drawerScrim)
         val btnDrawerClose = findViewById<ImageButton>(R.id.btnDrawerClose)
         val menuHistory = findViewById<LinearLayout>(R.id.menuHistory)
         val menuStats = findViewById<LinearLayout>(R.id.menuStats)
-        val menuRequests = findViewById<LinearLayout>(R.id.menuRequests)
+        menuRequests = findViewById(R.id.menuRequests)
         val menuProfile = findViewById<LinearLayout>(R.id.menuProfile)
 
         tvProfileName.text = SessionManager.getUserName(this) ?: "Пользователь"
@@ -120,6 +122,13 @@ class MainActivity : AppCompatActivity() {
         }
 
         loadVehicleData(tvHeader, tvCarName, tvCarInfo)
+    }
+
+    override fun onResume() {
+        super.onResume()
+        if (::menuRequests.isInitialized && ::drawerOverlay.isInitialized) {
+            renderRequestHistory(menuRequests, drawerOverlay)
+        }
     }
 
     override fun onBackPressed() {
