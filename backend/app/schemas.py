@@ -154,14 +154,24 @@ class ChatParseResponse(BaseModel):
 
 
 class StatsPeriodResponse(BaseModel):
+    mileage: int
+    total_expenses: int
+    fuel_expenses: int
+    repair_expenses: int
+    records_count: int
+    avg_fuel_consumption: int
+    avg_expense_consumption: int
     mileage_km: int
     expenses_rub: int
     fuel_liters: int
-    records_count: int
     avg_fuel_consumption_l_per_100km: int
 
 
 class StatsResponse(BaseModel):
+    fuel_expenses: int
+    repair_expenses: int
+    trip_count: int
+    total_recorded_mileage: int
     week: StatsPeriodResponse
     month: StatsPeriodResponse
     all_time: StatsPeriodResponse

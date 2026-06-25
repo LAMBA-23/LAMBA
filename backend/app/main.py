@@ -100,19 +100,63 @@ def get_car_for_user_id(db: Session, user_id: int) -> Car:
     return get_or_create_user_car(db, user)
 
 
+STATISTICS_EVENT_TYPES = {"fuel", "repair", "trip"}
+
+
+def _coalesce_int(value: int | None) -> int:
+    return value if value is not None else 0
+
+
+def _is_statistics_relevant(event: Event) -> bool:
+    return event.type in STATISTICS_EVENT_TYPES
+
+
 def build_stats_period(events: list[Event], start_at: datetime | None = None) -> StatsPeriodResponse:
     period_events = [
         event for event in events if start_at is None or event.created_at >= start_at
     ]
-    mileages = [event.mileage for event in period_events]
-    mileage_km = max(mileages) - min(mileages) if len(mileages) >= 2 else 0
+    relevant_events = [event for event in period_events if _is_statistics_relevant(event)]
+    mileage = sum(
+        _coalesce_int(event.mileage) for event in relevant_events if event.type == "trip"
+    )
+    fuel_expenses = sum(
+        _coalesce_int(event.amount) for event in relevant_events if event.type == "fuel"
+    )
+    repair_expenses = sum(
+        _coalesce_int(event.amount) for event in relevant_events if event.type == "repair"
+    )
+    total_expenses = fuel_expenses + repair_expenses
 
     return StatsPeriodResponse(
-        mileage_km=mileage_km,
-        expenses_rub=sum(event.amount for event in period_events),
+        mileage=mileage,
+        total_expenses=total_expenses,
+        fuel_expenses=fuel_expenses,
+        repair_expenses=repair_expenses,
+        records_count=len(relevant_events),
+        avg_fuel_consumption=0,
+        avg_expense_consumption=0,
+        mileage_km=mileage,
+        expenses_rub=total_expenses,
         fuel_liters=0,
-        records_count=len(period_events),
         avg_fuel_consumption_l_per_100km=0,
+    )
+
+
+def build_stats_response(events: list[Event], now: datetime) -> StatsResponse:
+    week = build_stats_period(events, start_at=now - timedelta(days=7))
+    month = build_stats_period(events, start_at=now - timedelta(days=30))
+    all_time = build_stats_period(events)
+
+    trip_count = sum(1 for event in events if event.type == "trip")
+
+    return StatsResponse(
+        fuel_expenses=all_time.fuel_expenses,
+        repair_expenses=all_time.repair_expenses,
+        trip_count=trip_count,
+        total_recorded_mileage=all_time.mileage,
+        week=week,
+        month=month,
+        all_time=all_time,
     )
 
 
@@ -284,9 +328,4 @@ def get_stats(user_id: int = Query(...), db: Session = Depends(get_db)) -> Stats
     events = list(
         db.scalars(select(Event).where(Event.car_id == car.id).order_by(Event.created_at, Event.id))
     )
-
-    return StatsResponse(
-        week=build_stats_period(events, start_at=now - timedelta(days=7)),
-        month=build_stats_period(events, start_at=now - timedelta(days=30)),
-        all_time=build_stats_period(events),
-    )
+    return build_stats_response(events, now)

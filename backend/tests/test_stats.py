@@ -1,5 +1,6 @@
 from datetime import UTC, datetime, timedelta
 
+from app.main import build_stats_period
 from app.models import Event
 
 
@@ -23,106 +24,209 @@ def _event_payload(**overrides):
     return payload
 
 
+def _create_event(client, user_id: int, **overrides):
+    response = client.post(f"/events?user_id={user_id}", json=_event_payload(**overrides))
+    assert response.status_code == 200
+    return response
+
+
+def _set_event_created_at(db_session, description: str, created_at: datetime) -> None:
+    event = db_session.query(Event).filter_by(description=description).one()
+    event.created_at = created_at
+    db_session.commit()
+
+
 class TestStatsApi:
-    def test_get_stats_returns_periods_with_aggregated_values(self, client, db_session):
-        user_id = _register_user(client, "stats-user")
-        now = datetime.now(UTC).replace(tzinfo=None)
-
-        created_events = [
-            client.post(
-                f"/events?user_id={user_id}",
-                json=_event_payload(
-                    type="fuel",
-                    description="week fuel",
-                    amount=2500,
-                    mileage=10000,
-                ),
-            ),
-            client.post(
-                f"/events?user_id={user_id}",
-                json=_event_payload(
-                    type="repair",
-                    description="month repair",
-                    amount=7000,
-                    mileage=10200,
-                ),
-            ),
-            client.post(
-                f"/events?user_id={user_id}",
-                json=_event_payload(
-                    type="trip",
-                    description="old trip",
-                    amount=0,
-                    mileage=10500,
-                ),
-            ),
-        ]
-
-        for response in created_events:
-            assert response.status_code == 200
-
-        events = {
-            event.description: event
-            for event in db_session.query(Event).all()
-        }
-        events["week fuel"].created_at = now - timedelta(days=3)
-        events["month repair"].created_at = now - timedelta(days=10)
-        events["old trip"].created_at = now - timedelta(days=40)
-        db_session.commit()
-
-        response = client.get(f"/stats?user_id={user_id}")
-
-        assert response.status_code == 200
-        assert response.json() == {
-            "week": {
-                "mileage_km": 0,
-                "expenses_rub": 2500,
-                "fuel_liters": 0,
-                "records_count": 1,
-                "avg_fuel_consumption_l_per_100km": 0,
-            },
-            "month": {
-                "mileage_km": 200,
-                "expenses_rub": 9500,
-                "fuel_liters": 0,
-                "records_count": 2,
-                "avg_fuel_consumption_l_per_100km": 0,
-            },
-            "all_time": {
-                "mileage_km": 500,
-                "expenses_rub": 9500,
-                "fuel_liters": 0,
-                "records_count": 3,
-                "avg_fuel_consumption_l_per_100km": 0,
-            },
-        }
-
     def test_get_stats_returns_zeroes_when_user_has_no_events(self, client):
         user_id = _register_user(client, "stats-empty-user")
 
         response = client.get(f"/stats?user_id={user_id}")
+        data = response.json()
 
         assert response.status_code == 200
-        assert response.json() == {
-            "week": {
-                "mileage_km": 0,
-                "expenses_rub": 0,
-                "fuel_liters": 0,
-                "records_count": 0,
-                "avg_fuel_consumption_l_per_100km": 0,
-            },
-            "month": {
-                "mileage_km": 0,
-                "expenses_rub": 0,
-                "fuel_liters": 0,
-                "records_count": 0,
-                "avg_fuel_consumption_l_per_100km": 0,
-            },
-            "all_time": {
-                "mileage_km": 0,
-                "expenses_rub": 0,
-                "fuel_liters": 0,
-                "records_count": 0,
-                "avg_fuel_consumption_l_per_100km": 0,
-            },
-        }
+        assert data["fuel_expenses"] == 0
+        assert data["repair_expenses"] == 0
+        assert data["trip_count"] == 0
+        assert data["total_recorded_mileage"] == 0
+        assert data["week"]["mileage"] == 0
+        assert data["week"]["total_expenses"] == 0
+        assert data["week"]["records_count"] == 0
+        assert data["month"]["mileage"] == 0
+        assert data["month"]["total_expenses"] == 0
+        assert data["month"]["records_count"] == 0
+        assert data["all_time"]["mileage"] == 0
+        assert data["all_time"]["total_expenses"] == 0
+        assert data["all_time"]["records_count"] == 0
+
+    def test_get_stats_aggregates_only_relevant_event_types(self, client):
+        user_id = _register_user(client, "stats-relevant-events")
+
+        _create_event(
+            client,
+            user_id,
+            type="fuel",
+            description="fuel expense",
+            amount=2500,
+            mileage=10000,
+        )
+        _create_event(
+            client,
+            user_id,
+            type="repair",
+            description="repair expense",
+            amount=7000,
+            mileage=11000,
+        )
+        _create_event(
+            client,
+            user_id,
+            type="trip",
+            description="trip mileage",
+            amount=0,
+            mileage=500,
+        )
+        _create_event(
+            client,
+            user_id,
+            type="issue",
+            description="ignored issue",
+            amount=999,
+            mileage=888,
+        )
+        _create_event(
+            client,
+            user_id,
+            type="condition",
+            description="ignored condition",
+            amount=333,
+            mileage=444,
+        )
+
+        response = client.get(f"/stats?user_id={user_id}")
+        data = response.json()
+
+        assert response.status_code == 200
+        assert data["all_time"]["mileage"] == 500
+        assert data["all_time"]["total_expenses"] == 9500
+        assert data["all_time"]["fuel_expenses"] == 2500
+        assert data["all_time"]["repair_expenses"] == 7000
+        assert data["all_time"]["records_count"] == 3
+        assert data["all_time"]["avg_fuel_consumption"] == 0
+        assert data["all_time"]["avg_expense_consumption"] == 0
+        assert data["fuel_expenses"] == 2500
+        assert data["repair_expenses"] == 7000
+        assert data["trip_count"] == 1
+        assert data["total_recorded_mileage"] == 500
+
+    def test_get_stats_filters_week_month_and_all_time_by_created_at(self, client, db_session):
+        user_id = _register_user(client, "stats-periods-user")
+        now = datetime.now(UTC).replace(tzinfo=None)
+
+        _create_event(
+            client,
+            user_id,
+            type="fuel",
+            description="week fuel",
+            amount=2500,
+            mileage=100,
+        )
+        _create_event(
+            client,
+            user_id,
+            type="repair",
+            description="month repair",
+            amount=7000,
+            mileage=0,
+        )
+        _create_event(
+            client,
+            user_id,
+            type="trip",
+            description="old trip",
+            amount=0,
+            mileage=300,
+        )
+
+        _set_event_created_at(db_session, "week fuel", now - timedelta(days=3))
+        _set_event_created_at(db_session, "month repair", now - timedelta(days=10))
+        _set_event_created_at(db_session, "old trip", now - timedelta(days=40))
+
+        response = client.get(f"/stats?user_id={user_id}")
+        data = response.json()
+
+        assert response.status_code == 200
+        assert data["fuel_expenses"] == 2500
+        assert data["repair_expenses"] == 7000
+        assert data["trip_count"] == 1
+        assert data["total_recorded_mileage"] == 300
+        assert data["week"]["mileage"] == 0
+        assert data["week"]["total_expenses"] == 2500
+        assert data["week"]["fuel_expenses"] == 2500
+        assert data["week"]["repair_expenses"] == 0
+        assert data["week"]["records_count"] == 1
+        assert data["week"]["avg_fuel_consumption"] == 0
+        assert data["week"]["avg_expense_consumption"] == 0
+        assert data["month"]["mileage"] == 0
+        assert data["month"]["total_expenses"] == 9500
+        assert data["month"]["fuel_expenses"] == 2500
+        assert data["month"]["repair_expenses"] == 7000
+        assert data["month"]["records_count"] == 2
+        assert data["month"]["avg_fuel_consumption"] == 0
+        assert data["month"]["avg_expense_consumption"] == 0
+        assert data["all_time"]["mileage"] == 300
+        assert data["all_time"]["total_expenses"] == 9500
+        assert data["all_time"]["fuel_expenses"] == 2500
+        assert data["all_time"]["repair_expenses"] == 7000
+        assert data["all_time"]["records_count"] == 3
+        assert data["all_time"]["avg_fuel_consumption"] == 0
+        assert data["all_time"]["avg_expense_consumption"] == 0
+
+    def test_get_stats_is_updated_after_creating_event(self, client):
+        user_id = _register_user(client, "stats-updated-user")
+
+        empty_response = client.get(f"/stats?user_id={user_id}")
+        create_response = _create_event(
+            client,
+            user_id,
+            type="fuel",
+            description="new fuel",
+            amount=4200,
+            mileage=0,
+        )
+        updated_response = client.get(f"/stats?user_id={user_id}")
+
+        assert empty_response.status_code == 200
+        assert create_response.status_code == 200
+        assert updated_response.status_code == 200
+        assert empty_response.json()["all_time"]["total_expenses"] == 0
+        assert updated_response.json()["all_time"]["fuel_expenses"] == 4200
+        assert updated_response.json()["all_time"]["total_expenses"] == 4200
+        assert updated_response.json()["fuel_expenses"] == 4200
+
+    def test_build_stats_period_treats_null_amount_and_mileage_as_zero(self):
+        period = build_stats_period(
+            [
+                Event(
+                    car_id=1,
+                    type="fuel",
+                    description="fuel without amount",
+                    amount=None,
+                    mileage=None,
+                ),
+                Event(
+                    car_id=1,
+                    type="trip",
+                    description="trip without mileage",
+                    amount=0,
+                    mileage=None,
+                ),
+            ]
+        )
+
+        assert period.mileage == 0
+        assert period.total_expenses == 0
+        assert period.fuel_expenses == 0
+        assert period.repair_expenses == 0
+        assert period.records_count == 2
+        assert period.avg_fuel_consumption == 0
+        assert period.avg_expense_consumption == 0
