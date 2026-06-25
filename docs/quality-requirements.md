@@ -10,7 +10,7 @@ This document defines measurable quality requirements for the current LAMBA MVP 
 
 **Why this matters:** LAMBA stores mileage, expenses, and maintenance history. If invalid data is saved, the timeline and statistics become incorrect.
 
-**Traceability:** Supports [docs/api-contract.md](/C:/Users/Vasilisa/Desktop/LAMBA/LAMBA/docs/api-contract.md), [docs/testing.md](/C:/Users/Vasilisa/Desktop/LAMBA/LAMBA/docs/testing.md), US-04, US-05, and US-07.
+**Traceability:** Supports [docs/api-contract.md](api-contract.md), [docs/testing.md](testing.md), US-04, US-05, and US-07.
 
 ## QR-002: Timeline API response time
 
@@ -20,7 +20,7 @@ This document defines measurable quality requirements for the current LAMBA MVP 
 
 **Why this matters:** Viewing the timeline is one of the main user actions in LAMBA. Slow responses make the app feel unreliable and harder to use.
 
-**Traceability:** Supports [README.md](/C:/Users/Vasilisa/Desktop/LAMBA/LAMBA/README.md), [docs/api-contract.md](/C:/Users/Vasilisa/Desktop/LAMBA/LAMBA/docs/api-contract.md), US-05, and US-07.
+**Traceability:** Supports [README.md](../README.md), [docs/api-contract.md](api-contract.md), US-05, and US-07.
 
 ## QR-003: Backend regression testability
 
@@ -30,4 +30,4 @@ This document defines measurable quality requirements for the current LAMBA MVP 
 
 **Why this matters:** LAMBA is still changing quickly. Automated tests help the team find broken behavior before changes are merged.
 
-**Traceability:** Supports [backend/tests/test_auth.py](/C:/Users/Vasilisa/Desktop/LAMBA/LAMBA/backend/tests/test_auth.py), [backend/tests/test_events.py](/C:/Users/Vasilisa/Desktop/LAMBA/LAMBA/backend/tests/test_events.py), [backend/tests/test_stats.py](/C:/Users/Vasilisa/Desktop/LAMBA/LAMBA/backend/tests/test_stats.py), [backend/tests/test_chat_parse.py](/C:/Users/Vasilisa/Desktop/LAMBA/LAMBA/backend/tests/test_chat_parse.py), [backend/tests/test_vehicle.py](/C:/Users/Vasilisa/Desktop/LAMBA/LAMBA/backend/tests/test_vehicle.py), US-01, US-02, US-04, US-05, US-06, and US-07.
+**Traceability:** Supports [backend/tests/test_auth.py](../backend/tests/test_auth.py), [backend/tests/test_events.py](../backend/tests/test_events.py), [backend/tests/test_stats.py](../backend/tests/test_stats.py), [backend/tests/test_chat_parse.py](../backend/tests/test_chat_parse.py), [backend/tests/test_vehicle.py](../backend/tests/test_vehicle.py), US-01, US-02, US-04, US-05, US-06, and US-07.
