@@ -212,7 +212,9 @@ Returns all events for a user's car.
 
 Query parameters:
 
-- `user_id` optional. If omitted, backend returns the demo user's events for MVP v0 compatibility.
+- `user_id` (int, required) вЂ” the user ID.
+
+Events are returned in ascending ID order.
 
 Example:
 
@@ -239,7 +241,7 @@ Response:
 
 Parses a free-form chat message into a structured event draft. This endpoint does not create an event in the database; it only returns parsed JSON for the next persistence step.
 
-Allowed parsed event types: `fuel`, `repair`, `trip`, `issue`.
+Allowed parsed event types: `fuel`, `repair`, `trip`, `issue`, `condition`.
 
 Request:
 
@@ -280,7 +282,7 @@ Creates an event for a user's car.
 
 Query parameters:
 
-- `user_id` optional. If omitted, backend creates the event for the demo user's car for MVP v0 compatibility.
+- `user_id` (int, required) вЂ” the user ID.
 
 Example:
 
@@ -288,7 +290,11 @@ Example:
 POST /events?user_id=2
 ```
 
-Allowed event types: `fuel`, `repair`, `trip`, `issue`.
+Allowed event types: `fuel`, `repair`, `trip`, `issue`, `condition`.
+
+`description` must not be empty.
+
+`amount` and `mileage` must not be negative when provided.
 
 If `amount` is missing, backend stores `0`.
 
@@ -325,7 +331,7 @@ Validation error response:
   "detail": [
     {
       "loc": ["body", "type"],
-      "msg": "Input should be 'fuel', 'repair', 'trip' or 'issue'",
+      "msg": "Input should be 'fuel', 'repair', 'trip', 'issue' or 'condition'",
       "type": "literal_error"
     }
   ]
