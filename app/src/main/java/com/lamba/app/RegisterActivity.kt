@@ -81,6 +81,7 @@ class RegisterActivity : AppCompatActivity() {
 
                         if (response.isSuccessful && body?.success == true && body.userId != null) {
                             SessionManager.saveUserId(this@RegisterActivity, body.userId)
+                            SessionManager.saveUserName(this@RegisterActivity, name)
                             openVehicleSetup(body.userId)
                         } else {
                             btnSubmit.isEnabled = true
@@ -111,6 +112,7 @@ class RegisterActivity : AppCompatActivity() {
     private fun openVehicleSetup(userId: Int) {
         val intent = Intent(this, AddVehicleActivity::class.java)
         intent.putExtra("USER_ID", userId)
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
         startActivity(intent)
         finish()
     }

@@ -5,6 +5,7 @@ import android.content.Context
 object SessionManager {
     private const val PREFS_NAME = "lamba_session"
     private const val KEY_USER_ID = "user_id"
+    private const val KEY_USER_NAME = "user_name"
     private const val MISSING_USER_ID = -1
 
     fun saveUserId(context: Context, userId: Int) {
@@ -20,5 +21,19 @@ object SessionManager {
             .getInt(KEY_USER_ID, MISSING_USER_ID)
 
         return if (userId == MISSING_USER_ID) null else userId
+    }
+
+    fun saveUserName(context: Context, name: String) {
+        context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+            .edit()
+            .putString(KEY_USER_NAME, name)
+            .apply()
+    }
+
+    fun getUserName(context: Context): String? {
+        return context
+            .getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+            .getString(KEY_USER_NAME, null)
+            ?.takeIf { it.isNotBlank() }
     }
 }

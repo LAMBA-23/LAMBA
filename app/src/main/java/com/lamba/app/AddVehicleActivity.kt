@@ -112,6 +112,7 @@ class AddVehicleActivity : AppCompatActivity() {
                             ).show()
                             val intent = Intent(this@AddVehicleActivity, MainActivity::class.java)
                             intent.putExtra("USER_ID", userId)
+                            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
                             startActivity(intent)
                             finish()
                         } else {

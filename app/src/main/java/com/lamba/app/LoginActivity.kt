@@ -55,6 +55,7 @@ class LoginActivity : AppCompatActivity() {
                     withContext(Dispatchers.Main) {
                         if (response.isSuccessful && body?.success == true && body.userId != null) {
                             SessionManager.saveUserId(this@LoginActivity, body.userId)
+                            SessionManager.saveUserName(this@LoginActivity, username.substringBefore('@').ifBlank { username })
                             routeAfterLogin(body.userId, btnLogin)
                         } else {
                             btnLogin.isEnabled = true
@@ -132,6 +133,7 @@ class LoginActivity : AppCompatActivity() {
     private fun openVehicleSetup(userId: Int) {
         val intent = Intent(this, AddVehicleActivity::class.java)
         intent.putExtra("USER_ID", userId)
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
         startActivity(intent)
         finish()
     }
@@ -139,6 +141,7 @@ class LoginActivity : AppCompatActivity() {
     private fun openMainFlow(userId: Int) {
         val intent = Intent(this, MainActivity::class.java)
         intent.putExtra("USER_ID", userId)
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
         startActivity(intent)
         finish()
     }
