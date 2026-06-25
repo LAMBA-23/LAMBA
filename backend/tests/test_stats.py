@@ -1,4 +1,6 @@
-from datetime import UTC, datetime, timedelta
+from __future__ import annotations
+
+from datetime import datetime, timedelta, timezone
 
 from app.main import build_stats_period
 from app.models import Event
@@ -120,7 +122,7 @@ class TestStatsApi:
 
     def test_get_stats_filters_week_month_and_all_time_by_created_at(self, client, db_session):
         user_id = _register_user(client, "stats-periods-user")
-        now = datetime.now(UTC).replace(tzinfo=None)
+        now = datetime.now(timezone.utc).replace(tzinfo=None)
 
         _create_event(
             client,

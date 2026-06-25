@@ -175,3 +175,11 @@ class StatsResponse(BaseModel):
     week: StatsPeriodResponse
     month: StatsPeriodResponse
     all_time: StatsPeriodResponse
+
+
+class ChatAskRequest(BaseModel):
+    message: str
+
+
+class ChatAskResponse(BaseModel):
+    answer: str
