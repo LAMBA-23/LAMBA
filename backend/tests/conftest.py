@@ -20,7 +20,7 @@ TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=test_
 
 database.engine = test_engine
 
-from app.main import app
+from app.main import app  # noqa: E402
 
 
 @pytest.fixture(scope="function", autouse=True)
@@ -57,7 +57,5 @@ def client(db_session):
 
 @pytest.fixture
 def demo_user(client):
-    response = client.post(
-        "/auth/login", json={"username": "demo", "password": "demo"}
-    )
+    response = client.post("/auth/login", json={"username": "demo", "password": "demo"})
     return response.json()

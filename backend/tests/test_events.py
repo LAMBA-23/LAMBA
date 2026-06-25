@@ -33,7 +33,9 @@ class TestEventsApi:
         )
         second_event = client.post(
             f"/events?user_id={first_user_id}",
-            json=_event_payload(type="repair", description="First user repair", mileage=300),
+            json=_event_payload(
+                type="repair", description="First user repair", mileage=300
+            ),
         )
 
         response = client.get(f"/events?user_id={first_user_id}")
@@ -85,7 +87,9 @@ class TestEventsApi:
         assert client.get("/events").status_code == 422
         assert client.get("/events?user_id=99999").status_code == 404
         assert client.post("/events", json=valid_payload).status_code == 422
-        assert client.post("/events?user_id=99999", json=valid_payload).status_code == 404
+        assert (
+            client.post("/events?user_id=99999", json=valid_payload).status_code == 404
+        )
 
     def test_post_event_rejects_invalid_payload(self, client):
         user_id = _register_user(client, "events-invalid")

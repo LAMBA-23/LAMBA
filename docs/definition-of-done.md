@@ -12,7 +12,7 @@ A PBI or task is considered "Done" only upon the verification of the following:
     - **CHANGELOG.md Update:** An entry has been added or updated in the `CHANGELOG.md` file for **every user-visible change**, categorized appropriately (Added, Changed, Deprecated, Removed, Fixed, or Security).
     - **Project Documentation:** All relevant technical and user documentation (e.g., `README.md`) has been updated to reflect the current state of the implementation.
 - [ ] **Traceability:** The implementation is explicitly linked to the corresponding issue, and all associated Pull Requests (PRs) or Merge Requests (MRs) are verified.
-- [ ] **Quality Assurance:** All applicable automated test suites have executed successfully, supplemented by documented manual verification where required.
+- [ ] **Quality Assurance:** All applicable CI checks for the changed product area have executed successfully, including required linting, formatting or type checking, automated tests, coverage reporting, and additional QA checks, supplemented by documented manual verification where required.
 - [ ] **Security and Compliance:** The implementation is free of exposed sensitive information (e.g., hardcoded credentials, API keys) and complies with the project's security guidelines.
 
 ## Additional Requirements for User Stories

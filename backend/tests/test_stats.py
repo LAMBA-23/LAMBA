@@ -25,7 +25,9 @@ def _event_payload(**overrides):
 
 
 def _create_event(client, user_id: int, **overrides):
-    response = client.post(f"/events?user_id={user_id}", json=_event_payload(**overrides))
+    response = client.post(
+        f"/events?user_id={user_id}", json=_event_payload(**overrides)
+    )
     assert response.status_code == 200
     return response
 
@@ -118,7 +120,9 @@ class TestStatsApi:
         assert data["trip_count"] == 1
         assert data["total_recorded_mileage"] == 500
 
-    def test_get_stats_filters_week_month_and_all_time_by_created_at(self, client, db_session):
+    def test_get_stats_filters_week_month_and_all_time_by_created_at(
+        self, client, db_session
+    ):
         user_id = _register_user(client, "stats-periods-user")
         now = datetime.now(UTC).replace(tzinfo=None)
 

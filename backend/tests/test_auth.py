@@ -1,6 +1,3 @@
-import pytest
-
-
 class TestLogin:
     def test_login_success(self, client):
         response = client.post(

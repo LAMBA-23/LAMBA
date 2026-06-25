@@ -1,46 +1,51 @@
-# Testing notes
+# Testing
 
-## Day 2 BE2 events API testing draft
+This document is the current Assignment 4 testing status artifact for the repository. It focuses on the backend CI scope implemented in Part 8. Repository-wide quality-requirement and UAT documents owned by other teammates may still be pending merge into `main`.
 
-Scope:
+## Critical Modules and Coverage
 
-- `GET /events`
-- `POST /events`
-- events API success cases
-- events API validation and not-found cases
+| Critical module | Why critical | Required line coverage | Current line coverage | Evidence |
+|---|---|---:|---:|---|
+| `backend/app/main.py` | Core API routes and orchestration for authentication, vehicle management, event tracking, chat parsing, and statistics workflows. | 30% | 95% | Local `coverage report` and backend CI workflow |
+| `backend/app/chat_parser.py` | Converts user chat messages into structured product events for the main user workflow. | 30% | 59% | Local `coverage report` and backend CI workflow |
+| `backend/app/database.py` | Database session and engine configuration underpin all persistent backend behavior. | 30% | 100% | Local `coverage report` and backend CI workflow |
 
-Out of scope:
+## Automated Test Status
 
-- `/stats`
-- CI setup
-- deployment and release work
-- frontend behavior
+| Test type | Scope | Command or CI check | Latest result | Evidence |
+|---|---|---|---|---|
+| Unit and API tests | Backend business logic and API behavior in `backend/tests` | `python -m pytest backend/tests` | Passing locally on branch `135-configure-backend-ci` | Local verification before CI |
+| Integration tests | FastAPI routes with SQLite-backed persistence through `TestClient` | `python -m pytest backend/tests` | Passing locally on branch `135-configure-backend-ci` | Local verification before CI |
+| Automated QRTs | Backend quality checks automated in CI: linting, formatting, coverage, and dependency scan | GitHub Actions `Backend CI` workflow | Configured in this branch; protected-branch result pending merge and first run | `.github/workflows/backend-ci.yml` |
 
-Checks covered by `backend/tests/test_events.py`:
+## CI and QA Check Status
 
-- `GET /events` returns only events for the requested user.
-- `GET /events` returns events in stable ascending ID order.
-- `POST /events` saves a valid event.
-- A saved event appears in the next `GET /events` response for the same user.
-- Events created for one user do not appear in another user's timeline.
-- Missing `amount` is stored as `0`.
-- Missing `mileage` uses the user's current vehicle mileage.
-- `condition` is accepted as an event type.
-- Missing `user_id` returns validation error `422`.
-- Unknown `user_id` returns not-found error `404`.
-- Invalid event type returns validation error `422`.
-- Empty event description returns validation error `422`.
-- Negative `amount` returns validation error `422`.
-- Negative `mileage` returns validation error `422`.
+| Gate or check | Required for Done? | Latest protected-branch status | Evidence |
+|---|---|---|---|
+| Linting | Yes | Pending first run after merge | GitHub Actions `Backend CI` workflow |
+| Formatting check | Yes | Pending first run after merge | GitHub Actions `Backend CI` workflow |
+| Automated tests | Yes | Pending first run after merge | GitHub Actions `Backend CI` workflow |
+| Coverage reporting | Yes | Pending first run after merge | GitHub Actions coverage artifact |
+| Additional QA check | Yes | Pending first run after merge | GitHub Actions dependency scan step |
+| Link checking | Yes | Managed separately and already configured | `.github/workflows/lychee.yml` |
 
-Expected verification command:
+## Additional QA Check Rationale
 
-```bash
-pytest tests/test_events.py
-```
+| QA objective or risk | Additional QA check | Scope | Latest result | Evidence | Limitations or follow-up |
+|---|---|---|---|---|---|
+| Broken or incompatible Python dependency resolution could silently destabilize backend builds and tests. | `python -m pip check` dependency health check | Installed Python packages resolved from `backend/requirements.txt` | Will run in `Backend CI` on PRs and on `main` | `.github/workflows/backend-ci.yml` | Does not cover Android/Gradle dependencies; that requires a separate follow-up QA check if mobile CI is added later. |
 
-Current Day 2 result:
+## Manual Evidence That Does Not Count as QRT
 
-- Events API behavior is covered by focused unit tests.
-- Events API input validation was tightened for empty descriptions and negative numeric values.
-- The API contract was updated for the tested events behavior.
+| Evidence | Scope | Result | Follow-up PBI or issue |
+|---|---|---|---|
+| Smoke-check procedure in `README.md` | Manual verification of local backend startup, auth, vehicle, events, stats, and chat parsing endpoints | Available for repeatable manual regression checks | Course task `#135` for CI setup; future Week 4 report issue if separate evidence packaging is needed |
+
+## Assignment 4 Repository Documentation Status
+
+| Required document | Status in repository workstream | Notes |
+|---|---|---|
+| `docs/quality-requirements.md` | Pending separate PR | Mentioned by teammate workflow; not owned by Part 8 implementation branch |
+| `docs/quality-requirement-tests.md` | Pending teammate work | Full traceability details depend on that file being merged |
+| `docs/testing.md` | Implemented in this branch | Current canonical testing status artifact |
+| `docs/user-acceptance-tests.md` | Pending teammate work | UAT evidence is outside the scope of Part 8 implementation on this branch |

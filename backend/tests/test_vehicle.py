@@ -7,6 +7,9 @@ from fastapi.testclient import TestClient
 
 
 TEST_DB_PATH = Path(__file__).resolve().parent / "test_vehicle.db"
+if TEST_DB_PATH.exists():
+    TEST_DB_PATH.unlink()
+
 os.environ["DATABASE_URL"] = f"sqlite:///{TEST_DB_PATH.as_posix()}"
 
 for module_name in ["app.main", "app.database", "app.models", "app.chat_parser"]:
@@ -25,6 +28,7 @@ Car = models_module.Car
 
 def teardown_module() -> None:
     client.close()
+    database_module.engine.dispose()
     if TEST_DB_PATH.exists():
         TEST_DB_PATH.unlink()
 
