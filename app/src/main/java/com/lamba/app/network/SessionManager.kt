@@ -6,6 +6,7 @@ object SessionManager {
     private const val PREFS_NAME = "lamba_session"
     private const val KEY_USER_ID = "user_id"
     private const val KEY_USER_NAME = "user_name"
+    private const val KEY_CHAT_REQUESTS = "chat_requests"
     private const val MISSING_USER_ID = -1
 
     fun saveUserId(context: Context, userId: Int) {
@@ -35,5 +36,30 @@ object SessionManager {
             .getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
             .getString(KEY_USER_NAME, null)
             ?.takeIf { it.isNotBlank() }
+    }
+
+    fun addChatRequest(context: Context, message: String) {
+        val request = message.trim()
+        if (request.isBlank()) return
+
+        val requests = getChatRequests(context).toMutableList()
+        requests.remove(request)
+        requests.add(0, request)
+
+        context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+            .edit()
+            .putString(KEY_CHAT_REQUESTS, requests.take(10).joinToString(separator = "\n"))
+            .apply()
+    }
+
+    fun getChatRequests(context: Context): List<String> {
+        return context
+            .getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+            .getString(KEY_CHAT_REQUESTS, null)
+            ?.lineSequence()
+            ?.map { it.trim() }
+            ?.filter { it.isNotEmpty() }
+            ?.toList()
+            .orEmpty()
     }
 }

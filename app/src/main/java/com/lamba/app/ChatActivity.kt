@@ -154,6 +154,7 @@ class ChatActivity : AppCompatActivity() {
         if (message.isEmpty() || isSending) return
 
         layoutSuggestions.visibility = View.GONE
+        SessionManager.addChatRequest(this, message)
         addMessage(message, isFromUser = true)
         setSendingState(isSending = true)
 

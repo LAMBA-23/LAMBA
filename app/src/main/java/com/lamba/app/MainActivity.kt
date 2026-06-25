@@ -48,9 +48,11 @@ class MainActivity : AppCompatActivity() {
         val btnDrawerClose = findViewById<ImageButton>(R.id.btnDrawerClose)
         val menuHistory = findViewById<LinearLayout>(R.id.menuHistory)
         val menuStats = findViewById<LinearLayout>(R.id.menuStats)
+        val menuRequests = findViewById<LinearLayout>(R.id.menuRequests)
         val menuProfile = findViewById<LinearLayout>(R.id.menuProfile)
 
         tvProfileName.text = SessionManager.getUserName(this) ?: "Пользователь"
+        renderRequestHistory(menuRequests, drawerOverlay)
 
         cardCar.setOnClickListener {
             val intent = Intent(this, AddVehicleActivity::class.java)
@@ -131,6 +133,32 @@ class MainActivity : AppCompatActivity() {
         startActivity(intent)
     }
 
+    private fun renderRequestHistory(container: LinearLayout, drawerOverlay: View) {
+        container.removeAllViews()
+        SessionManager.getChatRequests(this).forEach { request ->
+            val item = TextView(this).apply {
+                text = request
+                setTextColor(android.graphics.Color.parseColor("#101114"))
+                textSize = 18f
+                maxLines = 2
+                ellipsize = android.text.TextUtils.TruncateAt.END
+                setPadding(0, 12.dp, 0, 12.dp)
+                setOnClickListener {
+                    drawerOverlay.visibility = View.GONE
+                    openChat(request)
+                }
+            }
+            container.addView(item)
+            container.addView(View(this).apply {
+                setBackgroundColor(android.graphics.Color.parseColor("#E7E7EA"))
+                layoutParams = LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.MATCH_PARENT,
+                    1,
+                )
+            })
+        }
+    }
+
     private fun loadVehicleData(tvHeader: TextView, tvCarName: TextView, tvCarInfo: TextView) {
         if (userId == -1) {
             vehicleName = "машина"
@@ -173,4 +201,7 @@ class MainActivity : AppCompatActivity() {
             }
         }
     }
+
+    private val Int.dp: Int
+        get() = (this * resources.displayMetrics.density).toInt()
 }
