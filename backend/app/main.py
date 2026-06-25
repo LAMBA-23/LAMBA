@@ -1,6 +1,8 @@
+from datetime import UTC, datetime, timedelta
+
 from fastapi import Depends, FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
-from sqlalchemy import func, select
+from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from .chat_parser import parse_chat_message
@@ -18,6 +20,7 @@ from .schemas import (
     ParsedEventPayload,
     RegisterRequest,
     RegisterResponse,
+    StatsPeriodResponse,
     StatsResponse,
 )
 
@@ -95,6 +98,22 @@ def get_or_create_user_car(db: Session, user: User) -> Car:
 def get_car_for_user_id(db: Session, user_id: int) -> Car:
     user = get_user(db, user_id)
     return get_or_create_user_car(db, user)
+
+
+def build_stats_period(events: list[Event], start_at: datetime | None = None) -> StatsPeriodResponse:
+    period_events = [
+        event for event in events if start_at is None or event.created_at >= start_at
+    ]
+    mileages = [event.mileage for event in period_events]
+    mileage_km = max(mileages) - min(mileages) if len(mileages) >= 2 else 0
+
+    return StatsPeriodResponse(
+        mileage_km=mileage_km,
+        expenses_rub=sum(event.amount for event in period_events),
+        fuel_liters=0,
+        records_count=len(period_events),
+        avg_fuel_consumption_l_per_100km=0,
+    )
 
 
 @app.on_event("startup")
@@ -261,32 +280,13 @@ def create_event(
 @app.get("/stats", response_model=StatsResponse)
 def get_stats(user_id: int = Query(...), db: Session = Depends(get_db)) -> StatsResponse:
     car = get_car_for_user_id(db, user_id)
-
-    fuel_expenses = db.scalar(
-        select(func.coalesce(func.sum(Event.amount), 0)).where(
-            Event.car_id == car.id,
-            Event.type == "fuel",
-        )
-    )
-    repair_expenses = db.scalar(
-        select(func.coalesce(func.sum(Event.amount), 0)).where(
-            Event.car_id == car.id,
-            Event.type == "repair",
-        )
-    )
-    trip_count = db.scalar(
-        select(func.count(Event.id)).where(
-            Event.car_id == car.id,
-            Event.type == "trip",
-        )
-    )
-    max_mileage = db.scalar(
-        select(func.max(Event.mileage)).where(Event.car_id == car.id)
+    now = datetime.now(UTC).replace(tzinfo=None)
+    events = list(
+        db.scalars(select(Event).where(Event.car_id == car.id).order_by(Event.created_at, Event.id))
     )
 
     return StatsResponse(
-        fuel_expenses=fuel_expenses or 0,
-        repair_expenses=repair_expenses or 0,
-        trip_count=trip_count or 0,
-        total_recorded_mileage=max_mileage or car.current_mileage,
+        week=build_stats_period(events, start_at=now - timedelta(days=7)),
+        month=build_stats_period(events, start_at=now - timedelta(days=30)),
+        all_time=build_stats_period(events),
     )

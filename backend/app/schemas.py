@@ -153,8 +153,15 @@ class ChatParseResponse(BaseModel):
     clarification_question: str | None = None
 
 
+class StatsPeriodResponse(BaseModel):
+    mileage_km: int
+    expenses_rub: int
+    fuel_liters: int
+    records_count: int
+    avg_fuel_consumption_l_per_100km: int
+
+
 class StatsResponse(BaseModel):
-    fuel_expenses: int
-    repair_expenses: int
-    trip_count: int
-    total_recorded_mileage: int
+    week: StatsPeriodResponse
+    month: StatsPeriodResponse
+    all_time: StatsPeriodResponse
