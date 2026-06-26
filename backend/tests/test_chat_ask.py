@@ -61,7 +61,7 @@ def test_chat_ask_includes_vehicle_context(monkeypatch):
     user_id = _register_and_get_user_id("ask-user-2")
 
     client.post(
-        f"/vehicle",
+        "/vehicle",
         json={
             "user_id": user_id,
             "brand": "Toyota",

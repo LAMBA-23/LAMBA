@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import json
-import os
 from urllib.error import HTTPError, URLError
 from io import BytesIO
 
