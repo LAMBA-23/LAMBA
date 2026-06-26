@@ -331,7 +331,10 @@ def chat_ask(
     events = all_events[-MAX_CONTEXT_EVENTS:]
 
     context_lines = []
-    has_real_car_data = car.brand != DEFAULT_CAR_BRAND and car.production_year != DEFAULT_CAR_PRODUCTION_YEAR
+    has_real_car_data = (
+        car.brand != DEFAULT_CAR_BRAND
+        and car.production_year != DEFAULT_CAR_PRODUCTION_YEAR
+    )
     if has_real_car_data:
         context_lines.append(
             f"Автомобиль: {car.brand} {car.model}, {car.production_year} г., пробег {car.current_mileage} км."

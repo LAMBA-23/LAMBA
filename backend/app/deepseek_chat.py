@@ -5,7 +5,10 @@ import os
 from typing import Any
 from urllib import error, request
 
-DEEPSEEK_API_URL = os.getenv("DEEPSEEK_API_URL", "https://agent.timeweb.cloud/api/v1/cloud-ai/agents/fc0c89ec-4868-408c-99cd-dc6d5ea764c8/v1/chat/completions")
+DEEPSEEK_API_URL = os.getenv(
+    "DEEPSEEK_API_URL",
+    "https://agent.timeweb.cloud/api/v1/cloud-ai/agents/fc0c89ec-4868-408c-99cd-dc6d5ea764c8/v1/chat/completions",
+)
 DEEPSEEK_MODEL = os.getenv("DEEPSEEK_MODEL", "deepseek-chat")
 DEEPSEEK_API_KEY_ENV = "DEEPSEEK_API_KEY"
 REQUEST_TIMEOUT_SECONDS = float(os.getenv("DEEPSEEK_TIMEOUT_SECONDS", "30"))
@@ -22,12 +25,8 @@ SYSTEM_PROMPT = """\
 - Не выдумывай информацию, которой нет в истории автомобиля.
 """
 
-MISSING_API_KEY_ANSWER = (
-    "Сервис AI-ассистента не настроен. Добавьте DEEPSEEK_API_KEY."
-)
-FALLBACK_ANSWER = (
-    "Не удалось получить ответ от AI-ассистента. Попробуйте позже."
-)
+MISSING_API_KEY_ANSWER = "Сервис AI-ассистента не настроен. Добавьте DEEPSEEK_API_KEY."
+FALLBACK_ANSWER = "Не удалось получить ответ от AI-ассистента. Попробуйте позже."
 
 
 def ask_deepseek(message: str, vehicle_context: str | None = None) -> str:
@@ -40,10 +39,12 @@ def ask_deepseek(message: str, vehicle_context: str | None = None) -> str:
     ]
 
     if vehicle_context:
-        messages.append({
-            "role": "system",
-            "content": f"Информация из истории автомобиля:\n{vehicle_context}",
-        })
+        messages.append(
+            {
+                "role": "system",
+                "content": f"Информация из истории автомобиля:\n{vehicle_context}",
+            }
+        )
 
     messages.append({"role": "user", "content": message})
 

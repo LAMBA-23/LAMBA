@@ -33,9 +33,7 @@ def test_ask_deepseek_calls_api_with_context(monkeypatch):
         body = json.loads(req.data.decode())
         captured["body"] = body
 
-        response_data = {
-            "choices": [{"message": {"content": "Ваш пробег 125000 км"}}]
-        }
+        response_data = {"choices": [{"message": {"content": "Ваш пробег 125000 км"}}]}
         return BytesIO(json.dumps(response_data).encode())
 
     monkeypatch.setattr("urllib.request.urlopen", fake_urlopen)

@@ -72,7 +72,12 @@ def test_chat_ask_includes_vehicle_context(monkeypatch):
     )
     client.post(
         f"/events?user_id={user_id}",
-        json={"type": "fuel", "description": "Заправка", "amount": 3000, "mileage": 50000},
+        json={
+            "type": "fuel",
+            "description": "Заправка",
+            "amount": 3000,
+            "mileage": 50000,
+        },
     )
 
     captured = {}
@@ -133,7 +138,12 @@ def test_chat_ask_limits_context_to_50_events(monkeypatch):
     for i in range(60):
         client.post(
             f"/events?user_id={user_id}",
-            json={"type": "fuel", "description": f"Заправка {i}", "amount": 1000 + i, "mileage": 100000 + i},
+            json={
+                "type": "fuel",
+                "description": f"Заправка {i}",
+                "amount": 1000 + i,
+                "mileage": 100000 + i,
+            },
         )
 
     captured = {}
