@@ -60,9 +60,9 @@ Smoke-check with curl:
 curl http://localhost:8000/health
 curl -X POST http://localhost:8000/auth/register -H "Content-Type: application/json" -d "{\"username\":\"new-user\",\"password\":\"password123\"}"
 curl -X POST http://localhost:8000/auth/login -H "Content-Type: application/json" -d "{\"username\":\"demo\",\"password\":\"demo\"}"
-curl "http://localhost:8000/vehicle?user_id=2"
-curl "http://localhost:8000/events?user_id=1"
+curl "http://localhost:8000/vehicle?user_id=1"
 curl -X POST "http://localhost:8000/events?user_id=1" -H "Content-Type: application/json" -d "{\"type\":\"fuel\",\"description\":\"Full tank\",\"amount\":60,\"mileage\":125000}"
+curl "http://localhost:8000/events?user_id=1"
 curl "http://localhost:8000/stats?user_id=1"
 ```
 
@@ -79,10 +79,10 @@ Invoke-RestMethod -Uri http://localhost:8000/auth/login -Method Post -ContentTyp
 
 Invoke-RestMethod -Uri "http://localhost:8000/vehicle?user_id=$($registeredUser.user_id)"
 
-Invoke-RestMethod -Uri "http://localhost:8000/events?user_id=$($registeredUser.user_id)"
-
 $event = @{type='fuel'; description='Full tank'; amount=60; mileage=125000} | ConvertTo-Json -Compress
 Invoke-RestMethod -Uri "http://localhost:8000/events?user_id=$($registeredUser.user_id)" -Method Post -ContentType 'application/json' -Body $event
+
+Invoke-RestMethod -Uri "http://localhost:8000/events?user_id=$($registeredUser.user_id)"
 
 Invoke-RestMethod -Uri "http://localhost:8000/stats?user_id=$($registeredUser.user_id)"
 ```
@@ -97,7 +97,7 @@ Invoke-RestMethod -Uri http://localhost:8000/chat/parse-event -Method Post -Cont
 Backend tests:
 
 ```bash
-docker compose run --rm backend pytest tests/test_chat_parse.py
+docker compose run --rm backend pytest tests/test_events.py tests/test_chat_parse.py
 ```
 
 Backend CI checks run in GitHub Actions on pull requests and pushes to `main`, covering backend linting, formatting checks, automated tests, coverage reporting, and dependency health checking.
