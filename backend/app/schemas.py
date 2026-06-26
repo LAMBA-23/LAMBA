@@ -175,3 +175,19 @@ class StatsResponse(BaseModel):
     week: StatsPeriodResponse
     month: StatsPeriodResponse
     all_time: StatsPeriodResponse
+
+
+class ChatAskRequest(BaseModel):
+    message: str = Field(min_length=1)
+
+    @field_validator("message")
+    @classmethod
+    def message_not_blank(cls, v: str) -> str:
+        trimmed = v.strip()
+        if not trimmed:
+            raise ValueError("message must not be empty or blank")
+        return trimmed
+
+
+class ChatAskResponse(BaseModel):
+    answer: str

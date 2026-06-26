@@ -1,4 +1,6 @@
-from datetime import UTC, datetime, timedelta
+from __future__ import annotations
+
+from datetime import datetime, timedelta, timezone
 
 from fastapi import Depends, FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
@@ -7,10 +9,13 @@ from sqlalchemy.orm import Session
 
 from .chat_parser import parse_chat_message
 from .database import Base, engine, get_db
+from .deepseek_chat import ask_deepseek
 from .models import Car, Event, User
 from .schemas import (
     CarCreate,
     CarResponse,
+    ChatAskRequest,
+    ChatAskResponse,
     ChatParseRequest,
     ChatParseResponse,
     EventCreate,
@@ -311,6 +316,45 @@ def parse_event_from_chat(payload: ChatParseRequest) -> ChatParseResponse:
     )
 
 
+@app.post("/chat/ask", response_model=ChatAskResponse)
+def chat_ask(
+    payload: ChatAskRequest,
+    user_id: int = Query(...),
+    db: Session = Depends(get_db),
+) -> ChatAskResponse:
+    MAX_CONTEXT_EVENTS = 50
+
+    car = get_car_for_user_id(db, user_id)
+    all_events = list(
+        db.scalars(select(Event).where(Event.car_id == car.id).order_by(Event.id))
+    )
+    events = all_events[-MAX_CONTEXT_EVENTS:]
+
+    context_lines = []
+    has_real_car_data = (
+        car.brand != DEFAULT_CAR_BRAND
+        and car.production_year != DEFAULT_CAR_PRODUCTION_YEAR
+    )
+    if has_real_car_data:
+        context_lines.append(
+            f"Автомобиль: {car.brand} {car.model}, {car.production_year} г., пробег {car.current_mileage} км."
+        )
+    for ev in events:
+        line = f"- [{ev.type}] {ev.description}"
+        if ev.amount:
+            line += f", сумма: {ev.amount}"
+        if ev.mileage:
+            line += f", пробег: {ev.mileage}"
+        context_lines.append(line)
+
+    vehicle_context = "\n".join(context_lines)
+    try:
+        answer = ask_deepseek(message=payload.message, vehicle_context=vehicle_context)
+    except Exception:
+        answer = "Не удалось получить ответ от AI-ассистента. Попробуйте позже."
+    return ChatAskResponse(answer=answer)
+
+
 @app.get("/events", response_model=list[EventResponse])
 def get_events(user_id: int = Query(...), db: Session = Depends(get_db)) -> list[Event]:
     car = get_car_for_user_id(db, user_id)
@@ -344,7 +388,7 @@ def get_stats(
     user_id: int = Query(...), db: Session = Depends(get_db)
 ) -> StatsResponse:
     car = get_car_for_user_id(db, user_id)
-    now = datetime.now(UTC).replace(tzinfo=None)
+    now = datetime.now(timezone.utc).replace(tzinfo=None)
     events = list(
         db.scalars(
             select(Event)
