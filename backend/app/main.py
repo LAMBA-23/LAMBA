@@ -327,9 +327,12 @@ def chat_ask(
         db.scalars(select(Event).where(Event.car_id == car.id).order_by(Event.id))
     )
 
-    context_lines = [
-        f"Автомобиль: {car.brand} {car.model}, {car.production_year} г., пробег {car.current_mileage} км.",
-    ]
+    context_lines = []
+    has_real_car_data = car.brand != DEFAULT_CAR_BRAND and car.production_year != DEFAULT_CAR_PRODUCTION_YEAR
+    if has_real_car_data:
+        context_lines.append(
+            f"Автомобиль: {car.brand} {car.model}, {car.production_year} г., пробег {car.current_mileage} км."
+        )
     for ev in events:
         line = f"- [{ev.type}] {ev.description}"
         if ev.amount:

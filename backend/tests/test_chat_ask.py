@@ -114,7 +114,7 @@ def test_chat_ask_with_no_events(monkeypatch):
 
     assert resp.status_code == 200
     ctx = captured["context"]
-    assert "Not set" in ctx
+    assert "Not set" not in ctx
 
 
 def test_chat_ask_missing_user_id():
