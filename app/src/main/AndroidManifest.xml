@@ -18,6 +18,7 @@
             </intent-filter>
         </activity>
         <activity android:name=".network.HistoryActivity" android:exported="false" />
+        <activity android:name=".network.StatisticsActivity" android:exported="false" />
         <activity
             android:name=".RegisterActivity"
             android:exported="false"
