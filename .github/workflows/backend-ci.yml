@@ -40,7 +40,7 @@ jobs:
           python -m coverage report --include="app/*" --fail-under=30
           python -m coverage xml -o coverage.xml
 
-      - name: Additional QA: dependency health check
+      - name: "Additional QA: dependency health check"
         run: python -m pip check
 
       - name: Upload coverage artifact
