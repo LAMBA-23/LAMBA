@@ -183,6 +183,22 @@ def test_chat_ask_missing_message():
     assert resp.status_code == 422
 
 
+def test_chat_ask_rejects_empty_message():
+    resp = client.post(
+        "/chat/ask?user_id=1",
+        json={"message": ""},
+    )
+    assert resp.status_code == 422
+
+
+def test_chat_ask_rejects_blank_message():
+    resp = client.post(
+        "/chat/ask?user_id=1",
+        json={"message": "   "},
+    )
+    assert resp.status_code == 422
+
+
 def test_chat_ask_nonexistent_user(monkeypatch):
     def fake_ask(message: str, vehicle_context: str | None = None) -> str:
         return "OK"
