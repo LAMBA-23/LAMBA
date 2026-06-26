@@ -100,6 +100,8 @@ Backend tests:
 docker compose run --rm backend pytest tests/test_chat_parse.py
 ```
 
+Backend CI checks run in GitHub Actions on pull requests and pushes to `main`, covering backend linting, formatting checks, automated tests, coverage reporting, and dependency health checking.
+
 Stop:
 
 ```bash

@@ -111,19 +111,27 @@ def _is_statistics_relevant(event: Event) -> bool:
     return event.type in STATISTICS_EVENT_TYPES
 
 
-def build_stats_period(events: list[Event], start_at: datetime | None = None) -> StatsPeriodResponse:
+def build_stats_period(
+    events: list[Event], start_at: datetime | None = None
+) -> StatsPeriodResponse:
     period_events = [
         event for event in events if start_at is None or event.created_at >= start_at
     ]
-    relevant_events = [event for event in period_events if _is_statistics_relevant(event)]
+    relevant_events = [
+        event for event in period_events if _is_statistics_relevant(event)
+    ]
     mileage = sum(
-        _coalesce_int(event.mileage) for event in relevant_events if event.type == "trip"
+        _coalesce_int(event.mileage)
+        for event in relevant_events
+        if event.type == "trip"
     )
     fuel_expenses = sum(
         _coalesce_int(event.amount) for event in relevant_events if event.type == "fuel"
     )
     repair_expenses = sum(
-        _coalesce_int(event.amount) for event in relevant_events if event.type == "repair"
+        _coalesce_int(event.amount)
+        for event in relevant_events
+        if event.type == "repair"
     )
     total_expenses = fuel_expenses + repair_expenses
 
@@ -182,13 +190,17 @@ def login(payload: LoginRequest, db: Session = Depends(get_db)) -> LoginResponse
         payload.username == DEMO_USERNAME
         and payload.password in DEMO_COMPATIBLE_PASSWORDS
     )
-    if user is None or (user.password != payload.password and not is_demo_compatible_login):
+    if user is None or (
+        user.password != payload.password and not is_demo_compatible_login
+    ):
         return LoginResponse(success=False)
     return LoginResponse(success=True, user_id=user.id)
 
 
 @app.post("/auth/register", response_model=RegisterResponse, status_code=201)
-def register(payload: RegisterRequest, db: Session = Depends(get_db)) -> RegisterResponse:
+def register(
+    payload: RegisterRequest, db: Session = Depends(get_db)
+) -> RegisterResponse:
     existing_user = db.scalar(select(User).where(User.username == payload.username))
     if existing_user is not None:
         raise HTTPException(status_code=400, detail="Username is already registered")
@@ -252,7 +264,11 @@ def parse_event_from_chat(payload: ChatParseRequest) -> ChatParseResponse:
             ),
         )
 
-    if parsed.type is None or parsed.description is None or not parsed.description.strip():
+    if (
+        parsed.type is None
+        or parsed.description is None
+        or not parsed.description.strip()
+    ):
         return ChatParseResponse(
             status="clarification_needed",
             clarification_question=(
@@ -298,7 +314,9 @@ def parse_event_from_chat(payload: ChatParseRequest) -> ChatParseResponse:
 @app.get("/events", response_model=list[EventResponse])
 def get_events(user_id: int = Query(...), db: Session = Depends(get_db)) -> list[Event]:
     car = get_car_for_user_id(db, user_id)
-    return list(db.scalars(select(Event).where(Event.car_id == car.id).order_by(Event.id)))
+    return list(
+        db.scalars(select(Event).where(Event.car_id == car.id).order_by(Event.id))
+    )
 
 
 @app.post("/events", response_model=EventResponse)
@@ -322,10 +340,16 @@ def create_event(
 
 
 @app.get("/stats", response_model=StatsResponse)
-def get_stats(user_id: int = Query(...), db: Session = Depends(get_db)) -> StatsResponse:
+def get_stats(
+    user_id: int = Query(...), db: Session = Depends(get_db)
+) -> StatsResponse:
     car = get_car_for_user_id(db, user_id)
     now = datetime.now(UTC).replace(tzinfo=None)
     events = list(
-        db.scalars(select(Event).where(Event.car_id == car.id).order_by(Event.created_at, Event.id))
+        db.scalars(
+            select(Event)
+            .where(Event.car_id == car.id)
+            .order_by(Event.created_at, Event.id)
+        )
     )
     return build_stats_response(events, now)
