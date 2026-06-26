@@ -117,6 +117,46 @@ def test_chat_ask_with_no_events(monkeypatch):
     assert "Not set" not in ctx
 
 
+def test_chat_ask_limits_context_to_50_events(monkeypatch):
+    user_id = _register_and_get_user_id("ask-user-limit")
+
+    client.post(
+        "/vehicle",
+        json={
+            "user_id": user_id,
+            "brand": "BMW",
+            "model": "M4",
+            "production_year": 2020,
+            "current_mileage": 100000,
+        },
+    )
+    for i in range(60):
+        client.post(
+            f"/events?user_id={user_id}",
+            json={"type": "fuel", "description": f"Заправка {i}", "amount": 1000 + i, "mileage": 100000 + i},
+        )
+
+    captured = {}
+
+    def fake_ask(message: str, vehicle_context: str | None = None) -> str:
+        captured["context"] = vehicle_context
+        return "OK"
+
+    monkeypatch.setattr(main_module, "ask_deepseek", fake_ask)
+
+    resp = client.post(
+        f"/chat/ask?user_id={user_id}",
+        json={"message": "Какие последние заправки?"},
+    )
+
+    assert resp.status_code == 200
+    ctx = captured["context"]
+    assert "Заправка 0" not in ctx
+    assert "Заправка 9" not in ctx
+    assert "Заправка 59" in ctx
+    assert "Заправка 10" in ctx
+
+
 def test_chat_ask_missing_user_id():
     resp = client.post(
         "/chat/ask",

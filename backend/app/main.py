@@ -322,10 +322,13 @@ def chat_ask(
     user_id: int = Query(...),
     db: Session = Depends(get_db),
 ) -> ChatAskResponse:
+    MAX_CONTEXT_EVENTS = 50
+
     car = get_car_for_user_id(db, user_id)
-    events = list(
+    all_events = list(
         db.scalars(select(Event).where(Event.car_id == car.id).order_by(Event.id))
     )
+    events = all_events[-MAX_CONTEXT_EVENTS:]
 
     context_lines = []
     has_real_car_data = car.brand != DEFAULT_CAR_BRAND and car.production_year != DEFAULT_CAR_PRODUCTION_YEAR
