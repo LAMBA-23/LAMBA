@@ -1,24 +1,50 @@
-# Definition of Done (DoD)
+# Definition of Done
 
-This document defines the team’s **shared minimum completion standard** for all development work. Adherence to this standard is mandatory; a Product Backlog Item (PBI) or task may be formally marked as "Done" only if it satisfies both the **issue-specific acceptance criteria** and this team **Definition of Done**.
+This document defines the team's shared minimum completion standard for work in this repository.
 
-## Completion Criteria for all PBIs and Tasks
+A Product Backlog Item (PBI) may be marked `Done` only when:
 
-A PBI or task is considered "Done" only upon the verification of the following:
+1. its issue-specific acceptance criteria are satisfied; and
+2. this Definition of Done is satisfied.
 
-- [ ] **Acceptance Criteria Verification:** All specific, observable, and testable acceptance criteria defined within the issue have been rigorously verified.
-- [ ] **Peer Review:** The code has undergone a formal peer review process and received explicit approval from at least one other team member.
-- [ ] **Documentation Integrity:**
-    - **CHANGELOG.md Update:** An entry has been added or updated in the `CHANGELOG.md` file for **every user-visible change**, categorized appropriately (Added, Changed, Deprecated, Removed, Fixed, or Security).
-    - **Project Documentation:** All relevant technical and user documentation (e.g., `README.md`) has been updated to reflect the current state of the implementation.
-- [ ] **Traceability:** The implementation is explicitly linked to the corresponding issue, and all associated Pull Requests (PRs) or Merge Requests (MRs) are verified.
-- [ ] **Quality Assurance:** All applicable automated test suites have executed successfully, supplemented by documented manual verification where required.
-- [ ] **Security and Compliance:** The implementation is free of exposed sensitive information (e.g., hardcoded credentials, API keys) and complies with the project's security guidelines.
+For supporting or implementation PBIs, `Done` normally also means the linked PR is reviewed, merged into the protected default branch, and supported by verification evidence.
+
+For user stories, `Done` means the story acceptance criteria are satisfied and all linked supporting PBIs required to satisfy those criteria are reviewed, merged, verified, and marked `Done`.
+
+## Required for Every PBI
+
+A PBI can be marked `Done` only when all relevant items below are true:
+
+- [ ] **Acceptance criteria verification:** All issue acceptance criteria have been verified with observable evidence.
+- [ ] **Review by another team member:** The work has been reviewed and approved by a reviewer who is different from the implementer.
+- [ ] **Passing CI checks:** All CI checks required for the current product stack pass before merge.
+- [ ] **Relevant automated tests:** Relevant automated unit and integration tests pass for the changed product area.
+- [ ] **Relevant automated quality requirement tests:** All applicable automated quality requirement tests pass, or the issue records why they are not applicable.
+- [ ] **Coverage expectations for critical modules:** Changes affecting critical modules satisfy the required coverage expectations documented in `docs/testing.md`.
+- [ ] **Testing evidence preserved:** Testing evidence is preserved in the linked PR, CI runs, coverage reports, or linked maintained documentation.
+- [ ] **Traceability preserved:** The linked issue, branch, PR, review, CI evidence, and related documentation remain inspectable.
+- [ ] **Documentation updated when needed:** Relevant product, setup, API, workflow, or testing documentation is updated when the change affects it.
+- [ ] **Changelog updated for user-visible changes:** `CHANGELOG.md` is updated for every user-visible change, or the PR explicitly states that no changelog update is required.
+- [ ] **Sensitive data check:** The change does not introduce credentials, secrets, private data, or prohibited public artifacts.
 
 ## Additional Requirements for User Stories
 
-In addition to the criteria above, User Stories must satisfy the following:
+In addition to the rules above, a user story may be marked `Done` only when:
 
+- [ ] All linked supporting PBIs required to satisfy the story acceptance criteria are completed.
+- [ ] The linked supporting PBIs provide the required implementation, review, and verification evidence.
+- [ ] Story-to-PBI, PBI-to-PR, and PR-to-verification traceability is preserved.
 
-- [ ] **Supporting PBIs:** All related supporting PBIs required for the successful delivery of the User Story have been identified and linked.
-- [ ] **Evidence of Delivery:** Documentation and evidence regarding the implementation, peer review, and verification process are explicitly captured and linked within the issue or the associated Pull Request.
+## Default Evidence Sources
+
+The default evidence sources for `Done` are:
+
+- linked issue and linked PR
+- reviewer approval in PR history
+- passing CI runs on the PR and protected default branch
+- automated test and coverage reports
+- maintained documentation such as `docs/testing.md`
+
+## Maintenance Rule
+
+If later project work changes the product stack, CI configuration, quality requirements, quality requirement tests, or critical modules, this Definition of Done and the related testing evidence must be updated so the completion standard stays current.
