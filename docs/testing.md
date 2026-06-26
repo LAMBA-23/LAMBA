@@ -16,7 +16,7 @@ This document is the current Assignment 4 testing status artifact for the reposi
 |---|---|---|---|---|
 | Unit and API tests | Backend business logic and API behavior in `backend/tests` | `python -m pytest backend/tests` | Passing locally on branch `135-configure-backend-ci` | Local verification before CI |
 | Integration tests | FastAPI routes with SQLite-backed persistence through `TestClient` | `python -m pytest backend/tests` | Passing locally on branch `135-configure-backend-ci` | Local verification before CI |
-| Events API tests | `GET /events` and `POST /events` success, validation, persistence, and user isolation behavior | `python -m pytest tests/test_events.py` from `backend/` | Passing locally on branch `146-document-events-testing-evidence` | `backend/tests/test_events.py` |
+| Events API tests | `GET /events` and `POST /events` success, validation, persistence, manual add flow, and user isolation behavior | `python -m pytest tests/test_events.py` from `backend/` | Passing locally on branch `149-finalize-events-manual-add` | `backend/tests/test_events.py` |
 | Automated QRTs | Backend quality checks automated in CI: linting, formatting, coverage, and dependency scan | GitHub Actions `Backend CI` workflow | Configured in this branch; protected-branch result pending merge and first run | `.github/workflows/backend-ci.yml` |
 
 ## Events API Testing Evidence
@@ -28,6 +28,7 @@ This section records maintained Assignment 4 evidence for the events API work.
 | Read timeline | `GET /events?user_id=<id>` returns only the requested user's events in ascending ID order. | `TestEventsApi.test_get_events_returns_only_user_events_in_stable_order` | Call `GET /events?user_id=<id>` after creating events for two users and confirm only that user's events are returned. | Automated test passing locally. |
 | Manual add flow | `POST /events?user_id=<id>` saves a valid event and the event appears in the next timeline response. | `TestEventsApi.test_post_event_is_saved_and_uses_default_amount_and_mileage` | Send a valid `POST /events` request, then call `GET /events` for the same user and confirm the new event is present. | Automated test passing locally. |
 | Default values | Missing `amount` is stored as `0`; missing `mileage` uses the user's current vehicle mileage. | `TestEventsApi.test_post_event_is_saved_and_uses_default_amount_and_mileage` | Create an event without `amount` and `mileage`, then inspect the response body. | Automated test passing locally. |
+| Manual add regression | A new user's timeline starts empty, a valid manual event is saved, whitespace is trimmed from `description`, and the next timeline response returns that event. | `TestEventsApi.test_manual_add_flow_starts_empty_then_returns_created_event` | Create a user, confirm the timeline is empty, submit a valid `POST /events`, then confirm `GET /events` returns the created event. | Automated test passing locally. |
 | Error handling | Missing `user_id` returns `422`; unknown `user_id` returns `404`. | `TestEventsApi.test_events_return_expected_errors_for_missing_or_unknown_user` | Call both endpoints without `user_id` and with an unknown `user_id`. | Automated test passing locally. |
 | Input validation | Invalid event type, empty `description`, negative `amount`, and negative `mileage` return `422`. | `TestEventsApi.test_post_event_rejects_invalid_payload` | Submit invalid payloads and confirm no valid event is created. | Automated test passing locally. |
 
@@ -76,7 +77,7 @@ Limitations and follow-up:
 | Evidence | Scope | Result | Follow-up PBI or issue |
 |---|---|---|---|
 | Smoke-check procedure in `README.md` | Manual verification of local backend startup, auth, vehicle, events, stats, and chat parsing endpoints | Available for repeatable manual regression checks | Course task `#135` for CI setup; future Week 4 report issue if separate evidence packaging is needed |
-| Events API manual add/read check | Manual verification that a valid `POST /events?user_id=<id>` creates an event and the next `GET /events?user_id=<id>` returns it | Documented as repeatable evidence in this file | Course task `#146` |
+| Events API manual add/read check | Manual verification that a valid `POST /events?user_id=<id>` creates an event and the next `GET /events?user_id=<id>` returns it | Documented as repeatable evidence in this file | Course task `#146`; PBI `#149` |
 
 ## Assignment 4 Repository Documentation Status
 
