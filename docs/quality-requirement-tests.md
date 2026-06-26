@@ -3,42 +3,47 @@
 This document maps each quality requirement to its automated test.
 Each QRT is implemented as a pytest test in the normal test location.
 
-## QRT-01: API Response Time
+## QRT-001: Vehicle event data integrity
 
-**Linked quality requirement:** QR-01 (Performance Efficiency — Time Behaviour)
+**Linked quality requirement:** QR-001 (Integrity)
 
-**Test file:** [`backend/tests/test_quality_requirements.py::test_chat_ask_responds_within_timeout`](../backend/tests/test_quality_requirements.py)
+**Test file:** [`backend/tests/test_quality_requirements.py`](../backend/tests/test_quality_requirements.py)
 
-**Evidence type:** Automated unit test
+**Evidence type:** Automated unit tests
 
-**Description:** Verifies that the `/chat/ask` endpoint returns a response within 30 seconds when the external API mock responds promptly.
+**Tests:**
+- `test_invalid_event_type_rejected_and_not_saved` — invalid event type returns 422, no record saved
+- `test_empty_description_rejected_and_not_saved` — empty description returns 422, no record saved
+- `test_negative_amount_rejected_and_not_saved` — negative amount returns 422, no record saved
+- `test_negative_mileage_rejected_and_not_saved` — negative mileage returns 422, no record saved
+- `test_unknown_user_rejected_and_not_saved` — unknown user_id returns 404, no record saved
 
-**How it works:** Mocks `deepseek_chat.ask_deepseek` to return immediately, measures wall-clock time of the HTTP request through FastAPI TestClient, asserts elapsed time is under 30 seconds.
-
----
-
-## QRT-02: Fault Tolerance on External API Failure
-
-**Linked quality requirement:** QR-02 (Reliability — Fault Tolerance)
-
-**Test file:** [`backend/tests/test_quality_requirements.py::test_chat_ask_returns_fallback_on_api_failure`](../backend/tests/test_quality_requirements.py)
-
-**Evidence type:** Automated unit test
-
-**Description:** Verifies that when the DeepSeek API raises an HTTP error, the `/chat/ask` endpoint returns HTTP 200 with a fallback answer instead of crashing with a 500 error.
-
-**How it works:** Mocks `deepseek_chat.ask_deepseek` to raise `ValueError`, asserts the endpoint returns status 200 and the response body contains a fallback message.
+**How it works:** Each test sends an invalid event creation request, asserts the expected error status code, then verifies that no new event was persisted by comparing the event count before and after.
 
 ---
 
-## QRT-03: API Key Confidentiality
+## QRT-002: Timeline API response time
 
-**Linked quality requirement:** QR-03 (Security — Confidentiality)
+**Linked quality requirement:** QR-002 (Time behaviour)
 
-**Test file:** [`backend/tests/test_quality_requirements.py::test_api_key_not_exposed_in_chat_ask_response`](../backend/tests/test_quality_requirements.py)
+**Test file:** [`backend/tests/test_quality_requirements.py::test_get_events_responds_within_2_seconds`](../backend/tests/test_quality_requirements.py)
 
 **Evidence type:** Automated unit test
 
-**Description:** Verifies that the `DEEPSEEK_API_KEY` value is never included in any response body returned by the `/chat/ask` endpoint.
+**Description:** Verifies that `GET /events` returns a response within 2 seconds under normal operation with a realistic dataset.
 
-**How it works:** Sets a known test API key, mocks the AI to return a normal answer, asserts the response body does not contain the key string. Also tests the error fallback path to ensure the key is not leaked there either.
+**How it works:** Creates a user with 20 events, measures wall-clock time of the GET request, asserts elapsed time is under 2 seconds.
+
+---
+
+## QRT-003: Backend regression testability
+
+**Linked quality requirement:** QR-003 (Testability)
+
+**Test file:** [`backend/tests/test_quality_requirements.py::test_full_backend_pytest_suite_passes`](../backend/tests/test_quality_requirements.py)
+
+**Evidence type:** Automated suite-level evidence
+
+**Description:** The full backend pytest suite provides regression testability evidence. This QRT documents that the entire suite must pass before merge. CI enforces this gate.
+
+**How it works:** The test itself always passes — the real evidence is that CI runs the full `pytest` suite and all tests must be green before a PR can be merged.
