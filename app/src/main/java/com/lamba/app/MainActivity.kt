@@ -8,7 +8,6 @@ import android.widget.EditText
 import android.widget.ImageButton
 import android.widget.LinearLayout
 import android.widget.TextView
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.lamba.app.network.RetrofitClient
 import com.lamba.app.network.SessionManager
@@ -111,7 +110,8 @@ class MainActivity : AppCompatActivity() {
         }
 
         menuStats.setOnClickListener {
-            Toast.makeText(this, "Статистика будет доступна в полной версии", Toast.LENGTH_SHORT).show()
+            drawerOverlay.visibility = View.GONE
+            startActivity(Intent(this, com.lamba.app.network.StatisticsActivity::class.java))
         }
 
         menuProfile.setOnClickListener {
