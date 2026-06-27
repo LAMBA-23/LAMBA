@@ -118,7 +118,11 @@ def _unlink_with_retries(
 
 
 def _sqlite_artifact_paths(path: Path) -> list[Path]:
-    return [path, path.with_name(f"{path.name}-shm"), path.with_name(f"{path.name}-wal")]
+    return [
+        path,
+        path.with_name(f"{path.name}-shm"),
+        path.with_name(f"{path.name}-wal"),
+    ]
 
 
 def _cleanup_stale_test_dbs(directory: Path, max_age_seconds: int) -> None:
