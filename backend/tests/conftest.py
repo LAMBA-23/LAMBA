@@ -1,6 +1,15 @@
 import os
+import tempfile
+from pathlib import Path
+from uuid import uuid4
 
-os.environ["DATABASE_URL"] = "sqlite:///./test.db"
+
+TEST_DB_DIR = Path(tempfile.gettempdir()) / "lamba-pytest"
+TEST_DB_DIR.mkdir(parents=True, exist_ok=True)
+TEST_DB_PATH = TEST_DB_DIR / f"test-{os.getpid()}-{uuid4().hex}.db"
+TEST_DATABASE_URL = f"sqlite:///{TEST_DB_PATH.as_posix()}"
+
+os.environ["DATABASE_URL"] = TEST_DATABASE_URL
 
 import pytest
 from fastapi.testclient import TestClient
@@ -10,8 +19,6 @@ from sqlalchemy.orm import sessionmaker
 from app.database import Base, get_db
 from app import database
 from app.models import Car
-
-TEST_DATABASE_URL = "sqlite:///./test.db"
 
 test_engine = create_engine(
     TEST_DATABASE_URL, connect_args={"check_same_thread": False}
@@ -59,3 +66,8 @@ def client(db_session):
 def demo_user(client):
     response = client.post("/auth/login", json={"username": "demo", "password": "demo"})
     return response.json()
+
+
+def pytest_sessionfinish(session, exitstatus):
+    test_engine.dispose()
+    TEST_DB_PATH.unlink(missing_ok=True)
