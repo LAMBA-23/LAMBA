@@ -25,6 +25,7 @@ Thumbs.db
 __pycache__/
 *.pyc
 test.db
+backend/tests/*.db
 app/build/
 .gradle/
 build/

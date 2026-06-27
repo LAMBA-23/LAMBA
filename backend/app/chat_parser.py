@@ -7,7 +7,9 @@ from urllib import error, request
 from .schemas import ParsedChatEvent
 
 
-MISTRAL_API_URL = os.getenv("MISTRAL_API_URL", "https://api.mistral.ai/v1/chat/completions")
+MISTRAL_API_URL = os.getenv(
+    "MISTRAL_API_URL", "https://api.mistral.ai/v1/chat/completions"
+)
 MISTRAL_MODEL = os.getenv("MISTRAL_MODEL", "mistral-small-latest")
 MISTRAL_API_KEY_ENV = "MISTRAL_API_KEY"
 REQUEST_TIMEOUT_SECONDS = float(os.getenv("MISTRAL_TIMEOUT_SECONDS", "20"))
@@ -202,15 +204,18 @@ def _apply_guardrails(message: str, parsed_event: ParsedChatEvent) -> ParsedChat
 
 
 def _contains_multiple_distinct_events(message: str) -> bool:
-    return sum(
-        (
-            _contains_fuel_keywords(message),
-            _contains_repair_keywords(message),
-            _contains_trip_keywords(message),
-            _contains_issue_keywords(message),
-            _contains_condition_keywords(message),
+    return (
+        sum(
+            (
+                _contains_fuel_keywords(message),
+                _contains_repair_keywords(message),
+                _contains_trip_keywords(message),
+                _contains_issue_keywords(message),
+                _contains_condition_keywords(message),
+            )
         )
-    ) > 1
+        > 1
+    )
 
 
 def _looks_like_issue_message(message: str) -> bool:
@@ -229,7 +234,9 @@ def _looks_like_condition_message(message: str) -> bool:
 def _looks_like_trip_with_unclear_units(message: str) -> bool:
     has_trip = _contains_trip_keywords(message)
     has_number = re.search(r"\b\d+\b", message) is not None
-    has_known_unit = any(unit in message for unit in ("км", "килом", "mile", "miles", "миль"))
+    has_known_unit = any(
+        unit in message for unit in ("км", "килом", "mile", "miles", "миль")
+    )
     has_other_event = (
         _contains_fuel_keywords(message)
         or _contains_repair_keywords(message)
@@ -240,8 +247,7 @@ def _looks_like_trip_with_unclear_units(message: str) -> bool:
 
 def _contains_fuel_keywords(message: str) -> bool:
     return any(
-        keyword in message
-        for keyword in ("заправ", "топлив", "бензин", "дизел", "азс")
+        keyword in message for keyword in ("заправ", "топлив", "бензин", "дизел", "азс")
     )
 
 

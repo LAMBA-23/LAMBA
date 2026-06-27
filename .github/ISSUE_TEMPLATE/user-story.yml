@@ -38,10 +38,10 @@ body:
       label: Work Status
       options:
         - To Do
+        - Ready
         - In Progress
-        - In Review
+        - Review
         - Done
-        - Blocked
     validations:
       required: true
 
