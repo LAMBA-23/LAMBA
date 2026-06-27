@@ -10,7 +10,8 @@ from fastapi.testclient import TestClient
 
 TEST_DB_PATH = Path(__file__).resolve().parent / "test_chat_ask.db"
 os.environ["DATABASE_URL"] = f"sqlite:///{TEST_DB_PATH.as_posix()}"
-os.environ.pop("DEEPSEEK_API_KEY", None)
+os.environ.pop("TIMEWEB_API_KEY", None)
+os.environ.pop("TIMEWEB_AGENT_ID", None)
 
 for module_name in ["app.main", "app.database", "app.models", "app.deepseek_chat"]:
     sys.modules.pop(module_name, None)

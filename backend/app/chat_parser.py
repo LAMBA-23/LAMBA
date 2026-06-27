@@ -7,12 +7,13 @@ from urllib import error, request
 from .schemas import ParsedChatEvent
 
 
-MISTRAL_API_URL = os.getenv(
-    "MISTRAL_API_URL", "https://api.mistral.ai/v1/chat/completions"
+TIMEWEB_API_URL_TEMPLATE = (
+    "https://agent.timeweb.cloud/api/v1/cloud-ai/agents/{agent_id}/v1/chat/completions"
 )
-MISTRAL_MODEL = os.getenv("MISTRAL_MODEL", "mistral-small-latest")
-MISTRAL_API_KEY_ENV = "MISTRAL_API_KEY"
-REQUEST_TIMEOUT_SECONDS = float(os.getenv("MISTRAL_TIMEOUT_SECONDS", "20"))
+TIMEWEB_API_KEY_ENV = "TIMEWEB_API_KEY"
+TIMEWEB_AGENT_ID_ENV = "TIMEWEB_AGENT_ID"
+TIMEWEB_MODEL = os.getenv("TIMEWEB_MODEL", "deepseek-chat")
+REQUEST_TIMEOUT_SECONDS = float(os.getenv("TIMEWEB_TIMEOUT_SECONDS", "20"))
 
 SYSTEM_PROMPT = """
 You parse Russian user chat messages about vehicle events into structured JSON.
@@ -92,10 +93,10 @@ Input: "Пробег 125300, заправился"
 Output: {"type":"fuel","description":"Заправка","amount":null,"mileage":125300,"needs_clarification":false,"clarification_question":null}
 """.strip()
 
-MISSING_API_KEY_QUESTION = (
+MISSING_CONFIGURATION_QUESTION = (
     "\u0421\u0435\u0440\u0432\u0438\u0441 \u0440\u0430\u0441\u043f\u043e\u0437\u043d\u0430\u0432\u0430\u043d\u0438\u044f "
     "\u043f\u043e\u043a\u0430 \u043d\u0435 \u043d\u0430\u0441\u0442\u0440\u043e\u0435\u043d. "
-    "\u0414\u043e\u0431\u0430\u0432\u044c\u0442\u0435 Mistral API \u043a\u043b\u044e\u0447."
+    "\u0414\u043e\u0431\u0430\u0432\u044c\u0442\u0435 TIMEWEB_API_KEY \u0438 TIMEWEB_AGENT_ID."
 )
 FALLBACK_CLARIFICATION_QUESTION = (
     "\u041d\u0435 \u0443\u0434\u0430\u043b\u043e\u0441\u044c \u0440\u0430\u0441\u043f\u043e\u0437\u043d\u0430\u0442\u044c "
@@ -106,16 +107,16 @@ FALLBACK_CLARIFICATION_QUESTION = (
 
 
 def parse_chat_message(message: str) -> ParsedChatEvent:
-    api_key = os.getenv(MISTRAL_API_KEY_ENV)
-    if not api_key:
+    api_key = os.getenv(TIMEWEB_API_KEY_ENV)
+    agent_id = os.getenv(TIMEWEB_AGENT_ID_ENV)
+    if not api_key or not agent_id:
         return ParsedChatEvent(
             needs_clarification=True,
-            clarification_question=MISSING_API_KEY_QUESTION,
+            clarification_question=MISSING_CONFIGURATION_QUESTION,
         )
 
     payload = {
-        "model": MISTRAL_MODEL,
-        "response_format": {"type": "json_object"},
+        "model": TIMEWEB_MODEL,
         "messages": [
             {"role": "system", "content": SYSTEM_PROMPT},
             {"role": "user", "content": message},
@@ -124,7 +125,11 @@ def parse_chat_message(message: str) -> ParsedChatEvent:
     }
 
     try:
-        raw_content = _call_mistral_api(api_key=api_key, payload=payload)
+        raw_content = _call_timeweb_agent_api(
+            api_key=api_key,
+            agent_id=agent_id,
+            payload=payload,
+        )
         parsed_payload = json.loads(raw_content)
         parsed_event = ParsedChatEvent.model_validate(parsed_payload)
         return _apply_guardrails(message, parsed_event)
@@ -308,10 +313,12 @@ def _contains_condition_keywords(message: str) -> bool:
     )
 
 
-def _call_mistral_api(api_key: str, payload: dict[str, Any]) -> str:
+def _call_timeweb_agent_api(
+    api_key: str, agent_id: str, payload: dict[str, Any]
+) -> str:
     body = json.dumps(payload).encode("utf-8")
     req = request.Request(
-        MISTRAL_API_URL,
+        TIMEWEB_API_URL_TEMPLATE.format(agent_id=agent_id),
         data=body,
         headers={
             "Authorization": f"Bearer {api_key}",
@@ -326,13 +333,13 @@ def _call_mistral_api(api_key: str, payload: dict[str, Any]) -> str:
             response_payload = json.loads(response.read().decode("utf-8"))
     except error.HTTPError as exc:
         error_body = exc.read().decode("utf-8", errors="ignore")
-        raise ValueError(f"Mistral API error: {exc.code} {error_body}") from exc
+        raise ValueError(f"Timeweb agent API error: {exc.code} {error_body}") from exc
     except error.URLError as exc:
-        raise ValueError("Mistral API is unreachable") from exc
+        raise ValueError("Timeweb agent API is unreachable") from exc
 
     choices = response_payload.get("choices")
     if not choices:
-        raise ValueError("Mistral response does not contain choices")
+        raise ValueError("Timeweb agent response does not contain choices")
 
     message = choices[0].get("message", {})
     content = message.get("content")
@@ -349,4 +356,4 @@ def _call_mistral_api(api_key: str, payload: dict[str, Any]) -> str:
         if combined:
             return combined
 
-    raise ValueError("Mistral response does not contain text content")
+    raise ValueError("Timeweb agent response does not contain text content")

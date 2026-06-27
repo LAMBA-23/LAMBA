@@ -1,26 +1,41 @@
+import gc
+import importlib
 import os
-
-os.environ["DATABASE_URL"] = "sqlite:///./test.db"
+import tempfile
+import time
+import warnings
+from pathlib import Path
+from uuid import uuid4
 
 import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import close_all_sessions, sessionmaker
+from sqlalchemy.pool import NullPool
 
-from app.database import Base, get_db
-from app import database
-from app.models import Car
 
-TEST_DATABASE_URL = "sqlite:///./test.db"
+TEST_DB_DIR = Path(tempfile.gettempdir()) / "lamba-pytest"
+TEST_DB_DIR.mkdir(parents=True, exist_ok=True)
+TEST_DB_PATH = TEST_DB_DIR / f"test-{os.getpid()}-{uuid4().hex}.db"
+TEST_DATABASE_URL = f"sqlite:///{TEST_DB_PATH.as_posix()}"
+
+os.environ["DATABASE_URL"] = TEST_DATABASE_URL
+
+database = importlib.import_module("app.database")
+Base = database.Base
+get_db = database.get_db
+Car = importlib.import_module("app.models").Car
 
 test_engine = create_engine(
-    TEST_DATABASE_URL, connect_args={"check_same_thread": False}
+    TEST_DATABASE_URL,
+    connect_args={"check_same_thread": False},
+    poolclass=NullPool,
 )
 TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=test_engine)
 
 database.engine = test_engine
 
-from app.main import app  # noqa: E402
+app = importlib.import_module("app.main").app
 
 
 @pytest.fixture(scope="function", autouse=True)
@@ -59,3 +74,63 @@ def client(db_session):
 def demo_user(client):
     response = client.post("/auth/login", json={"username": "demo", "password": "demo"})
     return response.json()
+
+
+def pytest_sessionfinish(session, exitstatus):
+    close_all_sessions()
+    test_engine.dispose()
+    gc.collect()
+    _unlink_sqlite_artifacts_with_retries(TEST_DB_PATH)
+
+
+def _unlink_sqlite_artifacts_with_retries(
+    path: Path, retries: int = 10, delay_seconds: float = 0.1
+):
+    locked_paths: list[Path] = []
+    for candidate in _sqlite_artifact_paths(path):
+        if _unlink_with_retries(
+            candidate, retries=retries, delay_seconds=delay_seconds
+        ):
+            continue
+        locked_paths.append(candidate)
+
+    if locked_paths:
+        warnings.warn(
+            "Could not remove temporary SQLite files during pytest cleanup: "
+            + ", ".join(str(candidate) for candidate in locked_paths)
+            + ". They will be retried on a later run.",
+            RuntimeWarning,
+        )
+
+
+def _unlink_with_retries(
+    path: Path, retries: int = 10, delay_seconds: float = 0.1
+) -> bool:
+    for attempt in range(retries):
+        try:
+            path.unlink(missing_ok=True)
+            return True
+        except PermissionError:
+            if attempt == retries - 1:
+                return False
+            time.sleep(delay_seconds)
+    return False
+
+
+def _sqlite_artifact_paths(path: Path) -> list[Path]:
+    return [
+        path,
+        path.with_name(f"{path.name}-shm"),
+        path.with_name(f"{path.name}-wal"),
+    ]
+
+
+def _cleanup_stale_test_dbs(directory: Path, max_age_seconds: int) -> None:
+    now = time.time()
+    for candidate in directory.glob("test-*.db*"):
+        if now - candidate.stat().st_mtime < max_age_seconds:
+            continue
+        _unlink_with_retries(candidate, retries=3, delay_seconds=0.05)
+
+
+_cleanup_stale_test_dbs(TEST_DB_DIR, max_age_seconds=3600)

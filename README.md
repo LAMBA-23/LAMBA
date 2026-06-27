@@ -30,6 +30,13 @@ Run:
 docker compose up --build
 ```
 
+For AI-backed chat endpoints, set these environment variables before startup:
+
+```text
+TIMEWEB_API_KEY
+TIMEWEB_AGENT_ID
+```
+
 Backend will be available at:
 
 ```text
