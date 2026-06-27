@@ -1,7 +1,13 @@
+import importlib
 import os
 import tempfile
 from pathlib import Path
 from uuid import uuid4
+
+import pytest
+from fastapi.testclient import TestClient
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
 
 
 TEST_DB_DIR = Path(tempfile.gettempdir()) / "lamba-pytest"
@@ -11,14 +17,10 @@ TEST_DATABASE_URL = f"sqlite:///{TEST_DB_PATH.as_posix()}"
 
 os.environ["DATABASE_URL"] = TEST_DATABASE_URL
 
-import pytest
-from fastapi.testclient import TestClient
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
-
-from app.database import Base, get_db
-from app import database
-from app.models import Car
+database = importlib.import_module("app.database")
+Base = database.Base
+get_db = database.get_db
+Car = importlib.import_module("app.models").Car
 
 test_engine = create_engine(
     TEST_DATABASE_URL, connect_args={"check_same_thread": False}
@@ -27,7 +29,7 @@ TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=test_
 
 database.engine = test_engine
 
-from app.main import app  # noqa: E402
+app = importlib.import_module("app.main").app
 
 
 @pytest.fixture(scope="function", autouse=True)
