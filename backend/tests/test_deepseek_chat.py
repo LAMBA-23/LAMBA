@@ -1,8 +1,8 @@
 from __future__ import annotations
 
 import json
-from urllib.error import HTTPError, URLError
 from io import BytesIO
+from urllib.error import HTTPError, URLError
 
 import pytest
 
@@ -11,27 +11,28 @@ from app import deepseek_chat
 
 @pytest.fixture(autouse=True)
 def _clean_env(monkeypatch):
-    monkeypatch.delenv("DEEPSEEK_API_KEY", raising=False)
-    monkeypatch.delenv("DEEPSEEK_API_URL", raising=False)
-    monkeypatch.delenv("DEEPSEEK_MODEL", raising=False)
+    monkeypatch.delenv("TIMEWEB_API_KEY", raising=False)
+    monkeypatch.delenv("TIMEWEB_AGENT_ID", raising=False)
+    monkeypatch.delenv("TIMEWEB_MODEL", raising=False)
 
 
 def test_ask_deepseek_returns_missing_key_message(monkeypatch):
     result = deepseek_chat.ask_deepseek("Привет")
     assert "не настроен" in result
-    assert "DEEPSEEK_API_KEY" in result
+    assert "TIMEWEB_API_KEY" in result
+    assert "TIMEWEB_AGENT_ID" in result
 
 
 def test_ask_deepseek_calls_api_with_context(monkeypatch):
-    monkeypatch.setenv("DEEPSEEK_API_KEY", "test-key")
+    monkeypatch.setenv("TIMEWEB_API_KEY", "test-key")
+    monkeypatch.setenv("TIMEWEB_AGENT_ID", "agent-123")
 
     captured = {}
 
     def fake_urlopen(req, timeout=None):
         captured["url"] = req.full_url
         captured["headers"] = dict(req.header_items())
-        body = json.loads(req.data.decode())
-        captured["body"] = body
+        captured["body"] = json.loads(req.data.decode())
 
         response_data = {"choices": [{"message": {"content": "Ваш пробег 125000 км"}}]}
         return BytesIO(json.dumps(response_data).encode())
@@ -44,20 +45,20 @@ def test_ask_deepseek_calls_api_with_context(monkeypatch):
     )
 
     assert result == "Ваш пробег 125000 км"
-    assert "Authorization" in captured["headers"]
+    assert captured["url"].endswith("/agents/agent-123/v1/chat/completions")
     assert captured["headers"]["Authorization"] == "Bearer test-key"
     assert captured["body"]["model"] == "deepseek-chat"
-    assert any(m["role"] == "system" for m in captured["body"]["messages"])
     assert any(
-        "пробег 125000" in m["content"]
-        for m in captured["body"]["messages"]
-        if m["role"] == "system"
+        "пробег 125000" in message["content"]
+        for message in captured["body"]["messages"]
+        if message["role"] == "system"
     )
     assert captured["body"]["messages"][-1]["content"] == "Какой пробег?"
 
 
 def test_ask_deepseek_without_context(monkeypatch):
-    monkeypatch.setenv("DEEPSEEK_API_KEY", "test-key")
+    monkeypatch.setenv("TIMEWEB_API_KEY", "test-key")
+    monkeypatch.setenv("TIMEWEB_AGENT_ID", "agent-123")
 
     captured = {}
 
@@ -72,13 +73,14 @@ def test_ask_deepseek_without_context(monkeypatch):
 
     assert result == "Нет данных"
     user_messages = [m for m in captured["body"]["messages"] if m["role"] == "user"]
-    assert len(user_messages) == 1
     system_messages = [m for m in captured["body"]["messages"] if m["role"] == "system"]
+    assert len(user_messages) == 1
     assert len(system_messages) == 1
 
 
 def test_ask_deepseek_handles_http_error(monkeypatch):
-    monkeypatch.setenv("DEEPSEEK_API_KEY", "test-key")
+    monkeypatch.setenv("TIMEWEB_API_KEY", "test-key")
+    monkeypatch.setenv("TIMEWEB_AGENT_ID", "agent-123")
 
     def fake_urlopen(req, timeout=None):
         raise HTTPError(
@@ -92,7 +94,8 @@ def test_ask_deepseek_handles_http_error(monkeypatch):
 
 
 def test_ask_deepseek_handles_unreachable_api(monkeypatch):
-    monkeypatch.setenv("DEEPSEEK_API_KEY", "test-key")
+    monkeypatch.setenv("TIMEWEB_API_KEY", "test-key")
+    monkeypatch.setenv("TIMEWEB_AGENT_ID", "agent-123")
 
     def fake_urlopen(req, timeout=None):
         raise URLError("Connection refused")
@@ -104,7 +107,8 @@ def test_ask_deepseek_handles_unreachable_api(monkeypatch):
 
 
 def test_ask_deepseek_handles_empty_choices(monkeypatch):
-    monkeypatch.setenv("DEEPSEEK_API_KEY", "test-key")
+    monkeypatch.setenv("TIMEWEB_API_KEY", "test-key")
+    monkeypatch.setenv("TIMEWEB_AGENT_ID", "agent-123")
 
     def fake_urlopen(req, timeout=None):
         response_data = {"choices": []}
