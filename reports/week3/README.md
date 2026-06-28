@@ -210,7 +210,7 @@ This SemVer release is mapped to MVP v1 / Sprint 1 — MVP v1 Foundation for Ass
 ## 26. Delivered MVP v1 deployment or runnable artifact
 
 - [MVP v1 release](https://github.com/LAMBA-23/LAMBA/releases/tag/v0.1.0)
-- [Android debug APK](https://github.com/LAMBA-23/LAMBA/releases/download/v0.1.0/app-debug.apk)
+- [Android debug APK evidence](https://github.com/LAMBA-23/LAMBA/releases/tag/v0.1.0)
 - Runnable current backend source: [docker-compose.yml](../../docker-compose.yml)
 - Android APK build verification: [PR #90](https://github.com/LAMBA-23/LAMBA/pull/90)
 - [Deployed backend](http://10.93.26.193:8000/)
