@@ -71,8 +71,8 @@ Current runnable/access artifacts for the Assignment 4 Sprint increment:
 
 - [Current GitHub Release package: v1.1.0 - Assignment 4 Sprint 2 Increment](https://github.com/LAMBA-23/LAMBA/releases/tag/v1.1.0)
 - [Android APK asset](https://github.com/LAMBA-23/LAMBA/releases/download/v1.1.0/app-debug.apk)
-- [Deployed backend](http://186.246.27.211:8000)
-- [Swagger/API docs](http://186.246.27.211:8000/docs)
+- [Deployed backend API and Swagger docs](http://186.246.27.211:8000/docs)
+- Backend health endpoint: `/health` on the same host
 - [Runnable backend source: docker-compose.yml](../../docker-compose.yml)
 
 ## 9. Link to current access or run instructions
