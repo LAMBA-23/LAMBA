@@ -15,14 +15,6 @@ Week 4 execution results will be added after the recorded customer UAT session. 
   - The LAMBA mobile app is installed or available in the test environment.
   - The app is opened from a clean or logged-out state.
   - Backend services required for registration, authentication, and vehicle storage are available.
-- **Test data:**
-  - User name: test user name
-  - Email: test email address
-  - Password: test password that satisfies validation rules
-  - Vehicle make: BMW
-  - Vehicle model: M4 Competition
-  - Year: 2022
-  - Current mileage: 12450 km
 
 | Step | User action | Expected outcome |
 |---|---|---|
@@ -34,61 +26,57 @@ Week 4 execution results will be added after the recorded customer UAT session. 
 
 ### Week 4 Execution Result
 
-- **Execution status:** Not executed yet
-- **Date:** TODO
-- **Executed by:** TODO: customer/stakeholder
-- **Evidence:** TODO: private Moodle recording link/timecode, do not commit publicly
-- **Result:** TODO: Passed / Failed / Needs changes
-- **Customer comments or observed issues:** TODO
-- **Resulting PBIs/issues:** TODO: link resulting issue if needed
+- **Execution status:** Completed
+- **Date:** 27 June 2026
+- **Executed by:** customer
+- **Evidence:** private Moodle recording link
+- **Result:** Passed
+- **Customer comments or observed issues:** Registration was easy. Vehicle creation took less than a minute.
+- **Traceability:**
+  - Product Backlog Item: US-01
+  - Product Backlog Item: US-02
+- **Resulting PBIs/issues:**: No new PBIs or issues were created.
 
 ## UAT-002: Use the AI assistant from the main app flow
 
 - **Scenario ID:** UAT-002
 - **Status:** Active
-- **User goal:** A user can ask a car-related question and open or use the AI chat.
+- **User goal:** The user can ask the AI assistant a car-related question and receive a response.
 - **Preconditions:**
   - The user is registered or logged in.
   - A vehicle profile exists.
   - The main car screen is available.
-  - Backend services required for the AI assistant or chat flow are available.
-- **Test data:**
-  - Example question: What does error P0420 mean?
-  - Example question: How often should I change oil for this car?
-
+  - The AI assistant service is available.
 | Step | User action | Expected outcome |
 |---|---|---|
 | 1 | Open the main car screen. | The app shows the active vehicle and the main interaction area for car-related assistance. |
 | 2 | Open the chat or assistant entry point. | The AI assistant screen opens and shows the current vehicle context when available. |
 | 3 | Enter a car-related question. | The question appears in the chat as the user's message. |
-| 4 | Send the question. | The app submits the request and returns an assistant response or a clear clarification prompt. |
+| 4 | Send the question. | The app submits the request and returns a relevant response to the user's question. |
 | 5 | Review the response and return to the main flow. | The user can continue the conversation or navigate back without losing the main app context. |
 
 ### Week 4 Execution Result
 
-- **Execution status:** Not executed yet
-- **Date:** TODO
-- **Executed by:** TODO: customer/stakeholder
-- **Evidence:** TODO: private Moodle recording link/timecode, do not commit publicly
-- **Result:** TODO: Passed / Failed / Needs changes
-- **Customer comments or observed issues:** TODO
-- **Resulting PBIs/issues:** TODO: link resulting issue if needed
+- **Execution status:** Completed
+- **Date:** 27 June 2026
+- **Executed by:** customer
+- **Evidence:** private Moodle recording link
+- **Result:** Needs changes
+- **Customer comments or observed issues:** The AI assistant needs to provide more accurate and relevant answers, as the current responses are not always satisfactory.
+- **Traceability:**
+  - US-03: Send messages
+  - US-06: Ask AI assistante 
+- **Resulting PBIs/issues:** GitHub Issue #160 – Enable AI assistant to use vehicle statistics in responses.
 
 ## UAT-003: Add and view a history record
 
 - **Scenario ID:** UAT-003
 - **Status:** Active
-- **User goal:** A user can create a new car event record and see it in the history or timeline.
+- **User goal:** A user can create a new car event record and see it in the timeline.
 - **Preconditions:**
   - The user is registered or logged in.
   - A vehicle profile exists.
   - The history or timeline feature is available.
-  - Backend services required for storing and reading vehicle events are available.
-- **Test data:**
-  - Event type: fuel
-  - Description: Refueling
-  - Amount: 2450
-  - Mileage: 12450 km
 
 | Step | User action | Expected outcome |
 |---|---|---|
@@ -100,26 +88,27 @@ Week 4 execution results will be added after the recorded customer UAT session. 
 
 ### Week 4 Execution Result
 
-- **Execution status:** Not executed yet
-- **Date:** TODO
-- **Executed by:** TODO: customer/stakeholder
-- **Evidence:** TODO: private Moodle recording link/timecode, do not commit publicly
-- **Result:** TODO: Passed / Failed / Needs changes
-- **Customer comments or observed issues:** TODO
-- **Resulting PBIs/issues:** TODO: link resulting issue if needed
+- **Execution status:** Completed
+- **Date:** 27 June 2026
+- **Executed by:** customer
+- **Evidence:** private Moodle recording link
+- **Result:** Needs changes
+- **Customer comments or observed issues:** The customer suggested adding a manual event entry form in addition to the AI assistant.
+This would allow users to create history records without using the chat.
+- **Traceability:**
+  - US-05: View vehicle timeline
+- **Resulting PBIs/issues:** GitHub Issue #161 – Add a manual form for creating vehicle history
 
 ## UAT-004: View statistics based on car activity
 
 - **Scenario ID:** UAT-004
 - **Status:** Active
-- **User goal:** A user can open the statistics screen and inspect summarized car-related information.
+- **User goal:** A user can view statistics based on the vehicle's history.
 - **Preconditions:**
   - The user is registered or logged in.
   - A vehicle profile exists.
   - The app has at least one available history record or sample activity data for the selected vehicle.
   - Backend services required for statistics are available.
-- **Test data:**
-  - Vehicle mileage, expenses, fuel amount, number of records, and average fuel consumption are available or seeded for the test user.
 
 | Step | User action | Expected outcome |
 |---|---|---|
@@ -131,18 +120,25 @@ Week 4 execution results will be added after the recorded customer UAT session. 
 
 ### Week 4 Execution Result
 
-- **Execution status:** Not executed yet
-- **Date:** TODO
-- **Executed by:** TODO: customer/stakeholder
-- **Evidence:** TODO: private Moodle recording link/timecode, do not commit publicly
-- **Result:** TODO: Passed / Failed / Needs changes
-- **Customer comments or observed issues:** TODO
-- **Resulting PBIs/issues:** TODO: link resulting issue if needed
+- **Execution status:** Completed
+- **Date:** 27 June 2026
+- **Executed by:** customer
+- **Evidence:** private Moodle recording link
+- **Result:** Passed
+- **Customer comments or observed issues:** The customer confirmed that the statistics screen is clear and easy to understand.
+- **Traceability:**
+  - US-07: View basic statistics
+- **Resulting PBIs/issues:** No new PBIs or issues were created.
 
 ## Week 4 UAT Summary
 
-- **Scenarios executed:** TODO
-- **Passed scenarios:** TODO
-- **Failed / needs changes:** TODO
-- **Most important feedback points:** TODO
-- **Resulting PBIs or issues:** TODO
+- **Scenarios executed:** 4 (UAT-001, UAT-002, UAT-003, UAT-004)
+- **Passed scenarios:** UAT-001, UAT-004
+- **Failed / needs changes:** UAT-002, UAT-003
+- **Most important feedback points:**
+  - Improve the accuracy and relevance of AI assistant responses by using vehicle statistics.
+  - Add a manual event entry form as an alternative to creating history records through the AI assistant.
+  - The registration flow and statistics screen were easy to use and met customer expectations.
+- **Resulting PBIs or issues:**
+  - GitHub Issue #160 – Enable AI assistant to use vehicle statistics in responses.
+  - GitHub Issue #161 – Add a manual form for creating vehicle history records.
