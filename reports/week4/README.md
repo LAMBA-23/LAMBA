@@ -49,7 +49,7 @@ This section collects the public repository evidence for the final Week 4 assign
 
 ## Public Sanitized Demo Video
 
-- here will be link to the demo video
+- [Public sanitized demo video](https://drive.google.com/drive/folders/1r27kEbYegLTjaM85RWaCVcfKkgIq-NO9)
 
 ## Presentation Materials
 
@@ -80,7 +80,7 @@ The customer review confirmed that the product is a useful MVP step. The remaini
 
 ## Next Steps
 
-- Add the public sanitized demo video link.
+- Keep the public sanitized demo video link available for review.
 - Keep the sanitized presentation artifact available in the repository.
 - Use the UAT findings to prioritize AI answer quality and manual history-entry improvements.
 - Continue strengthening automated checks, coverage evidence, and default-branch CI stability.
@@ -104,7 +104,7 @@ The customer review confirmed that the product is a useful MVP step. The remaini
 - Definition of Done: [docs/definition-of-done.md](../../docs/definition-of-done.md)
 - Latest protected default-branch Backend CI run: [GitHub Actions run 28322655676](https://github.com/LAMBA-23/LAMBA/actions/runs/28322655676)
 - Latest protected default-branch Link Check run: [GitHub Actions run 28322655667](https://github.com/LAMBA-23/LAMBA/actions/runs/28322655667)
-- Current SemVer release: [v0.1.0 - MVP v1 Foundation](https://github.com/LAMBA-23/LAMBA/releases/tag/v0.1.0)
+- Current SemVer release: [v1.0.0 - MVP v1 Foundation](https://github.com/LAMBA-23/LAMBA/releases/tag/v1.0.0)
 - Example reviewed issue-linked PR/MR: [PR #151 - Create User Acceptance Test scenarios](https://github.com/LAMBA-23/LAMBA/pull/151)
 
 ## Screenshot Evidence
@@ -292,6 +292,6 @@ This means later work on AI answers, manual history entry, authorization, passwo
 
 ## 28. Link to the SemVer release mapped to the Assignment 4 Sprint increment
 
-- [v0.1.0 — MVP v1 Foundation](https://github.com/LAMBA-23/LAMBA/releases/tag/v0.1.0)
+- [v1.0.0 — MVP v1 Foundation](https://github.com/LAMBA-23/LAMBA/releases/tag/v1.0.0)
 
-This SemVer release is the current public release artifact available for the Assignment 4 Sprint increment. The release is mapped to the MVP v1 foundation and remains the latest GitHub release at the time of this Week 4 report.`r`n
+This SemVer release is the current public release artifact available for the Assignment 4 Sprint increment. The release is mapped to the MVP v1 foundation and remains the latest GitHub release at the time of this Week 4 report.
