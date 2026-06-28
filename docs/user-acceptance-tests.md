@@ -2,10 +2,6 @@
 
 This document contains maintained User Acceptance Test (UAT) scenarios for LAMBA, a mobile app for vehicle owners.
 
-UAT scenarios are stable product assets. Scenario IDs must stay stable over time: update valid scenarios in place, retire obsolete scenarios instead of deleting them, and create new IDs when the user goal changes materially.
-
-Week 4 execution results will be added after the recorded customer UAT session. Private recording links, exact private timecodes, customer names, credentials, and other confidential information must not be committed to the public repository.
-
 ## UAT-001: Register and create a vehicle profile
 
 - **Scenario ID:** UAT-001
