@@ -44,7 +44,7 @@ interface LambaApiService {
 }
 
 object RetrofitClient {
-    private const val BASE_URL = "http://10.93.26.193:8000/"
+    private const val BASE_URL = "http://186.246.27.211:8000/"
 
     val apiService: LambaApiService by lazy {
         Retrofit.Builder()
