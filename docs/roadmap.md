@@ -46,11 +46,25 @@ Planning:
 - Sprint Goal: Enable the vehicle owner to inspect saved vehicle history through a visible timeline, ask the assistant questions about vehicle data, and view basic statistics from recorded events.
 - Focus / expected outcome: A vehicle owner can open the vehicle timeline, inspect saved fuel, repair, trip, and issue records, ask the assistant questions about the saved history, and view basic statistics generated from recorded events.
 
-Planned items:
+Selected Sprint PBIs:
 
+User Stories:
 - [#48 US-05: View vehicle timeline](https://github.com/LAMBA-23/LAMBA/issues/48)
 - [#49 US-06: Ask AI assistant](https://github.com/LAMBA-23/LAMBA/issues/49)
 - [#50 US-07: View basic statistics](https://github.com/LAMBA-23/LAMBA/issues/50)
+
+Supporting PBIs:
+- [#113 PBI - Stabilize GET /events and POST /events API](https://github.com/LAMBA-23/LAMBA/issues/113)
+- [#116 PBI - Stabilize events API with unit tests and testing draft](https://github.com/LAMBA-23/LAMBA/issues/116)
+- [#118 BBl - Chat redesign](https://github.com/LAMBA-23/LAMBA/issues/118)
+- [#120 PBI - Update backend /stats response contract for period-based statistics](https://github.com/LAMBA-23/LAMBA/issues/120)
+- [#123 Implement statistics logic end-to-end](https://github.com/LAMBA-23/LAMBA/issues/123)
+- [#124 PBI - Implement vehicle timeline UI](https://github.com/LAMBA-23/LAMBA/issues/124)
+- [#138 PBI - Implement redesigned Statistics screen](https://github.com/LAMBA-23/LAMBA/issues/138)
+- [#140 PBI - Add POST /chat/ask endpoint with DeepSeek connection](https://github.com/LAMBA-23/LAMBA/issues/140)
+- [#149 PBI - Finalize events manual add flow and tests](https://github.com/LAMBA-23/LAMBA/issues/149)
+- [#154 AI chat does not support knowledge-base questions from the Android app and still uses the old event-only flow](https://github.com/LAMBA-23/LAMBA/issues/154)
+- [#158 Сhange network frontend](https://github.com/LAMBA-23/LAMBA/issues/158)
 
 ### Continuing Quality and Automation Work
 
