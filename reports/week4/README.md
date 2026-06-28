@@ -39,66 +39,94 @@ The following follow-up PBIs should be created or refined in GitHub if the team 
 | Refine timeline/chat interaction PBI | Add created-event confirmation link or pre-filled form flow from chat | Customer described this as ideal behavior, but it was too large for the current MVP baseline. |
 | Create optional media PBI | Add vehicle photo upload | Customer mentioned it as future scope, not MVP v1 scope. |
 | Create optional engagement PBI | Add achievements system | Customer mentioned it as future scope, not MVP v1 scope. |
-# Week 4 Report - CI and Quality Automation
+## Assignment 4 Submission Evidence
 
-This is the public Week 4 report section for Assignment 4 repository automation evidence. It documents the CI configuration work completed for Part 8 and the public evidence that must be included before submission.
+This section collects the public repository evidence for the final Week 4 assignment report.
 
-## 1. Assignment scope
+## Changelog
 
-- Assignment/week: Week 4 / Assignment 4
-- Part covered here: Part 8 - Configure CI
-- Related issue: [#135](https://github.com/LAMBA-23/LAMBA/issues/135)
-- Related branch: `135-configure-backend-ci`
+- [CHANGELOG.md](../../CHANGELOG.md)
 
-## 2. CI configuration evidence
+## Public Sanitized Demo Video
+
+- [Public sanitized demo video](https://drive.google.com/drive/folders/1r27kEbYegLTjaM85RWaCVcfKkgIq-NO9)
+
+## Presentation Materials
+
+- [presentation.pdf](presentation.pdf)
+
+## Public UAT Results Summary
+
+- [docs/user-acceptance-tests.md](../../docs/user-acceptance-tests.md)
+
+## Customer Review Evidence
+
+- [Customer review transcript](customer-review-transcript.md)
+- [Customer review summary](customer-review-summary.md)
+
+The customer review transcript is published as a sanitized repository artifact. The private recording is shared only through the approved instructor submission channel.
+
+## Reflection, Retrospective, and LLM Usage
+
+- [Week 4 reflection](reflection.md)
+- [Week 4 retrospective](retrospective.md)
+- [Week 4 LLM usage report](llm-report.md)
+
+## Current Product Status
+
+The current product increment supports the main MVP flows: registration and login, vehicle setup, vehicle timeline/history, manual event creation, basic statistics, and AI assistant support. The backend API contract, event handling, quality requirements, automated checks, UAT scenarios, customer review materials, retrospective, reflection, and LLM usage report are documented in the repository.
+
+The customer review confirmed that the product is a useful MVP step. The remaining follow-up areas are stronger authentication and authorization, password hashing, better AI answer relevance, clearer manual history entry, and continued frontend quality coverage.
+
+## Next Steps
+
+- Keep the public sanitized demo video link available for review.
+- Keep the sanitized presentation artifact available in the repository.
+- Use the UAT findings to prioritize AI answer quality and manual history-entry improvements.
+- Continue strengthening automated checks, coverage evidence, and default-branch CI stability.
+- Keep customer-facing evidence sanitized while sharing private recordings only through the approved instructor channel.
+
+## Contribution Traceability
+
+| Team member | Issues / PRs | Review activity | Testing, quality, automation, or documentation work |
+|---|---|---|---|
+| [Erusiaaa](https://github.com/Erusiaaa) | [PR #115](https://github.com/LAMBA-23/LAMBA/pull/115), [PR #117](https://github.com/LAMBA-23/LAMBA/pull/117), [PR #147](https://github.com/LAMBA-23/LAMBA/pull/147), [PR #150](https://github.com/LAMBA-23/LAMBA/pull/150), [PR #166](https://github.com/LAMBA-23/LAMBA/pull/166) | Approved [PR #137](https://github.com/LAMBA-23/LAMBA/pull/137) and [PR #139](https://github.com/LAMBA-23/LAMBA/pull/139), covering timeline UI, event cards, loading/empty/error states, statistics integration, `/stats` flow reuse, and UI consistency | Events API contract, events testing evidence, manual add flow, Week 4 reflection |
+| [vasilisatumakina29](https://github.com/vasilisatumakina29) | [PR #121](https://github.com/LAMBA-23/LAMBA/pull/121), [PR #125](https://github.com/LAMBA-23/LAMBA/pull/125), [PR #127](https://github.com/LAMBA-23/LAMBA/pull/127), [PR #129](https://github.com/LAMBA-23/LAMBA/pull/129), [PR #132](https://github.com/LAMBA-23/LAMBA/pull/132), [PR #136](https://github.com/LAMBA-23/LAMBA/pull/136), [PR #145](https://github.com/LAMBA-23/LAMBA/pull/145), [PR #155](https://github.com/LAMBA-23/LAMBA/pull/155), [PR #159](https://github.com/LAMBA-23/LAMBA/pull/159), [PR #163](https://github.com/LAMBA-23/LAMBA/pull/163) | Requested changes and later approved [PR #122](https://github.com/LAMBA-23/LAMBA/pull/122) and [PR #141](https://github.com/LAMBA-23/LAMBA/pull/141); approved [PR #153](https://github.com/LAMBA-23/LAMBA/pull/153) and [PR #157](https://github.com/LAMBA-23/LAMBA/pull/157) | Statistics backend, planning docs, quality requirements, Definition of Done, CI setup, fixes, retrospective |
+| [vanya630](https://github.com/vanya630) | [PR #141](https://github.com/LAMBA-23/LAMBA/pull/141), [PR #143](https://github.com/LAMBA-23/LAMBA/pull/143), [PR #167](https://github.com/LAMBA-23/LAMBA/pull/167) | Approved [PR #166](https://github.com/LAMBA-23/LAMBA/pull/166), confirming the Week 4 reflection document was ready to merge and that the submitted reflection evidence was acceptable for the assignment report | AI assistant backend, automated quality requirement tests, LLM usage report |
+| [mariachizhikova08](https://github.com/mariachizhikova08) | [PR #137](https://github.com/LAMBA-23/LAMBA/pull/137), [PR #139](https://github.com/LAMBA-23/LAMBA/pull/139), [PR #151](https://github.com/LAMBA-23/LAMBA/pull/151) | Approved [PR #115](https://github.com/LAMBA-23/LAMBA/pull/115), [PR #117](https://github.com/LAMBA-23/LAMBA/pull/117), [PR #147](https://github.com/LAMBA-23/LAMBA/pull/147), [PR #150](https://github.com/LAMBA-23/LAMBA/pull/150), [PR #159](https://github.com/LAMBA-23/LAMBA/pull/159), and [PR #163](https://github.com/LAMBA-23/LAMBA/pull/163), covering API contract/testing evidence, manual add flow, frontend network update, and retrospective documentation | Timeline UI, statistics UI, UAT scenarios |
+| [Elis-bett](https://github.com/Elis-bett) | [PR #122](https://github.com/LAMBA-23/LAMBA/pull/122), [PR #153](https://github.com/LAMBA-23/LAMBA/pull/153), [PR #157](https://github.com/LAMBA-23/LAMBA/pull/157) | Commented on and approved [PR #121](https://github.com/LAMBA-23/LAMBA/pull/121); approved [PR #125](https://github.com/LAMBA-23/LAMBA/pull/125), [PR #127](https://github.com/LAMBA-23/LAMBA/pull/127), [PR #129](https://github.com/LAMBA-23/LAMBA/pull/129), [PR #132](https://github.com/LAMBA-23/LAMBA/pull/132), [PR #136](https://github.com/LAMBA-23/LAMBA/pull/136), [PR #145](https://github.com/LAMBA-23/LAMBA/pull/145), [PR #151](https://github.com/LAMBA-23/LAMBA/pull/151), and [PR #167](https://github.com/LAMBA-23/LAMBA/pull/167); requested changes and later approved [PR #143](https://github.com/LAMBA-23/LAMBA/pull/143) and [PR #155](https://github.com/LAMBA-23/LAMBA/pull/155) | Chat redesign, customer feedback response, customer review transcript and summary |
+
+## CI, Quality, and Release Evidence Links
 
 - Backend CI workflow: [`.github/workflows/backend-ci.yml`](../../.github/workflows/backend-ci.yml)
 - Link-check workflow: [`.github/workflows/lychee.yml`](../../.github/workflows/lychee.yml)
-- Testing status artifact: [`docs/testing.md`](../../docs/testing.md)
-- Definition of Done update: [`docs/definition-of-done.md`](../../docs/definition-of-done.md)
+- Testing status artifact: [docs/testing.md](../../docs/testing.md)
+- Definition of Done: [docs/definition-of-done.md](../../docs/definition-of-done.md)
+- Latest protected default-branch Backend CI run: [GitHub Actions run 28322655676](https://github.com/LAMBA-23/LAMBA/actions/runs/28322655676)
+- Latest protected default-branch Link Check run: [GitHub Actions run 28322655667](https://github.com/LAMBA-23/LAMBA/actions/runs/28322655667)
+- Current SemVer release: [v1.0.0 - MVP v1 Foundation](https://github.com/LAMBA-23/LAMBA/releases/tag/v1.0.0)
+- Example reviewed issue-linked PR/MR: [PR #151 - Create User Acceptance Test scenarios](https://github.com/LAMBA-23/LAMBA/pull/151)
 
-## 3. Required CI links
+## Screenshot Evidence
 
-Add the public GitHub Actions links here after pushing the branch and getting the first successful runs:
+Screenshots are stored under `reports/week4/images/`.
 
-- Pull request CI run: `TODO after PR creation`
-- Latest `main` backend CI run: `TODO after merge or protected-branch run`
-- Latest `main` Lychee run: `TODO before final submission`
+| Required screenshot | Evidence |
+|---|---|
+| Sprint milestone | ![Sprint milestone](images/sprint-milestone.png) |
+| Latest protected-default-branch CI run | ![Latest main CI run](images/latest-main-ci-run.png) |
+| Branch protection or rules evidence | ![Branch protection rules list](images/branch-protection-rules-list.png)<br>![Required pull request review](images/branch-protection-review-required.png)<br>![Additional branch protection settings](images/branch-protection-rules-extra.png) |
+| Coverage or test report | ![Coverage test report](images/coverage-test-report.png) |
+| Additional QA check result | ![Additional QA check result](images/additional-qa-check.png) |
+| SemVer release | ![SemVer release](images/semver-release.png) |
+| Example reviewed issue-linked PR/MR | ![Reviewed issue-linked PR](images/reviewed-issue-linked-pr.png) |
+| Product Backlog screenshot, if public links may not be inspectable by graders | ![Product Backlog](images/product-backlog.png) |
+| Sprint Backlog screenshot, if public links may not be inspectable by graders | ![Sprint Backlog](images/sprint-backlog.png) |
+| Deployed product or runnable artifact screenshot, if public links may not be inspectable by graders | ![Runnable artifact](images/runnable-artifact.png) |
 
-## 4. Branch protection or rules evidence
+## Current Verification Evidence
 
-The report must include inspectable evidence that the protected default branch enforces the required review workflow.
-
-- Existing branch protection screenshot from Week 2: [`reports/week2/images/branch-protection-rule.png`](../week2/images/branch-protection-rule.png)
-- Recommended Week 4 evidence: add a fresh screenshot from the repository branch protection or rules settings if anything changed since Week 2
-
-### Embedded branch protection evidence
-
-![Branch protection evidence](../week2/images/branch-protection-rule.png)
-
-## 5. Testing-report screenshots
-
-The Week 4 public report must include screenshots showing the testing status evidence.
-
-Recommended screenshots:
-
-- `docs/testing.md` critical modules and coverage table
-- `docs/testing.md` CI and QA status table
-- Successful GitHub Actions `Backend CI` run
-- Successful GitHub Actions `Link Check` run
-
-Place the screenshots under `reports/week4/images/` and embed them here.
-
-### Screenshot placeholders
-
-- `TODO`: add `reports/week4/images/testing-report-coverage.png`
-- `TODO`: add `reports/week4/images/testing-report-ci-status.png`
-- `TODO`: add `reports/week4/images/backend-ci-success.png`
-- `TODO`: add `reports/week4/images/lychee-success.png`
-
-## 6. Current local verification evidence
-
-The backend CI workflow was verified locally before push using the same command categories as the GitHub Actions job:
+The backend CI workflow was verified with the same command categories as the GitHub Actions job:
 
 - `python -m ruff check backend/app backend/tests`
 - `python -m ruff format --check backend/app backend/tests`
@@ -106,7 +134,7 @@ The backend CI workflow was verified locally before push using the same command 
 - `python -m coverage report --include='backend/app/*'`
 - `python -m pip check`
 
-Current local results:
+Current documented results:
 
 - backend tests: `47 passed`
 - backend total coverage: `89%`
@@ -115,15 +143,6 @@ Current local results:
   - `backend/app/chat_parser.py`: `59%`
   - `backend/app/database.py`: `100%`
 - dependency health check: `No broken requirements found`
-
-## 7. Remaining submission actions
-
-Before final Week 4 submission, replace the `TODO` placeholders in this report with:
-
-1. Real GitHub Actions run links
-2. Fresh screenshots from the successful CI runs
-3. Branch protection or rules evidence that matches the current repository settings
-4. Any updated evidence from teammate-owned Assignment 4 documents once their PRs are merged
 
 ## 15. Link to docs/quality-requirement-tests.md
 
@@ -273,6 +292,6 @@ This means later work on AI answers, manual history entry, authorization, passwo
 
 ## 28. Link to the SemVer release mapped to the Assignment 4 Sprint increment
 
-- [v0.1.0 — MVP v1 Foundation](https://github.com/LAMBA-23/LAMBA/releases/tag/v0.1.0)
+- [v1.0.0 — MVP v1 Foundation](https://github.com/LAMBA-23/LAMBA/releases/tag/v1.0.0)
 
 This SemVer release is the current public release artifact available for the Assignment 4 Sprint increment. The release is mapped to the MVP v1 foundation and remains the latest GitHub release at the time of this Week 4 report.
