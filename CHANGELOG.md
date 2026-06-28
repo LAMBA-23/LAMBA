@@ -7,6 +7,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.1.0] - 2026-06-28
+
+### Added
+
+- Android history/timeline screen for viewing saved vehicle events from `GET /events` (#48).
+- Android statistics screen connected to backend `GET /stats` with week, month, and all-time vehicle summaries (#50).
+- Backend assistant question endpoint (`POST /chat/ask`) with vehicle and recent-event context for DeepSeek/Timeweb responses (#49).
+- User acceptance test scenarios and Week 4 execution results for registration, assistant usage, history/event creation, and statistics.
+- Automated quality requirement tests for event data integrity, timeline response time, and backend regression testability.
+- Assignment 4 release and deployment preparation documentation for the Sprint 2 increment.
+
+### Changed
+
+- Timeweb/DeepSeek chat integration now reports missing configuration and upstream failures without crashing the backend.
+- Backend event and statistics tests now cover Sprint 2 history and statistics behavior.
+
 ## [0.1.0] - 2026-06-21
 
 ### Added
