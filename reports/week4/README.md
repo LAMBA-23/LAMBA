@@ -148,19 +148,13 @@ Current documented results:
 
 - [docs/quality-requirement-tests.md](../../docs/quality-requirement-tests.md)
 
-This document maps the Assignment 4 quality requirements to automated pytest evidence in [`backend/tests/test_quality_requirements.py`](../../backend/tests/test_quality_requirements.py).
-
 ## 16. Link to docs/testing.md
 
 - [docs/testing.md](../../docs/testing.md)
 
-The current Assignment 4 testing status focuses on backend CI, automated backend tests, integration-style API tests, critical-module coverage, and the additional dependency health QA check.
-
 ## 17. Link to docs/user-acceptance-tests.md
 
 - [docs/user-acceptance-tests.md](../../docs/user-acceptance-tests.md)
-
-Week 4 UAT covered registration and vehicle setup, AI assistant usage, history/event creation, and statistics. UAT-001 and UAT-004 passed; UAT-002 and UAT-003 produced follow-up improvement work.
 
 ## 18. Summary of the quality model used and selected ISO/IEC 25010 sub-characteristics
 
@@ -234,17 +228,11 @@ Traceability:
 
 ## 23. Link to the CI pipeline
 
-Assignment 4 CI evidence is provided by two active GitHub Actions workflows:
-
 - [Backend CI workflow](../../.github/workflows/backend-ci.yml)
 - [Link Check workflow](../../.github/workflows/lychee.yml)
 - [GitHub Actions — all workflows](https://github.com/LAMBA-23/LAMBA/actions)
 
-Backend CI runs linting, formatting check, backend tests with coverage, coverage artifact upload, and dependency health check. Link Check runs Lychee against Markdown links.
-
 ## 24. Link to the latest protected-default-branch CI run
-
-Latest successful protected default-branch runs on `main`:
 
 - Backend CI run: https://github.com/LAMBA-23/LAMBA/actions (Backend CI workflow)
 - Link Check run: https://github.com/LAMBA-23/LAMBA/actions (Lychee workflow)

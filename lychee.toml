@@ -1,5 +1,6 @@
 exclude = [
     'http://localhost:.*',
     'http://127.0.0.1:.*',
-    'http://10.93.26.193:.*'
+    'http://10.93.26.193:.*',
+    'https://github.com/LAMBA-23/LAMBA/releases/download/v0.1.0/app-debug.apk'
 ]
