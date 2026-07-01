@@ -166,7 +166,7 @@ The backend requires the following configuration:
 - `.env.*.local` files are gitignored.
 - `.secrets/` directory is gitignored.
 - A sanitized `.env.example` is committed as a template for developers.
-- CI secrets (API keys) are stored in [GitHub Secrets](https://github.com/LAMBA-23/LAMBA/settings/secrets/actions) and injected into the CI environment.
+- CI secrets (API keys) are stored in GitHub Secrets (repository Settings → Secrets and variables → Actions) and injected into the CI environment.
 - Docker Compose uses `${VAR:-default}` syntax for optional variables with safe defaults.
 
 ### Committed Configuration Artifacts
