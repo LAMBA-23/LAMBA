@@ -1,0 +1,89 @@
+@startuml
+title LAMBA Dynamic View - Chat Event Capture
+
+skinparam shadowing false
+skinparam backgroundColor #FFFFFF
+skinparam defaultFontName Arial
+skinparam defaultFontSize 14
+skinparam sequenceMessageAlign center
+skinparam responseMessageBelowArrow true
+skinparam ParticipantPadding 22
+skinparam BoxPadding 12
+skinparam ArrowColor #334155
+skinparam ArrowThickness 1.25
+skinparam roundcorner 10
+skinparam sequence {
+  ParticipantBorderColor #64748B
+  ParticipantBackgroundColor #F8FAFC
+  LifeLineBorderColor #CBD5E1
+  LifeLineBackgroundColor #F8FAFC
+  BoxBorderColor #CBD5E1
+  BoxFontStyle bold
+}
+
+actor "End user" as User
+
+box "Mobile client" #EEF2FF
+participant "Android UI\nChat, History, Stats" as UI
+participant "ChatRepository" as Repo
+participant "Retrofit API Client" as Retrofit
+end box
+
+box "Backend" #EAF7EF
+participant "FastAPI API Layer" as API
+participant "Chat Parser /\nAI Service" as Parser
+participant "Events Service" as Events
+participant "Statistics Service" as Stats
+participant "SQLAlchemy\nPersistence" as Persistence
+end box
+
+box "Data and external services" #F7F7F7
+database "PostgreSQL" as DB
+participant "Timeweb Cloud\nAI Agent API" as TimewebAI
+end box
+
+User -> UI : write message
+UI -> Repo : send message
+Repo -> Retrofit : parse event
+Retrofit -> API : POST /chat/parse-event
+API -> Parser : parse event
+Parser -> TimewebAI : AI request
+TimewebAI --> Parser : AI response
+Parser --> API : parsed result
+
+alt AI parser unavailable or clarification needed
+  API --> Retrofit : clarification question
+  Retrofit --> Repo : clarification
+  Repo --> UI : show question
+  UI --> User : ask for details
+else Event parsed successfully
+  API --> Retrofit : parsed event
+  Retrofit --> Repo : event draft
+  Repo -> Retrofit : save event
+  Retrofit -> API : POST /events
+  API -> Events : validate event
+  Events -> Persistence : save event
+  Persistence -> DB : INSERT event
+  DB --> Persistence : saved row
+  Persistence --> Events : saved event
+  Events --> API : event response
+  API --> Retrofit : saved event
+  Retrofit --> Repo : saved event
+  Repo --> UI : show confirmation
+
+  UI -> Retrofit : refresh data
+  Retrofit -> API : GET /events, GET /stats
+  API -> Events : load history
+  Events -> Persistence : query events
+  Persistence -> DB : SELECT events
+  DB --> Persistence : event rows
+  Persistence --> Events : history data
+  API -> Stats : build statistics
+  Stats -> Persistence : read events
+  Persistence --> Stats : event data
+  Stats --> API : statistics data
+  API --> Retrofit : history and stats
+  Retrofit --> UI : updated views
+end
+
+@enduml
