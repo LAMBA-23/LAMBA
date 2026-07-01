@@ -1,0 +1,97 @@
+@startuml
+title LAMBA Static View - Component Diagram
+
+!pragma layout smetana
+left to right direction
+
+skinparam shadowing false
+skinparam backgroundColor #FFFFFF
+skinparam defaultFontName Arial
+skinparam defaultFontSize 14
+skinparam nodesep 55
+skinparam ranksep 70
+skinparam linetype ortho
+skinparam ArrowColor #334155
+skinparam ArrowThickness 1.25
+skinparam componentStyle rectangle
+
+skinparam package {
+  BorderColor #CBD5E1
+  FontColor #0F172A
+  FontStyle bold
+  BackgroundColor #F8FAFC
+}
+skinparam component {
+  BorderColor #64748B
+  BackgroundColor #FFFFFF
+  FontColor #0F172A
+}
+skinparam database {
+  BorderColor #2563EB
+  BackgroundColor #DBEAFE
+  FontColor #0F172A
+}
+skinparam cloud {
+  BorderColor #7C3AED
+  BackgroundColor #EDE9FE
+  FontColor #0F172A
+}
+skinparam note {
+  BorderColor #CBD5E1
+  BackgroundColor #FFFBEB
+  FontColor #0F172A
+}
+
+actor "End user" as User
+
+package "Android mobile app" #EEF2FF {
+  component "Presentation layer\n\nLoginActivity\nRegisterActivity\nAddVehicleActivity\nChatActivity\nHistoryActivity\nStatisticsActivity" as AndroidPresentation
+  component "State / session layer\n\nSessionManager\nscreen state" as AndroidState
+  component "Repository layer\n\nChatRepository\nAPI-bound client logic" as AndroidRepository
+  component "Network layer\n\nRetrofitClient\nLambaApiService\nrequest / response models" as AndroidNetwork
+
+  AndroidPresentation -down-> AndroidState : uses
+  AndroidState -down-> AndroidRepository : provides context
+  AndroidRepository -down-> AndroidNetwork : calls
+}
+
+package "FastAPI backend" #ECFDF5 {
+  component "API layer\n\n/auth\n/vehicle\n/events\n/stats\n/chat" as BackendApi
+  component "Validation layer\n\nPydantic schemas" as BackendValidation
+  component "Service layer\n\nvehicle history\nstatistics\nchat parsing\nAI answers" as BackendServices
+  component "Persistence layer\n\nSQLAlchemy models\ndatabase sessions" as BackendPersistence
+
+  BackendApi -down-> BackendValidation : validates
+  BackendValidation -down-> BackendServices : delegates
+  BackendServices -down-> BackendPersistence : reads/writes
+}
+
+package "Data and external services" #F8FAFC {
+  cloud "External AI service\nTimeweb Cloud\nAI Agent API" as ExternalAi
+  database "PostgreSQL\nusers\ncars\nevents" as Postgres
+}
+
+User -right-> AndroidPresentation : uses
+AndroidNetwork -right-> BackendApi : HTTPS REST / JSON
+BackendPersistence -right-> Postgres : SQLAlchemy ORM / SQL
+BackendServices -right-> ExternalAi : HTTPS AI request
+
+legend bottom
+  <b>Legend</b>
+  Actor = end user
+  Package = system boundary
+  Component = internal software module or layer
+  Database = persistent storage
+  Cloud = external service
+  Arrow = dependency or communication path
+endlegend
+
+note bottom
+  Architecture principles:
+  Android communicates only with the backend REST API.
+  The backend owns business logic, persistence, and AI integration.
+  Android never accesses PostgreSQL or the AI provider directly.
+  This keeps secrets outside the client and reduces coupling.
+end note
+
+@enduml
