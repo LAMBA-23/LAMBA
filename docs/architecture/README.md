@@ -85,21 +85,22 @@ This sequence helps reason about integration boundaries and quality concerns:
 
 Source: [deployment-view/deployment-diagram.puml](deployment-view/deployment-diagram.puml)
 
-The deployment view shows the current runnable product shape. The Android app runs on a user device or emulator. The backend runs as a FastAPI service in a Docker container. PostgreSQL runs as a separate Docker container with a named volume for persistent data. The backend communicates with the Timeweb Cloud AI agent over HTTPS when AI credentials are configured.
+The deployment view shows the current MVP v2 runtime shape and keeps it separate from the development and CI path. The Android app runs on a user device or emulator. The backend runs as a FastAPI service in a Docker container on a Docker Compose host, and PostgreSQL runs as a separate container with the `postgres_data` volume for persistent data. The backend communicates with the Timeweb Cloud AI agent over HTTPS when AI credentials are configured.
 
 The selected deployment model was chosen because it is simple, reproducible, and appropriate for the current MVP:
 
 - Docker Compose starts the backend and database together for local development and review.
 - PostgreSQL is isolated as stateful infrastructure instead of being embedded in application code.
-- Environment variables configure database and AI integration values without committing secrets.
-- GitHub Actions verifies backend linting, formatting, tests, coverage, dependency health, and Markdown links before protected-branch updates.
+- Environment variables configure database and AI integration values on the backend without committing secrets or exposing them to the Android client.
+- GitHub Actions verifies backend CI and Markdown links as a separate development path, not as part of the customer runtime path.
 
 How the deployment supports the product:
 
-- Reviewers can run the backend and database locally with one Compose command.
-- Backend API documentation is available through FastAPI Swagger UI at `/docs`.
+- Reviewers can run the backend and database locally or on a review server with one Compose command.
+- Backend API documentation is available through FastAPI Swagger UI at `/docs` on port 8000.
 - The Android app communicates with the backend over HTTP/JSON, matching the API contract in `docs/api-contract.md`.
 - The database volume preserves vehicle history across container restarts.
+- GitHub and GitHub Actions are shown separately from the customer runtime path because CI verifies changes before merge but does not serve Android, backend, database, or AI traffic at runtime.
 
 Deployment constraints and operational considerations:
 
@@ -108,6 +109,7 @@ Deployment constraints and operational considerations:
 - Public deployments must use sanitized demo data and must not expose private credentials.
 - The Android base URL must match the deployed or local backend address for the app to reach the API.
 - PostgreSQL availability is a hard dependency for backend startup in the current Compose setup.
+- A fully hosted production deployment path remains an open operational question; the current view documents local or Docker Compose based delivery.
 
 ## Architecture Traceability
 

@@ -6,11 +6,14 @@ left to right direction
 skinparam shadowing false
 skinparam backgroundColor #FFFFFF
 skinparam defaultFontName Arial
-skinparam defaultFontSize 15
+skinparam defaultFontSize 14
+skinparam componentStyle rectangle
 skinparam linetype ortho
+skinparam nodesep 70
+skinparam ranksep 60
 skinparam ArrowColor #334155
-skinparam ArrowThickness 1.4
-skinparam roundcorner 14
+skinparam ArrowThickness 1.25
+skinparam roundcorner 10
 
 skinparam node {
   BorderColor #94A3B8
@@ -32,18 +35,32 @@ skinparam artifact {
   BackgroundColor #F8FAFC
   FontColor #0F172A
 }
+skinparam component {
+  BorderColor #64748B
+  BackgroundColor #FFFFFF
+  FontColor #0F172A
+}
+skinparam storage {
+  BorderColor #0891B2
+  BackgroundColor #CFFAFE
+  FontColor #0F172A
+}
+skinparam note {
+  BorderColor #CBD5E1
+  BackgroundColor #FFFBEB
+  FontColor #0F172A
+}
 
-actor "Customer /\nreviewer" as Reviewer
-actor "Developer" as Developer
+actor "Customer /\nReviewer" as Reviewer
 
-node "Android device\nor emulator" as AndroidNode #EEF2FF {
-  artifact "LAMBA Android APK" as Apk
+node "Android device /\nemulator" as AndroidNode #EEF2FF {
+  artifact "LAMBA Android APK" as APK
   rectangle "Kotlin Android app" as AndroidApp
 }
 
-node "Docker Compose host" as Host #ECFDF5 {
+node "Docker Compose host\n(local or deployed server)" as Host #ECFDF5 {
   node "Backend container" as BackendContainer {
-    rectangle "FastAPI service\nUvicorn :8000" as Backend
+    component "FastAPI app\nUvicorn\nport 8000" as Backend
   }
 
   node "Database container" as DatabaseContainer {
@@ -54,23 +71,60 @@ node "Docker Compose host" as Host #ECFDF5 {
 }
 
 cloud "Timeweb Cloud\nAI Agent API" as Ai
-cloud "GitHub Actions\nCI checks" as Ci
 
-artifact "docker-compose.yml" as Compose
-artifact "Runtime env vars\nDATABASE_URL\nTIMEWEB_*" as Env
+node "Development / CI boundary" as DevCi #F8FAFC {
+  cloud "GitHub" as GitHub {
+    component "Repository" as Repo
+    component "GitHub Actions\nbackend CI + link check" as Ci
+  }
+}
 
-Reviewer -right-> AndroidApp : uses app
-AndroidApp -right-> Backend : HTTP / JSON
-Reviewer -down-> Backend : Swagger UI\n/docs
+Reviewer -down-> APK : installs / runs
+APK -down-> AndroidApp : launches
+AndroidApp -right-> Backend : HTTP / JSON API
+Reviewer -right-> Backend : optional API docs\n/docs on port 8000
 
-Developer -right-> Compose : starts stack
-Compose -up-> BackendContainer : builds
-Compose -down-> DatabaseContainer : starts
-Compose -right-> Env : supplies config
+Backend -down-> Db : SQLAlchemy /\nDATABASE_URL
+Db -down-> Volume : persistent data
+Backend -right-> Ai : HTTPS AI request
+Ai -left-> Backend : AI response
 
-Backend -down-> Db : SQL
-Db -down-> Volume : persists data
-Backend -right-> Ai : HTTPS
-Ci ..> Backend : test and lint
+Repo -down-> Ci : push / PR
+Ci -up-> Repo : checks
+
+note right of Backend
+Runtime config:
+DATABASE_URL
+TIMEWEB_API_KEY
+TIMEWEB_AGENT_ID
+TIMEWEB_MODEL
+TIMEWEB_TIMEOUT_SECONDS
+end note
+
+note bottom of Host
+Started with docker-compose.yml.
+Backend image is built from backend/Dockerfile.
+end note
+
+legend bottom
+  <b>Legend</b>
+  Actor = user or reviewer
+  Node = runtime environment
+  Artifact = deployable file
+  Component = deployed application
+  Database/storage = stateful infrastructure
+  Cloud = external platform or service
+  Arrow = runtime communication or development/CI relation
+endlegend
+
+note bottom
+  Deployment principles:
+  Customer accesses MVP v2 through the Android APK.
+  Android app communicates with the backend over HTTP/JSON.
+  Backend and PostgreSQL are started together by Docker Compose.
+  PostgreSQL state is stored in postgres_data volume.
+  AI provider is external and accessed only by the backend.
+  Secrets and AI credentials are backend runtime configuration, not Android client data.
+end note
 
 @enduml
