@@ -1,0 +1,76 @@
+@startuml
+title LAMBA Deployment View
+
+left to right direction
+
+skinparam shadowing false
+skinparam backgroundColor #FFFFFF
+skinparam defaultFontName Arial
+skinparam defaultFontSize 15
+skinparam linetype ortho
+skinparam ArrowColor #334155
+skinparam ArrowThickness 1.4
+skinparam roundcorner 14
+
+skinparam node {
+  BorderColor #94A3B8
+  BackgroundColor #F8FAFC
+  FontColor #0F172A
+}
+skinparam database {
+  BorderColor #2563EB
+  BackgroundColor #DBEAFE
+  FontColor #0F172A
+}
+skinparam cloud {
+  BorderColor #7C3AED
+  BackgroundColor #EDE9FE
+  FontColor #0F172A
+}
+skinparam artifact {
+  BorderColor #94A3B8
+  BackgroundColor #F8FAFC
+  FontColor #0F172A
+}
+
+actor "Customer /\nreviewer" as Reviewer
+actor "Developer" as Developer
+
+node "Android device\nor emulator" as AndroidNode #EEF2FF {
+  artifact "LAMBA Android APK" as Apk
+  rectangle "Kotlin Android app" as AndroidApp
+}
+
+node "Docker Compose host" as Host #ECFDF5 {
+  node "Backend container" as BackendContainer {
+    rectangle "FastAPI service\nUvicorn :8000" as Backend
+  }
+
+  node "Database container" as DatabaseContainer {
+    database "PostgreSQL 16\nlamba database" as Db
+  }
+
+  storage "postgres_data\nvolume" as Volume
+}
+
+cloud "Timeweb Cloud\nAI Agent API" as Ai
+cloud "GitHub Actions\nCI checks" as Ci
+
+artifact "docker-compose.yml" as Compose
+artifact "Runtime env vars\nDATABASE_URL\nTIMEWEB_*" as Env
+
+Reviewer -right-> AndroidApp : uses app
+AndroidApp -right-> Backend : HTTP / JSON
+Reviewer -down-> Backend : Swagger UI\n/docs
+
+Developer -right-> Compose : starts stack
+Compose -up-> BackendContainer : builds
+Compose -down-> DatabaseContainer : starts
+Compose -right-> Env : supplies config
+
+Backend -down-> Db : SQL
+Db -down-> Volume : persists data
+Backend -right-> Ai : HTTPS
+Ci ..> Backend : test and lint
+
+@enduml
