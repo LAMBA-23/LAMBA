@@ -1,49 +1,81 @@
 # Quality Requirement Tests
 
-This document maps each quality requirement to its automated test.
-Each QRT is implemented as a pytest test in the normal test location.
+This document is the canonical detailed QRT artifact. It maps each quality requirement to the automated test or CI check that verifies it.
+
+For MVP v2 / Sprint 3, Assignment 5 does not require adding a fixed number of new QRTs. New QRTs should be added when changed or newly important product areas introduce measurable quality requirements that are not already covered here.
+
+## Contents
+
+- [Evidence Types](#evidence-types)
+- [QRT-001: Vehicle event data integrity](#qrt-001-vehicle-event-data-integrity)
+- [QRT-002: Timeline API response time](#qrt-002-timeline-api-response-time)
+- [QRT-003: Backend regression testability](#qrt-003-backend-regression-testability)
+- [MVP v2 / Sprint 3 QRT follow-up](#mvp-v2--sprint-3-qrt-follow-up)
+
+## Evidence Types
+
+| Evidence type | What it means | Can it count as QRT? |
+|---|---|---|
+| Quality requirement | Measurable non-functional product requirement with QR-NNN ID. | No; it is the requirement being verified. |
+| QRT | Automated test or CI check with QRT-NNN ID that directly verifies a measurable QR scenario. | Yes. |
+| Unit test | Automated test for isolated product logic or a small module. | Only if linked to a measurable QR scenario. |
+| Integration test | Automated test for interaction between product components, such as API plus persistence or UI component plus state/API boundary. | Only if linked to a measurable QR scenario. |
+| UAT | Customer-executed end-user scenario. | No. |
+| Manual evidence | Observation, review, screenshot, or exploratory check. | No. |
 
 ## QRT-001: Vehicle event data integrity
 
-**Linked quality requirement:** QR-001 (Integrity)
+**Linked quality requirement:** [QR-001](quality-requirements.md#qr-001-vehicle-event-data-integrity)
 
-**Test file:** [`backend/tests/test_quality_requirements.py`](../backend/tests/test_quality_requirements.py)
+**Verification method:** Automated FastAPI tests using `TestClient` and SQLite-backed test persistence.
 
-**Evidence type:** Automated unit tests
+**Test data, setup, or environment:** Standard backend test environment. Each test registers or uses an isolated test user, records the event count before the invalid request, sends an invalid `POST /events` request, and checks that the event count is unchanged.
 
-**Tests:**
-- `test_invalid_event_type_rejected_and_not_saved` — invalid event type returns 422, no record saved
-- `test_empty_description_rejected_and_not_saved` — empty description returns 422, no record saved
-- `test_negative_amount_rejected_and_not_saved` — negative amount returns 422, no record saved
-- `test_negative_mileage_rejected_and_not_saved` — negative mileage returns 422, no record saved
-- `test_unknown_user_rejected_and_not_saved` — unknown user_id returns 404, no record saved
+**Automated command or CI check:** `python -m pytest tests/test_quality_requirements.py` as part of the `Backend CI` workflow.
 
-**How it works:** Each test sends an invalid event creation request, asserts the expected error status code, then verifies that no new event was persisted by comparing the event count before and after.
+**Expected measurable result:** Invalid event type, empty description, negative amount, negative mileage, and unknown `user_id` requests are rejected with the expected error status and save no new event record for 100% of tested invalid requests.
 
----
+**Evidence location:** `backend/tests/test_quality_requirements.py`; `.github/workflows/backend-ci.yml`; latest protected default-branch Backend CI run linked from `docs/testing.md`.
+
+**Automated tests:**
+- `test_invalid_event_type_rejected_and_not_saved`
+- `test_empty_description_rejected_and_not_saved`
+- `test_negative_amount_rejected_and_not_saved`
+- `test_negative_mileage_rejected_and_not_saved`
+- `test_unknown_user_rejected_and_not_saved`
 
 ## QRT-002: Timeline API response time
 
-**Linked quality requirement:** QR-002 (Time behaviour)
+**Linked quality requirement:** [QR-002](quality-requirements.md#qr-002-timeline-api-response-time)
 
-**Test file:** [`backend/tests/test_quality_requirements.py::test_get_events_responds_within_2_seconds`](../backend/tests/test_quality_requirements.py)
+**Verification method:** Automated FastAPI response-time test using `TestClient`.
 
-**Evidence type:** Automated unit test
+**Test data, setup, or environment:** Standard backend test environment. The test creates a user with 20 vehicle events, then measures wall-clock time for `GET /events`.
 
-**Description:** Verifies that `GET /events` returns a response within 2 seconds under normal operation with a realistic dataset.
+**Automated command or CI check:** `python -m pytest tests/test_quality_requirements.py` as part of the `Backend CI` workflow.
 
-**How it works:** Creates a user with 20 events, measures wall-clock time of the GET request, asserts elapsed time is under 2 seconds.
+**Expected measurable result:** `GET /events` returns HTTP 200 in under 2 seconds for the documented test dataset.
 
----
+**Evidence location:** `backend/tests/test_quality_requirements.py::test_get_events_responds_within_2_seconds`; `.github/workflows/backend-ci.yml`; latest protected default-branch Backend CI run linked from `docs/testing.md`.
 
 ## QRT-003: Backend regression testability
 
-**Linked quality requirement:** QR-003 (Testability)
+**Linked quality requirement:** [QR-003](quality-requirements.md#qr-003-backend-regression-testability)
 
-**Test file:** [`backend/tests/test_quality_requirements.py::test_full_backend_pytest_suite_passes`](../backend/tests/test_quality_requirements.py)
+**Verification method:** Automated CI execution of the full backend pytest suite.
 
-**Evidence type:** Automated suite-level evidence
+**Test data, setup, or environment:** Standard backend CI environment on pull requests and protected default-branch updates, with dependencies installed from `backend/requirements.txt`.
 
-**Description:** The full backend pytest suite provides regression testability evidence. This QRT documents that the entire suite must pass before merge. CI enforces this gate.
+**Automated command or CI check:** `python -m coverage run -m pytest tests` in the `Backend CI` workflow.
 
-**How it works:** The test itself always passes — the real evidence is that CI runs the full `pytest` suite and all tests must be green before a PR can be merged.
+**Expected measurable result:** The full backend pytest suite completes with 0 failures before merge and on protected default-branch updates.
+
+**Evidence location:** `.github/workflows/backend-ci.yml`; latest protected default-branch Backend CI run linked from `docs/testing.md`; local test files under `backend/tests/`.
+
+## MVP v2 / Sprint 3 QRT follow-up
+
+Sprint 3 is scoped around US-08 maintenance recommendations and US-09 notifications. As of this update, the repository does not yet contain dedicated implementation behavior for those features, so no speculative QRTs are added here.
+
+When Sprint 3 behavior is implemented, add QRTs only if there is a measurable quality requirement to verify. Likely candidates include recommendation correctness, user-specific recommendation isolation, notification trigger reliability, and notification state consistency.
+
+Current QRTs remain active because recommendation and notification behavior will depend on reliable vehicle event data, responsive timeline access, and backend regression safety.
