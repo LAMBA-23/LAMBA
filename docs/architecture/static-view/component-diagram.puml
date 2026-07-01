@@ -1,0 +1,62 @@
+@startuml
+title LAMBA Static View - Component Diagram
+
+skinparam componentStyle rectangle
+skinparam shadowing false
+
+actor "End User" as User
+
+package "Android App" {
+  component "Activities and Screens\nWelcome, Login, Register,\nVehicle, Chat, History, Stats" as AndroidUI
+  component "Adapters and UI Models" as AndroidAdapters
+  component "SessionManager" as SessionManager
+  component "ChatRepository" as ChatRepository
+  component "Retrofit API Client\nLambaApiService" as RetrofitClient
+}
+
+package "FastAPI Backend" {
+  component "API Routes\n/auth, /vehicle, /events,\n/stats, /chat" as ApiRoutes
+  component "Pydantic Schemas\nRequest/Response Validation" as Schemas
+  component "Chat Parser\nparse_chat_message" as ChatParser
+  component "AI Answer Service\nask_deepseek" as AiAnswerService
+  component "Statistics Builder" as StatsBuilder
+  component "SQLAlchemy Models\nUser, Car, Event" as Models
+  component "Database Session\nget_db" as DatabaseSession
+}
+
+database "PostgreSQL\nusers, cars, events" as Postgres
+cloud "Timeweb Cloud AI Agent API\nchat completions compatible" as TimewebAI
+component "GitHub Actions\nBackend CI and Link Check" as GitHubActions
+
+interface "HTTP/JSON API" as HttpApi
+interface "SQLAlchemy Session" as SqlAlchemySession
+interface "HTTPS AI API" as HttpsAiApi
+
+User --> AndroidUI : uses
+AndroidUI --> AndroidAdapters : renders lists and messages
+AndroidUI --> SessionManager : stores current user session
+AndroidUI --> ChatRepository : sends chat messages
+AndroidUI --> RetrofitClient : login, register,\nvehicle, events, stats
+ChatRepository --> RetrofitClient : parse and save event
+
+RetrofitClient - HttpApi
+HttpApi - ApiRoutes
+
+ApiRoutes --> Schemas : validates request and response data
+ApiRoutes --> ChatParser : parses event messages
+ApiRoutes --> AiAnswerService : answers vehicle questions
+ApiRoutes --> StatsBuilder : builds aggregate statistics
+ApiRoutes --> Models : reads and writes domain entities
+ApiRoutes --> DatabaseSession : obtains DB session
+
+DatabaseSession - SqlAlchemySession
+SqlAlchemySession - Postgres
+
+ChatParser - HttpsAiApi
+AiAnswerService - HttpsAiApi
+HttpsAiApi - TimewebAI
+
+GitHubActions ..> "backend/app and backend/tests" : lint, format,\ntest, coverage,\ndependency check
+GitHubActions ..> "Markdown docs" : link check
+
+@enduml

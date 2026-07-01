@@ -1,0 +1,54 @@
+@startuml
+title LAMBA Deployment View
+
+skinparam shadowing false
+
+actor "Customer / Reviewer" as Reviewer
+actor "Developer" as Developer
+
+node "Android device or emulator" as AndroidDevice {
+  artifact "LAMBA Android APK" as AndroidApk
+  component "Kotlin Android app" as AndroidApp
+}
+
+node "Docker Compose host\nlocal or deployed server" as ComposeHost {
+  node "backend container" as BackendContainer {
+    component "FastAPI app\nuvicorn app.main:app\nport 8000" as FastApiService
+  }
+
+  node "db container" as DbContainer {
+    database "PostgreSQL 16\nlamba database" as Postgres
+  }
+
+  storage "postgres_data volume" as PostgresVolume
+}
+
+cloud "Timeweb Cloud AI Agent API" as TimewebAI
+cloud "GitHub" as GitHub {
+  component "Repository" as Repository
+  component "GitHub Actions\nbackend CI, link check" as Actions
+}
+
+artifact "docker-compose.yml" as ComposeFile
+artifact "backend/Dockerfile" as BackendDockerfile
+artifact "Environment variables\nDATABASE_URL,\nTIMEWEB_API_KEY,\nTIMEWEB_AGENT_ID,\nTIMEWEB_MODEL,\nTIMEWEB_TIMEOUT_SECONDS" as EnvVars
+
+Reviewer --> AndroidApk : installs or runs app
+AndroidApk --> AndroidApp : launches
+AndroidApp --> FastApiService : HTTP/JSON API calls
+Reviewer --> FastApiService : optional API review\nhttp://host:8000/docs
+
+Developer --> ComposeFile : starts backend and db
+ComposeFile --> BackendContainer : builds from backend/Dockerfile
+BackendDockerfile --> FastApiService : packages Python app
+ComposeFile --> DbContainer : starts PostgreSQL
+ComposeFile --> EnvVars : supplies runtime config
+
+FastApiService --> Postgres : SQLAlchemy over DATABASE_URL
+Postgres --> PostgresVolume : persists data
+FastApiService --> TimewebAI : HTTPS AI requests\nwhen credentials exist
+
+Repository --> Actions : push or pull request
+Actions --> Repository : lint, format,\ntests, coverage,\nlink check results
+
+@enduml

@@ -1,0 +1,76 @@
+@startuml
+title LAMBA Dynamic View - Chat Event Capture
+
+skinparam shadowing false
+
+actor "End User" as User
+participant "Android ChatActivity" as ChatActivity
+participant "ChatRepository" as ChatRepository
+participant "Retrofit API Client" as Retrofit
+participant "FastAPI /chat/parse-event" as ParseEndpoint
+participant "Chat Parser" as ChatParser
+participant "Timeweb Cloud AI Agent API" as TimewebAI
+participant "FastAPI /events" as EventsEndpoint
+participant "FastAPI /stats" as StatsEndpoint
+participant "Pydantic Schemas" as Schemas
+participant "SQLAlchemy Session" as SqlAlchemy
+database "PostgreSQL" as Postgres
+participant "History / Statistics Screens" as ReadScreens
+
+User -> ChatActivity : Enter vehicle event message
+ChatActivity -> ChatRepository : sendMessage(message)
+ChatRepository -> Retrofit : parseChatEvent(message)
+Retrofit -> ParseEndpoint : POST /chat/parse-event
+ParseEndpoint -> ChatParser : parse_chat_message(message)
+
+alt AI parser configured
+  ChatParser -> TimewebAI : HTTPS chat completion request
+  TimewebAI --> ChatParser : JSON event draft or clarification
+else AI parser not configured or unavailable
+  ChatParser --> ParseEndpoint : fallback clarification response
+end
+
+ChatParser -> ChatParser : apply local guardrails
+ChatParser --> ParseEndpoint : ParsedChatEvent
+
+alt Clarification needed
+  ParseEndpoint --> Retrofit : clarification_needed + question
+  Retrofit --> ChatRepository : ChatParseResponse
+  ChatRepository --> ChatActivity : show clarification question
+  ChatActivity --> User : Ask for clearer details
+else Event parsed
+  ParseEndpoint --> Retrofit : parsed + event draft
+  Retrofit --> ChatRepository : ParsedEventPayload
+  ChatRepository -> Retrofit : createEventFromChat(event, user_id)
+  Retrofit -> EventsEndpoint : POST /events?user_id=...
+  EventsEndpoint -> Schemas : validate EventCreate
+  Schemas --> EventsEndpoint : valid typed event
+  EventsEndpoint -> SqlAlchemy : load user and car
+  SqlAlchemy -> Postgres : SELECT users, cars
+  Postgres --> SqlAlchemy : user and car rows
+  EventsEndpoint -> SqlAlchemy : persist Event
+  SqlAlchemy -> Postgres : INSERT events
+  Postgres --> SqlAlchemy : saved event row
+  EventsEndpoint --> Retrofit : EventResponse
+  Retrofit --> ChatRepository : saved Event
+  ChatRepository --> ChatActivity : show saved confirmation
+  User -> ReadScreens : Open history or statistics
+  ReadScreens -> Retrofit : GET /events or GET /stats
+  alt User opens history
+  Retrofit -> EventsEndpoint : retrieve current vehicle history
+  EventsEndpoint -> SqlAlchemy : query events by car
+  SqlAlchemy -> Postgres : SELECT events
+  Postgres --> SqlAlchemy : event rows
+  EventsEndpoint --> Retrofit : timeline data
+  else User opens statistics
+  Retrofit -> StatsEndpoint : retrieve aggregate statistics
+  StatsEndpoint -> SqlAlchemy : query events by car
+  SqlAlchemy -> Postgres : SELECT events
+  Postgres --> SqlAlchemy : event rows
+  StatsEndpoint -> StatsEndpoint : build week, month,\nand all-time statistics
+  StatsEndpoint --> Retrofit : statistics data
+  end
+  Retrofit --> ReadScreens : updated vehicle data
+end
+
+@enduml
