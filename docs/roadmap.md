@@ -13,6 +13,8 @@ Authoritative references:
 
 Deliver an Android-first vehicle digital twin that lets a vehicle owner keep a useful history of their car, add structured records, and use an AI-assisted chat experience to understand and update that history.
 
+Current product direction for MVP v2 is to make the saved vehicle history more useful and reliable after MVP v1 customer feedback. The product should support both AI-assisted and manual record creation, use recorded statistics in assistant responses, and prepare maintenance follow-up features that help users act on their vehicle data.
+
 ## Sprint 1 - MVP v1 Foundation
 
 - Sprint milestone: [Sprint 1 - MVP v1 Foundation](https://github.com/LAMBA-23/LAMBA/milestone/1)
@@ -89,13 +91,44 @@ The Sprint 2 scope is selected for product value and risk reduction, not for the
 
 - Sprint milestone: [Sprint 3 - Maintenance Follow-up](https://github.com/LAMBA-23/LAMBA/milestone/3)
 - Dates: 2026-06-29 to 2026-07-05
-- Sprint Goal: Use the recorded vehicle history to provide useful follow-up signals for maintenance and upcoming service needs.
-- Focus / expected outcome: The product starts moving from passive record keeping toward actionable maintenance support.
+- MVP target: MVP v2
+- Sprint Goal: Deliver a more useful and reliable vehicle history experience by giving users an alternative manual way to add records, improving AI assistant answers with vehicle statistics, and preparing maintenance follow-up features that help users act on their recorded vehicle data.
+- Focus / expected outcome: A vehicle owner can add vehicle history records manually when chat is not convenient, receive AI answers that use available vehicle statistics, and see the foundation for maintenance recommendations and notifications.
 
-Planned items:
+Selected Sprint PBIs:
 
+User Stories:
+- [#49 US-06: Ask AI assistant](https://github.com/LAMBA-23/LAMBA/issues/49)
 - [#51 US-08: Receive maintenance recommendations](https://github.com/LAMBA-23/LAMBA/issues/51)
 - [#52 US-09: Receive notifications](https://github.com/LAMBA-23/LAMBA/issues/52)
+
+Supporting PBIs:
+- [#160 PBI: Enable AI assistant to use vehicle statistics in responses](https://github.com/LAMBA-23/LAMBA/issues/160)
+- [#161 PBI: Add a manual form for creating vehicle history records](https://github.com/LAMBA-23/LAMBA/issues/161)
+
+### MVP v2 Scope Justification
+
+The planned MVP v2 scope is selected for customer value, quality improvement, maintainability, and realistic completion against the current Definition of Done.
+
+- Customer value: users get a manual alternative to AI-based record creation and more useful AI answers based on their own vehicle history and statistics.
+- Quality improvement: the selected work reduces dependence on the chat-only flow and makes assistant behavior easier to verify against stored vehicle data.
+- Maintainability: the Sprint keeps the milestone, Project board, issue metadata, acceptance criteria, reviewers, and roadmap aligned as traceable planning artifacts.
+- Done evidence: each selected PBI has acceptance criteria, Story Points, implementer and reviewer information, Work Status, and must be reviewed and verified before being marked Done.
+
+## Continuing Architecture, Quality, and Process Work
+
+Assignment 5 also requires maintained project assets that must stay current as the product evolves:
+
+- Document the current architecture in `docs/architecture/`, including static, dynamic, and deployment views.
+- Record architecture decisions in `docs/architecture/adr/` and link them to relevant quality requirements.
+- Maintain `docs/development-process.md` as the development process and configuration-management reference.
+- Keep `docs/testing.md`, `docs/quality-requirements.md`, `docs/quality-requirement-tests.md`, and `docs/definition-of-done.md` aligned with MVP v2 and later increments.
+- Extend UAT coverage in `docs/user-acceptance-tests.md` for new or changed MVP v2 behavior.
+- Preserve CI, testing, review, release, and hosted documentation evidence for the Week 5 report.
+
+## Next Expected Increment
+
+After MVP v2, the next increment should refine maintenance follow-up based on Sprint Review and UAT feedback, decide which recommendation and notification behavior is product-ready, and consider deferred Could Have items such as voice messages and repair receipt attachments.
 
 ## Backlog Notes
 
