@@ -20,3 +20,15 @@ We reviewed the feedback from the MVP v1 customer review and recorded what we di
 | Customer needs a way to inspect the product despite deployment limits. | Release evidence and video demo. | Partially addressed | We used a video demo as fallback and kept release/deployment access as a risk to track. |
 
 Sprint 3 scope was chosen not just by the number of issues we could close, but by customer value, quality improvement, risk reduction, and whether the work could be shown as Done.
+
+## Part 3: Development Process and Configuration Management
+
+The team's development process is documented in [docs/development-process.md](../../docs/development-process.md). That document covers:
+
+- Git branching and review workflow with Mermaid gitGraph diagram
+- Issue types, templates, and workflow states
+- Board and Sprint milestone configuration
+- Configuration and secrets management
+- Development environment setup
+- CI pipeline and branch protection
+- Release and deployment process

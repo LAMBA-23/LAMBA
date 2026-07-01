@@ -162,6 +162,7 @@ docker compose down
 
 ## Documentation
 
+- [Development process](docs/development-process.md)
 - [API contract](docs/api-contract.md)
 - [Week 2 report](reports/week2/README.md)
 - [MVP v0](reports/week2/mvp-v0-report.md)
