@@ -212,7 +212,7 @@ class StatisticsActivity : AppCompatActivity() {
         val totalExpenses = fuelExpenses + repairExpenses
 
         tvMileageValue.text = formatMileage(stats.totalRecordedMileage)
-        tvTotalExpensesValue.text = formatMoney(totalExpenses)
+        tvTotalExpensesValue.text = formatLitres(fuelExpenses)
         tvFuelValue.text = formatMoney(fuelExpenses)
         tvRepairValue.text = formatMoney(repairExpenses)
         tvRecordsValue.text = "${stats.tripCount} события"
@@ -243,6 +243,8 @@ class StatisticsActivity : AppCompatActivity() {
     }
 
     private fun formatMoney(value: Int): String = "$value ₽"
+
+    private fun formatLitres(value: Int): String = "$value л"
 
     private fun formatMileage(value: Int): String = "$value км"
 
