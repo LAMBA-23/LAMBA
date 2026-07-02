@@ -276,6 +276,29 @@ Clarification response:
 }
 ```
 
+Trip distance phrases with clear kilometer units can be parsed directly:
+
+```json
+{
+  "message": "поездка 100 километров"
+}
+```
+
+Parsed response:
+
+```json
+{
+  "status": "parsed",
+  "parsed_event": {
+    "type": "trip",
+    "description": "Поездка на 100 километров",
+    "amount": null,
+    "mileage": 100
+  },
+  "clarification_question": null
+}
+```
+
 ## POST /events
 
 Creates an event for a user's car.

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import re
 from datetime import datetime, timedelta, timezone
 
 from fastapi import Depends, FastAPI, HTTPException, Query
@@ -158,6 +159,28 @@ def _sum_trip_distance(events: list[Event], start_at: datetime | None = None) ->
             known_mileage = max(known_mileage, effective_mileage)
 
     return total_distance
+
+
+def _current_trip_mileage(car: Car, events: list[Event]) -> int:
+    known_mileage = _coalesce_int(car.current_mileage)
+    for event in events:
+        if event.type != "trip":
+            continue
+        known_mileage = max(
+            known_mileage,
+            _event_effective_mileage(event, known_mileage),
+        )
+    return known_mileage
+
+
+def _extract_trip_distance_km(text_value: str) -> int | None:
+    match = re.search(
+        r"\b(\d+)\s*(?:км|км\.|километр|километра|километров)\b",
+        text_value.lower(),
+    )
+    if match is None:
+        return None
+    return int(match.group(1))
 
 
 def build_stats_period(
@@ -416,19 +439,21 @@ def create_event(
     db: Session = Depends(get_db),
 ) -> Event:
     car = get_car_for_user_id(db, user_id)
-    previous_mileage = car.current_mileage
-    latest_event = db.scalar(
-        select(Event)
-        .where(Event.car_id == car.id)
-        .order_by(Event.created_at.desc(), Event.id.desc())
-        .limit(1)
+    existing_events = list(
+        db.scalars(
+            select(Event)
+            .where(Event.car_id == car.id)
+            .order_by(Event.created_at, Event.id)
+        )
     )
-    if latest_event is not None:
-        previous_mileage = _event_effective_mileage(latest_event, previous_mileage)
+    previous_mileage = _current_trip_mileage(car, existing_events)
 
-    event_mileage = (
-        payload.mileage if payload.mileage is not None else car.current_mileage
-    )
+    event_mileage = payload.mileage
+    if payload.type == "trip" and event_mileage is None:
+        event_mileage = _extract_trip_distance_km(payload.description)
+    if event_mileage is None:
+        event_mileage = car.current_mileage
+
     if payload.type == "trip":
         event_mileage = _event_effective_mileage(
             Event(
