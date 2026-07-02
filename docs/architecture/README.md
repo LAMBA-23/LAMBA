@@ -119,4 +119,14 @@ The architecture views explain the current implementation structure and support 
 - Dynamic view: chat-to-event workflow, validation order, and AI integration boundary.
 - Deployment view: runtime containers, external services, stateful storage, and access path.
 
-Architecture Decision Records are maintained separately under `docs/architecture/adr/` when Part 5 decisions are introduced. Relevant ADR links should be added here after those records are created.
+## Architecture Decision Records
+
+Architecture Decision Records document why key architecture choices were made. The static, dynamic, and deployment views show the resulting structure and behavior, while [quality requirements](../quality-requirements.md) link the measurable quality goals back to the relevant ADRs.
+
+| ADR | Decision | Related quality requirements |
+|---|---|---|
+| [ADR-001](adr/001-use-backend-owned-rest-api-boundary.md) | Use a backend-owned REST API boundary | QR-001, QR-002, QR-003 |
+| [ADR-002](adr/002-use-fastapi-pydantic-sqlalchemy-backend.md) | Use FastAPI, Pydantic, and SQLAlchemy for backend validation and persistence | QR-001, QR-002, QR-003 |
+| [ADR-003](adr/003-use-docker-compose-for-backend-and-database.md) | Use Docker Compose for backend and database deployment | QR-001, QR-002, QR-003 |
+
+ADR-001 explains the Android-to-backend boundary shown in the static, dynamic, and deployment views. ADR-002 explains why validation, API behavior, and persistence are owned by the FastAPI backend shown in the static and dynamic views. ADR-003 explains the backend and database runtime model shown in the deployment view.
