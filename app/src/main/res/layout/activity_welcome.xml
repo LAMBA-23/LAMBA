@@ -4,17 +4,17 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#FDFDFD"
-    android:paddingStart="30dp"
-    android:paddingEnd="30dp">
+    android:background="#FDFDFD">
 
+    <!-- Декоративный фон: растянут на всю ширину, выходит за верхний край -->
     <View
-        android:layout_width="260dp"
-        android:layout_height="260dp"
-        android:layout_marginStart="-120dp"
-        android:layout_marginTop="-70dp"
+        android:layout_width="0dp"
+        android:layout_height="200dp"
+        android:layout_marginTop="-40dp"
+        android:layout_marginEnd="40dp"
         android:alpha="0.55"
         android:background="@drawable/bg_lamba_glow"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -22,33 +22,41 @@
         android:layout_width="260dp"
         android:layout_height="260dp"
         android:layout_marginTop="-90dp"
-        android:layout_marginEnd="-110dp"
+        android:layout_marginEnd="-60dp"
         android:alpha="0.38"
         android:background="@drawable/bg_lamba_glow"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
+    <!--
+        Верхняя группа элементов образует вертикальную цепочку (chain) между
+        верхом экрана и кнопкой "Создать аккаунт".
+        spread_inside — элементы равномерно распределяются в доступном пространстве,
+        первый прижат к верху, последний — к кнопкам.
+    -->
     <TextView
         android:id="@+id/tvWelcomeLogo"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="58dp"
+        android:layout_marginTop="40dp"
         android:fontFamily="sans"
         android:includeFontPadding="false"
         android:text="LAMBA"
         android:textColor="#101114"
-        android:textSize="46sp"
+        android:textSize="54sp"
         android:textStyle="bold|italic"
+        app:layout_constraintBottom_toTopOf="@id/viewLogoLine"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_chainStyle="spread_inside" />
 
     <View
         android:id="@+id/viewLogoLine"
         android:layout_width="56dp"
         android:layout_height="5dp"
-        android:layout_marginTop="5dp"
         android:background="#960018"
+        app:layout_constraintBottom_toTopOf="@id/tvWelcomeTitle"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/tvWelcomeLogo" />
@@ -57,13 +65,15 @@
         android:id="@+id/tvWelcomeTitle"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="66dp"
+        android:layout_marginStart="30dp"
+        android:layout_marginEnd="30dp"
         android:gravity="center"
         android:lineSpacingExtra="4dp"
         android:text="Поговори со своей\nмашиной"
         android:textColor="#101114"
         android:textSize="30sp"
         android:textStyle="bold"
+        app:layout_constraintBottom_toTopOf="@id/tvWelcomeSubtitle"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/viewLogoLine" />
@@ -72,41 +82,43 @@
         android:id="@+id/tvWelcomeSubtitle"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="28dp"
+        android:layout_marginStart="30dp"
+        android:layout_marginEnd="30dp"
         android:gravity="center"
         android:lineSpacingExtra="3dp"
         android:text="Добавляй события, узнавай состояние и\nсмотри историю автомобиля через диалог."
         android:textColor="#77777E"
-        android:textSize="19sp"
+        android:textSize="15sp"
+        app:layout_constraintBottom_toTopOf="@id/centerAnimationLayout"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/tvWelcomeTitle" />
 
     <FrameLayout
         android:id="@+id/centerAnimationLayout"
-        android:layout_width="210dp"
-        android:layout_height="210dp"
-        android:layout_marginTop="58dp"
+        android:layout_width="170dp"
+        android:layout_height="170dp"
+        app:layout_constraintBottom_toTopOf="@id/btnCreateAccount"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/tvWelcomeSubtitle">
 
         <View
-            android:layout_width="180dp"
-            android:layout_height="180dp"
+            android:layout_width="150dp"
+            android:layout_height="150dp"
             android:layout_gravity="center"
             android:alpha="0.38"
             android:background="@drawable/bg_lamba_orbit_outer" />
 
         <View
-            android:layout_width="134dp"
-            android:layout_height="134dp"
+            android:layout_width="110dp"
+            android:layout_height="110dp"
             android:layout_gravity="center"
             android:background="@drawable/bg_lamba_orbit_ring" />
 
         <View
-            android:layout_width="84dp"
-            android:layout_height="84dp"
+            android:layout_width="68dp"
+            android:layout_height="68dp"
             android:layout_gravity="center"
             android:background="@drawable/bg_lamba_orbit_inner" />
 
@@ -127,10 +139,17 @@
             android:background="@drawable/bg_lamba_notification_dot" />
     </FrameLayout>
 
+    <!--
+        Кнопки прижаты к низу экрана через constraintBottom_toBottomOf="parent".
+        marginBottom="30dp" — отступ от нижнего края.
+        Это работает корректно т.к. родитель теперь match_parent, а не wrap_content.
+    -->
     <TextView
         android:id="@+id/btnCreateAccount"
         android:layout_width="0dp"
         android:layout_height="58dp"
+        android:layout_marginStart="30dp"
+        android:layout_marginEnd="30dp"
         android:layout_marginBottom="14dp"
         android:background="@drawable/bg_lamba_send_button"
         android:clickable="true"
@@ -148,6 +167,8 @@
         android:id="@+id/btnWelcomeLogin"
         android:layout_width="0dp"
         android:layout_height="58dp"
+        android:layout_marginStart="30dp"
+        android:layout_marginEnd="30dp"
         android:layout_marginBottom="30dp"
         android:background="@drawable/bg_button_white_outline"
         android:clickable="true"
@@ -160,4 +181,5 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>
