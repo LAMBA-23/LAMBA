@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.view.View
 import android.widget.EditText
 import android.widget.ImageButton
+import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.ProgressBar
 import android.widget.TextView
@@ -71,22 +72,10 @@ class ChatActivity : AppCompatActivity() {
         addMessage(initialGreeting(), isFromUser = false)
         loadVehicleNameIfNeeded()
 
-        setupSuggestion(
-            R.id.suggestStatus,
-            "Проверь состояние автомобиля",
-        )
-        setupSuggestion(
-            R.id.suggestExpenses,
-            "Покажи последние расходы",
-        )
-        setupSuggestion(
-            R.id.suggestService,
-            "Когда было последнее ТО?",
-        )
-        setupSuggestion(
-            R.id.suggestAddRecord,
-            "Добавить запись",
-        )
+        setupSuggestion(R.id.suggestStatus,   "Проверь состояние автомобиля", R.drawable.ic_lamba_timeline)
+        setupSuggestion(R.id.suggestExpenses,  "Покажи последние расходы",     R.drawable.ic_lamba_wallet)
+        setupSuggestion(R.id.suggestService,   "Когда было последнее ТО?",     R.drawable.ic_lamba_build)
+        setupSuggestion(R.id.suggestAddRecord, "Добавить запись",              R.drawable.ic_lamba_add_box)
 
         btnChatSend.setOnClickListener {
             val text = etChatBackMessage.text.toString().trim()
@@ -113,12 +102,11 @@ class ChatActivity : AppCompatActivity() {
         }
     }
 
-    private fun setupSuggestion(viewId: Int, title: String) {
+    private fun setupSuggestion(viewId: Int, title: String, iconRes: Int) {
         val layout = findViewById<View>(viewId)
         layout.findViewById<TextView>(R.id.tvSuggestionText).text = title
-        layout.setOnClickListener {
-            sendMessage(title)
-        }
+        layout.findViewById<ImageView>(R.id.suggestionIcon).setImageResource(iconRes)
+        layout.setOnClickListener { sendMessage(title) }
     }
 
     private fun loadVehicleNameIfNeeded() {
