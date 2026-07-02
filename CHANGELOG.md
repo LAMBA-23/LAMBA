@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- Backend statistics now calculate trip mileage as traveled distance deltas instead of summing trip odometer values.
+- Backend statistics now return `fuel_liters` separately from fuel expenses, keep fuel and repair expenses split, and count all period events in `records_count`.
+- Backend trip event persistence now stores a new odometer mileage when a trip is submitted as a traveled distance, while keeping timeline responses compatible.
+
 ## [1.1.0] - 2026-06-28
 
 ### Added

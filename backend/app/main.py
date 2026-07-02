@@ -4,7 +4,7 @@ from datetime import datetime, timedelta, timezone
 
 from fastapi import Depends, FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
-from sqlalchemy import select
+from sqlalchemy import inspect, select, text
 from sqlalchemy.orm import Session
 
 from .chat_parser import parse_chat_message
@@ -112,8 +112,52 @@ def _coalesce_int(value: int | None) -> int:
     return value if value is not None else 0
 
 
+def ensure_event_schema() -> None:
+    inspector = inspect(engine)
+    event_columns = {column["name"] for column in inspector.get_columns("events")}
+    if "fuel_liters" in event_columns:
+        return
+
+    with engine.begin() as connection:
+        connection.execute(
+            text(
+                "ALTER TABLE events "
+                "ADD COLUMN fuel_liters INTEGER NOT NULL DEFAULT 0"
+            )
+        )
+
+
 def _is_statistics_relevant(event: Event) -> bool:
     return event.type in STATISTICS_EVENT_TYPES
+
+
+def _event_effective_mileage(event: Event, known_mileage: int) -> int:
+    mileage = _coalesce_int(event.mileage)
+    if event.type == "trip" and mileage <= known_mileage:
+        return known_mileage + mileage
+    return mileage
+
+
+def _sum_trip_distance(events: list[Event], start_at: datetime | None = None) -> int:
+    if not events:
+        return 0
+
+    initial_mileage = 0
+    if events[0].car is not None:
+        initial_mileage = _coalesce_int(events[0].car.current_mileage)
+
+    known_mileage = initial_mileage
+    total_distance = 0
+
+    for event in events:
+        effective_mileage = _event_effective_mileage(event, known_mileage)
+        if event.type == "trip":
+            trip_delta = max(0, effective_mileage - known_mileage)
+            if start_at is None or event.created_at >= start_at:
+                total_distance += trip_delta
+            known_mileage = max(known_mileage, effective_mileage)
+
+    return total_distance
 
 
 def build_stats_period(
@@ -125,13 +169,14 @@ def build_stats_period(
     relevant_events = [
         event for event in period_events if _is_statistics_relevant(event)
     ]
-    mileage = sum(
-        _coalesce_int(event.mileage)
-        for event in relevant_events
-        if event.type == "trip"
-    )
+    mileage = _sum_trip_distance(events, start_at=start_at)
     fuel_expenses = sum(
         _coalesce_int(event.amount) for event in relevant_events if event.type == "fuel"
+    )
+    fuel_liters = sum(
+        _coalesce_int(event.fuel_liters)
+        for event in relevant_events
+        if event.type == "fuel"
     )
     repair_expenses = sum(
         _coalesce_int(event.amount)
@@ -145,12 +190,12 @@ def build_stats_period(
         total_expenses=total_expenses,
         fuel_expenses=fuel_expenses,
         repair_expenses=repair_expenses,
-        records_count=len(relevant_events),
+        records_count=len(period_events),
         avg_fuel_consumption=0,
         avg_expense_consumption=0,
         mileage_km=mileage,
         expenses_rub=total_expenses,
-        fuel_liters=0,
+        fuel_liters=fuel_liters,
         avg_fuel_consumption_l_per_100km=0,
     )
 
@@ -176,6 +221,7 @@ def build_stats_response(events: list[Event], now: datetime) -> StatsResponse:
 @app.on_event("startup")
 def on_startup() -> None:
     Base.metadata.create_all(bind=engine)
+    ensure_event_schema()
     db = next(get_db())
     try:
         seed_demo_data(db)
@@ -370,12 +416,41 @@ def create_event(
     db: Session = Depends(get_db),
 ) -> Event:
     car = get_car_for_user_id(db, user_id)
+    previous_mileage = car.current_mileage
+    latest_event = db.scalar(
+        select(Event)
+        .where(Event.car_id == car.id)
+        .order_by(Event.created_at.desc(), Event.id.desc())
+        .limit(1)
+    )
+    if latest_event is not None:
+        previous_mileage = _event_effective_mileage(latest_event, previous_mileage)
+
+    event_mileage = (
+        payload.mileage if payload.mileage is not None else car.current_mileage
+    )
+    if payload.type == "trip":
+        event_mileage = _event_effective_mileage(
+            Event(
+                car_id=car.id,
+                type=payload.type,
+                description=payload.description,
+                amount=payload.amount if payload.amount is not None else 0,
+                fuel_liters=payload.fuel_liters
+                if payload.fuel_liters is not None
+                else 0,
+                mileage=event_mileage,
+            ),
+            previous_mileage,
+        )
+
     event = Event(
         car_id=car.id,
         type=payload.type,
         description=payload.description,
         amount=payload.amount if payload.amount is not None else 0,
-        mileage=payload.mileage if payload.mileage is not None else car.current_mileage,
+        fuel_liters=payload.fuel_liters if payload.fuel_liters is not None else 0,
+        mileage=event_mileage,
     )
     db.add(event)
     db.commit()

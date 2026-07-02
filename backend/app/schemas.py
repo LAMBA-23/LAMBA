@@ -91,6 +91,7 @@ class EventCreate(BaseModel):
     type: EventType
     description: str
     amount: int | None = None
+    fuel_liters: int | None = None
     mileage: int | None = None
 
     @field_validator("description")
@@ -108,6 +109,13 @@ class EventCreate(BaseModel):
             raise ValueError("amount must not be negative")
         return v
 
+    @field_validator("fuel_liters")
+    @classmethod
+    def non_negative_fuel_liters(cls, v: int | None) -> int | None:
+        if v is not None and v < 0:
+            raise ValueError("fuel_liters must not be negative")
+        return v
+
     @field_validator("mileage")
     @classmethod
     def non_negative_event_mileage(cls, v: int | None) -> int | None:
@@ -123,6 +131,7 @@ class EventResponse(BaseModel):
     type: EventType
     description: str
     amount: int
+    fuel_liters: int
     mileage: int
     created_at: datetime
 

@@ -296,9 +296,20 @@ Allowed event types: `fuel`, `repair`, `trip`, `issue`, `condition`.
 
 `amount` and `mileage` must not be negative when provided.
 
+`fuel_liters` must not be negative when provided.
+
 If `amount` is missing, backend stores `0`.
 
+If `fuel_liters` is missing, backend stores `0`.
+
 If `mileage` is missing, backend uses the car `current_mileage`.
+
+For `trip` events, `mileage` is interpreted as:
+
+- trip distance when the provided value is less than or equal to the previous known mileage;
+- an already-updated odometer value when the provided value is greater than the previous known mileage.
+
+When a trip distance is provided, backend stores the new odometer mileage in the event record.
 
 Request:
 
@@ -307,6 +318,7 @@ Request:
   "type": "fuel",
   "description": "Full tank",
   "amount": 60,
+  "fuel_liters": 40,
   "mileage": 125000
 }
 ```
@@ -319,6 +331,7 @@ Response:
   "type": "fuel",
   "description": "Full tank",
   "amount": 60,
+  "fuel_liters": 40,
   "mileage": 125000,
   "created_at": "2026-06-13T12:00:00"
 }
@@ -358,15 +371,16 @@ Rules:
 - `month` includes events whose `created_at` is within the last 30 days.
 - `all_time` includes all events for the user's car.
 - Only `fuel`, `repair`, and `trip` events affect statistics.
-- `issue` and `condition` events do not affect statistics.
+- `issue` and `condition` events do not affect expense or mileage aggregates, but they are counted in `records_count`.
 - `amount = null` is treated as `0`.
+- `fuel_liters = null` is treated as `0`.
 - `mileage = null` is treated as `0`.
-- `mileage` / `mileage_km`: sum of `mileage` for `trip` events in the period.
+- `mileage` / `mileage_km`: total traveled distance for `trip` events in the period, calculated as chronological delta between previous known mileage and each trip event's stored odometer mileage.
 - `fuel_expenses`: sum of `amount` for `fuel` events in the period.
 - `repair_expenses`: sum of `amount` for `repair` events in the period.
 - `total_expenses` / `expenses_rub`: `fuel_expenses + repair_expenses`.
-- `records_count`: number of statistics-relevant events in the period.
-- `fuel_liters`: return `0` when liters cannot be derived from existing event fields.
+- `records_count`: number of all events in the period.
+- `fuel_liters`: sum of `fuel_liters` for `fuel` events in the period.
 - `avg_fuel_consumption` and `avg_fuel_consumption_l_per_100km`: return `0` until a liters source exists.
 - `avg_expense_consumption`: return `0` when it cannot be computed from the available period data.
 - Top-level legacy fields remain available: `fuel_expenses`, `repair_expenses`, `trip_count`, `total_recorded_mileage`.
@@ -379,44 +393,44 @@ Response:
   "fuel_expenses": 2500,
   "repair_expenses": 7000,
   "trip_count": 1,
-  "total_recorded_mileage": 500,
+  "total_recorded_mileage": 100,
   "week": {
-    "mileage": 0,
+    "mileage": 100,
     "total_expenses": 2500,
     "fuel_expenses": 2500,
     "repair_expenses": 0,
     "avg_fuel_consumption": 0,
     "avg_expense_consumption": 0,
-    "mileage_km": 0,
+    "mileage_km": 100,
     "expenses_rub": 2500,
-    "fuel_liters": 0,
-    "records_count": 1,
-    "avg_fuel_consumption_l_per_100km": 0
-  },
-  "month": {
-    "mileage": 0,
-    "total_expenses": 9500,
-    "fuel_expenses": 2500,
-    "repair_expenses": 7000,
-    "avg_fuel_consumption": 0,
-    "avg_expense_consumption": 0,
-    "mileage_km": 0,
-    "expenses_rub": 9500,
-    "fuel_liters": 0,
+    "fuel_liters": 40,
     "records_count": 2,
     "avg_fuel_consumption_l_per_100km": 0
   },
-  "all_time": {
-    "mileage": 500,
+  "month": {
+    "mileage": 100,
     "total_expenses": 9500,
     "fuel_expenses": 2500,
     "repair_expenses": 7000,
     "avg_fuel_consumption": 0,
     "avg_expense_consumption": 0,
-    "mileage_km": 500,
+    "mileage_km": 100,
     "expenses_rub": 9500,
-    "fuel_liters": 0,
-    "records_count": 3,
+    "fuel_liters": 40,
+    "records_count": 4,
+    "avg_fuel_consumption_l_per_100km": 0
+  },
+  "all_time": {
+    "mileage": 100,
+    "total_expenses": 9500,
+    "fuel_expenses": 2500,
+    "repair_expenses": 7000,
+    "avg_fuel_consumption": 0,
+    "avg_expense_consumption": 0,
+    "mileage_km": 100,
+    "expenses_rub": 9500,
+    "fuel_liters": 40,
+    "records_count": 5,
     "avg_fuel_consumption_l_per_100km": 0
   }
 }
