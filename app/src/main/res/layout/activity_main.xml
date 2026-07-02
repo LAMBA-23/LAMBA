@@ -172,103 +172,149 @@
             android:layout_weight="1"
             android:orientation="vertical">
 
-            <LinearLayout
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/btnTalkToCar"
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
                 android:layout_weight="1"
-                android:orientation="horizontal">
-
-                <androidx.constraintlayout.widget.ConstraintLayout
-                    android:id="@+id/btnTalkToCar"
-                    style="@style/LambaHomeCard"
+                android:layout_marginBottom="8dp"
+                android:background="@drawable/bg_card_white"
+                android:clickable="true"
+                android:elevation="3dp"
+                android:focusable="true"
+                android:foreground="?attr/selectableItemBackground">
+                <ImageView
+                    android:id="@+id/iconTalkToCar"
+                    android:layout_width="28dp"
+                    android:layout_height="28dp"
+                    android:layout_marginStart="18dp"
+                    android:src="@drawable/ic_lamba_timeline"
+                    app:tint="#960018"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+                <TextView
                     android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_marginEnd="8dp"
-                    android:layout_weight="1">
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="14dp"
+                    android:layout_marginEnd="16dp"
+                    android:text="Проверить состояние"
+                    android:textColor="#101114"
+                    android:textSize="15sp"
+                    android:textStyle="bold"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toEndOf="@id/iconTalkToCar"
+                    app:layout_constraintTop_toTopOf="parent" />
+            </androidx.constraintlayout.widget.ConstraintLayout>
 
-                    <ImageView
-                        android:id="@+id/iconTalkToCar"
-                        style="@style/LambaHomeIcon"
-                        android:src="@drawable/ic_lamba_timeline"
-                        app:tint="#960018" />
-
-                    <TextView
-                        style="@style/LambaHomeCardText"
-                        android:text="Проверить состояние"
-                        app:layout_constraintTop_toBottomOf="@id/iconTalkToCar" />
-                </androidx.constraintlayout.widget.ConstraintLayout>
-
-                <androidx.constraintlayout.widget.ConstraintLayout
-                    android:id="@+id/btnExpenses"
-                    style="@style/LambaHomeCard"
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_marginStart="8dp"
-                    android:layout_weight="1">
-
-                    <ImageView
-                        android:id="@+id/iconExpenses"
-                        style="@style/LambaHomeIcon"
-                        android:src="@drawable/ic_lamba_wallet"
-                        app:tint="#960018" />
-
-                    <TextView
-                        style="@style/LambaHomeCardText"
-                        android:text="Последние расходы"
-                        app:layout_constraintTop_toBottomOf="@id/iconExpenses" />
-                </androidx.constraintlayout.widget.ConstraintLayout>
-            </LinearLayout>
-
-            <Space
-                android:layout_width="1dp"
-                android:layout_height="16dp" />
-
-            <LinearLayout
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/btnExpenses"
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
                 android:layout_weight="1"
-                android:orientation="horizontal">
-
-                <androidx.constraintlayout.widget.ConstraintLayout
-                    android:id="@+id/btnService"
-                    style="@style/LambaHomeCard"
+                android:layout_marginBottom="8dp"
+                android:background="@drawable/bg_card_white"
+                android:clickable="true"
+                android:elevation="3dp"
+                android:focusable="true"
+                android:foreground="?attr/selectableItemBackground">
+                <ImageView
+                    android:id="@+id/iconExpenses"
+                    android:layout_width="28dp"
+                    android:layout_height="28dp"
+                    android:layout_marginStart="18dp"
+                    android:src="@drawable/ic_lamba_wallet"
+                    app:tint="#960018"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+                <TextView
                     android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_marginEnd="8dp"
-                    android:layout_weight="1">
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="14dp"
+                    android:layout_marginEnd="16dp"
+                    android:text="Последние расходы"
+                    android:textColor="#101114"
+                    android:textSize="15sp"
+                    android:textStyle="bold"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toEndOf="@id/iconExpenses"
+                    app:layout_constraintTop_toTopOf="parent" />
+            </androidx.constraintlayout.widget.ConstraintLayout>
 
-                    <ImageView
-                        android:id="@+id/iconService"
-                        style="@style/LambaHomeIcon"
-                        android:src="@drawable/ic_lamba_build"
-                        app:tint="#960018" />
-
-                    <TextView
-                        style="@style/LambaHomeCardText"
-                        android:text="Последнее ТО"
-                        app:layout_constraintTop_toBottomOf="@id/iconService" />
-                </androidx.constraintlayout.widget.ConstraintLayout>
-
-                <androidx.constraintlayout.widget.ConstraintLayout
-                    android:id="@+id/btnAddRecord"
-                    style="@style/LambaHomeCard"
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/btnService"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:layout_marginBottom="8dp"
+                android:background="@drawable/bg_card_white"
+                android:clickable="true"
+                android:elevation="3dp"
+                android:focusable="true"
+                android:foreground="?attr/selectableItemBackground">
+                <ImageView
+                    android:id="@+id/iconService"
+                    android:layout_width="28dp"
+                    android:layout_height="28dp"
+                    android:layout_marginStart="18dp"
+                    android:src="@drawable/ic_lamba_build"
+                    app:tint="#960018"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+                <TextView
                     android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_marginStart="8dp"
-                    android:layout_weight="1">
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="14dp"
+                    android:layout_marginEnd="16dp"
+                    android:text="Последнее ТО"
+                    android:textColor="#101114"
+                    android:textSize="15sp"
+                    android:textStyle="bold"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toEndOf="@id/iconService"
+                    app:layout_constraintTop_toTopOf="parent" />
+            </androidx.constraintlayout.widget.ConstraintLayout>
 
-                    <ImageView
-                        android:id="@+id/iconAddRecord"
-                        style="@style/LambaHomeIcon"
-                        android:src="@drawable/ic_lamba_add_box"
-                        app:tint="#960018" />
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/btnAddRecord"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:background="@drawable/bg_card_white"
+                android:clickable="true"
+                android:elevation="3dp"
+                android:focusable="true"
+                android:foreground="?attr/selectableItemBackground">
+                <ImageView
+                    android:id="@+id/iconAddRecord"
+                    android:layout_width="28dp"
+                    android:layout_height="28dp"
+                    android:layout_marginStart="18dp"
+                    android:src="@drawable/ic_lamba_add_box"
+                    app:tint="#960018"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="14dp"
+                    android:layout_marginEnd="16dp"
+                    android:text="Добавить запись"
+                    android:textColor="#101114"
+                    android:textSize="15sp"
+                    android:textStyle="bold"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toEndOf="@id/iconAddRecord"
+                    app:layout_constraintTop_toTopOf="parent" />
+            </androidx.constraintlayout.widget.ConstraintLayout>
 
-                    <TextView
-                        style="@style/LambaHomeCardText"
-                        android:text="Добавить запись"
-                        app:layout_constraintTop_toBottomOf="@id/iconAddRecord" />
-                </androidx.constraintlayout.widget.ConstraintLayout>
-            </LinearLayout>
         </LinearLayout>
 
         <androidx.constraintlayout.widget.ConstraintLayout
