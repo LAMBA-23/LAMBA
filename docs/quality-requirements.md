@@ -14,7 +14,7 @@ For MVP v2 / Sprint 3, these Assignment 4 quality requirements remain active bec
 
 **Linked quality requirement tests:** [QRT-001](quality-requirement-tests.md#qrt-001-vehicle-event-data-integrity)
 
-**Related ADRs:** No ADR artifact is currently introduced for this requirement. Add the related ADR link here when Assignment 5 architecture documentation defines the event validation or persistence decision.
+**Related ADRs:** [ADR-001: Use a backend-owned REST API boundary](architecture/adr/001-use-backend-owned-rest-api-boundary.md), [ADR-002: Use FastAPI, Pydantic, and SQLAlchemy for backend validation and persistence](architecture/adr/002-use-fastapi-pydantic-sqlalchemy-backend.md), [ADR-003: Use Docker Compose for backend and database deployment](architecture/adr/003-use-docker-compose-for-backend-and-database.md)
 
 **Traceability:** Supports [docs/api-contract.md](api-contract.md), [docs/testing.md](testing.md), US-04, US-05, US-07, and future US-08 maintenance recommendations.
 
@@ -28,7 +28,7 @@ For MVP v2 / Sprint 3, these Assignment 4 quality requirements remain active bec
 
 **Linked quality requirement tests:** [QRT-002](quality-requirement-tests.md#qrt-002-timeline-api-response-time)
 
-**Related ADRs:** No ADR artifact is currently introduced for this requirement. Add the related ADR link here when Assignment 5 architecture documentation defines timeline retrieval, backend performance, or persistence decisions.
+**Related ADRs:** [ADR-001: Use a backend-owned REST API boundary](architecture/adr/001-use-backend-owned-rest-api-boundary.md), [ADR-002: Use FastAPI, Pydantic, and SQLAlchemy for backend validation and persistence](architecture/adr/002-use-fastapi-pydantic-sqlalchemy-backend.md), [ADR-003: Use Docker Compose for backend and database deployment](architecture/adr/003-use-docker-compose-for-backend-and-database.md)
 
 **Traceability:** Supports [README.md](../README.md), [docs/api-contract.md](api-contract.md), US-05, US-07, and future US-08/US-09 workflows that depend on recorded history.
 
@@ -42,9 +42,17 @@ For MVP v2 / Sprint 3, these Assignment 4 quality requirements remain active bec
 
 **Linked quality requirement tests:** [QRT-003](quality-requirement-tests.md#qrt-003-backend-regression-testability)
 
-**Related ADRs:** No ADR artifact is currently introduced for this requirement. Add the related ADR link here when Assignment 5 architecture documentation defines backend module boundaries, CI strategy, or testing architecture.
+**Related ADRs:** [ADR-001: Use a backend-owned REST API boundary](architecture/adr/001-use-backend-owned-rest-api-boundary.md), [ADR-002: Use FastAPI, Pydantic, and SQLAlchemy for backend validation and persistence](architecture/adr/002-use-fastapi-pydantic-sqlalchemy-backend.md), [ADR-003: Use Docker Compose for backend and database deployment](architecture/adr/003-use-docker-compose-for-backend-and-database.md)
 
 **Traceability:** Supports [backend/tests/test_auth.py](../backend/tests/test_auth.py), [backend/tests/test_events.py](../backend/tests/test_events.py), [backend/tests/test_stats.py](../backend/tests/test_stats.py), [backend/tests/test_chat_parse.py](../backend/tests/test_chat_parse.py), [backend/tests/test_vehicle.py](../backend/tests/test_vehicle.py), US-01, US-02, US-04, US-05, US-06, and US-07.
+
+## Architecture Decision Traceability
+
+| Quality requirement | Related ADRs |
+|---|---|
+| [QR-001: Vehicle event data integrity](#qr-001-vehicle-event-data-integrity) | [ADR-001](architecture/adr/001-use-backend-owned-rest-api-boundary.md), [ADR-002](architecture/adr/002-use-fastapi-pydantic-sqlalchemy-backend.md), [ADR-003](architecture/adr/003-use-docker-compose-for-backend-and-database.md) |
+| [QR-002: Timeline API response time](#qr-002-timeline-api-response-time) | [ADR-001](architecture/adr/001-use-backend-owned-rest-api-boundary.md), [ADR-002](architecture/adr/002-use-fastapi-pydantic-sqlalchemy-backend.md), [ADR-003](architecture/adr/003-use-docker-compose-for-backend-and-database.md) |
+| [QR-003: Backend regression testability](#qr-003-backend-regression-testability) | [ADR-001](architecture/adr/001-use-backend-owned-rest-api-boundary.md), [ADR-002](architecture/adr/002-use-fastapi-pydantic-sqlalchemy-backend.md), [ADR-003](architecture/adr/003-use-docker-compose-for-backend-and-database.md) |
 
 ## MVP v2 maintenance note
 
