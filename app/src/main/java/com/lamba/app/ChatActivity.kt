@@ -197,7 +197,6 @@ class ChatActivity : AppCompatActivity() {
             "repair" -> "Ремонт"
             "trip" -> "Поездка"
             "issue" -> "Проблема"
-            "condition" -> "Техническое состояние"
             else -> event.type
         }
         val lines = mutableListOf(

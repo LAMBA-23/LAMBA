@@ -112,15 +112,6 @@ class TestStatsApi:
             amount=999,
             mileage=888,
         )
-        _create_event(
-            client,
-            user_id,
-            type="condition",
-            description="ignored condition",
-            amount=333,
-            mileage=444,
-        )
-
         response = client.get(f"/stats?user_id={user_id}")
         data = response.json()
 
