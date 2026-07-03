@@ -314,8 +314,7 @@ def _looks_like_trip_with_unclear_units(message: str) -> bool:
 
 def _contains_fuel_keywords(message: str) -> bool:
     return any(
-        keyword in message
-        for keyword in ("заправ", "топлив", "бензин", "дизел", "азс")
+        keyword in message for keyword in ("заправ", "топлив", "бензин", "дизел", "азс")
     )
 
 
