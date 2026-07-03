@@ -96,23 +96,16 @@ Output: {"type":"fuel","description":"Заправка","amount":null,"mileage":
 """.strip()
 
 MISSING_CONFIGURATION_QUESTION = (
-    "\u0421\u0435\u0440\u0432\u0438\u0441 \u0440\u0430\u0441\u043f\u043e\u0437\u043d\u0430\u0432\u0430\u043d\u0438\u044f "
-    "\u043f\u043e\u043a\u0430 \u043d\u0435 \u043d\u0430\u0441\u0442\u0440\u043e\u0435\u043d. "
-    "\u0414\u043e\u0431\u0430\u0432\u044c\u0442\u0435 TIMEWEB_API_KEY \u0438 TIMEWEB_AGENT_ID."
+    "Сервис распознавания пока не настроен. "
+    "Добавьте TIMEWEB_API_KEY и TIMEWEB_AGENT_ID."
 )
 FALLBACK_CLARIFICATION_QUESTION = (
-    "\u041d\u0435 \u0443\u0434\u0430\u043b\u043e\u0441\u044c \u0440\u0430\u0441\u043f\u043e\u0437\u043d\u0430\u0442\u044c "
-    "\u0437\u0430\u043f\u0438\u0441\u044c. \u0423\u0442\u043e\u0447\u043d\u0438\u0442\u0435, "
-    "\u043f\u043e\u0436\u0430\u043b\u0443\u0439\u0441\u0442\u0430, \u0434\u0435\u0442\u0430\u043b\u0438 "
-    "\u0441\u043e\u0431\u044b\u0442\u0438\u044f."
+    "Не удалось распознать запись. "
+    "Уточните, пожалуйста, детали события."
 )
 NON_TIMELINE_CONDITION_QUESTION = (
-    "\u042d\u0442\u043e \u0437\u0430\u043f\u0440\u043e\u0441 \u043a "
-    "\u0430\u0441\u0441\u0438\u0441\u0442\u0435\u043d\u0442\u0443, "
-    "\u0430 \u043d\u0435 \u0441\u043e\u0431\u044b\u0442\u0438\u0435 "
-    "\u0434\u043b\u044f \u0438\u0441\u0442\u043e\u0440\u0438\u0438. "
-    "\u0417\u0430\u0434\u0430\u0439\u0442\u0435 \u0435\u0433\u043e "
-    "\u0432 \u0447\u0430\u0442\u0435 \u0430\u0441\u0441\u0438\u0441\u0442\u0435\u043d\u0442\u0430."
+    "Это запрос к ассистенту, а не событие для истории. "
+    "Задайте его в чате ассистента."
 )
 
 
@@ -203,15 +196,9 @@ def _apply_guardrails(message: str, parsed_event: ParsedChatEvent) -> ParsedChat
         distance_match = re.search(r"\b(\d+)\b", normalized_message)
         distance_value = distance_match.group(1) if distance_match else None
         clarification_question = (
-            f"\u0412\u044b \u0438\u043c\u0435\u0435\u0442\u0435 \u0432 \u0432\u0438\u0434\u0443 "
-            f"{distance_value} \u043a\u0438\u043b\u043e\u043c\u0435\u0442\u0440\u043e\u0432 "
-            f"\u0438\u043b\u0438 \u043c\u0438\u043b\u044c?"
+            f"Вы имеете в виду {distance_value} километров или миль?"
             if distance_value
-            else (
-                "\u0412\u044b \u0438\u043c\u0435\u0435\u0442\u0435 \u0432 \u0432\u0438\u0434\u0443 "
-                "\u043a\u0438\u043b\u043e\u043c\u0435\u0442\u0440\u044b \u0438\u043b\u0438 "
-                "\u043c\u0438\u043b\u0438?"
-            )
+            else "Вы имеете в виду километры или мили?"
         )
         return ParsedChatEvent(
             type="trip",
