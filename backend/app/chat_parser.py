@@ -26,7 +26,7 @@ Supported event types:
 - condition (a technical condition/status update without a malfunction)
 
 Return only valid JSON with exactly these fields:
-type, description, amount, mileage, needs_clarification, clarification_question
+type, description, amount, fuel_liters, mileage, needs_clarification, clarification_question
 
 General rules:
 - Parse exactly one vehicle event per message.
@@ -37,7 +37,7 @@ General rules:
 - Use null for unknown fields.
 - clarification_question must be a short Russian question.
 - description must be concise and in Russian when available.
-- amount and mileage must be integers when present.
+- amount, fuel_liters, and mileage must be integers when present.
 
 Interpretation rules:
 - Do not assume fuel, repair, trip, issue, or condition unless the text clearly indicates it.
@@ -46,6 +46,8 @@ Interpretation rules:
 - If the message explicitly says the user drove, traveled, completed a route, or covered a distance, classify it as trip unless other words clearly indicate another type.
 - Treat phrases like "поездка 100 км", "поездка на 100 километров", "проехал 100 км", "съездил 100 км", "маршрут 100 км", or "дорога 100 км" as trip events.
 - Treat amount as money spent only when the wording clearly indicates price, payment, cost, or currency.
+- Treat fuel_liters as fuel volume only when wording clearly indicates liters, for example "10 литров", "20 л", or "15 л.".
+- For fuel events, put rubles in `amount` and liters in `fuel_liters`; do not put liters in `amount`.
 - Treat mileage as odometer mileage only when the wording clearly indicates current vehicle mileage or odometer reading.
 - For trip events, put the traveled distance in `mileage` when the text gives a distance such as "100 км" or "100 километров". Do not ask for clarification when the unit is clearly kilometers.
 - Treat current odometer mileage as `mileage` only when the wording says "пробег", "одометр", "текущий пробег", or "на одометре".
@@ -69,31 +71,37 @@ Clarification behavior:
 
 Examples:
 Input: "Заправился на 2500 рублей, пробег 125300"
-Output: {"type":"fuel","description":"Заправка на 2500 рублей","amount":2500,"mileage":125300,"needs_clarification":false,"clarification_question":null}
+Output: {"type":"fuel","description":"Заправка на 2500 рублей","amount":2500,"fuel_liters":null,"mileage":125300,"needs_clarification":false,"clarification_question":null}
+
+Input: "заправилась на 10 литров"
+Output: {"type":"fuel","description":"Заправка на 10 литров","amount":null,"fuel_liters":10,"mileage":null,"needs_clarification":false,"clarification_question":null}
+
+Input: "заправилась на 10 литров за 1000 рублей"
+Output: {"type":"fuel","description":"Заправка на 10 литров","amount":1000,"fuel_liters":10,"mileage":null,"needs_clarification":false,"clarification_question":null}
 
 Input: "Сегодня я проехал 1500"
-Output: {"type":"trip","description":"Поездка на 1500","amount":null,"mileage":null,"needs_clarification":true,"clarification_question":"Вы имеете в виду 1500 километров или миль?"}
+Output: {"type":"trip","description":"Поездка на 1500","amount":null,"fuel_liters":null,"mileage":null,"needs_clarification":true,"clarification_question":"Вы имеете в виду 1500 километров или миль?"}
 
 Input: "Поменял масло за 8000"
-Output: {"type":"repair","description":"Замена масла","amount":8000,"mileage":null,"needs_clarification":false,"clarification_question":null}
+Output: {"type":"repair","description":"Замена масла","amount":8000,"fuel_liters":null,"mileage":null,"needs_clarification":false,"clarification_question":null}
 
 Input: "Загорелся чек двигателя"
-Output: {"type":"issue","description":"Загорелся чек двигателя","amount":null,"mileage":null,"needs_clarification":false,"clarification_question":null}
+Output: {"type":"issue","description":"Загорелся чек двигателя","amount":null,"fuel_liters":null,"mileage":null,"needs_clarification":false,"clarification_question":null}
 
 Input: "Машина не заводится"
-Output: {"type":"issue","description":"Машина не заводится","amount":null,"mileage":null,"needs_clarification":false,"clarification_question":null}
+Output: {"type":"issue","description":"Машина не заводится","amount":null,"fuel_liters":null,"mileage":null,"needs_clarification":false,"clarification_question":null}
 
 Input: "Техническое состояние хорошее, пробег 125500"
-Output: {"type":"condition","description":"Техническое состояние хорошее","amount":null,"mileage":125500,"needs_clarification":false,"clarification_question":null}
+Output: {"type":"condition","description":"Техническое состояние хорошее","amount":null,"fuel_liters":null,"mileage":125500,"needs_clarification":false,"clarification_question":null}
 
 Input: "Заправился на 2500 и поменял масло за 8000"
-Output: {"type":null,"description":null,"amount":null,"mileage":null,"needs_clarification":true,"clarification_question":"Уточните, пожалуйста, одно событие за сообщение: это была заправка или ремонт?"}
+Output: {"type":null,"description":null,"amount":null,"fuel_liters":null,"mileage":null,"needs_clarification":true,"clarification_question":"Уточните, пожалуйста, одно событие за сообщение: это была заправка или ремонт?"}
 
 Input: "Потратил 3000"
-Output: {"type":null,"description":null,"amount":null,"mileage":null,"needs_clarification":true,"clarification_question":"Уточните, пожалуйста, это была заправка, ремонт, поездка или проблема?"}
+Output: {"type":null,"description":null,"amount":null,"fuel_liters":null,"mileage":null,"needs_clarification":true,"clarification_question":"Уточните, пожалуйста, это была заправка, ремонт, поездка или проблема?"}
 
 Input: "Пробег 125300, заправился"
-Output: {"type":"fuel","description":"Заправка","amount":null,"mileage":125300,"needs_clarification":false,"clarification_question":null}
+Output: {"type":"fuel","description":"Заправка","amount":null,"fuel_liters":null,"mileage":125300,"needs_clarification":false,"clarification_question":null}
 """.strip()
 
 MISSING_CONFIGURATION_QUESTION = (
@@ -165,11 +173,24 @@ def _apply_guardrails(message: str, parsed_event: ParsedChatEvent) -> ParsedChat
             ),
         )
 
+    fuel_liters = _extract_fuel_liters(normalized_message)
+    if fuel_liters is not None and _looks_like_fuel_liters_message(normalized_message):
+        return ParsedChatEvent(
+            type="fuel",
+            description=f"Заправка на {fuel_liters} литров",
+            amount=_extract_money_amount(normalized_message),
+            fuel_liters=fuel_liters,
+            mileage=parsed_event.mileage,
+            needs_clarification=False,
+            clarification_question=None,
+        )
+
     if _looks_like_issue_message(normalized_message):
         return ParsedChatEvent(
             type="issue",
             description=message.strip(),
             amount=None,
+            fuel_liters=parsed_event.fuel_liters,
             mileage=parsed_event.mileage,
             needs_clarification=False,
             clarification_question=None,
@@ -180,6 +201,7 @@ def _apply_guardrails(message: str, parsed_event: ParsedChatEvent) -> ParsedChat
             type="condition",
             description=message.strip(),
             amount=None,
+            fuel_liters=parsed_event.fuel_liters,
             mileage=parsed_event.mileage,
             needs_clarification=False,
             clarification_question=None,
@@ -191,6 +213,7 @@ def _apply_guardrails(message: str, parsed_event: ParsedChatEvent) -> ParsedChat
             type="trip",
             description=f"Поездка на {trip_distance_km} километров",
             amount=None,
+            fuel_liters=None,
             mileage=trip_distance_km,
             needs_clarification=False,
             clarification_question=None,
@@ -214,12 +237,45 @@ def _apply_guardrails(message: str, parsed_event: ParsedChatEvent) -> ParsedChat
             type="trip",
             description=message.strip(),
             amount=None,
+            fuel_liters=None,
             mileage=None,
             needs_clarification=True,
             clarification_question=clarification_question,
         )
 
     return parsed_event
+
+
+def _extract_fuel_liters(message: str) -> int | None:
+    match = re.search(
+        r"\b(\d+)\s*(?:л|л\.|литр|литра|литров)\b",
+        message,
+    )
+    if match is None:
+        return None
+    return int(match.group(1))
+
+
+def _extract_money_amount(message: str) -> int | None:
+    match = re.search(
+        r"\b(\d+)\s*(?:₽|руб|руб\.|рублей|рубля|рубль)\b",
+        message,
+    )
+    if match is None:
+        return None
+    return int(match.group(1))
+
+
+def _looks_like_fuel_liters_message(message: str) -> bool:
+    return (
+        _extract_fuel_liters(message) is not None
+        and (
+            _contains_fuel_keywords(message)
+            or re.search(r"\b(залил|залила|залили)\b", message) is not None
+        )
+        and not _contains_repair_keywords(message)
+        and not _contains_issue_keywords(message)
+    )
 
 
 def _extract_trip_distance_km(message: str) -> int | None:
@@ -290,7 +346,8 @@ def _looks_like_trip_with_unclear_units(message: str) -> bool:
 
 def _contains_fuel_keywords(message: str) -> bool:
     return any(
-        keyword in message for keyword in ("заправ", "топлив", "бензин", "дизел", "азс")
+        keyword in message
+        for keyword in ("заправ", "топлив", "бензин", "дизел", "азс", "залил", "залила")
     )
 
 

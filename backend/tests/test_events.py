@@ -53,7 +53,7 @@ class TestEventsApi:
         assert [event["id"] for event in data] == sorted(event["id"] for event in data)
         assert "Second user fuel" not in [event["description"] for event in data]
 
-    def test_post_event_is_saved_and_uses_default_amount_and_mileage(self, client):
+    def test_post_event_is_saved_and_uses_default_amount_and_zero_mileage(self, client):
         user_id = _register_user(client, "events-defaults")
         vehicle_response = client.post(
             "/vehicle",
@@ -78,10 +78,62 @@ class TestEventsApi:
         assert created_event["type"] == "condition"
         assert created_event["description"] == "Car condition is good"
         assert created_event["amount"] == 0
-        assert created_event["mileage"] == 12345
+        assert created_event["mileage"] == 0
         assert created_event["fuel_liters"] == 0
         assert timeline_response.status_code == 200
         assert timeline_response.json() == [created_event]
+
+    def test_post_fuel_without_mileage_after_trips_does_not_reuse_initial_mileage(
+        self, client
+    ):
+        user_id = _register_user(client, "events-fuel-without-mileage-after-trips")
+        vehicle_response = client.post(
+            "/vehicle",
+            json={
+                "user_id": user_id,
+                "brand": "Toyota",
+                "model": "Camry",
+                "production_year": 2023,
+                "current_mileage": 64,
+            },
+        )
+
+        first_trip = client.post(
+            f"/events?user_id={user_id}",
+            json={
+                "type": "trip",
+                "description": "Drove 10 km",
+                "amount": 0,
+                "mileage": 10,
+            },
+        )
+        second_trip = client.post(
+            f"/events?user_id={user_id}",
+            json={
+                "type": "trip",
+                "description": "Drove 10 km again",
+                "amount": 0,
+                "mileage": 10,
+            },
+        )
+        fuel_response = client.post(
+            f"/events?user_id={user_id}",
+            json={
+                "type": "fuel",
+                "description": "Fuel 10 liters",
+                "fuel_liters": 10,
+            },
+        )
+
+        assert vehicle_response.status_code == 201
+        assert first_trip.status_code == 200
+        assert first_trip.json()["mileage"] == 74
+        assert second_trip.status_code == 200
+        assert second_trip.json()["mileage"] == 84
+        assert fuel_response.status_code == 200
+        assert fuel_response.json()["fuel_liters"] == 10
+        assert fuel_response.json()["amount"] == 0
+        assert fuel_response.json()["mileage"] == 0
 
     def test_manual_add_flow_starts_empty_then_returns_created_event(self, client):
         user_id = _register_user(client, "events-manual-add")

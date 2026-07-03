@@ -207,7 +207,9 @@ class ChatActivity : AppCompatActivity() {
         if (event.amount > 0) {
             lines.add("Сумма: ${event.amount} ₽")
         }
-        lines.add("Пробег: ${event.mileage} км")
+        if (event.type == "trip" || event.mileage > 0) {
+            lines.add("Пробег: ${event.mileage} км")
+        }
         return lines.joinToString(separator = "\n")
     }
 

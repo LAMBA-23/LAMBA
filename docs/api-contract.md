@@ -231,6 +231,7 @@ Response:
     "type": "fuel",
     "description": "Full tank",
     "amount": 60,
+    "fuel_liters": 40,
     "mileage": 125000,
     "created_at": "2026-06-13T12:00:00"
   }
@@ -260,6 +261,7 @@ Parsed response:
     "type": "fuel",
     "description": "Заправка на 2500 рублей",
     "amount": 2500,
+    "fuel_liters": null,
     "mileage": 125300
   },
   "clarification_question": null
@@ -293,7 +295,32 @@ Parsed response:
     "type": "trip",
     "description": "Поездка на 100 километров",
     "amount": null,
+    "fuel_liters": null,
     "mileage": 100
+  },
+  "clarification_question": null
+}
+```
+
+Fuel phrases with liters can also be parsed directly:
+
+```json
+{
+  "message": "заправилась на 10 литров за 1000 рублей"
+}
+```
+
+Parsed response:
+
+```json
+{
+  "status": "parsed",
+  "parsed_event": {
+    "type": "fuel",
+    "description": "Заправка на 10 литров",
+    "amount": 1000,
+    "fuel_liters": 10,
+    "mileage": null
   },
   "clarification_question": null
 }
@@ -325,7 +352,9 @@ If `amount` is missing, backend stores `0`.
 
 If `fuel_liters` is missing, backend stores `0`.
 
-If `mileage` is missing, backend uses the car `current_mileage`.
+If `mileage` is missing for `trip`, backend tries to extract trip distance from `description`.
+
+If `mileage` is missing for non-trip events, backend stores `0`.
 
 For `trip` events, `mileage` is interpreted as:
 
@@ -398,7 +427,9 @@ Rules:
 - `amount = null` is treated as `0`.
 - `fuel_liters = null` is treated as `0`.
 - `mileage = null` is treated as `0`.
-- `mileage` / `mileage_km`: total traveled distance for `trip` events in the period, calculated as chronological delta between previous known mileage and each trip event's stored odometer mileage.
+- `week.mileage` / `week.mileage_km`: total traveled distance for `trip` events in the last 7 days, calculated as chronological delta between previous known mileage and each trip event's stored odometer mileage.
+- `month.mileage` / `month.mileage_km`: total traveled distance for `trip` events in the last 30 days, calculated as chronological delta between previous known mileage and each trip event's stored odometer mileage.
+- `all_time.mileage` / `all_time.mileage_km`: current total vehicle odometer mileage, calculated as `initial car mileage + cumulative trip distance`.
 - `fuel_expenses`: sum of `amount` for `fuel` events in the period.
 - `repair_expenses`: sum of `amount` for `repair` events in the period.
 - `total_expenses` / `expenses_rub`: `fuel_expenses + repair_expenses`.
@@ -407,6 +438,7 @@ Rules:
 - `avg_fuel_consumption` and `avg_fuel_consumption_l_per_100km`: return `0` until a liters source exists.
 - `avg_expense_consumption`: return `0` when it cannot be computed from the available period data.
 - Top-level legacy fields remain available: `fuel_expenses`, `repair_expenses`, `trip_count`, `total_recorded_mileage`.
+- `total_recorded_mileage` matches the all-time odometer value used by Android.
 - Empty/no-data case returns numeric zeroes, not `null`.
 
 Response:
@@ -416,7 +448,7 @@ Response:
   "fuel_expenses": 2500,
   "repair_expenses": 7000,
   "trip_count": 1,
-  "total_recorded_mileage": 100,
+  "total_recorded_mileage": 125100,
   "week": {
     "mileage": 100,
     "total_expenses": 2500,
@@ -444,13 +476,13 @@ Response:
     "avg_fuel_consumption_l_per_100km": 0
   },
   "all_time": {
-    "mileage": 100,
+    "mileage": 125100,
     "total_expenses": 9500,
     "fuel_expenses": 2500,
     "repair_expenses": 7000,
     "avg_fuel_consumption": 0,
     "avg_expense_consumption": 0,
-    "mileage_km": 100,
+    "mileage_km": 125100,
     "expenses_rub": 9500,
     "fuel_liters": 40,
     "records_count": 5,

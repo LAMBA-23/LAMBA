@@ -161,6 +161,14 @@ def _sum_trip_distance(events: list[Event], start_at: datetime | None = None) ->
     return total_distance
 
 
+def _current_total_mileage(events: list[Event], car: Car | None = None) -> int:
+    initial_mileage = _coalesce_int(car.current_mileage) if car is not None else 0
+    if initial_mileage == 0 and events and events[0].car is not None:
+        initial_mileage = _coalesce_int(events[0].car.current_mileage)
+
+    return initial_mileage + _sum_trip_distance(events)
+
+
 def _current_trip_mileage(car: Car, events: list[Event]) -> int:
     known_mileage = _coalesce_int(car.current_mileage)
     for event in events:
@@ -184,7 +192,9 @@ def _extract_trip_distance_km(text_value: str) -> int | None:
 
 
 def build_stats_period(
-    events: list[Event], start_at: datetime | None = None
+    events: list[Event],
+    start_at: datetime | None = None,
+    mileage: int | None = None,
 ) -> StatsPeriodResponse:
     period_events = [
         event for event in events if start_at is None or event.created_at >= start_at
@@ -192,7 +202,9 @@ def build_stats_period(
     relevant_events = [
         event for event in period_events if _is_statistics_relevant(event)
     ]
-    mileage = _sum_trip_distance(events, start_at=start_at)
+    period_mileage = (
+        mileage if mileage is not None else _sum_trip_distance(events, start_at=start_at)
+    )
     fuel_expenses = sum(
         _coalesce_int(event.amount) for event in relevant_events if event.type == "fuel"
     )
@@ -209,24 +221,26 @@ def build_stats_period(
     total_expenses = fuel_expenses + repair_expenses
 
     return StatsPeriodResponse(
-        mileage=mileage,
+        mileage=period_mileage,
         total_expenses=total_expenses,
         fuel_expenses=fuel_expenses,
         repair_expenses=repair_expenses,
         records_count=len(period_events),
         avg_fuel_consumption=0,
         avg_expense_consumption=0,
-        mileage_km=mileage,
+        mileage_km=period_mileage,
         expenses_rub=total_expenses,
         fuel_liters=fuel_liters,
         avg_fuel_consumption_l_per_100km=0,
     )
 
 
-def build_stats_response(events: list[Event], now: datetime) -> StatsResponse:
+def build_stats_response(
+    events: list[Event], now: datetime, car: Car | None = None
+) -> StatsResponse:
     week = build_stats_period(events, start_at=now - timedelta(days=7))
     month = build_stats_period(events, start_at=now - timedelta(days=30))
-    all_time = build_stats_period(events)
+    all_time = build_stats_period(events, mileage=_current_total_mileage(events, car))
 
     trip_count = sum(1 for event in events if event.type == "trip")
 
@@ -363,6 +377,17 @@ def parse_event_from_chat(payload: ChatParseRequest) -> ChatParseResponse:
             ),
         )
 
+    if parsed.fuel_liters is not None and parsed.fuel_liters < 0:
+        return ChatParseResponse(
+            status="clarification_needed",
+            clarification_question=(
+                "\u0423\u0442\u043e\u0447\u043d\u0438\u0442\u0435, "
+                "\u043f\u043e\u0436\u0430\u043b\u0443\u0439\u0441\u0442\u0430, "
+                "\u043e\u0431\u044a\u0435\u043c "
+                "\u0442\u043e\u043f\u043b\u0438\u0432\u0430."
+            ),
+        )
+
     if parsed.mileage is not None and parsed.mileage < 0:
         return ChatParseResponse(
             status="clarification_needed",
@@ -380,6 +405,7 @@ def parse_event_from_chat(payload: ChatParseRequest) -> ChatParseResponse:
             type=parsed.type,
             description=parsed.description.strip(),
             amount=parsed.amount,
+            fuel_liters=parsed.fuel_liters,
             mileage=parsed.mileage,
         ),
     )
@@ -452,7 +478,7 @@ def create_event(
     if payload.type == "trip" and event_mileage is None:
         event_mileage = _extract_trip_distance_km(payload.description)
     if event_mileage is None:
-        event_mileage = car.current_mileage
+        event_mileage = 0
 
     if payload.type == "trip":
         event_mileage = _event_effective_mileage(
@@ -496,4 +522,4 @@ def get_stats(
             .order_by(Event.created_at, Event.id)
         )
     )
-    return build_stats_response(events, now)
+    return build_stats_response(events, now, car)

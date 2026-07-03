@@ -51,6 +51,7 @@ data class ParsedEventPayload(
     @SerializedName("type") val type: String,
     @SerializedName("description") val description: String,
     @SerializedName("amount") val amount: Int? = null,
+    @SerializedName("fuel_liters") val fuelLiters: Int? = null,
     @SerializedName("mileage") val mileage: Int? = null
 )
 
@@ -64,6 +65,7 @@ data class EventCreateRequest(
     @SerializedName("type") val type: String,
     @SerializedName("description") val description: String,
     @SerializedName("amount") val amount: Int? = null,
+    @SerializedName("fuel_liters") val fuelLiters: Int? = null,
     @SerializedName("mileage") val mileage: Int? = null
 )
 
@@ -72,6 +74,7 @@ data class Event(
     @SerializedName("type") val type: String,
     @SerializedName("description") val description: String,
     @SerializedName("amount") val amount: Int,
+    @SerializedName("fuel_liters") val fuelLiters: Int = 0,
     @SerializedName("mileage") val mileage: Int,
     @SerializedName("created_at") val createdAt: String? = null
 ) {
@@ -93,5 +96,36 @@ data class Stats(
     @SerializedName("fuel_expenses") val fuelExpenses: Int = 0,
     @SerializedName("repair_expenses") val repairExpenses: Int = 0,
     @SerializedName("trip_count") val tripCount: Int = 0,
-    @SerializedName("total_recorded_mileage") val totalRecordedMileage: Int = 0
+    @SerializedName("total_recorded_mileage") val totalRecordedMileage: Int = 0,
+    @SerializedName("week") val week: StatsPeriod = StatsPeriod(),
+    @SerializedName("month") val month: StatsPeriod = StatsPeriod(),
+    @SerializedName("all_time") val allTime: StatsPeriod = StatsPeriod()
+) {
+    fun periodFor(period: StatsPeriodKey): StatsPeriod {
+        return when (period) {
+            StatsPeriodKey.WEEK -> week
+            StatsPeriodKey.MONTH -> month
+            StatsPeriodKey.ALL_TIME -> allTime
+        }
+    }
+}
+
+data class StatsPeriod(
+    @SerializedName("mileage") val mileage: Int = 0,
+    @SerializedName("total_expenses") val totalExpenses: Int = 0,
+    @SerializedName("fuel_expenses") val fuelExpenses: Int = 0,
+    @SerializedName("repair_expenses") val repairExpenses: Int = 0,
+    @SerializedName("records_count") val recordsCount: Int = 0,
+    @SerializedName("avg_fuel_consumption") val avgFuelConsumption: Int = 0,
+    @SerializedName("avg_expense_consumption") val avgExpenseConsumption: Int = 0,
+    @SerializedName("mileage_km") val mileageKm: Int = 0,
+    @SerializedName("expenses_rub") val expensesRub: Int = 0,
+    @SerializedName("fuel_liters") val fuelLiters: Int = 0,
+    @SerializedName("avg_fuel_consumption_l_per_100km") val avgFuelConsumptionLPer100Km: Int = 0
 )
+
+enum class StatsPeriodKey {
+    WEEK,
+    MONTH,
+    ALL_TIME,
+}

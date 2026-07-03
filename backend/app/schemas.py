@@ -144,6 +144,7 @@ class ParsedEventPayload(BaseModel):
     type: EventType
     description: str
     amount: int | None = None
+    fuel_liters: int | None = None
     mileage: int | None = None
 
 
@@ -151,6 +152,7 @@ class ParsedChatEvent(BaseModel):
     type: EventType | None = None
     description: str | None = None
     amount: int | None = None
+    fuel_liters: int | None = None
     mileage: int | None = None
     needs_clarification: bool
     clarification_question: str | None = None

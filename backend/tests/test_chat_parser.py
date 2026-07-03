@@ -105,3 +105,39 @@ def test_guardrails_recognize_technical_condition_update() -> None:
     assert result.description == "Техническое состояние хорошее, пробег 125500"
     assert result.mileage == 125500
     assert result.needs_clarification is False
+
+
+def test_guardrails_parse_fuel_liters_without_amount() -> None:
+    result = _apply_guardrails(
+        "заправилась на 10 литров",
+        ParsedChatEvent(
+            needs_clarification=True,
+            clarification_question="Уточните тип события.",
+        ),
+    )
+
+    assert result.type == "fuel"
+    assert result.description == "Заправка на 10 литров"
+    assert result.amount is None
+    assert getattr(result, "fuel_liters", None) == 10
+    assert result.mileage is None
+    assert result.needs_clarification is False
+    assert result.clarification_question is None
+
+
+def test_guardrails_parse_fuel_liters_and_amount_separately() -> None:
+    result = _apply_guardrails(
+        "заправилась на 10 литров за 1000 рублей",
+        ParsedChatEvent(
+            needs_clarification=True,
+            clarification_question="Уточните тип события.",
+        ),
+    )
+
+    assert result.type == "fuel"
+    assert result.description == "Заправка на 10 литров"
+    assert result.amount == 1000
+    assert getattr(result, "fuel_liters", None) == 10
+    assert result.mileage is None
+    assert result.needs_clarification is False
+    assert result.clarification_question is None

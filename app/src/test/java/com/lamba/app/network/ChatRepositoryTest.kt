@@ -39,6 +39,38 @@ class ChatRepositoryTest {
     }
 
     @Test
+    fun parsedFuelLitersAreSavedWithEvent() = runBlocking {
+        val parsedEvent = ParsedEventPayload(
+            type = "fuel",
+            description = "Заправка на 40 литров",
+            amount = 2500,
+            fuelLiters = 40,
+            mileage = null,
+        )
+        val savedEvent = Event(
+            id = 44,
+            type = "fuel",
+            description = "Заправка на 40 литров",
+            amount = 2500,
+            fuelLiters = 40,
+            mileage = 0,
+            createdAt = "2026-06-21T12:00:00",
+        )
+        val backend = FakeChatBackend(
+            parseResponse = ChatParseResponse(
+                status = "parsed",
+                parsedEvent = parsedEvent,
+            ),
+            savedEvent = savedEvent,
+        )
+
+        val result = ChatRepository(backend).sendMessage("Заправился на 40 литров за 2500 рублей")
+
+        assertEquals(ChatSendResult.Saved(savedEvent), result)
+        assertEquals(listOf(parsedEvent), backend.savedEvents)
+    }
+
+    @Test
     fun clarificationIsShownWithoutSavingEvent() = runBlocking {
         val question = "Это была заправка, ремонт, поездка или проблема?"
         val backend = FakeChatBackend(

@@ -35,6 +35,7 @@ def test_parse_event_returns_structured_payload(monkeypatch) -> None:
             type="fuel",
             description="Заправка на 2500 рублей",
             amount=2500,
+            fuel_liters=None,
             mileage=125300,
             needs_clarification=False,
             clarification_question=None,
@@ -54,7 +55,41 @@ def test_parse_event_returns_structured_payload(monkeypatch) -> None:
             "type": "fuel",
             "description": "Заправка на 2500 рублей",
             "amount": 2500,
+            "fuel_liters": None,
             "mileage": 125300,
+        },
+        "clarification_question": None,
+    }
+
+
+def test_parse_event_returns_fuel_liters(monkeypatch) -> None:
+    def fake_parser(_: str) -> ParsedChatEvent:
+        return ParsedChatEvent(
+            type="fuel",
+            description="Заправка на 10 литров",
+            amount=None,
+            fuel_liters=10,
+            mileage=None,
+            needs_clarification=False,
+            clarification_question=None,
+        )
+
+    monkeypatch.setattr(main_module, "parse_chat_message", fake_parser)
+
+    response = client.post(
+        "/chat/parse-event",
+        json={"message": "заправилась на 10 литров"},
+    )
+
+    assert response.status_code == 200
+    assert response.json() == {
+        "status": "parsed",
+        "parsed_event": {
+            "type": "fuel",
+            "description": "Заправка на 10 литров",
+            "amount": None,
+            "fuel_liters": 10,
+            "mileage": None,
         },
         "clarification_question": None,
     }
@@ -115,6 +150,7 @@ def test_parse_event_accepts_technical_condition_update(monkeypatch) -> None:
             type="condition",
             description="Техническое состояние хорошее",
             amount=None,
+            fuel_liters=None,
             mileage=125500,
             needs_clarification=False,
             clarification_question=None,
@@ -132,6 +168,7 @@ def test_parse_event_accepts_technical_condition_update(monkeypatch) -> None:
         "type": "condition",
         "description": "Техническое состояние хорошее",
         "amount": None,
+        "fuel_liters": None,
         "mileage": 125500,
     }
 
@@ -142,6 +179,7 @@ def test_parsed_event_is_saved_for_user_and_visible_in_timeline(monkeypatch) -> 
             type="condition",
             description="Техническое состояние хорошее",
             amount=None,
+            fuel_liters=None,
             mileage=125500,
             needs_clarification=False,
             clarification_question=None,
