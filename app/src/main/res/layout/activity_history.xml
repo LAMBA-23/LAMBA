@@ -27,7 +27,7 @@
         android:layout_height="0dp"
         android:clipToPadding="false"
         android:fillViewport="true"
-        android:paddingBottom="24dp"
+        android:paddingBottom="112dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -59,7 +59,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
                 android:lineSpacingExtra="2dp"
-                android:text="Всё, что ты рассказывал машине."
+                android:text="Все, что ты рассказывал машине."
                 android:textColor="#7D7D7D"
                 android:textSize="16sp"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -101,4 +101,19 @@
                 app:layout_constraintTop_toBottomOf="@id/tvSubtitle" />
         </androidx.constraintlayout.widget.ConstraintLayout>
     </ScrollView>
+
+    <ImageButton
+        android:id="@+id/btnAddHistoryRecord"
+        android:layout_width="64dp"
+        android:layout_height="64dp"
+        android:layout_marginEnd="24dp"
+        android:layout_marginBottom="24dp"
+        android:background="@drawable/bg_history_fab"
+        android:contentDescription="Добавить запись"
+        android:elevation="8dp"
+        android:padding="18dp"
+        android:src="@drawable/ic_lamba_plus"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:tint="#FFFFFF" />
 </androidx.constraintlayout.widget.ConstraintLayout>
