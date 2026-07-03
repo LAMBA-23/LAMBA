@@ -109,6 +109,35 @@ class TestEventsApi:
         assert timeline_response.status_code == 200
         assert timeline_response.json() == [created_event]
 
+    def test_post_event_supports_manual_form_event_types_and_fields(self, client):
+        user_id = _register_user(client, "events-manual-form-types")
+
+        created_events = []
+        for event_type in ("fuel", "repair", "trip", "issue"):
+            response = client.post(
+                f"/events?user_id={user_id}",
+                json=_event_payload(
+                    type=event_type,
+                    description=f"Manual {event_type}",
+                    amount=100,
+                    mileage=10,
+                    fuel_liters=5,
+                ),
+            )
+
+            assert response.status_code == 200
+            created = response.json()
+            assert created["type"] == event_type
+            assert created["description"] == f"Manual {event_type}"
+            assert created["amount"] == 100
+            assert created["fuel_liters"] == 5
+            created_events.append(created)
+
+        timeline_response = client.get(f"/events?user_id={user_id}")
+
+        assert timeline_response.status_code == 200
+        assert timeline_response.json() == created_events
+
     def test_post_trip_distance_stores_new_odometer_and_keeps_timeline_response(
         self, client
     ):
@@ -252,6 +281,7 @@ class TestEventsApi:
             _event_payload(description="   "),
             _event_payload(amount=-1),
             _event_payload(mileage=-1),
+            _event_payload(fuel_liters=-1),
         ]
 
         for payload in invalid_payloads:
