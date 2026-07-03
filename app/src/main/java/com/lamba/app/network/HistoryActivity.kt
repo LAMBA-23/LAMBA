@@ -100,8 +100,9 @@ class HistoryActivity : AppCompatActivity() {
     private fun renderTimeline() {
         layoutTimeline.removeAllViews()
         progressHistory.visibility = View.GONE
+        val supportedBackendEvents = backendEvents.filter { isSupportedBackendEvent(it.type) }
 
-        if (manualRecords.isEmpty() && backendEvents.isEmpty()) {
+        if (manualRecords.isEmpty() && supportedBackendEvents.isEmpty()) {
             showState("История пока пустая")
             return
         }
@@ -118,7 +119,7 @@ class HistoryActivity : AppCompatActivity() {
                 onClick = { showRecordDetailsSheet(index) },
             )
         }
-        backendEvents.forEach { event ->
+        supportedBackendEvents.forEach { event ->
             val mapping = mapEventType(event.type)
             addTimelineItem(
                 title = mapping.title,
@@ -500,10 +501,13 @@ class HistoryActivity : AppCompatActivity() {
             "maintenance" -> EventDisplay("ТО", R.drawable.ic_lamba_build)
             "repair" -> EventDisplay("Ремонт", R.drawable.ic_lamba_repair)
             "trip" -> EventDisplay("Поездка", R.drawable.ic_lamba_route)
-            "issue" -> EventDisplay("Ремонт", R.drawable.ic_lamba_repair)
-            "condition" -> EventDisplay("ТО", R.drawable.ic_lamba_build)
+            "issue" -> EventDisplay("Повреждение", R.drawable.ic_lamba_repair)
             else -> EventDisplay("Событие", R.drawable.ic_lamba_history)
         }
+    }
+
+    private fun isSupportedBackendEvent(type: String): Boolean {
+        return type.lowercase() in setOf("fuel", "repair", "trip", "issue")
     }
 
     private fun formatBackendDate(createdAt: String?): String {

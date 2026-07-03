@@ -112,15 +112,6 @@ class TestStatsApi:
             amount=999,
             mileage=888,
         )
-        _create_event(
-            client,
-            user_id,
-            type="condition",
-            description="ignored condition",
-            amount=333,
-            mileage=444,
-        )
-
         response = client.get(f"/stats?user_id={user_id}")
         data = response.json()
 
@@ -138,6 +129,37 @@ class TestStatsApi:
         assert data["repair_expenses"] == 7000
         assert data["trip_count"] == 1
         assert data["total_recorded_mileage"] == 100
+
+    def test_manual_issue_event_counts_as_record_without_expenses_or_mileage(
+        self, client
+    ):
+        user_id = _register_user(client, "stats-manual-issue")
+
+        issue_response = _create_event(
+            client,
+            user_id,
+            type="issue",
+            description="Manual issue note",
+            amount=5000,
+            mileage=250,
+            fuel_liters=10,
+        )
+        stats_response = client.get(f"/stats?user_id={user_id}")
+        timeline_response = client.get(f"/events?user_id={user_id}")
+        data = stats_response.json()
+
+        assert issue_response.status_code == 200
+        assert stats_response.status_code == 200
+        assert timeline_response.status_code == 200
+        assert len(timeline_response.json()) == 1
+        assert data["all_time"]["records_count"] == 1
+        assert data["all_time"]["total_expenses"] == 0
+        assert data["all_time"]["fuel_expenses"] == 0
+        assert data["all_time"]["repair_expenses"] == 0
+        assert data["all_time"]["mileage"] == 0
+        assert data["all_time"]["fuel_liters"] == 0
+        assert data["trip_count"] == 0
+        assert data["total_recorded_mileage"] == 0
 
     def test_get_stats_uses_trip_distance_payload_to_store_and_report_delta(
         self, client

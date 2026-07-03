@@ -82,7 +82,6 @@ data class Event(
                 "ремонт", "сервис", "repair" -> "repair"
                 "поездка", "trip" -> "trip"
                 "проблема", "поломка", "issue" -> "issue"
-                "техническое состояние", "состояние", "condition" -> "condition"
                 else -> "issue"
             }
         }
