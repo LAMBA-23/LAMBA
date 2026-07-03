@@ -132,6 +132,19 @@ def _is_statistics_relevant(event: Event) -> bool:
     return event.type in STATISTICS_EVENT_TYPES
 
 
+def _has_configured_vehicle_record(events: list[Event]) -> bool:
+    if not events or events[0].car is None:
+        return False
+
+    car = events[0].car
+    return (
+        car.brand != DEFAULT_CAR_BRAND
+        or car.model != DEFAULT_CAR_MODEL
+        or car.production_year != DEFAULT_CAR_PRODUCTION_YEAR
+        or car.current_mileage != DEFAULT_CAR_MILEAGE
+    )
+
+
 def _event_effective_mileage(event: Event, known_mileage: int) -> int:
     mileage = _coalesce_int(event.mileage)
     if event.type == "trip" and mileage <= known_mileage:
@@ -195,6 +208,7 @@ def build_stats_period(
     events: list[Event],
     start_at: datetime | None = None,
     mileage: int | None = None,
+    include_vehicle_record: bool = False,
 ) -> StatsPeriodResponse:
     period_events = [
         event for event in events if start_at is None or event.created_at >= start_at
@@ -219,13 +233,16 @@ def build_stats_period(
         if event.type == "repair"
     )
     total_expenses = fuel_expenses + repair_expenses
+    vehicle_record_count = (
+        1 if include_vehicle_record and _has_configured_vehicle_record(events) else 0
+    )
 
     return StatsPeriodResponse(
         mileage=period_mileage,
         total_expenses=total_expenses,
         fuel_expenses=fuel_expenses,
         repair_expenses=repair_expenses,
-        records_count=len(period_events),
+        records_count=len(period_events) + vehicle_record_count,
         avg_fuel_consumption=0,
         avg_expense_consumption=0,
         mileage_km=period_mileage,
@@ -240,7 +257,11 @@ def build_stats_response(
 ) -> StatsResponse:
     week = build_stats_period(events, start_at=now - timedelta(days=7))
     month = build_stats_period(events, start_at=now - timedelta(days=30))
-    all_time = build_stats_period(events, mileage=_current_total_mileage(events, car))
+    all_time = build_stats_period(
+        events,
+        mileage=_current_total_mileage(events, car),
+        include_vehicle_record=True,
+    )
 
     trip_count = sum(1 for event in events if event.type == "trip")
 

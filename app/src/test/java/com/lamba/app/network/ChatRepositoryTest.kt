@@ -12,14 +12,14 @@ class ChatRepositoryTest {
     fun parsedMessageIsSavedAndReturnsBackendEvent() = runBlocking {
         val parsedEvent = ParsedEventPayload(
             type = "fuel",
-            description = "Заправка на 2500 рублей",
+            description = "Fuel refill",
             amount = 2500,
             mileage = 125300,
         )
         val savedEvent = Event(
             id = 42,
             type = "fuel",
-            description = "Заправка на 2500 рублей",
+            description = "Fuel refill",
             amount = 2500,
             mileage = 125300,
             createdAt = "2026-06-21T12:00:00",
@@ -32,7 +32,7 @@ class ChatRepositoryTest {
             savedEvent = savedEvent,
         )
 
-        val result = ChatRepository(backend).sendMessage("Заправился на 2500 рублей")
+        val result = ChatRepository(backend).sendMessage("Refilled fuel for 2500")
 
         assertEquals(ChatSendResult.Saved(savedEvent), result)
         assertEquals(listOf(parsedEvent), backend.savedEvents)
@@ -72,7 +72,7 @@ class ChatRepositoryTest {
 
     @Test
     fun clarificationIsShownWithoutSavingEvent() = runBlocking {
-        val question = "Это была заправка, ремонт, поездка или проблема?"
+        val question = "Was it fuel, repair, trip, or issue?"
         val backend = FakeChatBackend(
             parseResponse = ChatParseResponse(
                 status = "clarification_needed",
@@ -80,7 +80,7 @@ class ChatRepositoryTest {
             )
         )
 
-        val result = ChatRepository(backend).sendMessage("Потратил 3000")
+        val result = ChatRepository(backend).sendMessage("Spent 3000")
 
         assertEquals(ChatSendResult.Clarification(question), result)
         assertTrue(backend.savedEvents.isEmpty())
@@ -90,7 +90,7 @@ class ChatRepositoryTest {
     fun parsingFailureDoesNotAttemptSaving() = runBlocking {
         val backend = FakeChatBackend(parseError = IOException("offline"))
 
-        val result = ChatRepository(backend).sendMessage("Заправился")
+        val result = ChatRepository(backend).sendMessage("Refilled")
 
         assertEquals(
             ChatSendResult.Failure(ChatFailureStage.PARSING),
@@ -106,14 +106,14 @@ class ChatRepositoryTest {
                 status = "parsed",
                 parsedEvent = ParsedEventPayload(
                     type = "repair",
-                    description = "Замена масла",
+                    description = "Oil change",
                     amount = 8000,
                 ),
             ),
             saveError = IOException("backend unavailable"),
         )
 
-        val result = ChatRepository(backend).sendMessage("Поменял масло за 8000")
+        val result = ChatRepository(backend).sendMessage("Changed oil for 8000")
 
         assertEquals(
             ChatSendResult.Failure(ChatFailureStage.SAVING),
@@ -128,7 +128,7 @@ class ChatRepositoryTest {
             parseResponse = ChatParseResponse(status = "parsed")
         )
 
-        val result = ChatRepository(backend).sendMessage("Заправился")
+        val result = ChatRepository(backend).sendMessage("Refilled")
 
         assertEquals(
             ChatSendResult.Failure(ChatFailureStage.PARSING),
@@ -138,33 +138,23 @@ class ChatRepositoryTest {
     }
 
     @Test
-    fun technicalConditionUpdateIsSaved() = runBlocking {
+    fun nonTimelineConditionMessageIsNotSaved() = runBlocking {
         val parsedEvent = ParsedEventPayload(
             type = "condition",
-            description = "Техническое состояние хорошее",
-            mileage = 125500,
-        )
-        val savedEvent = Event(
-            id = 43,
-            type = "condition",
-            description = parsedEvent.description,
-            amount = 0,
+            description = "Technical condition is good",
             mileage = 125500,
         )
         val backend = FakeChatBackend(
             parseResponse = ChatParseResponse(
                 status = "parsed",
                 parsedEvent = parsedEvent,
-            ),
-            savedEvent = savedEvent,
+            )
         )
 
-        val result = ChatRepository(backend).sendMessage(
-            "Техническое состояние хорошее, пробег 125500"
-        )
+        val result = ChatRepository(backend).sendMessage("Check vehicle condition")
 
-        assertEquals(ChatSendResult.Saved(savedEvent), result)
-        assertEquals(listOf(parsedEvent), backend.savedEvents)
+        assertTrue(result is ChatSendResult.Clarification)
+        assertTrue(backend.savedEvents.isEmpty())
     }
 
     private class FakeChatBackend(

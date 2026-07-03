@@ -68,15 +68,15 @@ class TestEventsApi:
 
         create_response = client.post(
             f"/events?user_id={user_id}",
-            json={"type": "condition", "description": "Car condition is good"},
+            json={"type": "fuel", "description": "Manual fuel record"},
         )
         timeline_response = client.get(f"/events?user_id={user_id}")
 
         assert vehicle_response.status_code == 201
         assert create_response.status_code == 200
         created_event = create_response.json()
-        assert created_event["type"] == "condition"
-        assert created_event["description"] == "Car condition is good"
+        assert created_event["type"] == "fuel"
+        assert created_event["description"] == "Manual fuel record"
         assert created_event["amount"] == 0
         assert created_event["mileage"] == 0
         assert created_event["fuel_liters"] == 0
@@ -161,6 +161,35 @@ class TestEventsApi:
         assert timeline_response.status_code == 200
         assert timeline_response.json() == [created_event]
 
+    def test_post_event_supports_manual_form_event_types_and_fields(self, client):
+        user_id = _register_user(client, "events-manual-form-types")
+
+        created_events = []
+        for event_type in ("fuel", "repair", "trip", "issue"):
+            response = client.post(
+                f"/events?user_id={user_id}",
+                json=_event_payload(
+                    type=event_type,
+                    description=f"Manual {event_type}",
+                    amount=100,
+                    mileage=10,
+                    fuel_liters=5,
+                ),
+            )
+
+            assert response.status_code == 200
+            created = response.json()
+            assert created["type"] == event_type
+            assert created["description"] == f"Manual {event_type}"
+            assert created["amount"] == 100
+            assert created["fuel_liters"] == 5
+            created_events.append(created)
+
+        timeline_response = client.get(f"/events?user_id={user_id}")
+
+        assert timeline_response.status_code == 200
+        assert timeline_response.json() == created_events
+
     def test_post_trip_distance_stores_new_odometer_and_keeps_timeline_response(
         self, client
     ):
@@ -231,7 +260,7 @@ class TestEventsApi:
     def test_post_trip_distance_uses_previous_trip_not_latest_non_trip_mileage(
         self, client
     ):
-        user_id = _register_user(client, "events-trip-after-condition")
+        user_id = _register_user(client, "events-trip-after-issue")
         vehicle_response = client.post(
             "/vehicle",
             json={
@@ -252,11 +281,11 @@ class TestEventsApi:
                 "mileage": 100,
             },
         )
-        condition = client.post(
+        issue_note = client.post(
             f"/events?user_id={user_id}",
             json={
-                "type": "condition",
-                "description": "Condition note with stale mileage",
+                "type": "issue",
+                "description": "Issue note with stale mileage",
                 "amount": 0,
                 "mileage": 61004,
             },
@@ -274,10 +303,10 @@ class TestEventsApi:
 
         assert vehicle_response.status_code == 201
         assert first_trip.status_code == 200
-        assert condition.status_code == 200
+        assert issue_note.status_code == 200
         assert second_trip.status_code == 200
         assert first_trip.json()["mileage"] == 76100
-        assert condition.json()["mileage"] == 61004
+        assert issue_note.json()["mileage"] == 61004
         assert second_trip.json()["mileage"] == 76200
         assert [event["mileage"] for event in timeline_response.json()] == [
             76100,
@@ -300,9 +329,11 @@ class TestEventsApi:
 
         invalid_payloads = [
             _event_payload(type="unknown"),
+            _event_payload(type="condition"),
             _event_payload(description="   "),
             _event_payload(amount=-1),
             _event_payload(mileage=-1),
+            _event_payload(fuel_liters=-1),
         ]
 
         for payload in invalid_payloads:
