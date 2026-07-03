@@ -34,15 +34,18 @@ def test_guardrails_force_trip_clarification_for_unclear_units() -> None:
 
 def test_guardrails_accept_trip_with_known_kilometer_units() -> None:
     result = _apply_guardrails(
-        "поездка 100 километров",
+        "\u043f\u043e\u0435\u0437\u0434\u043a\u0430 100 \u043a\u0438\u043b\u043e\u043c\u0435\u0442\u0440\u043e\u0432",
         ParsedChatEvent(
             needs_clarification=True,
-            clarification_question="Уточните тип события.",
+            clarification_question="\u0423\u0442\u043e\u0447\u043d\u0438\u0442\u0435 \u0442\u0438\u043f \u0441\u043e\u0431\u044b\u0442\u0438\u044f.",
         ),
     )
 
     assert result.type == "trip"
-    assert result.description == "Поездка на 100 километров"
+    assert (
+        result.description
+        == "\u041f\u043e\u0435\u0437\u0434\u043a\u0430 \u043d\u0430 100 \u043a\u0438\u043b\u043e\u043c\u0435\u0442\u0440\u043e\u0432"
+    )
     assert result.amount is None
     assert result.mileage == 100
     assert result.needs_clarification is False
@@ -51,9 +54,9 @@ def test_guardrails_accept_trip_with_known_kilometer_units() -> None:
 
 def test_guardrails_accept_common_trip_phrases_with_known_units() -> None:
     messages = [
-        "поездка на 100 километров",
-        "проехал 100 км",
-        "съездил 100 км",
+        "\u043f\u043e\u0435\u0437\u0434\u043a\u0430 \u043d\u0430 100 \u043a\u0438\u043b\u043e\u043c\u0435\u0442\u0440\u043e\u0432",
+        "\u043f\u0440\u043e\u0435\u0445\u0430\u043b 100 \u043a\u043c",
+        "\u0441\u044a\u0435\u0437\u0434\u0438\u043b 100 \u043a\u043c",
     ]
 
     for message in messages:
@@ -61,7 +64,7 @@ def test_guardrails_accept_common_trip_phrases_with_known_units() -> None:
             message,
             ParsedChatEvent(
                 needs_clarification=True,
-                clarification_question="Уточните тип события.",
+                clarification_question="\u0423\u0442\u043e\u0447\u043d\u0438\u0442\u0435 \u0442\u0438\u043f \u0441\u043e\u0431\u044b\u0442\u0438\u044f.",
             ),
         )
 
@@ -101,3 +104,45 @@ def test_guardrails_do_not_create_timeline_event_for_condition_request() -> None
     assert result.type is None
     assert result.needs_clarification is True
     assert result.clarification_question is not None
+
+
+def test_guardrails_parse_fuel_liters_without_amount() -> None:
+    result = _apply_guardrails(
+        "\u0437\u0430\u043f\u0440\u0430\u0432\u0438\u043b\u0430\u0441\u044c \u043d\u0430 10 \u043b\u0438\u0442\u0440\u043e\u0432",
+        ParsedChatEvent(
+            needs_clarification=True,
+            clarification_question="\u0423\u0442\u043e\u0447\u043d\u0438\u0442\u0435 \u0442\u0438\u043f \u0441\u043e\u0431\u044b\u0442\u0438\u044f.",
+        ),
+    )
+
+    assert result.type == "fuel"
+    assert (
+        result.description
+        == "\u0417\u0430\u043f\u0440\u0430\u0432\u043a\u0430 \u043d\u0430 10 \u043b\u0438\u0442\u0440\u043e\u0432"
+    )
+    assert result.amount is None
+    assert getattr(result, "fuel_liters", None) == 10
+    assert result.mileage is None
+    assert result.needs_clarification is False
+    assert result.clarification_question is None
+
+
+def test_guardrails_parse_fuel_liters_and_amount_separately() -> None:
+    result = _apply_guardrails(
+        "\u0437\u0430\u043f\u0440\u0430\u0432\u0438\u043b\u0430\u0441\u044c \u043d\u0430 10 \u043b\u0438\u0442\u0440\u043e\u0432 \u0437\u0430 1000 \u0440\u0443\u0431\u043b\u0435\u0439",
+        ParsedChatEvent(
+            needs_clarification=True,
+            clarification_question="\u0423\u0442\u043e\u0447\u043d\u0438\u0442\u0435 \u0442\u0438\u043f \u0441\u043e\u0431\u044b\u0442\u0438\u044f.",
+        ),
+    )
+
+    assert result.type == "fuel"
+    assert (
+        result.description
+        == "\u0417\u0430\u043f\u0440\u0430\u0432\u043a\u0430 \u043d\u0430 10 \u043b\u0438\u0442\u0440\u043e\u0432"
+    )
+    assert result.amount == 1000
+    assert getattr(result, "fuel_liters", None) == 10
+    assert result.mileage is None
+    assert result.needs_clarification is False
+    assert result.clarification_question is None

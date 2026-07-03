@@ -36,7 +36,8 @@ class StatisticsActivity : AppCompatActivity() {
     private lateinit var repairProgressTrack: FrameLayout
     private lateinit var repairProgressFill: View
     private lateinit var tvPeriodChip: TextView
-    private var selectedPeriod: String = "За всё время"
+    private var selectedPeriod: String = PERIOD_ALL_TIME
+    private var latestStats: Stats = Stats()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -91,7 +92,7 @@ class StatisticsActivity : AppCompatActivity() {
             setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
         }
 
-        listOf("За неделю", "За месяц", "За всё время").forEachIndexed { index, period ->
+        listOf(PERIOD_WEEK, PERIOD_MONTH, PERIOD_ALL_TIME).forEachIndexed { index, period ->
             container.addView(createPeriodDropdownItem(period, popup))
             if (index < 2) {
                 container.addView(View(this).apply {
@@ -153,6 +154,7 @@ class StatisticsActivity : AppCompatActivity() {
             setOnClickListener {
                 selectedPeriod = period
                 tvPeriodChip.text = "$period  ˅"
+                renderStats(latestStats)
                 animateDropdownDismiss(popup)
             }
         }
@@ -207,20 +209,30 @@ class StatisticsActivity : AppCompatActivity() {
     }
 
     private fun renderStats(stats: Stats) {
-        val fuelExpenses = stats.fuelExpenses
-        val repairExpenses = stats.repairExpenses
+        latestStats = stats
+        val period = stats.periodFor(selectedPeriodKey())
+        val fuelExpenses = period.fuelExpenses
+        val repairExpenses = period.repairExpenses
         val totalExpenses = fuelExpenses + repairExpenses
 
-        tvMileageValue.text = formatMileage(stats.totalRecordedMileage)
-        tvTotalExpensesValue.text = formatLitres(fuelExpenses)
+        tvMileageValue.text = formatMileage(period.mileage)
+        tvTotalExpensesValue.text = formatLitres(period.fuelLiters)
         tvFuelValue.text = formatMoney(fuelExpenses)
         tvRepairValue.text = formatMoney(repairExpenses)
-        tvRecordsValue.text = "${stats.tripCount} события"
+        tvRecordsValue.text = "${period.recordsCount} события"
         tvFuelBreakdownValue.text = formatMoney(fuelExpenses)
         tvRepairBreakdownValue.text = formatMoney(repairExpenses)
 
         updateProgress(fuelProgressTrack, fuelProgressFill, fuelExpenses, totalExpenses)
         updateProgress(repairProgressTrack, repairProgressFill, repairExpenses, totalExpenses)
+    }
+
+    private fun selectedPeriodKey(): StatsPeriodKey {
+        return when (selectedPeriod) {
+            PERIOD_WEEK -> StatsPeriodKey.WEEK
+            PERIOD_MONTH -> StatsPeriodKey.MONTH
+            else -> StatsPeriodKey.ALL_TIME
+        }
     }
 
     private fun showLoading(isLoading: Boolean) {
@@ -271,4 +283,10 @@ class StatisticsActivity : AppCompatActivity() {
 
     private val Int.dp: Int
         get() = (this * resources.displayMetrics.density).toInt()
+
+    private companion object {
+        const val PERIOD_WEEK = "За неделю"
+        const val PERIOD_MONTH = "За месяц"
+        const val PERIOD_ALL_TIME = "За всё время"
+    }
 }

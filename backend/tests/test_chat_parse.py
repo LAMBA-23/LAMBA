@@ -35,6 +35,7 @@ def test_parse_event_returns_structured_payload(monkeypatch) -> None:
             type="fuel",
             description="Fuel refill",
             amount=2500,
+            fuel_liters=None,
             mileage=125300,
             needs_clarification=False,
             clarification_question=None,
@@ -54,7 +55,41 @@ def test_parse_event_returns_structured_payload(monkeypatch) -> None:
             "type": "fuel",
             "description": "Fuel refill",
             "amount": 2500,
+            "fuel_liters": None,
             "mileage": 125300,
+        },
+        "clarification_question": None,
+    }
+
+
+def test_parse_event_returns_fuel_liters(monkeypatch) -> None:
+    def fake_parser(_: str) -> ParsedChatEvent:
+        return ParsedChatEvent(
+            type="fuel",
+            description="Р—Р°РїСЂР°РІРєР° РЅР° 10 Р»РёС‚СЂРѕРІ",
+            amount=None,
+            fuel_liters=10,
+            mileage=None,
+            needs_clarification=False,
+            clarification_question=None,
+        )
+
+    monkeypatch.setattr(main_module, "parse_chat_message", fake_parser)
+
+    response = client.post(
+        "/chat/parse-event",
+        json={"message": "Р·Р°РїСЂР°РІРёР»Р°СЃСЊ РЅР° 10 Р»РёС‚СЂРѕРІ"},
+    )
+
+    assert response.status_code == 200
+    assert response.json() == {
+        "status": "parsed",
+        "parsed_event": {
+            "type": "fuel",
+            "description": "Р—Р°РїСЂР°РІРєР° РЅР° 10 Р»РёС‚СЂРѕРІ",
+            "amount": None,
+            "fuel_liters": 10,
+            "mileage": None,
         },
         "clarification_question": None,
     }

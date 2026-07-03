@@ -64,6 +64,32 @@ class TestStatsApi:
         assert data["all_time"]["records_count"] == 0
         assert data["all_time"]["fuel_liters"] == 0
 
+    def test_get_stats_returns_initial_mileage_for_all_time_only(self, client):
+        user_id = _register_user(client, "stats-initial-mileage-user")
+        vehicle_response = client.post(
+            "/vehicle",
+            json={
+                "user_id": user_id,
+                "brand": "Toyota",
+                "model": "Camry",
+                "production_year": 2023,
+                "current_mileage": 64,
+            },
+        )
+
+        response = client.get(f"/stats?user_id={user_id}")
+        data = response.json()
+
+        assert vehicle_response.status_code == 201
+        assert response.status_code == 200
+        assert data["total_recorded_mileage"] == 64
+        assert data["all_time"]["mileage"] == 64
+        assert data["all_time"]["mileage_km"] == 64
+        assert data["week"]["mileage"] == 0
+        assert data["week"]["mileage_km"] == 0
+        assert data["month"]["mileage"] == 0
+        assert data["month"]["mileage_km"] == 0
+
     def test_get_stats_counts_trip_distance_fuel_liters_and_all_period_records(
         self, client
     ):
@@ -117,7 +143,8 @@ class TestStatsApi:
 
         assert vehicle_response.status_code == 201
         assert response.status_code == 200
-        assert data["all_time"]["mileage"] == 100
+        assert data["all_time"]["mileage"] == 125100
+        assert data["all_time"]["mileage_km"] == 125100
         assert data["all_time"]["total_expenses"] == 9500
         assert data["all_time"]["fuel_expenses"] == 2500
         assert data["all_time"]["repair_expenses"] == 7000
@@ -128,7 +155,7 @@ class TestStatsApi:
         assert data["fuel_expenses"] == 2500
         assert data["repair_expenses"] == 7000
         assert data["trip_count"] == 1
-        assert data["total_recorded_mileage"] == 100
+        assert data["total_recorded_mileage"] == 125100
 
     def test_manual_issue_event_counts_as_record_without_expenses_or_mileage(
         self, client
@@ -190,8 +217,11 @@ class TestStatsApi:
         assert trip_response.status_code == 200
         assert trip_response.json()["mileage"] == 125100
         assert stats_response.status_code == 200
-        assert stats_response.json()["all_time"]["mileage"] == 100
-        assert stats_response.json()["total_recorded_mileage"] == 100
+        assert stats_response.json()["all_time"]["mileage"] == 125100
+        assert stats_response.json()["all_time"]["mileage_km"] == 125100
+        assert stats_response.json()["week"]["mileage"] == 100
+        assert stats_response.json()["month"]["mileage"] == 100
+        assert stats_response.json()["total_recorded_mileage"] == 125100
 
     def test_get_stats_sums_multiple_trip_deltas_from_initial_mileage(self, client):
         user_id = _register_user(client, "stats-multiple-trips")
@@ -228,8 +258,11 @@ class TestStatsApi:
         assert first_trip.status_code == 200
         assert second_trip.status_code == 200
         assert stats_response.status_code == 200
-        assert stats_response.json()["all_time"]["mileage"] == 250
-        assert stats_response.json()["total_recorded_mileage"] == 250
+        assert stats_response.json()["all_time"]["mileage"] == 125250
+        assert stats_response.json()["all_time"]["mileage_km"] == 125250
+        assert stats_response.json()["week"]["mileage"] == 250
+        assert stats_response.json()["month"]["mileage"] == 250
+        assert stats_response.json()["total_recorded_mileage"] == 125250
 
     def test_get_stats_filters_week_month_and_all_time_by_created_at(
         self, client, db_session
