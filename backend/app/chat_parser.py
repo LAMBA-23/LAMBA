@@ -291,31 +291,13 @@ def _looks_like_trip_with_unclear_units(message: str) -> bool:
 
 
 def _contains_fuel_keywords(message: str) -> bool:
-    if any(
+    return any(
         keyword in message
         for keyword in ("заправ", "топлив", "бензин", "дизел", "азс")
-    ):
-        return True
-    return any(
-        keyword in message for keyword in ("заправ", "топлив", "бензин", "дизел", "азс")
     )
 
 
 def _contains_repair_keywords(message: str) -> bool:
-    if any(
-        keyword in message
-        for keyword in (
-            "ремонт",
-            "поменял",
-            "заменил",
-            "замена",
-            "сервис",
-            " сто",
-            "то ",
-            "масло",
-        )
-    ):
-        return True
     return any(
         keyword in message
         for keyword in (
@@ -332,34 +314,21 @@ def _contains_repair_keywords(message: str) -> bool:
 
 
 def _contains_trip_keywords(message: str) -> bool:
-    if any(
-        keyword in message
-        for keyword in ("проехал", "поезд", "ехал", "доехал", "маршрут", "путь")
-    ):
-        return True
     return any(
         keyword in message
-        for keyword in ("проехал", "поезд", "ехал", "доехал", "маршрут", "пут")
+        for keyword in (
+            "проехал",
+            "поезд",
+            "ехал",
+            "доехал",
+            "маршрут",
+            "путь",
+            "пут",
+        )
     )
 
 
 def _contains_issue_keywords(message: str) -> bool:
-    if any(
-        keyword in message
-        for keyword in (
-            "чек",
-            "ошибк",
-            "не завод",
-            "загорел",
-            "ламп",
-            "стук",
-            "скрип",
-            "проблем",
-            "полом",
-            "не работает",
-        )
-    ):
-        return True
     return any(
         keyword in message
         for keyword in (
@@ -380,24 +349,12 @@ def _contains_issue_keywords(message: str) -> bool:
 
 
 def _contains_condition_keywords(message: str) -> bool:
-    if any(
+    return any(
         keyword in message
         for keyword in (
             "проверь состояние",
             "проверить состояние",
             "проверил состояние",
-            "техническое состояние",
-            "состояние автомобиля",
-            "состояние машины",
-            "уровень жидкости",
-            "давление в шинах",
-            "показания одометра",
-        )
-    ):
-        return True
-    return any(
-        keyword in message
-        for keyword in (
             "техническое состояние",
             "состояние автомобиля",
             "состояние машины",
