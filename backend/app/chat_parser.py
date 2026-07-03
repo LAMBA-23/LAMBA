@@ -135,8 +135,7 @@ MISSING_CONFIGURATION_QUESTION = (
     "Добавьте TIMEWEB_API_KEY и TIMEWEB_AGENT_ID."
 )
 FALLBACK_CLARIFICATION_QUESTION = (
-    "Не удалось распознать запись. "
-    "Уточните, пожалуйста, детали события."
+    "Не удалось распознать запись. " "Уточните, пожалуйста, детали события."
 )
 NON_TIMELINE_CONDITION_QUESTION = (
     "Это запрос к ассистенту, а не событие для истории. "
