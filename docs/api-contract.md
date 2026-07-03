@@ -241,7 +241,9 @@ Response:
 
 Parses a free-form chat message into a structured event draft. This endpoint does not create an event in the database; it only returns parsed JSON for the next persistence step.
 
-Allowed parsed event types: `fuel`, `repair`, `trip`, `issue`, `condition`.
+Allowed parsed event types: `fuel`, `repair`, `trip`, `issue`.
+
+Messages that ask to check vehicle condition or request assistant/statistics analysis are not parsed as timeline events.
 
 Request:
 
@@ -313,7 +315,7 @@ Example:
 POST /events?user_id=2
 ```
 
-Allowed event types: `fuel`, `repair`, `trip`, `issue`, `condition`.
+Allowed event types: `fuel`, `repair`, `trip`, `issue`.
 
 `description` must not be empty.
 
@@ -367,7 +369,7 @@ Validation error response:
   "detail": [
     {
       "loc": ["body", "type"],
-      "msg": "Input should be 'fuel', 'repair', 'trip', 'issue' or 'condition'",
+      "msg": "Input should be 'fuel', 'repair', 'trip' or 'issue'",
       "type": "literal_error"
     }
   ]
@@ -394,7 +396,7 @@ Rules:
 - `month` includes events whose `created_at` is within the last 30 days.
 - `all_time` includes all events for the user's car.
 - Only `fuel`, `repair`, and `trip` events affect statistics.
-- `issue` and `condition` events do not affect expense or mileage aggregates, but they are counted in `records_count`.
+- `issue` events do not affect expense or mileage aggregates, but they are counted in `records_count`.
 - `amount = null` is treated as `0`.
 - `fuel_liters = null` is treated as `0`.
 - `mileage = null` is treated as `0`.

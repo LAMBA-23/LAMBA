@@ -66,6 +66,10 @@ class ChatRepository(
             return ChatSendResult.Failure(ChatFailureStage.PARSING)
         }
 
+        if (!isTimelineEventType(parsedEvent.type)) {
+            return ChatSendResult.Clarification(NON_TIMELINE_EVENT_MESSAGE)
+        }
+
         val savedEvent = try {
             backend.saveEvent(parsedEvent)
         } catch (error: CancellationException) {
@@ -82,6 +86,12 @@ class ChatRepository(
         const val STATUS_CLARIFICATION_NEEDED = "clarification_needed"
         const val DEFAULT_CLARIFICATION =
             "\u0423\u0442\u043e\u0447\u043d\u0438\u0442\u0435, \u043f\u043e\u0436\u0430\u043b\u0443\u0439\u0441\u0442\u0430, \u0434\u0435\u0442\u0430\u043b\u0438 \u0437\u0430\u043f\u0438\u0441\u0438."
+        const val NON_TIMELINE_EVENT_MESSAGE =
+            "\u042d\u0442\u043e \u0437\u0430\u043f\u0440\u043e\u0441 \u043a \u0430\u0441\u0441\u0438\u0441\u0442\u0435\u043d\u0442\u0443, \u0430 \u043d\u0435 \u0441\u043e\u0431\u044b\u0442\u0438\u0435 \u0434\u043b\u044f \u0438\u0441\u0442\u043e\u0440\u0438\u0438."
+
+        fun isTimelineEventType(type: String): Boolean {
+            return type.lowercase() in setOf("fuel", "repair", "trip", "issue")
+        }
     }
 }
 

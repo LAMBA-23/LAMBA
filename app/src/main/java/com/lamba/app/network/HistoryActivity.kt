@@ -84,12 +84,18 @@ class HistoryActivity : AppCompatActivity() {
     }
 
     private fun renderEvents(events: List<Event>) {
+        val timelineEvents = events.filter { isSupportedTimelineEvent(it.type) }
+        if (timelineEvents.isEmpty()) {
+            showState("РСЃС‚РѕСЂРёСЏ РїРѕРєР° РїСѓСЃС‚Р°")
+            return
+        }
+
         layoutTimeline.removeAllViews()
         progressHistory.visibility = View.GONE
         tvHistoryState.visibility = View.GONE
         layoutTimeline.visibility = View.VISIBLE
 
-        events.forEach { event ->
+        timelineEvents.forEach { event ->
             val itemView = layoutInflater.inflate(R.layout.item_history_event, layoutTimeline, false)
             val mapping = mapEventType(event.type)
 
@@ -116,9 +122,12 @@ class HistoryActivity : AppCompatActivity() {
             "repair" -> EventDisplay("Ремонт", "ТО")
             "trip" -> EventDisplay("Поездка", "КМ")
             "issue" -> EventDisplay("Повреждение", "!")
-            "condition" -> EventDisplay("Состояние", "СТ")
             else -> EventDisplay("Событие", "•")
         }
+    }
+
+    private fun isSupportedTimelineEvent(type: String): Boolean {
+        return type.lowercase() in setOf("fuel", "repair", "trip", "issue")
     }
 
     private fun formatDate(createdAt: String?): String {
