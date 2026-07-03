@@ -29,9 +29,12 @@ type, description, amount, mileage, needs_clarification, clarification_question
 
 General rules:
 - Parse exactly one vehicle event per message.
-- Be flexible with short conversational Russian phrases. Users may omit verbs, use nouns only, or write compact phrases like "поездка 100 километров".
+- Be flexible with short conversational Russian phrases.
+- Users may omit verbs, use nouns only, or write compact phrases like
+  "поездка 100 километров".
 - If the message can be confidently parsed, set needs_clarification to false.
-- If the message is ambiguous, incomplete, inconsistent, unsupported, or too vague, set needs_clarification to true.
+- If the message is ambiguous, incomplete, inconsistent, unsupported, or too vague,
+  set needs_clarification to true.
 - Do not invent facts that are not explicitly stated or strongly implied.
 - Use null for unknown fields.
 - clarification_question must be a short Russian question.
@@ -40,15 +43,30 @@ General rules:
 
 Interpretation rules:
 - Do not assume fuel, repair, trip, or issue unless the text clearly indicates it.
-- If the message explicitly indicates a problem, malfunction, warning light, damage, failure, error, or check-engine symptom, classify it as issue unless the text clearly says a repair was performed.
-- If the message asks to check or reports a normal technical state, inspection result, fluid level, tyre pressure, or odometer update without a malfunction, do not create a timeline event. Ask the user to use the assistant/statistics flow instead.
-- If the message explicitly says the user drove, traveled, completed a route, or covered a distance, classify it as trip unless other words clearly indicate another type.
-- Treat phrases like "поездка 100 км", "поездка на 100 километров", "проехал 100 км", "съездил 100 км", "маршрут 100 км", or "дорога 100 км" as trip events.
-- Treat amount as money spent only when the wording clearly indicates price, payment, cost, or currency.
-- Treat mileage as odometer mileage only when the wording clearly indicates current vehicle mileage or odometer reading.
-- For trip events, put the traveled distance in `mileage` when the text gives a distance such as "100 км" or "100 километров". Do not ask for clarification when the unit is clearly kilometers.
-- Treat current odometer mileage as `mileage` only when the wording says "пробег", "одометр", "текущий пробег", or "на одометре".
-- Ignore date extraction in this baseline. If date or time is mentioned, do not add extra fields and do not ask follow-up questions only about date or time.
+- If the message explicitly indicates a problem, malfunction, warning light,
+  damage, failure, error, or check-engine symptom, classify it as issue unless
+  the text clearly says a repair was performed.
+- If the message asks to check or reports a normal technical state, inspection
+  result, fluid level, tyre pressure, or odometer update without a malfunction,
+  do not create a timeline event. Ask the user to use the assistant/statistics
+  flow instead.
+- If the message explicitly says the user drove, traveled, completed a route,
+  or covered a distance, classify it as trip unless other words clearly indicate
+  another type.
+- Treat phrases like "поездка 100 км", "поездка на 100 километров",
+  "проехал 100 км", "съездил 100 км", "маршрут 100 км", or "дорога 100 км"
+  as trip events.
+- Treat amount as money spent only when the wording clearly indicates price,
+  payment, cost, or currency.
+- Treat mileage as odometer mileage only when the wording clearly indicates
+  current vehicle mileage or odometer reading.
+- For trip events, put the traveled distance in `mileage` when the text gives
+  a distance such as "100 км" or "100 километров". Do not ask for clarification
+  when the unit is clearly kilometers.
+- Treat current odometer mileage as `mileage` only when the wording says
+  "пробег", "одометр", "текущий пробег", or "на одометре".
+- Ignore date extraction in this baseline. If date or time is mentioned, do not
+  add extra fields and do not ask follow-up questions only about date or time.
 
 You must ask for clarification if any of the following is true:
 - the event type is unclear;
@@ -60,39 +78,56 @@ You must ask for clarification if any of the following is true:
 
 Clarification behavior:
 - If the event type is unclear, ask whether it was fuel, repair, trip, or issue.
-- If a number could mean amount, distance, mileage, fuel volume, or another metric, ask what the number refers to.
-- If the event is clearly a trip and only the distance unit is unclear, keep the event as trip and ask whether the distance is kilometers or miles.
+- If a number could mean amount, distance, mileage, fuel volume, or another
+  metric, ask what the number refers to.
+- If the event is clearly a trip and only the distance unit is unclear, keep
+  the event as trip and ask whether the distance is kilometers or miles.
 - If the message contains multiple events, ask the user to send one event at a time.
-- Do not ask for optional details unless they are required to understand the meaning of the message.
-- If the message explicitly describes an issue symptom, do not ask to confirm the event type.
+- Do not ask for optional details unless they are required to understand
+  the meaning of the message.
+- If the message explicitly describes an issue symptom, do not ask to confirm
+  the event type.
 
 Examples:
 Input: "Заправился на 2500 рублей, пробег 125300"
-Output: {"type":"fuel","description":"Заправка на 2500 рублей","amount":2500,"mileage":125300,"needs_clarification":false,"clarification_question":null}
+Output: {"type":"fuel","description":"Заправка на 2500 рублей","amount":2500,
+"mileage":125300,"needs_clarification":false,"clarification_question":null}
 
 Input: "Сегодня я проехал 1500"
-Output: {"type":"trip","description":"Поездка на 1500","amount":null,"mileage":null,"needs_clarification":true,"clarification_question":"Вы имеете в виду 1500 километров или миль?"}
+Output: {"type":"trip","description":"Поездка на 1500","amount":null,
+"mileage":null,"needs_clarification":true,
+"clarification_question":"Вы имеете в виду 1500 километров или миль?"}
 
 Input: "Поменял масло за 8000"
-Output: {"type":"repair","description":"Замена масла","amount":8000,"mileage":null,"needs_clarification":false,"clarification_question":null}
+Output: {"type":"repair","description":"Замена масла","amount":8000,
+"mileage":null,"needs_clarification":false,"clarification_question":null}
 
 Input: "Загорелся чек двигателя"
-Output: {"type":"issue","description":"Загорелся чек двигателя","amount":null,"mileage":null,"needs_clarification":false,"clarification_question":null}
+Output: {"type":"issue","description":"Загорелся чек двигателя","amount":null,
+"mileage":null,"needs_clarification":false,"clarification_question":null}
 
 Input: "Машина не заводится"
-Output: {"type":"issue","description":"Машина не заводится","amount":null,"mileage":null,"needs_clarification":false,"clarification_question":null}
+Output: {"type":"issue","description":"Машина не заводится","amount":null,
+"mileage":null,"needs_clarification":false,"clarification_question":null}
 
 Input: "Техническое состояние хорошее, пробег 125500"
-Output: {"type":null,"description":null,"amount":null,"mileage":null,"needs_clarification":true,"clarification_question":"Это запрос к ассистенту, а не событие для истории."}
+Output: {"type":null,"description":null,"amount":null,"mileage":null,
+"needs_clarification":true,
+"clarification_question":"Это запрос к ассистенту, а не событие для истории."}
 
 Input: "Заправился на 2500 и поменял масло за 8000"
-Output: {"type":null,"description":null,"amount":null,"mileage":null,"needs_clarification":true,"clarification_question":"Уточните, пожалуйста, одно событие за сообщение: это была заправка или ремонт?"}
+Output: {"type":null,"description":null,"amount":null,"mileage":null,
+"needs_clarification":true,
+"clarification_question":"Уточните одно событие: заправка или ремонт?"}
 
 Input: "Потратил 3000"
-Output: {"type":null,"description":null,"amount":null,"mileage":null,"needs_clarification":true,"clarification_question":"Уточните, пожалуйста, это была заправка, ремонт, поездка или проблема?"}
+Output: {"type":null,"description":null,"amount":null,"mileage":null,
+"needs_clarification":true,
+"clarification_question":"Это была заправка, ремонт, поездка или проблема?"}
 
 Input: "Пробег 125300, заправился"
-Output: {"type":"fuel","description":"Заправка","amount":null,"mileage":125300,"needs_clarification":false,"clarification_question":null}
+Output: {"type":"fuel","description":"Заправка","amount":null,"mileage":125300,
+"needs_clarification":false,"clarification_question":null}
 """.strip()
 
 MISSING_CONFIGURATION_QUESTION = (
