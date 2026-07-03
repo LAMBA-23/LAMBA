@@ -121,10 +121,7 @@ def ensure_event_schema() -> None:
 
     with engine.begin() as connection:
         connection.execute(
-            text(
-                "ALTER TABLE events "
-                "ADD COLUMN fuel_liters INTEGER NOT NULL DEFAULT 0"
-            )
+            text("ALTER TABLE events ADD COLUMN fuel_liters INTEGER NOT NULL DEFAULT 0")
         )
 
 
@@ -222,17 +219,21 @@ def build_stats_period(
         else _sum_trip_distance(events, start_at=start_at)
     )
     fuel_expenses = sum(
-        _coalesce_int(event.amount) for event in relevant_events if event.type == "fuel"
+        event.amount
+        for event in relevant_events
+        if event.type == "fuel" and event.amount is not None and event.amount > 0
     )
     fuel_liters = sum(
-        _coalesce_int(event.fuel_liters)
+        event.fuel_liters
         for event in relevant_events
         if event.type == "fuel"
+        and event.fuel_liters is not None
+        and event.fuel_liters > 0
     )
     repair_expenses = sum(
-        _coalesce_int(event.amount)
+        event.amount
         for event in relevant_events
-        if event.type == "repair"
+        if event.type == "repair" and event.amount is not None and event.amount > 0
     )
     total_expenses = fuel_expenses + repair_expenses
     vehicle_record_count = (

@@ -24,6 +24,12 @@ interface LambaApiService {
     @POST("chat/parse-event")
     suspend fun parseChatEvent(@Body request: ChatParseRequest): Response<ChatParseResponse>
 
+    @POST("chat/ask")
+    suspend fun chatAsk(
+        @Body request: ChatAskRequest,
+        @Query("user_id") userId: Int,
+    ): Response<ChatAskResponse>
+
     @GET("events")
     suspend fun getEvents(@Query("user_id") userId: Int? = null): Response<List<Event>>
 

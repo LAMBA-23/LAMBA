@@ -6,6 +6,8 @@ interface ChatBackend {
     suspend fun parseMessage(message: String): ChatParseResponse
 
     suspend fun saveEvent(event: ParsedEventPayload): Event
+
+    suspend fun askQuestion(message: String): String
 }
 
 class RetrofitChatBackend(
@@ -39,6 +41,15 @@ class RetrofitChatBackend(
         return response.body()
             ?: throw ChatBackendException("Event saving returned an empty response")
     }
+
+    override suspend fun askQuestion(message: String): String {
+        val response = api.chatAsk(ChatAskRequest(message = message), userId)
+        if (!response.isSuccessful) {
+            throw ChatBackendException("Chat ask failed with HTTP ${response.code()}")
+        }
+        return response.body()?.answer
+            ?: throw ChatBackendException("Chat ask returned an empty response")
+    }
 }
 
 class ChatBackendException(message: String) : Exception(message)
@@ -48,6 +59,44 @@ class ChatRepository(
 ) {
 
     suspend fun sendMessage(message: String): ChatSendResult {
+        if (isQuestion(message)) {
+            return handleQuestion(message)
+        }
+        return handleEventParsing(message)
+    }
+
+    private fun isQuestion(message: String): Boolean {
+        val lower = message.trim().lowercase()
+        return lower.endsWith("?") ||
+            lower.startsWith("как") ||
+            lower.startsWith("что") ||
+            lower.startsWith("где") ||
+            lower.startsWith("когда") ||
+            lower.startsWith("сколько") ||
+            lower.startsWith("почему") ||
+            lower.startsWith("покаж") ||
+            lower.startsWith("провер") ||
+            lower.startsWith("расскаж") ||
+            lower.startsWith("опис") ||
+            lower.contains("последн") ||
+            lower.contains("истори") ||
+            lower.contains("статистик") ||
+            lower.contains("расход") ||
+            lower.contains("пробег")
+    }
+
+    private suspend fun handleQuestion(message: String): ChatSendResult {
+        val answer = try {
+            backend.askQuestion(message)
+        } catch (error: CancellationException) {
+            throw error
+        } catch (_: Exception) {
+            return ChatSendResult.Failure(ChatFailureStage.PARSING)
+        }
+        return ChatSendResult.Answer(answer)
+    }
+
+    private suspend fun handleEventParsing(message: String): ChatSendResult {
         val parseResponse = try {
             backend.parseMessage(message)
         } catch (error: CancellationException) {
@@ -100,6 +149,8 @@ sealed class ChatSendResult {
     data class Saved(val event: Event) : ChatSendResult()
 
     data class Clarification(val question: String) : ChatSendResult()
+
+    data class Answer(val text: String) : ChatSendResult()
 
     data class Failure(val stage: ChatFailureStage) : ChatSendResult()
 }
