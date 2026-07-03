@@ -30,6 +30,7 @@ type, description, amount, mileage, needs_clarification, clarification_question
 
 General rules:
 - Parse exactly one vehicle event per message.
+- Be flexible with short conversational Russian phrases. Users may omit verbs, use nouns only, or write compact phrases like "поездка 100 километров".
 - If the message can be confidently parsed, set needs_clarification to false.
 - If the message is ambiguous, incomplete, inconsistent, unsupported, or too vague, set needs_clarification to true.
 - Do not invent facts that are not explicitly stated or strongly implied.
@@ -43,9 +44,11 @@ Interpretation rules:
 - If the message explicitly indicates a problem, malfunction, warning light, damage, failure, error, or check-engine symptom, classify it as issue unless the text clearly says a repair was performed.
 - If the message reports a normal technical state, inspection result, fluid level, tyre pressure, or odometer update without a malfunction, classify it as condition.
 - If the message explicitly says the user drove, traveled, completed a route, or covered a distance, classify it as trip unless other words clearly indicate another type.
+- Treat phrases like "поездка 100 км", "поездка на 100 километров", "проехал 100 км", "съездил 100 км", "маршрут 100 км", or "дорога 100 км" as trip events.
 - Treat amount as money spent only when the wording clearly indicates price, payment, cost, or currency.
 - Treat mileage as odometer mileage only when the wording clearly indicates current vehicle mileage or odometer reading.
-- Treat trip distance as traveled distance only when the wording clearly indicates driving distance.
+- For trip events, put the traveled distance in `mileage` when the text gives a distance such as "100 км" or "100 километров". Do not ask for clarification when the unit is clearly kilometers.
+- Treat current odometer mileage as `mileage` only when the wording says "пробег", "одометр", "текущий пробег", or "на одометре".
 - Ignore date extraction in this baseline. If date or time is mentioned, do not add extra fields and do not ask follow-up questions only about date or time.
 
 You must ask for clarification if any of the following is true:
@@ -182,6 +185,17 @@ def _apply_guardrails(message: str, parsed_event: ParsedChatEvent) -> ParsedChat
             clarification_question=None,
         )
 
+    trip_distance_km = _extract_trip_distance_km(normalized_message)
+    if trip_distance_km is not None:
+        return ParsedChatEvent(
+            type="trip",
+            description=f"Поездка на {trip_distance_km} километров",
+            amount=None,
+            mileage=trip_distance_km,
+            needs_clarification=False,
+            clarification_question=None,
+        )
+
     if _looks_like_trip_with_unclear_units(normalized_message):
         distance_match = re.search(r"\b(\d+)\b", normalized_message)
         distance_value = distance_match.group(1) if distance_match else None
@@ -206,6 +220,30 @@ def _apply_guardrails(message: str, parsed_event: ParsedChatEvent) -> ParsedChat
         )
 
     return parsed_event
+
+
+def _extract_trip_distance_km(message: str) -> int | None:
+    has_trip_intent = re.search(
+        r"(проехал|проехала|поездк|поездил|поездила|ехал|ехала|"
+        r"доехал|доехала|съездил|съездила|маршрут|дорог|путь)",
+        message,
+    )
+    if has_trip_intent is None:
+        return None
+    if (
+        _contains_fuel_keywords(message)
+        or _contains_repair_keywords(message)
+        or _contains_issue_keywords(message)
+    ):
+        return None
+
+    match = re.search(
+        r"\b(\d+)\s*(?:км|км\.|километр|километра|километров)\b",
+        message,
+    )
+    if match is None:
+        return None
+    return int(match.group(1))
 
 
 def _contains_multiple_distinct_events(message: str) -> bool:

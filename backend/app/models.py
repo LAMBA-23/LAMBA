@@ -48,6 +48,7 @@ class Event(Base):
     type: Mapped[str] = mapped_column(String(32), nullable=False)
     description: Mapped[str] = mapped_column(String(500), nullable=False)
     amount: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
+    fuel_liters: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
     mileage: Mapped[int] = mapped_column(Integer, nullable=False)
     created_at: Mapped[datetime] = mapped_column(
         default=datetime.utcnow, nullable=False
