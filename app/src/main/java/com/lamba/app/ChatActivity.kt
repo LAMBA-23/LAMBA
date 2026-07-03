@@ -167,6 +167,10 @@ class ChatActivity : AppCompatActivity() {
                         addMessage(result.question, isFromUser = false)
                     }
 
+                    is ChatSendResult.Answer -> {
+                        addMessage(result.text, isFromUser = false)
+                    }
+
                     is ChatSendResult.Failure -> {
                         addMessage(failureMessage(result.stage), isFromUser = false)
                     }

@@ -128,3 +128,11 @@ enum class StatsPeriodKey {
     MONTH,
     ALL_TIME,
 }
+
+data class ChatAskRequest(
+    @SerializedName("message") val message: String
+)
+
+data class ChatAskResponse(
+    @SerializedName("answer") val answer: String
+)
