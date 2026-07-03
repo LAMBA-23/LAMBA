@@ -217,7 +217,9 @@ def build_stats_period(
         event for event in period_events if _is_statistics_relevant(event)
     ]
     period_mileage = (
-        mileage if mileage is not None else _sum_trip_distance(events, start_at=start_at)
+        mileage
+        if mileage is not None
+        else _sum_trip_distance(events, start_at=start_at)
     )
     fuel_expenses = sum(
         _coalesce_int(event.amount) for event in relevant_events if event.type == "fuel"

@@ -1,4 +1,4 @@
-﻿from app.chat_parser import _apply_guardrails
+from app.chat_parser import _apply_guardrails
 from app.schemas import ParsedChatEvent
 
 
@@ -42,7 +42,10 @@ def test_guardrails_accept_trip_with_known_kilometer_units() -> None:
     )
 
     assert result.type == "trip"
-    assert result.description == "\u041f\u043e\u0435\u0437\u0434\u043a\u0430 \u043d\u0430 100 \u043a\u0438\u043b\u043e\u043c\u0435\u0442\u0440\u043e\u0432"
+    assert (
+        result.description
+        == "\u041f\u043e\u0435\u0437\u0434\u043a\u0430 \u043d\u0430 100 \u043a\u0438\u043b\u043e\u043c\u0435\u0442\u0440\u043e\u0432"
+    )
     assert result.amount is None
     assert result.mileage == 100
     assert result.needs_clarification is False
@@ -113,7 +116,10 @@ def test_guardrails_parse_fuel_liters_without_amount() -> None:
     )
 
     assert result.type == "fuel"
-    assert result.description == "\u0417\u0430\u043f\u0440\u0430\u0432\u043a\u0430 \u043d\u0430 10 \u043b\u0438\u0442\u0440\u043e\u0432"
+    assert (
+        result.description
+        == "\u0417\u0430\u043f\u0440\u0430\u0432\u043a\u0430 \u043d\u0430 10 \u043b\u0438\u0442\u0440\u043e\u0432"
+    )
     assert result.amount is None
     assert getattr(result, "fuel_liters", None) == 10
     assert result.mileage is None
@@ -131,7 +137,10 @@ def test_guardrails_parse_fuel_liters_and_amount_separately() -> None:
     )
 
     assert result.type == "fuel"
-    assert result.description == "\u0417\u0430\u043f\u0440\u0430\u0432\u043a\u0430 \u043d\u0430 10 \u043b\u0438\u0442\u0440\u043e\u0432"
+    assert (
+        result.description
+        == "\u0417\u0430\u043f\u0440\u0430\u0432\u043a\u0430 \u043d\u0430 10 \u043b\u0438\u0442\u0440\u043e\u0432"
+    )
     assert result.amount == 1000
     assert getattr(result, "fuel_liters", None) == 10
     assert result.mileage is None
