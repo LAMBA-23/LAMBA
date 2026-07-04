@@ -176,5 +176,9 @@ class ChatRepositoryTest {
             saveError?.let { throw it }
             return requireNotNull(savedEvent)
         }
+
+        override suspend fun askQuestion(message: String): String {
+            return "OK"
+        }
     }
 }
