@@ -32,3 +32,27 @@ The team's development process is documented in [docs/development-process.md](..
 - Development environment setup
 - CI pipeline and branch protection
 - Release and deployment process
+
+## Part 9: Conduct the Sprint Review
+
+Sprint Review evidence:
+
+- [Sprint Review transcript](./sprint-review-transcript.md)
+- [Sprint Review summary](./sprint-review-summary.md)
+- Tracking issue: [#216 Complete Week 5 Sprint Review artifacts](https://github.com/LAMBA-23/LAMBA/issues/216)
+
+The Sprint Review was conducted with the customer on 04.07.2026. Recording and public publication of the sanitized English transcript were permitted by the customer. Public artifacts use only the participant labels `Customer` and `Team member`.
+
+Part 9 evidence checklist:
+
+| Requirement | Evidence |
+|---|---|
+| Planned Sprint Goal | [Sprint Review summary - Sprint Goal Reviewed](./sprint-review-summary.md#sprint-goal-reviewed) |
+| Delivered MVP v2 increment | [Sprint Review summary - Delivered MVP v2 Increment Discussed](./sprint-review-summary.md#delivered-mvp-v2-increment-discussed) |
+| Addressed customer feedback | [Sprint Review summary - Addressed Customer Feedback](./sprint-review-summary.md#addressed-customer-feedback) |
+| UAT results | [Sprint Review summary - Customer-Executed UAT Results](./sprint-review-summary.md#customer-executed-uat-results) |
+| Architecture documentation and ADR updates/discussion | [Sprint Review summary - Architecture and ADR Discussion](./sprint-review-summary.md#architecture-and-adr-discussion), [docs/architecture/README.md](../../docs/architecture/README.md) |
+| Quality requirement and CI evidence to continue | [Sprint Review summary - Quality Requirement and CI Evidence](./sprint-review-summary.md#quality-requirement-and-ci-evidence), [docs/quality-requirements.md](../../docs/quality-requirements.md), [docs/quality-requirement-tests.md](../../docs/quality-requirement-tests.md) |
+| Remaining gaps, risks, and follow-up PBIs | [Sprint Review summary - Remaining Gaps and Risks](./sprint-review-summary.md#remaining-gaps-and-risks), [Sprint Review summary - Product Backlog Adaptation Recommendations](./sprint-review-summary.md#product-backlog-adaptation-recommendations) |
+
+No new Product Backlog Item issues were created from this review yet. The summary records recommended backlog updates for later refinement and customer/team approval.
