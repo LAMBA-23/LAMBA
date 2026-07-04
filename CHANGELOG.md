@@ -7,14 +7,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.2.0] - 2026-07-05
+
+### Added
+
+- Android manual event creation form in History screen for adding fuel, repair, maintenance, and trip records without using the AI chat (#161, #205, #208).
+
+### Changed
+
+- Main screen buttons updated for improved usability (#196).
+- Statistics screen expenses field renamed to fuel refueling for clarity (#199).
+- Non-event chat messages removed from the vehicle timeline so only structured records appear (#202).
+
 ### Fixed
 
-- Statistics API now returns all-time mileage as the current odometer value while keeping week and month mileage limited to trip distance inside the selected period.
+- Statistics API now returns all-time mileage as the current odometer value while keeping week and month mileage limited to trip distance inside the selected period (#198, #204).
+- Backend statistics now return `fuel_liters` separately from fuel expenses, keep fuel and repair expenses split, and count all period events in `records_count` (#198, #204).
+- Frontend display issues on the main screen resolved (#194).
 - Chat event parsing and persistence now carry `fuel_liters` from fuel messages such as `заправилась на 10 литров` and keep rubles in `amount`.
 - Non-trip events without explicit mileage no longer fall back to stale initial mileage in chat confirmations; Android hides the mileage row when backend returns `0`.
 - Android statistics period switching now renders the selected backend period (`week`, `month`, `all_time`) instead of reusing top-level totals.
 - Backend statistics now calculate trip mileage as traveled distance deltas instead of summing trip odometer values.
-- Backend statistics now return `fuel_liters` separately from fuel expenses, keep fuel and repair expenses split, and count all period events in `records_count`.
 - Backend trip event persistence now stores a new odometer mileage when a trip is submitted as a traveled distance, while keeping timeline responses compatible.
 - Backend chat parsing now recognizes short trip-distance phrases such as `поездка 100 километров` and `проехал 100 км` more reliably.
 

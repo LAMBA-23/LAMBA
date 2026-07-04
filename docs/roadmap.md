@@ -106,6 +106,27 @@ Supporting PBIs:
 - [#160 PBI: Enable AI assistant to use vehicle statistics in responses](https://github.com/LAMBA-23/LAMBA/issues/160)
 - [#161 PBI: Add a manual form for creating vehicle history records](https://github.com/LAMBA-23/LAMBA/issues/161)
 
+### Sprint 3 Outcome
+
+The following items were completed and included in the MVP v2 release:
+
+- [#161 PBI: Add a manual form for creating vehicle history records](https://github.com/LAMBA-23/LAMBA/issues/161)
+- [#194 Bug: frontend issues](https://github.com/LAMBA-23/LAMBA/issues/194)
+- [#196 PBI: Change buttons on the main screen](https://github.com/LAMBA-23/LAMBA/issues/196)
+- [#198 Fix backend statistics mileage and fuel liters](https://github.com/LAMBA-23/LAMBA/issues/198)
+- [#199 PBI: Change expenses field to fuel refueling](https://github.com/LAMBA-23/LAMBA/issues/199)
+- [#202 PBI: Remove non-event chat messages from timeline](https://github.com/LAMBA-23/LAMBA/issues/202)
+- [#204 Fix statistics mileage and fuel liters](https://github.com/LAMBA-23/LAMBA/issues/204)
+- [#205 PBI: Backend support for manual vehicle history form](https://github.com/LAMBA-23/LAMBA/issues/205)
+- [#208 Implement manual history record creation](https://github.com/LAMBA-23/LAMBA/issues/208)
+
+The following items were not completed in Sprint 3 and moved to Backlog:
+
+- [#49 US-06: Ask AI assistant](https://github.com/LAMBA-23/LAMBA/issues/49) — partially addressed in Sprint 2, full acceptance criteria not met because #160 was not completed.
+- [#51 US-08: Receive maintenance recommendations](https://github.com/LAMBA-23/LAMBA/issues/51) — not started, deferred because #160 was not completed first.
+- [#52 US-09: Receive notifications](https://github.com/LAMBA-23/LAMBA/issues/52) — not started, depends on #51.
+- [#160 PBI: Enable AI assistant to use vehicle statistics in responses](https://github.com/LAMBA-23/LAMBA/issues/160) — not completed before sprint end, moved to Backlog.
+
 ### MVP v2 Scope Justification
 
 The planned MVP v2 scope is selected for customer value, quality improvement, maintainability, and realistic completion against the current Definition of Done.

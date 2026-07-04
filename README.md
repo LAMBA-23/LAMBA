@@ -16,17 +16,17 @@ A mobile app for creating a digital twin of a car. The system collects data on t
 - Database: PostgreSQL
 - Deployment: Docker Compose
 
-## Assignment 4 Sprint Increment Release
+## Assignment 5 Sprint Increment Release
 
-- Release: `v1.1.0 - Assignment 4 Sprint 2 Increment`
-- Sprint milestone: [Sprint 2 - Chat Event Capture & Assistant & Statistics](https://github.com/LAMBA-23/LAMBA/milestone/2)
-- Deployed backend URL: `TODO after deployment`
-- Swagger/API docs URL: `TODO after deployment`
-- Demo credentials: `TODO if used`
-- Public sanitized demo video: `TODO after recording`
+- Release: `v1.2.0 - Assignment 5 Sprint 3 Increment (MVP v2)`
+- Sprint milestone: [Sprint 3 - Maintenance Follow-up](https://github.com/LAMBA-23/LAMBA/milestone/3)
+- Deployed backend URL: `http://186.246.27.211:8000`
+- Swagger/API docs URL: `http://186.246.27.211:8000/docs`
+- Demo credentials: `demo` / `demo`
+- Public sanitized demo video: https://drive.google.com/drive/folders/19UU6YERENNanCGjQec7BVcUMXiITHhVT
 - Runnable artifact: Android APK attached to release / Docker Compose instructions
 
-The `v1.1.0` Sprint increment includes the visible vehicle history/timeline flow, statistics screen, `POST /chat/ask`, maintained event/statistics APIs, Week 4 UAT evidence, automated quality requirement tests, and release/deployment documentation. Final server URL, public video, release tag, GitHub Release, and published artifact evidence must be added only after they are available.
+The `v1.2.0` Sprint increment includes the manual vehicle history record creation form, statistics screen and backend fixes, timeline cleanup, main screen UI improvements, Week 5 UAT evidence, and release/deployment documentation. Final server URL, public video, release tag, GitHub Release, and published artifact evidence must be added only after they are available.
 
 ## Local Setup
 
@@ -61,16 +61,16 @@ Local API documentation will be available at:
 http://localhost:8000/docs
 ```
 
-Deployed MVP v0 backend is available at:
+Deployed MVP v2 backend is available at:
 
 ```text
-http://10.93.26.193:8000
+http://186.246.27.211:8000
 ```
 
 Swagger UI for the deployed backend:
 
 ```text
-http://10.93.26.193:8000/docs
+http://186.246.27.211:8000/docs
 ```
 
 The database is seeded automatically and idempotently:
@@ -165,10 +165,13 @@ docker compose down
 - [Development process](docs/development-process.md)
 - [API contract](docs/api-contract.md)
 - [Week 2 report](reports/week2/README.md)
+- [Week 3 report](reports/week3/README.md)
+- [Week 4 report](reports/week4/README.md)
+- [Week 5 report](reports/week5/README.md)
 - [MVP v0](reports/week2/mvp-v0-report.md)
 
 The Week 2 MVP v0 smoke-check scenario, deployed URL, demo credentials, and current limitations are documented in [reports/week2/mvp-v0-report.md](reports/week2/mvp-v0-report.md).
 
 ## Runnable Artifact
 
-The runnable backend artifact is Docker Compose: `docker-compose.yml` starts PostgreSQL and the FastAPI backend. The Android runnable artifact for `v1.1.0` should be the debug APK at `app/build/outputs/apk/debug/app-debug.apk` or the APK attached to the GitHub Release after release publication.
+The runnable backend artifact is Docker Compose: `docker-compose.yml` starts PostgreSQL and the FastAPI backend. The Android runnable artifact for `v1.2.0` should be the debug APK at `app/build/outputs/apk/debug/app-debug.apk` or the APK attached to the GitHub Release after release publication.

@@ -1,5 +1,15 @@
 # Week 5 Report
 
+## Part 1: Sprint 3 — MVP v2 Increment
+
+- Sprint: Sprint 3 - Maintenance Follow-up
+- Dates: 2026-06-29 to 2026-07-05
+- MVP target: MVP v2
+- Release: [v1.2.0 - Assignment 5 Sprint 3 Increment (MVP v2)](https://github.com/LAMBA-23/LAMBA/releases/tag/v1.2.0)
+- Sprint milestone: [Sprint 3 - Maintenance Follow-up](https://github.com/LAMBA-23/LAMBA/milestone/3)
+- Deployed backend URL: `http://186.246.27.211:8000`
+- Public sanitized demo video: https://drive.google.com/drive/folders/19UU6YERENNanCGjQec7BVcUMXiITHhVT
+
 ## Part 2: Respond to Customer Feedback on MVP v1
 
 We reviewed the feedback from the MVP v1 customer review and recorded what we did with each important point. If we did not take something into Sprint 3, we still wrote down why.
@@ -32,3 +42,56 @@ The team's development process is documented in [docs/development-process.md](..
 - Development environment setup
 - CI pipeline and branch protection
 - Release and deployment process
+
+## Part 4: Sprint 3 Increment — What Was Delivered
+
+The following items were completed and verified in Sprint 3:
+
+| Issue | Description | Type |
+|---|---|---|
+| [#161](https://github.com/LAMBA-23/LAMBA/issues/161) | Add a manual form for creating vehicle history records | PBI |
+| [#205](https://github.com/LAMBA-23/LAMBA/issues/205) | Backend support for manual vehicle history form | PBI |
+| [#208](https://github.com/LAMBA-23/LAMBA/issues/208) | Implement manual history record creation | PBI |
+| [#196](https://github.com/LAMBA-23/LAMBA/issues/196) | Change buttons on the main screen | PBI |
+| [#199](https://github.com/LAMBA-23/LAMBA/issues/199) | Change expenses field to fuel refueling | PBI |
+| [#202](https://github.com/LAMBA-23/LAMBA/issues/202) | Remove non-event chat messages from timeline | PBI |
+| [#198](https://github.com/LAMBA-23/LAMBA/issues/198) | Fix backend statistics mileage and fuel liters | Bug |
+| [#204](https://github.com/LAMBA-23/LAMBA/issues/204) | Fix statistics mileage and fuel liters | Bug |
+| [#194](https://github.com/LAMBA-23/LAMBA/issues/194) | Frontend issues | Bug |
+
+The following items were planned but not completed and moved to Backlog:
+
+| Issue | Reason |
+|---|---|
+| [#160](https://github.com/LAMBA-23/LAMBA/issues/160) | Not completed before sprint end, moved to Backlog. |
+| [#49](https://github.com/LAMBA-23/LAMBA/issues/49) | Full acceptance criteria not met because #160 was not completed. |
+| [#51](https://github.com/LAMBA-23/LAMBA/issues/51) | Not started, deferred because #160 was not completed first. |
+| [#52](https://github.com/LAMBA-23/LAMBA/issues/52) | Not started, depends on #51. |
+
+## Part 5: Week 5 UAT
+
+### UAT-003: Add and view a history record
+
+- **Execution status:** Completed
+- **Date:** TODO after execution
+- **Executed by:** TODO
+- **Result:** TODO (Passed / Needs changes)
+- **Customer comments or observed issues:** TODO
+- **Traceability:** US-05: View vehicle timeline, #161
+- **Resulting PBIs/issues:** TODO
+
+### Week 5 UAT Summary
+
+- **Scenarios executed:** TODO
+- **Passed scenarios:** TODO
+- **Failed / needs changes:** TODO
+- **Most important feedback points:** TODO
+
+## Part 6: Release and Deployment Evidence
+
+- Release: [v1.2.0](https://github.com/LAMBA-23/LAMBA/releases/tag/v1.2.0)
+- Deployed backend URL: `http://186.246.27.211:8000`
+- Swagger UI: `http://186.246.27.211:8000/docs`
+- Android APK: attached to GitHub Release or at `app/build/outputs/apk/debug/app-debug.apk`
+- Public sanitized demo video: https://drive.google.com/drive/folders/19UU6YERENNanCGjQec7BVcUMXiITHhVT
+- CI run evidence: [GitHub Actions](https://github.com/LAMBA-23/LAMBA/actions)
