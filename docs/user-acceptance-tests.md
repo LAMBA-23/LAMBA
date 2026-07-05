@@ -153,16 +153,14 @@ This would allow users to create history records without using the chat.
 - **Result:** Needs changes
 - **Customer comments or observed issues:**
   - The customer liked the manual form and confirmed that it follows the previously discussed user story.
-  - The "+" button in the History screen is not immediately obvious to first-time users.
   - Fuel amount should support decimal values instead of integers only.
   - Records created through the manual form were not correctly reflected in the Statistics screen, indicating a synchronization bug.
   - The customer suggested replacing the current AI record creation flow with a pre-filled confirmation form, allowing users to review and edit parsed information before saving it.
   - Entering mileage manually is inconvenient. The customer suggested recording both the start and end odometer values to calculate trip distance more accurately.
   - The customer suggested renaming "Repair" to "Repair/Breakdown" to better represent unexpected vehicle problems.
   - The customer requested the ability to attach photos to history records, especially for repair or breakdown events.
-  - The customer noted that manually adding a record currently requires several clicks and could be made more accessible.
 - **Traceability:**
-  - GitHub Issue #161 - Add a manual form for creating vehicle history
+  - GitHub Issue #161 - Add a manual form for creating vehicle history records
 - **Resulting PBIs/issues:**
   - Support decimal fuel values.
   - Synchronize manually created records with the Statistics screen.
