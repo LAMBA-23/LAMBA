@@ -126,6 +126,95 @@ This would allow users to create history records without using the chat.
   - US-07: View basic statistics
 - **Resulting PBIs/issues:** No new PBIs or issues were created.
 
+## UAT-005: Manually add a vehicle history record
+
+- **Scenario ID:** UAT-005
+- **Status:** Active
+- **User goal:** A user can manually create a vehicle history record without using the AI assistant.
+- **Preconditions:**
+  - The user is registered or logged in.
+  - A vehicle profile exists.
+  - The History screen and manual record form are available.
+
+| Step | User action | Expected outcome |
+|---|---|---|
+| 1 | Open the History screen. | The history timeline and manual add button are displayed. |
+| 2 | Tap the "+" button to create a new record. | The manual record form opens. |
+| 3 | Select the record type and enter the required information, for example mileage, liters, amount, description. | The form accepts valid input and validates required fields. |
+| 4 | Save the record. | The application saves the record and returns to the History screen. |
+| 5 | Check the History and Statistics screens. | The new record appears in History and related statistics are updated correctly. |
+
+### Week 5 Execution Result
+
+- **Execution status:** Completed
+- **Date:** 4 July 2026
+- **Executed by:** customer
+- **Evidence:** private Moodle recording link
+- **Result:** Needs changes
+- **Customer comments or observed issues:**
+  - The customer liked the manual form and confirmed that it follows the previously discussed user story.
+  - The "+" button in the History screen is not immediately obvious to first-time users.
+  - Fuel amount should support decimal values instead of integers only.
+  - Records created through the manual form were not correctly reflected in the Statistics screen, indicating a synchronization bug.
+  - The customer suggested replacing the current AI record creation flow with a pre-filled confirmation form, allowing users to review and edit parsed information before saving it.
+  - Entering mileage manually is inconvenient. The customer suggested recording both the start and end odometer values to calculate trip distance more accurately.
+  - The customer suggested renaming "Repair" to "Repair/Breakdown" to better represent unexpected vehicle problems.
+  - The customer requested the ability to attach photos to history records, especially for repair or breakdown events.
+  - The customer noted that manually adding a record currently requires several clicks and could be made more accessible.
+- **Traceability:**
+  - GitHub Issue #161 - Add a manual form for creating vehicle history
+- **Resulting PBIs/issues:**
+  - Support decimal fuel values.
+  - Synchronize manually created records with the Statistics screen.
+  - Redirect AI-generated records to a pre-filled confirmation form before saving.
+  - Add trip start/end odometer recording.
+  - Rename Repair to Repair/Breakdown.
+  - Add photo attachments for history records.
+  - Improve discoverability of manual record creation.
+
+## UAT-006: Ask the AI assistant about vehicle statistics
+
+- **Scenario ID:** UAT-006
+- **Status:** Active
+- **User goal:** A user can ask the AI assistant questions about vehicle statistics and receive meaningful answers.
+- **Preconditions:**
+  - The user is registered or logged in.
+  - A vehicle profile exists.
+  - The application contains vehicle history and statistics data.
+  - The AI assistant service is available.
+
+| Step | User action | Expected outcome |
+|---|---|---|
+| 1 | Open the AI assistant. | The chat screen is displayed. |
+| 2 | Ask a statistics-related question, for example, "Show my expenses". | The assistant understands the request. |
+| 3 | Send another statistics-related question, for example, "Show the latest data". | The assistant returns relevant statistics from the user's vehicle data. |
+| 4 | Review the response. | The response is understandable, relevant, and based on stored vehicle information. |
+| 5 | Continue using the application. | The user can continue the conversation or return to the main application flow. |
+
+### Week 5 Execution Result
+
+- **Execution status:** Completed
+- **Date:** 4 July 2026
+- **Executed by:** customer
+- **Evidence:** private Moodle recording link
+- **Result:** Needs changes
+- **Customer comments or observed issues:**
+  - The customer confirmed that the assistant can now answer questions about vehicle statistics, which is a significant improvement over the previous version.
+  - Some responses were incorrectly formatted or returned incomplete statistical information.
+  - In one case, the expenses query did not display the expected totals.
+  - The customer requested cleaner formatting and more natural, conversational AI responses instead of purely factual output.
+  - The customer suggested allowing the AI assistant to provide users with the five most recent breakdowns together with their dates.
+  - The customer recommended providing the AI model with richer vehicle context to improve answer quality.
+  - The customer confirmed that the assistant behaves like an automated system rather than manually prepared responses.
+- **Traceability:**
+  - GitHub Issue #160 - Enable AI assistant to use vehicle statistics in responses.
+- **Resulting PBIs/issues:**
+  - Improve formatting of statistics responses.
+  - Fix incorrect expense summary generation.
+  - Improve conversational quality of AI responses.
+  - Support queries about recent breakdown history.
+  - Expand AI context with additional relevant vehicle data.
+
 ## Week 4 UAT Summary
 
 - **Scenarios executed:** 4 (UAT-001, UAT-002, UAT-003, UAT-004)
