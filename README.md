@@ -162,6 +162,7 @@ docker compose down
 
 ## Documentation
 
+- [Hosted maintained documentation site](https://lamba-23.github.io/LAMBA/)
 - [Development process](docs/development-process.md)
 - [API contract](docs/api-contract.md)
 - [Week 2 report](reports/week2/README.md)

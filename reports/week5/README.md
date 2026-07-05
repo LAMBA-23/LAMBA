@@ -7,6 +7,7 @@
 - MVP target: MVP v2
 - Release: [v1.2.0 - Assignment 5 Sprint 3 Increment (MVP v2)](https://github.com/LAMBA-23/LAMBA/releases/tag/v1.2.0)
 - Sprint milestone: [Sprint 3 - Maintenance Follow-up](https://github.com/LAMBA-23/LAMBA/milestone/3)
+- Hosted maintained documentation site: [https://lamba-23.github.io/LAMBA/](https://lamba-23.github.io/LAMBA/)
 - Deployed backend URL: `http://186.246.27.211:8000`
 - Public sanitized demo video: https://drive.google.com/drive/folders/19UU6YERENNanCGjQec7BVcUMXiITHhVT
 
@@ -32,6 +33,8 @@ We reviewed the feedback from the MVP v1 customer review and recorded what we di
 Sprint 3 scope was chosen not just by the number of issues we could close, but by customer value, quality improvement, risk reduction, and whether the work could be shown as Done.
 
 ## Part 3: Development Process and Configuration Management
+
+The hosted maintained documentation site is available at [https://lamba-23.github.io/LAMBA/](https://lamba-23.github.io/LAMBA/).
 
 The team's development process is documented in [docs/development-process.md](../../docs/development-process.md). That document covers:
 
@@ -90,6 +93,7 @@ The following items were planned but not completed and moved to Backlog:
 ## Part 6: Release and Deployment Evidence
 
 - Release: [v1.2.0](https://github.com/LAMBA-23/LAMBA/releases/tag/v1.2.0)
+- Hosted maintained documentation site: [https://lamba-23.github.io/LAMBA/](https://lamba-23.github.io/LAMBA/)
 - Deployed backend URL: `http://186.246.27.211:8000`
 - Swagger UI: `http://186.246.27.211:8000/docs`
 - Android APK: attached to GitHub Release or at `app/build/outputs/apk/debug/app-debug.apk`
