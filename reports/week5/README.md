@@ -118,3 +118,50 @@ Part 9 evidence checklist:
 | Remaining gaps, risks, and follow-up PBIs | [Sprint Review summary - Remaining Gaps and Risks](./sprint-review-summary.md#remaining-gaps-and-risks), [Sprint Review summary - Product Backlog Adaptation Recommendations](./sprint-review-summary.md#product-backlog-adaptation-recommendations) |
 
 No new Product Backlog Item issues were created from this review yet. The summary records recommended backlog updates for later refinement and customer/team approval.
+
+## Part 10: Conduct the Sprint Retrospective
+
+Sprint Retrospective evidence:
+
+- [Sprint Retrospective](./retrospective.md)
+- Tracking issue: [#220 Complete Week 5 Part 10, Part 12, and Part 14 artifacts](https://github.com/LAMBA-23/LAMBA/issues/220)
+
+Part 10 evidence checklist:
+
+| Requirement | Evidence |
+|---|---|
+| What went well | [Sprint Retrospective - What went well](./retrospective.md#what-went-well) |
+| What did not go well | [Sprint Retrospective - What did not go well](./retrospective.md#what-did-not-go-well) |
+| Previous retrospective follow-up | [Sprint Retrospective - What the team changed or attempted to change based on the previous Sprint Retrospective, and what results they observed](./retrospective.md#what-the-team-changed-or-attempted-to-change-based-on-the-previous-sprint-retrospective-and-what-results-they-observed) |
+| Action points | [Sprint Retrospective - Action points](./retrospective.md#action-points) |
+
+## Part 12: Reflection
+
+Reflection evidence:
+
+- [Week 5 Reflection](./reflection.md)
+- Tracking issue: [#220 Complete Week 5 Part 10, Part 12, and Part 14 artifacts](https://github.com/LAMBA-23/LAMBA/issues/220)
+
+Part 12 evidence checklist:
+
+| Requirement | Evidence |
+|---|---|
+| Learning points | [Week 5 Reflection - Learning points](./reflection.md#learning-points) |
+| Validated assumptions | [Week 5 Reflection - Validated assumptions](./reflection.md#validated-assumptions) |
+| Friction and gaps | [Week 5 Reflection - Friction and gaps](./reflection.md#friction-and-gaps) |
+| Planned response | [Week 5 Reflection - Planned response](./reflection.md#planned-response) |
+
+## Part 14: LLM Usage Report
+
+LLM usage evidence:
+
+- [Week 5 LLM Usage Report](./llm-report.md)
+- Tracking issue: [#220 Complete Week 5 Part 10, Part 12, and Part 14 artifacts](https://github.com/LAMBA-23/LAMBA/issues/220)
+
+Part 14 evidence checklist:
+
+| Requirement | Evidence |
+|---|---|
+| Usage areas and purposes | [Week 5 LLM Usage Report - How AI/LLM Tools Were Used](./llm-report.md#how-aillm-tools-were-used) |
+| Human review and verification | [Week 5 LLM Usage Report - Human Review and Verification](./llm-report.md#human-review-and-verification) |
+| Work not delegated to AI/LLM tools | [Week 5 LLM Usage Report - What Was Not Delegated to AI/LLM Tools](./llm-report.md#what-was-not-delegated-to-aillm-tools) |
