@@ -1,17 +1,92 @@
-# Week 5 Report
+﻿# Week 5 Report
 
-## Part 1: Sprint 3 — MVP v2 Increment
+## 1. Project name and short description
 
-- Sprint: Sprint 3 - Maintenance Follow-up
-- Dates: 2026-06-29 to 2026-07-05
-- MVP target: MVP v2
-- Release: [v1.2.0 - Assignment 5 Sprint 3 Increment (MVP v2)](https://github.com/LAMBA-23/LAMBA/releases/tag/v1.2.0)
-- Sprint milestone: [Sprint 3 - Maintenance Follow-up](https://github.com/LAMBA-23/LAMBA/milestone/3)
-- Hosted maintained documentation site: [https://lamba-23.github.io/LAMBA/](https://lamba-23.github.io/LAMBA/)
-- Deployed backend URL: `http://186.246.27.211:8000`
+**LAMBA** is an Android application for creating a digital twin of a car. It lets a vehicle owner register, add a vehicle profile, record vehicle events through chat or a manual form, inspect the vehicle timeline, and view vehicle statistics.
+
+## 2. Product Backlog board/view
+
+- [Product Backlog board](https://github.com/orgs/LAMBA-23/projects/1)
+
+## 3. Sprint Backlog board/table
+
+- [Sprint Backlog board/table](https://github.com/orgs/LAMBA-23/projects/1/views/4)
+
+## 4. Assignment 5 Sprint milestone
+
+- [Sprint 3 - Maintenance Follow-up](https://github.com/LAMBA-23/LAMBA/milestone/3)
+
+## 5. Sprint Goal, Sprint dates, and short scope summary
+
+**Sprint dates:** 2026-06-29 to 2026-07-05
+
+**Sprint Goal:** Deliver a more useful and reliable vehicle history experience by giving users an alternative manual way to add records, improving assistant answers with vehicle statistics, and preparing maintenance follow-up features that help users act on their recorded vehicle data.
+
+**Scope summary:** Sprint 3 focused on MVP v2 maintenance follow-up: manual history record creation, statistics fixes, cleaner timeline behavior, main screen usability updates, assistant statistics support, release evidence, architecture documentation, and Week 5 review/UAT evidence.
+
+## 6. Total Sprint size in Story Points
+
+The total Sprint 3 issue size is **43 Story Points**.
+
+Closed Sprint issues counted in the total:
+
+| Issue | Story Points |
+|---|---:|
+| [#49](https://github.com/LAMBA-23/LAMBA/issues/49) | 5 |
+| [#160](https://github.com/LAMBA-23/LAMBA/issues/160) | 3 |
+| [#161](https://github.com/LAMBA-23/LAMBA/issues/161) | 5 |
+| [#194](https://github.com/LAMBA-23/LAMBA/issues/194) | 2 |
+| [#196](https://github.com/LAMBA-23/LAMBA/issues/196) | 2 |
+| [#198](https://github.com/LAMBA-23/LAMBA/issues/198) | 5 |
+| [#199](https://github.com/LAMBA-23/LAMBA/issues/199) | 2 |
+| [#202](https://github.com/LAMBA-23/LAMBA/issues/202) | 3 |
+| [#204](https://github.com/LAMBA-23/LAMBA/issues/204) | 5 |
+| [#205](https://github.com/LAMBA-23/LAMBA/issues/205) | 3 |
+| [#210](https://github.com/LAMBA-23/LAMBA/issues/210) | 5 |
+| [#212](https://github.com/LAMBA-23/LAMBA/issues/212) | 3 |
+
+Total: `5 + 3 + 5 + 2 + 2 + 5 + 2 + 3 + 5 + 3 + 5 + 3 = 43 SP`.
+
+## 7. Summary of delivered product changes
+
+During Week 5 / Assignment 5, the team delivered the Sprint 3 MVP v2 increment:
+
+- added an Android manual history record creation form for fuel, repair, maintenance, and trip records;
+- added backend support for manual vehicle history records through the existing event model;
+- fixed mileage, fuel liters, expense, period, and record-count behavior in statistics;
+- connected chat questions to vehicle-history answers through the backend question endpoint;
+- removed non-event chat messages from the timeline so the history view stays focused on vehicle records;
+- updated main screen actions and frontend layout behavior for better usability;
+- published `v1.2.0` with an Android APK artifact and maintained release evidence;
+- added maintained architecture, ADR, quality, testing, UAT, Sprint Review, retrospective, reflection, and documentation-site evidence.
+
+The following planned items were not completed and remain backlog or follow-up work:
+
+| Issue | Reason |
+|---|---|
+| [#51](https://github.com/LAMBA-23/LAMBA/issues/51) | Maintenance recommendations were deferred until core data-entry and statistics gaps are stable. |
+| [#52](https://github.com/LAMBA-23/LAMBA/issues/52) | Notifications depend on stable recommendation behavior and were deferred. |
+
+## 8. Link to deployed product, hosted artifact, package, or runnable product
+
+Current public access artifacts for the Assignment 5 Sprint increment:
+
+- [GitHub Release: v1.2.0 - Assignment 5 Sprint 3 Increment (MVP v2)](https://github.com/LAMBA-23/LAMBA/releases/tag/v1.2.0)
+- [Android APK asset: mvp-v2.apk](https://github.com/LAMBA-23/LAMBA/releases/download/v1.2.0/mvp-v2.apk)
+- [Hosted maintained documentation site](https://lamba-23.github.io/LAMBA/)
+- [Documentation-site task #221](https://github.com/LAMBA-23/LAMBA/issues/221)
+- [Deployed backend Swagger UI](http://186.246.27.211:8000/docs)
+- Deployed backend API base host: `186.246.27.211:8000`
 - Public sanitized demo video: https://drive.google.com/drive/folders/19UU6YERENNanCGjQec7BVcUMXiITHhVT
+- [Runnable backend source: docker-compose.yml](../../docker-compose.yml)
 
-## Part 2: Respond to Customer Feedback on MVP v1
+## 9. Link to current access or run instructions
+
+- [Root README - Local Setup](../../README.md#local-setup)
+- [Root README - Assignment 5 Sprint Increment Release](../../README.md#assignment-5-sprint-increment-release)
+- [Root README - Runnable Artifact](../../README.md#runnable-artifact)
+
+## 10. Customer feedback response table
 
 We reviewed the feedback from the MVP v1 customer review and recorded what we did with each important point. If we did not take something into Sprint 3, we still wrote down why.
 
@@ -32,140 +107,54 @@ We reviewed the feedback from the MVP v1 customer review and recorded what we di
 
 Sprint 3 scope was chosen not just by the number of issues we could close, but by customer value, quality improvement, risk reduction, and whether the work could be shown as Done.
 
-## Part 3: Development Process and Configuration Management
+## 11. Explanation of feedback not addressed
 
-The hosted maintained documentation site is available at [https://lamba-23.github.io/LAMBA/](https://lamba-23.github.io/LAMBA/).
+- **Password hashing and token-based authorization:** deferred because Sprint 3 focused on product-flow stabilization, release evidence, and customer-visible MVP v2 improvements. This remains a security hardening follow-up.
+- **Long-term dialog memory and broader AI summaries/routes/fuel/repair support:** partially addressed through baseline parsing, statistics, and assistant work, but not completed as full product behavior.
+- **Chat-to-prefilled-form redirect:** deferred because the timeline, manual entry, and event flow needed to be stable before adding a confirmation/redirect workflow.
+- **Vehicle photo upload:** kept as later optional media scope, not an MVP v2 priority.
+- **Achievements:** kept as later engagement scope because it is lower priority than core vehicle-history and quality risks.
+- **Product access limitations:** partially handled through release evidence, APK, deployed backend/Swagger, documentation site, and sanitized demo video, with realistic APK testing still listed as follow-up in the Sprint Review.
 
-The team's development process is documented in [docs/development-process.md](../../docs/development-process.md). That document covers:
+## 12. Link to docs/roadmap.md
 
-- Git branching and review workflow with Mermaid gitGraph diagram
-- Issue types, templates, and workflow states
-- Board and Sprint milestone configuration
-- Configuration and secrets management
-- Development environment setup
-- CI pipeline and branch protection
-- Release and deployment process
+- [docs/roadmap.md](../../docs/roadmap.md)
 
-## Part 4: Sprint 3 Increment — What Was Delivered
+## 13. Link to docs/definition-of-done.md
 
-The following items were completed and verified in Sprint 3:
+- [docs/definition-of-done.md](../../docs/definition-of-done.md)
 
-| Issue | Description | Type |
-|---|---|---|
-| [#161](https://github.com/LAMBA-23/LAMBA/issues/161) | Add a manual form for creating vehicle history records | PBI |
-| [#205](https://github.com/LAMBA-23/LAMBA/issues/205) | Backend support for manual vehicle history form | PBI |
-| [#208](https://github.com/LAMBA-23/LAMBA/issues/208) | Implement manual history record creation | PBI |
-| [#196](https://github.com/LAMBA-23/LAMBA/issues/196) | Change buttons on the main screen | PBI |
-| [#199](https://github.com/LAMBA-23/LAMBA/issues/199) | Change expenses field to fuel refueling | PBI |
-| [#202](https://github.com/LAMBA-23/LAMBA/issues/202) | Remove non-event chat messages from timeline | PBI |
-| [#198](https://github.com/LAMBA-23/LAMBA/issues/198) | Fix backend statistics mileage and fuel liters | Bug |
-| [#204](https://github.com/LAMBA-23/LAMBA/issues/204) | Fix statistics mileage and fuel liters | Bug |
-| [#194](https://github.com/LAMBA-23/LAMBA/issues/194) | Frontend issues | Bug |
+## 14. Link to docs/testing.md
 
-The following items were planned but not completed and moved to Backlog:
+- [docs/testing.md](../../docs/testing.md)
 
-| Issue | Reason |
-|---|---|
-| [#160](https://github.com/LAMBA-23/LAMBA/issues/160) | Not completed before sprint end, moved to Backlog. |
-| [#49](https://github.com/LAMBA-23/LAMBA/issues/49) | Full acceptance criteria not met because #160 was not completed. |
-| [#51](https://github.com/LAMBA-23/LAMBA/issues/51) | Not started, deferred because #160 was not completed first. |
-| [#52](https://github.com/LAMBA-23/LAMBA/issues/52) | Not started, depends on #51. |
+## 15. Link to docs/quality-requirements.md
 
-## Part 5: Week 5 UAT
+- [docs/quality-requirements.md](../../docs/quality-requirements.md)
 
-### UAT-003: Add and view a history record
+## 16. Link to docs/quality-requirement-tests.md
 
-- **Execution status:** Completed
-- **Date:** TODO after execution
-- **Executed by:** TODO
-- **Result:** TODO (Passed / Needs changes)
-- **Customer comments or observed issues:** TODO
-- **Traceability:** US-05: View vehicle timeline, #161
-- **Resulting PBIs/issues:** TODO
+- [docs/quality-requirement-tests.md](../../docs/quality-requirement-tests.md)
 
-### Week 5 UAT Summary
+## 17. Link to docs/user-acceptance-tests.md
 
-- **Scenarios executed:** TODO
-- **Passed scenarios:** TODO
-- **Failed / needs changes:** TODO
-- **Most important feedback points:** TODO
+- [docs/user-acceptance-tests.md](../../docs/user-acceptance-tests.md)
 
-## Part 6: Release and Deployment Evidence
+## 18. Link to docs/development-process.md
 
-- Release: [v1.2.0](https://github.com/LAMBA-23/LAMBA/releases/tag/v1.2.0)
-- Hosted maintained documentation site: [https://lamba-23.github.io/LAMBA/](https://lamba-23.github.io/LAMBA/)
-- Deployed backend URL: `http://186.246.27.211:8000`
-- Swagger UI: `http://186.246.27.211:8000/docs`
-- Android APK: attached to GitHub Release or at `app/build/outputs/apk/debug/app-debug.apk`
-- Public sanitized demo video: https://drive.google.com/drive/folders/19UU6YERENNanCGjQec7BVcUMXiITHhVT
-- CI run evidence: [GitHub Actions](https://github.com/LAMBA-23/LAMBA/actions)
-## Part 9: Conduct the Sprint Review
+- [docs/development-process.md](../../docs/development-process.md)
 
-Sprint Review evidence:
+## 19. Link to docs/architecture/README.md
 
-- [Sprint Review transcript](./sprint-review-transcript.md)
-- [Sprint Review summary](./sprint-review-summary.md)
-- Tracking issue: [#216 Complete Week 5 Sprint Review artifacts](https://github.com/LAMBA-23/LAMBA/issues/216)
+- [docs/architecture/README.md](../../docs/architecture/README.md)
 
-The Sprint Review was conducted with the customer on 04.07.2026. Recording and public publication of the sanitized English transcript were permitted by the customer. Public artifacts use only the participant labels `Customer` and `Team member`.
+## 20. Links to the static, dynamic, and deployment view artifacts
 
-Part 9 evidence checklist:
+- [Static view: component diagram](../../docs/architecture/static-view/component-diagram.puml)
+- [Dynamic view: chat event sequence](../../docs/architecture/dynamic-view/chat-event-sequence.puml)
+- [Deployment view: deployment diagram](../../docs/architecture/deployment-view/deployment-diagram.puml)
 
-| Requirement | Evidence |
-|---|---|
-| Planned Sprint Goal | [Sprint Review summary - Sprint Goal Reviewed](./sprint-review-summary.md#sprint-goal-reviewed) |
-| Delivered MVP v2 increment | [Sprint Review summary - Delivered MVP v2 Increment Discussed](./sprint-review-summary.md#delivered-mvp-v2-increment-discussed) |
-| Addressed customer feedback | [Sprint Review summary - Addressed Customer Feedback](./sprint-review-summary.md#addressed-customer-feedback) |
-| UAT results | [Sprint Review summary - Customer-Executed UAT Results](./sprint-review-summary.md#customer-executed-uat-results) |
-| Architecture documentation and ADR updates/discussion | [Sprint Review summary - Architecture and ADR Discussion](./sprint-review-summary.md#architecture-and-adr-discussion), [docs/architecture/README.md](../../docs/architecture/README.md) |
-| Quality requirement and CI evidence to continue | [Sprint Review summary - Quality Requirement and CI Evidence](./sprint-review-summary.md#quality-requirement-and-ci-evidence), [docs/quality-requirements.md](../../docs/quality-requirements.md), [docs/quality-requirement-tests.md](../../docs/quality-requirement-tests.md) |
-| Remaining gaps, risks, and follow-up PBIs | [Sprint Review summary - Remaining Gaps and Risks](./sprint-review-summary.md#remaining-gaps-and-risks), [Sprint Review summary - Product Backlog Adaptation Recommendations](./sprint-review-summary.md#product-backlog-adaptation-recommendations) |
+## 21. Link to the ADR directory or ADR index
 
-No new Product Backlog Item issues were created from this review yet. The summary records recommended backlog updates for later refinement and customer/team approval.
-
-## Part 10: Conduct the Sprint Retrospective
-
-Sprint Retrospective evidence:
-
-- [Sprint Retrospective](./retrospective.md)
-- Tracking issue: [#220 Complete Week 5 Part 10, Part 12, and Part 14 artifacts](https://github.com/LAMBA-23/LAMBA/issues/220)
-
-Part 10 evidence checklist:
-
-| Requirement | Evidence |
-|---|---|
-| What went well | [Sprint Retrospective - What went well](./retrospective.md#what-went-well) |
-| What did not go well | [Sprint Retrospective - What did not go well](./retrospective.md#what-did-not-go-well) |
-| Previous retrospective follow-up | [Sprint Retrospective - What the team changed or attempted to change based on the previous Sprint Retrospective, and what results they observed](./retrospective.md#what-the-team-changed-or-attempted-to-change-based-on-the-previous-sprint-retrospective-and-what-results-they-observed) |
-| Action points | [Sprint Retrospective - Action points](./retrospective.md#action-points) |
-
-## Part 12: Reflection
-
-Reflection evidence:
-
-- [Week 5 Reflection](./reflection.md)
-- Tracking issue: [#220 Complete Week 5 Part 10, Part 12, and Part 14 artifacts](https://github.com/LAMBA-23/LAMBA/issues/220)
-
-Part 12 evidence checklist:
-
-| Requirement | Evidence |
-|---|---|
-| Learning points | [Week 5 Reflection - Learning points](./reflection.md#learning-points) |
-| Validated assumptions | [Week 5 Reflection - Validated assumptions](./reflection.md#validated-assumptions) |
-| Friction and gaps | [Week 5 Reflection - Friction and gaps](./reflection.md#friction-and-gaps) |
-| Planned response | [Week 5 Reflection - Planned response](./reflection.md#planned-response) |
-
-## Part 14: LLM Usage Report
-
-LLM usage evidence:
-
-- [Week 5 LLM Usage Report](./llm-report.md)
-- Tracking issue: [#220 Complete Week 5 Part 10, Part 12, and Part 14 artifacts](https://github.com/LAMBA-23/LAMBA/issues/220)
-
-Part 14 evidence checklist:
-
-| Requirement | Evidence |
-|---|---|
-| Models and tools used | [Week 5 LLM Usage Report - Models and Tools Used](./llm-report.md#models-and-tools-used) |
-| Usage areas and purposes | [Week 5 LLM Usage Report - How AI/LLM Tools Were Used](./llm-report.md#how-aillm-tools-were-used) |
-| Human review and verification | [Week 5 LLM Usage Report - Human Review and Verification](./llm-report.md#human-review-and-verification) |
+- [ADR directory](../../docs/architecture/adr/)
+- [ADR index in architecture README](../../docs/architecture/README.md#architecture-decision-records)
