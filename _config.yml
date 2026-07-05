@@ -1,0 +1,30 @@
+title: LAMBA Maintained Documentation
+description: Maintained product, process, architecture, quality, and testing documentation.
+url: "https://lamba-23.github.io"
+baseurl: "/LAMBA"
+
+plugins:
+  - jekyll-relative-links
+
+relative_links:
+  enabled: true
+  collections: true
+
+defaults:
+  - scope:
+      path: ""
+    values:
+      layout: default
+
+exclude:
+  - app/
+  - backend/
+  - gradle/
+  - reports/week2/images/
+  - reports/week3/images/
+  - reports/week4/images/
+  - .github/
+  - .gradle/
+  - .pytest_cache/
+  - build/
+  - README.md
