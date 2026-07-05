@@ -4,9 +4,7 @@ During Week 5, AI/LLM tools were used as support tools for coding, review, docum
 
 ## Models and Tools Used
 
-- Codex 5.5
-- Codex 5.5 Medium
-- Codex 5.4
+- Codex 5.5-5.4 Medium
 - Chat GPT 5.5 High
 - Google AI Studio
 - Gemini
@@ -33,11 +31,3 @@ During Week 5, AI/LLM tools were used as support tools for coding, review, docum
 - Backend and test-related work was checked with tests, CI evidence, or manual review where applicable.
 - Documentation was compared with repository evidence and Sprint Review materials.
 - The public transcript and reports were edited and sanitized by the team before publication.
-
-## What Was Not Delegated to AI/LLM Tools
-
-- Final product decisions and Sprint priorities.
-- Customer approval and Sprint Review decisions.
-- Pull request review responsibility and merge decisions.
-- Work with private credentials, private recording links, or customer-identifying details.
-- Automatic acceptance of generated code or text without human review.

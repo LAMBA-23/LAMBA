@@ -18,7 +18,7 @@
 
 ## Friction and gaps
 
-- Some Sprint 3 tasks were still too large, especially in the AI/statistics/chat area. This made it harder to complete all planned behavior and verify it before the Sprint Review.
+- Some Sprint 3 tasks were not done, especially in the AI/statistics/chat area. This made it harder to complete all planned behavior and verify it before the Sprint Review.
 - Merge and integration coordination can still create friction when Android, backend, statistics, and documentation work overlap near the end of the Sprint.
 - The manual form and statistics flow needed earlier end-to-end validation. The Sprint Review found that form-created data may not transfer correctly into statistics.
 - The release and deployment evidence improved, but realistic APK usage still needs stronger validation in a real car-use scenario instead of only controlled review or demo conditions.

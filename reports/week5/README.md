@@ -162,6 +162,6 @@ Part 14 evidence checklist:
 
 | Requirement | Evidence |
 |---|---|
+| Models and tools used | [Week 5 LLM Usage Report - Models and Tools Used](./llm-report.md#models-and-tools-used) |
 | Usage areas and purposes | [Week 5 LLM Usage Report - How AI/LLM Tools Were Used](./llm-report.md#how-aillm-tools-were-used) |
 | Human review and verification | [Week 5 LLM Usage Report - Human Review and Verification](./llm-report.md#human-review-and-verification) |
-| Work not delegated to AI/LLM tools | [Week 5 LLM Usage Report - What Was Not Delegated to AI/LLM Tools](./llm-report.md#what-was-not-delegated-to-aillm-tools) |
