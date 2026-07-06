@@ -55,6 +55,11 @@ class HistoryActivity : AppCompatActivity() {
         loadEvents()
     }
 
+    override fun onResume() {
+        super.onResume()
+        loadEvents()
+    }
+    
     private fun loadEvents() {
         val userId = SessionManager.getUserId(this)
         if (userId == null) {
