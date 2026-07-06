@@ -339,3 +339,78 @@ class TestEventsApi:
         for payload in invalid_payloads:
             response = client.post(f"/events?user_id={user_id}", json=payload)
             assert response.status_code == 422
+
+    def test_put_event_updates_existing_user_event(self, client):
+        user_id = _register_user(client, "events-update")
+        created_response = client.post(
+            f"/events?user_id={user_id}",
+            json=_event_payload(
+                type="fuel",
+                description="Manual fuel",
+                amount=2500,
+                mileage=0,
+                fuel_liters=40,
+            ),
+        )
+        event_id = created_response.json()["id"]
+
+        update_response = client.put(
+            f"/events/{event_id}?user_id={user_id}",
+            json=_event_payload(
+                type="repair",
+                description="Updated repair",
+                amount=7000,
+                mileage=0,
+                fuel_liters=0,
+            ),
+        )
+        timeline_response = client.get(f"/events?user_id={user_id}")
+
+        assert created_response.status_code == 200
+        assert update_response.status_code == 200
+        updated_event = update_response.json()
+        assert updated_event["id"] == event_id
+        assert updated_event["type"] == "repair"
+        assert updated_event["description"] == "Updated repair"
+        assert updated_event["amount"] == 7000
+        assert updated_event["fuel_liters"] == 0
+        assert timeline_response.status_code == 200
+        assert timeline_response.json() == [updated_event]
+
+    def test_delete_event_removes_existing_user_event(self, client):
+        user_id = _register_user(client, "events-delete")
+        created_response = client.post(
+            f"/events?user_id={user_id}",
+            json=_event_payload(description="Delete me"),
+        )
+        event_id = created_response.json()["id"]
+
+        delete_response = client.delete(f"/events/{event_id}?user_id={user_id}")
+        timeline_response = client.get(f"/events?user_id={user_id}")
+
+        assert created_response.status_code == 200
+        assert delete_response.status_code == 204
+        assert timeline_response.status_code == 200
+        assert timeline_response.json() == []
+
+    def test_update_and_delete_event_return_404_for_other_user_event(self, client):
+        owner_user_id = _register_user(client, "events-owner")
+        other_user_id = _register_user(client, "events-other-user")
+        created_response = client.post(
+            f"/events?user_id={owner_user_id}",
+            json=_event_payload(description="Owned event"),
+        )
+        event_id = created_response.json()["id"]
+
+        update_response = client.put(
+            f"/events/{event_id}?user_id={other_user_id}",
+            json=_event_payload(description="Wrong user update"),
+        )
+        delete_response = client.delete(f"/events/{event_id}?user_id={other_user_id}")
+        owner_timeline_response = client.get(f"/events?user_id={owner_user_id}")
+
+        assert created_response.status_code == 200
+        assert update_response.status_code == 404
+        assert delete_response.status_code == 404
+        assert owner_timeline_response.status_code == 200
+        assert owner_timeline_response.json()[0]["description"] == "Owned event"

@@ -3,7 +3,7 @@ from __future__ import annotations
 import re
 from datetime import datetime, timedelta, timezone
 
-from fastapi import Depends, FastAPI, HTTPException, Query
+from fastapi import Depends, FastAPI, HTTPException, Query, Response, status
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy import inspect, select, text
 from sqlalchemy.orm import Session
@@ -531,6 +531,83 @@ def create_event(
     db.commit()
     db.refresh(event)
     return event
+
+
+@app.put("/events/{event_id}", response_model=EventResponse)
+def update_event(
+    event_id: int,
+    payload: EventCreate,
+    user_id: int = Query(...),
+    db: Session = Depends(get_db),
+) -> Event:
+    car = get_car_for_user_id(db, user_id)
+    event = db.scalar(
+        select(Event).where(Event.id == event_id, Event.car_id == car.id)
+    )
+    if event is None:
+        raise HTTPException(status_code=404, detail="Event not found")
+
+    existing_events = list(
+        db.scalars(
+            select(Event)
+            .where(Event.car_id == car.id, Event.id != event_id)
+            .order_by(Event.created_at, Event.id)
+        )
+    )
+    previous_mileage = _current_trip_mileage(car, existing_events)
+
+    event_mileage = payload.mileage
+    if payload.type == "trip" and event_mileage is None:
+        event_mileage = _extract_trip_distance_km(payload.description)
+    if event_mileage is None:
+        event_mileage = 0
+
+    if payload.type == "trip":
+        event_mileage = _event_effective_mileage(
+            Event(
+                car_id=car.id,
+                type=payload.type,
+                description=payload.description,
+                amount=payload.amount if payload.amount is not None else 0,
+                fuel_liters=payload.fuel_liters
+                if payload.fuel_liters is not None
+                else 0,
+                mileage=event_mileage,
+            ),
+            previous_mileage,
+        )
+
+    event.type = payload.type
+    event.description = payload.description
+    event.amount = payload.amount if payload.amount is not None else 0
+    event.fuel_liters = payload.fuel_liters if payload.fuel_liters is not None else 0
+    event.mileage = event_mileage
+
+    db.commit()
+    db.refresh(event)
+    return event
+
+
+@app.delete(
+    "/events/{event_id}",
+    status_code=status.HTTP_204_NO_CONTENT,
+    response_model=None,
+    response_class=Response,
+)
+def delete_event(
+    event_id: int,
+    user_id: int = Query(...),
+    db: Session = Depends(get_db),
+) -> None:
+    car = get_car_for_user_id(db, user_id)
+    event = db.scalar(
+        select(Event).where(Event.id == event_id, Event.car_id == car.id)
+    )
+    if event is None:
+        raise HTTPException(status_code=404, detail="Event not found")
+
+    db.delete(event)
+    db.commit()
 
 
 @app.get("/stats", response_model=StatsResponse)

@@ -4,7 +4,10 @@ import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.Body
+import retrofit2.http.DELETE
 import retrofit2.http.GET
+import retrofit2.http.PUT
+import retrofit2.http.Path
 import retrofit2.http.POST
 import retrofit2.http.Query
 
@@ -35,8 +38,8 @@ interface LambaApiService {
 
     @POST("events")
     suspend fun createEvent(
-        @Body event: Event,
-        @Query("user_id") userId: Int? = null
+        @Body event: EventCreateRequest,
+        @Query("user_id") userId: Int,
     ): Response<Event>
 
     @POST("events")
@@ -44,6 +47,19 @@ interface LambaApiService {
         @Body event: EventCreateRequest,
         @Query("user_id") userId: Int,
     ): Response<Event>
+
+    @PUT("events/{event_id}")
+    suspend fun updateEvent(
+        @Path("event_id") eventId: Int,
+        @Body event: EventCreateRequest,
+        @Query("user_id") userId: Int,
+    ): Response<Event>
+
+    @DELETE("events/{event_id}")
+    suspend fun deleteEvent(
+        @Path("event_id") eventId: Int,
+        @Query("user_id") userId: Int,
+    ): Response<Unit>
 
     @GET("stats")
     suspend fun getStats(@Query("user_id") userId: Int? = null): Response<Stats>
