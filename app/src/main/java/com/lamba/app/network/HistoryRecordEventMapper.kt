@@ -94,7 +94,10 @@ object HistoryRecordEventMapper {
         }
     }
 
-    fun fromEvent(event: Event): HistoryRecordFormData {
+    fun fromEvent(
+        event: Event,
+        tripMileageOverride: Int? = null,
+    ): HistoryRecordFormData {
         return when {
             event.type == "fuel" -> {
                 val parsed = parseFuelDescription(event.description)
@@ -115,7 +118,7 @@ object HistoryRecordEventMapper {
                     type = HistoryRecordType.TRIP,
                     values = mapOf(
                         "date" to parsed["date"].orIfBlank(formatEventDate(event.createdAt)),
-                        "mileage" to event.mileage.toString(),
+                        "mileage" to (tripMileageOverride ?: event.mileage).toString(),
                         "description" to parsed["description"].orEmpty(),
                     ),
                 )

@@ -36,6 +36,8 @@ class HistoryActivity : AppCompatActivity() {
     private lateinit var tvHistoryState: TextView
 
     private val backendEvents = mutableListOf<Event>()
+    private val historyRecordsByEventId = mutableMapOf<Int?, HistoryRecordUiModel>()
+    private var currentVehicleMileage = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -70,11 +72,16 @@ class HistoryActivity : AppCompatActivity() {
         showLoading()
 
         lifecycleScope.launch {
-            runCatching { RetrofitClient.apiService.getEvents(userId) }
-                .onSuccess { response ->
-                    if (response.isSuccessful) {
+            runCatching {
+                val vehicleResponse = RetrofitClient.apiService.getVehicle(userId)
+                val eventsResponse = RetrofitClient.apiService.getEvents(userId)
+                vehicleResponse to eventsResponse
+            }
+                .onSuccess { (vehicleResponse, eventsResponse) ->
+                    currentVehicleMileage = vehicleResponse.body()?.currentMileage ?: 0
+                    if (eventsResponse.isSuccessful) {
                         backendEvents.clear()
-                        backendEvents.addAll(response.body().orEmpty())
+                        backendEvents.addAll(eventsResponse.body().orEmpty())
                         renderTimeline()
                     } else {
                         showState("Не удалось загрузить историю")
@@ -105,6 +112,9 @@ class HistoryActivity : AppCompatActivity() {
         layoutTimeline.removeAllViews()
         progressHistory.visibility = View.GONE
         val supportedBackendEvents = backendEvents.filter { isSupportedBackendEvent(it.type) }
+        val historyRecords = buildHistoryRecords(supportedBackendEvents)
+        historyRecordsByEventId.clear()
+        historyRecordsByEventId.putAll(historyRecords)
 
         if (supportedBackendEvents.isEmpty()) {
             showState("История пока пустая")
@@ -115,7 +125,7 @@ class HistoryActivity : AppCompatActivity() {
         layoutTimeline.visibility = View.VISIBLE
 
         supportedBackendEvents.forEach { event ->
-            val record = event.toUiModel()
+            val record = historyRecords[event.id] ?: event.toUiModel()
             addTimelineItem(
                 title = record.title,
                 iconRes = record.iconRes,
@@ -217,7 +227,7 @@ class HistoryActivity : AppCompatActivity() {
 
     private fun showRecordFormSheet(type: HistoryRecordType, event: Event? = null) {
         val dialog = BottomSheetDialog(this)
-        val editingRecord = event?.let { HistoryRecordUiModel.from(HistoryRecordEventMapper.fromEvent(it)) }
+        val editingRecord = event?.let { historyRecordsByEventId[it.id] ?: it.toUiModel() }
         val formContent = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
             setPadding(24.dp, 18.dp, 24.dp, 24.dp)
@@ -396,7 +406,7 @@ class HistoryActivity : AppCompatActivity() {
     }
 
     private fun showRecordDetailsSheet(event: Event) {
-        val record = HistoryRecordUiModel.from(HistoryRecordEventMapper.fromEvent(event))
+        val record = historyRecordsByEventId[event.id] ?: event.toUiModel()
         val dialog = BottomSheetDialog(this)
         val container = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
@@ -428,6 +438,30 @@ class HistoryActivity : AppCompatActivity() {
         dialog.setContentView(container)
         dialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
         dialog.show()
+    }
+
+    private fun buildHistoryRecords(events: List<Event>): Map<Int?, HistoryRecordUiModel> {
+        var knownMileage = currentVehicleMileage
+        return events.associate { event ->
+            val record = if (event.type.lowercase() == "trip") {
+                val effectiveMileage = if (event.mileage <= knownMileage) {
+                    knownMileage + event.mileage
+                } else {
+                    event.mileage
+                }
+                val tripMileage = maxOf(0, effectiveMileage - knownMileage)
+                knownMileage = maxOf(knownMileage, effectiveMileage)
+                HistoryRecordUiModel.from(
+                    HistoryRecordEventMapper.fromEvent(
+                        event,
+                        tripMileageOverride = tripMileage,
+                    ),
+                )
+            } else {
+                event.toUiModel()
+            }
+            event.id to record
+        }
     }
 
     private fun createDetailRow(label: String, value: String): LinearLayout {
