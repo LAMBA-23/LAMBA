@@ -63,6 +63,10 @@ class StatisticsActivity : AppCompatActivity() {
 
         setupPeriodSelector()
         renderStats(Stats())
+    }
+
+    override fun onResume() {
+        super.onResume()
         loadStats()
     }
 

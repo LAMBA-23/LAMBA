@@ -36,7 +36,8 @@ class HistoryActivity : AppCompatActivity() {
     private lateinit var tvHistoryState: TextView
 
     private val backendEvents = mutableListOf<Event>()
-    private val manualRecords = mutableListOf<ManualHistoryRecord>()
+    private val historyRecordsByEventId = mutableMapOf<Int?, HistoryRecordUiModel>()
+    private var currentVehicleMileage = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -56,6 +57,11 @@ class HistoryActivity : AppCompatActivity() {
         loadEvents()
     }
 
+    override fun onResume() {
+        super.onResume()
+        loadEvents()
+    }
+    
     private fun loadEvents() {
         val userId = SessionManager.getUserId(this)
         if (userId == null) {
@@ -66,11 +72,16 @@ class HistoryActivity : AppCompatActivity() {
         showLoading()
 
         lifecycleScope.launch {
-            runCatching { RetrofitClient.apiService.getEvents(userId) }
-                .onSuccess { response ->
-                    if (response.isSuccessful) {
+            runCatching {
+                val vehicleResponse = RetrofitClient.apiService.getVehicle(userId)
+                val eventsResponse = RetrofitClient.apiService.getEvents(userId)
+                vehicleResponse to eventsResponse
+            }
+                .onSuccess { (vehicleResponse, eventsResponse) ->
+                    currentVehicleMileage = vehicleResponse.body()?.currentMileage ?: 0
+                    if (eventsResponse.isSuccessful) {
                         backendEvents.clear()
-                        backendEvents.addAll(response.body().orEmpty())
+                        backendEvents.addAll(eventsResponse.body().orEmpty())
                         renderTimeline()
                     } else {
                         showState("Не удалось загрузить историю")
@@ -101,8 +112,11 @@ class HistoryActivity : AppCompatActivity() {
         layoutTimeline.removeAllViews()
         progressHistory.visibility = View.GONE
         val supportedBackendEvents = backendEvents.filter { isSupportedBackendEvent(it.type) }
+        val historyRecords = buildHistoryRecords(supportedBackendEvents)
+        historyRecordsByEventId.clear()
+        historyRecordsByEventId.putAll(historyRecords)
 
-        if (manualRecords.isEmpty() && supportedBackendEvents.isEmpty()) {
+        if (supportedBackendEvents.isEmpty()) {
             showState("История пока пустая")
             return
         }
@@ -110,23 +124,14 @@ class HistoryActivity : AppCompatActivity() {
         tvHistoryState.visibility = View.GONE
         layoutTimeline.visibility = View.VISIBLE
 
-        manualRecords.forEachIndexed { index, record ->
-            addTimelineItem(
-                title = record.type.title,
-                iconRes = record.type.iconRes,
-                details = record.fullDate,
-                keyValue = record.keyValue,
-                onClick = { showRecordDetailsSheet(index) },
-            )
-        }
         supportedBackendEvents.forEach { event ->
-            val mapping = mapEventType(event.type)
+            val record = historyRecords[event.id] ?: event.toUiModel()
             addTimelineItem(
-                title = mapping.title,
-                iconRes = mapping.iconRes,
+                title = record.title,
+                iconRes = record.iconRes,
                 details = formatBackendDate(event.createdAt),
-                keyValue = mapping.backendKeyValue(event),
-                onClick = null,
+                keyValue = record.keyValue,
+                onClick = if (event.type.lowercase() == "issue") null else { { showRecordDetailsSheet(event) } },
             )
         }
     }
@@ -173,7 +178,7 @@ class HistoryActivity : AppCompatActivity() {
             setPadding(0, 8.dp, 0, 12.dp)
         })
 
-        RecordType.values().forEach { type ->
+        HistoryRecordType.values().forEach { type ->
             container.addView(createRecordTypeOption(type) {
                 dialog.dismiss()
                 showRecordFormSheet(type)
@@ -185,7 +190,7 @@ class HistoryActivity : AppCompatActivity() {
         dialog.show()
     }
 
-    private fun createRecordTypeOption(type: RecordType, onClick: () -> Unit): LinearLayout {
+    private fun createRecordTypeOption(type: HistoryRecordType, onClick: () -> Unit): LinearLayout {
         return LinearLayout(this).apply {
             layoutParams = LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,
@@ -220,9 +225,9 @@ class HistoryActivity : AppCompatActivity() {
         }
     }
 
-    private fun showRecordFormSheet(type: RecordType, editIndex: Int? = null) {
+    private fun showRecordFormSheet(type: HistoryRecordType, event: Event? = null) {
         val dialog = BottomSheetDialog(this)
-        val editingRecord = editIndex?.let { manualRecords.getOrNull(it) }
+        val editingRecord = event?.let { historyRecordsByEventId[it.id] ?: it.toUiModel() }
         val formContent = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
             setPadding(24.dp, 18.dp, 24.dp, 24.dp)
@@ -260,13 +265,7 @@ class HistoryActivity : AppCompatActivity() {
                     val values = fields.associate { field ->
                         field.key to field.input.text.toString().trim()
                     }
-                    if (editIndex == null) {
-                        manualRecords.add(0, ManualHistoryRecord(type, values))
-                    } else {
-                        manualRecords[editIndex] = ManualHistoryRecord(type, values)
-                    }
-                    dialog.dismiss()
-                    renderTimeline()
+                    saveRecord(type, values, event?.id, errorView, dialog)
                 }
             }
         })
@@ -348,29 +347,30 @@ class HistoryActivity : AppCompatActivity() {
         }
     }
 
-    private fun buildFields(type: RecordType): List<FormField> {
+    private fun buildFields(type: HistoryRecordType): List<FormField> {
         return when (type) {
-            RecordType.FUEL -> listOf(
+            HistoryRecordType.FUEL -> listOf(
                 FormField("date", "Дата"),
                 FormField("fuelType", "Тип топлива"),
                 FormField("litres", "Количество, л", numeric = true),
                 FormField("cost", "Стоимость, ₽", numeric = true),
             )
-            RecordType.MAINTENANCE -> listOf(
+            HistoryRecordType.MAINTENANCE -> listOf(
                 FormField("name", "Название ТО"),
                 FormField("date", "Дата"),
                 FormField("cost", "Стоимость, ₽", numeric = true),
                 FormField("description", "Описание (необязательно)", required = false, singleLine = false),
             )
-            RecordType.REPAIR -> listOf(
+            HistoryRecordType.REPAIR -> listOf(
                 FormField("name", "Название ремонта"),
                 FormField("date", "Дата"),
                 FormField("cost", "Стоимость, ₽", numeric = true),
                 FormField("description", "Описание (необязательно)", required = false, singleLine = false),
             )
-            RecordType.TRIP -> listOf(
+            HistoryRecordType.TRIP -> listOf(
                 FormField("date", "Дата"),
                 FormField("mileage", "Километраж, км", numeric = true),
+                FormField("description", "Маршрут / описание (необязательно)", required = false, singleLine = false),
             )
         }
     }
@@ -405,8 +405,8 @@ class HistoryActivity : AppCompatActivity() {
         return isValid
     }
 
-    private fun showRecordDetailsSheet(index: Int) {
-        val record = manualRecords.getOrNull(index) ?: return
+    private fun showRecordDetailsSheet(event: Event) {
+        val record = historyRecordsByEventId[event.id] ?: event.toUiModel()
         val dialog = BottomSheetDialog(this)
         val container = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
@@ -428,16 +428,40 @@ class HistoryActivity : AppCompatActivity() {
 
         container.addView(createActionButton("Редактировать", filled = false) {
             dialog.dismiss()
-            showRecordFormSheet(record.type, index)
+            showRecordFormSheet(record.type, event)
         })
         container.addView(createActionButton("Удалить", filled = true) {
             dialog.dismiss()
-            confirmDeleteRecord(index)
+            confirmDeleteRecord(event)
         })
 
         dialog.setContentView(container)
         dialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
         dialog.show()
+    }
+
+    private fun buildHistoryRecords(events: List<Event>): Map<Int?, HistoryRecordUiModel> {
+        var knownMileage = currentVehicleMileage
+        return events.associate { event ->
+            val record = if (event.type.lowercase() == "trip") {
+                val effectiveMileage = if (event.mileage <= knownMileage) {
+                    knownMileage + event.mileage
+                } else {
+                    event.mileage
+                }
+                val tripMileage = maxOf(0, effectiveMileage - knownMileage)
+                knownMileage = maxOf(knownMileage, effectiveMileage)
+                HistoryRecordUiModel.from(
+                    HistoryRecordEventMapper.fromEvent(
+                        event,
+                        tripMileageOverride = tripMileage,
+                    ),
+                )
+            } else {
+                event.toUiModel()
+            }
+            event.id to record
+        }
     }
 
     private fun createDetailRow(label: String, value: String): LinearLayout {
@@ -481,29 +505,15 @@ class HistoryActivity : AppCompatActivity() {
         }
     }
 
-    private fun confirmDeleteRecord(index: Int) {
+    private fun confirmDeleteRecord(event: Event) {
         AlertDialog.Builder(this)
             .setTitle("Удалить запись?")
-            .setMessage("Запись исчезнет из истории в этой сессии.")
+            .setMessage("Запись будет удалена из истории и статистики.")
             .setNegativeButton("Отмена", null)
             .setPositiveButton("Удалить") { _, _ ->
-                if (index in manualRecords.indices) {
-                    manualRecords.removeAt(index)
-                    renderTimeline()
-                }
+                deleteRecord(event)
             }
             .show()
-    }
-
-    private fun mapEventType(type: String): EventDisplay {
-        return when (type.lowercase()) {
-            "fuel" -> EventDisplay("Заправка", R.drawable.ic_lamba_fuel)
-            "maintenance" -> EventDisplay("ТО", R.drawable.ic_lamba_build)
-            "repair" -> EventDisplay("Ремонт", R.drawable.ic_lamba_repair)
-            "trip" -> EventDisplay("Поездка", R.drawable.ic_lamba_route)
-            "issue" -> EventDisplay("Повреждение", R.drawable.ic_lamba_repair)
-            else -> EventDisplay("Событие", R.drawable.ic_lamba_history)
-        }
     }
 
     private fun isSupportedBackendEvent(type: String): Boolean {
@@ -571,59 +581,56 @@ class HistoryActivity : AppCompatActivity() {
     private val Int.dp: Int
         get() = (this * resources.displayMetrics.density).toInt()
 
-    private enum class RecordType(
-        val title: String,
-        val formTitle: String,
-        val iconRes: Int,
-    ) {
-        FUEL("Заправка", "Новая заправка", R.drawable.ic_lamba_fuel),
-        MAINTENANCE("ТО", "Новое ТО", R.drawable.ic_lamba_build),
-        REPAIR("Ремонт", "Новый ремонт", R.drawable.ic_lamba_repair),
-        TRIP("Поездка", "Новая поездка", R.drawable.ic_lamba_route),
-    }
-
-    private data class ManualHistoryRecord(
-        val type: RecordType,
+    private data class HistoryRecordUiModel(
+        val type: HistoryRecordType,
         val values: Map<String, String>,
     ) {
+        val title: String
+            get() = type.title
+
+        val iconRes: Int
+            get() = type.iconRes
+
         val fullDate: String
             get() = values["date"].orEmpty()
 
         val keyValue: String
             get() = when (type) {
-                RecordType.FUEL -> "${formatPlainNumberValue(values["litres"].orEmpty())} л"
-                RecordType.MAINTENANCE,
-                RecordType.REPAIR -> formatMoneyValue(values["cost"].orEmpty())
-                RecordType.TRIP -> "${formatPlainNumberValue(values["mileage"].orEmpty())} км"
+                HistoryRecordType.FUEL -> "${formatPlainNumberValue(values["litres"].orEmpty())} л"
+                HistoryRecordType.MAINTENANCE,
+                HistoryRecordType.REPAIR -> formatMoneyValue(values["cost"].orEmpty())
+                HistoryRecordType.TRIP -> "${formatPlainNumberValue(values["mileage"].orEmpty())} км"
             }
 
         val detailRows: List<Pair<String, String>>
             get() = when (type) {
-                RecordType.FUEL -> listOf(
+                HistoryRecordType.FUEL -> listOf(
                     "Дата" to values["date"].orEmpty(),
                     "Тип топлива" to values["fuelType"].orEmpty(),
                     "Количество литров" to "${formatPlainNumberValue(values["litres"].orEmpty())} л",
                     "Стоимость" to formatMoneyValue(values["cost"].orEmpty()),
                 )
-                RecordType.MAINTENANCE -> listOf(
+                HistoryRecordType.MAINTENANCE -> listOf(
                     "Название ТО" to values["name"].orEmpty(),
                     "Дата" to values["date"].orEmpty(),
                     "Стоимость" to formatMoneyValue(values["cost"].orEmpty()),
                 ).withOptionalDescription()
-                RecordType.REPAIR -> listOf(
+                HistoryRecordType.REPAIR -> listOf(
                     "Название ремонта" to values["name"].orEmpty(),
                     "Дата" to values["date"].orEmpty(),
                     "Стоимость" to formatMoneyValue(values["cost"].orEmpty()),
                 ).withOptionalDescription()
-                RecordType.TRIP -> listOf(
+                HistoryRecordType.TRIP -> listOf(
                     "Дата" to values["date"].orEmpty(),
                     "Километраж, км" to "${formatPlainNumberValue(values["mileage"].orEmpty())} км",
-                )
+                ).withOptionalDescription(label = "Маршрут / описание")
             }
 
-        private fun List<Pair<String, String>>.withOptionalDescription(): List<Pair<String, String>> {
+        private fun List<Pair<String, String>>.withOptionalDescription(
+            label: String = "Описание",
+        ): List<Pair<String, String>> {
             val description = values["description"].orEmpty()
-            return if (description.isBlank()) this else this + ("Описание" to description)
+            return if (description.isBlank()) this else this + (label to description)
         }
 
         private fun formatMoneyValue(value: String): String {
@@ -643,18 +650,10 @@ class HistoryActivity : AppCompatActivity() {
         private fun parsePositiveNumberValue(value: String): Double? {
             return value.replace(" ", "").replace(',', '.').toDoubleOrNull()?.takeIf { it > 0.0 }
         }
-    }
 
-    private data class EventDisplay(
-        val title: String,
-        val iconRes: Int,
-    ) {
-        fun backendKeyValue(event: Event): String {
-            return when (title) {
-                "Заправка" -> if (event.amount > 0) "${event.amount} л" else ""
-                "Ремонт", "ТО" -> if (event.amount > 0) "%,d ₽".format(Locale.US, event.amount).replace(',', ' ') else ""
-                "Поездка" -> if (event.mileage > 0) "${event.mileage} км" else ""
-                else -> ""
+        companion object {
+            fun from(data: HistoryRecordFormData): HistoryRecordUiModel {
+                return HistoryRecordUiModel(data.type, data.values)
             }
         }
     }
@@ -677,5 +676,82 @@ class HistoryActivity : AppCompatActivity() {
             } else {
                 InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_FLAG_MULTI_LINE or InputType.TYPE_TEXT_FLAG_CAP_SENTENCES
             }
+    }
+
+    private fun Event.toUiModel(): HistoryRecordUiModel {
+        return when (type.lowercase()) {
+            "fuel", "repair", "trip" -> HistoryRecordUiModel.from(HistoryRecordEventMapper.fromEvent(this))
+            "issue" -> HistoryRecordUiModel(
+                type = HistoryRecordType.REPAIR,
+                values = mapOf(
+                    "name" to description,
+                    "date" to formatBackendDate(createdAt),
+                    "cost" to amount.toString(),
+                    "description" to "",
+                ),
+            )
+            else -> HistoryRecordUiModel(
+                type = HistoryRecordType.REPAIR,
+                values = mapOf(
+                    "name" to description,
+                    "date" to formatBackendDate(createdAt),
+                    "cost" to amount.toString(),
+                    "description" to "",
+                ),
+            )
+        }
+    }
+
+    private fun saveRecord(
+        type: HistoryRecordType,
+        values: Map<String, String>,
+        eventId: Int?,
+        errorView: TextView,
+        dialog: BottomSheetDialog,
+    ) {
+        val userId = SessionManager.getUserId(this)
+        if (userId == null) {
+            errorView.text = "Не удалось определить пользователя"
+            errorView.visibility = View.VISIBLE
+            return
+        }
+
+        val request = HistoryRecordEventMapper.toEventRequest(type, values)
+        errorView.visibility = View.GONE
+
+        lifecycleScope.launch {
+            val response = runCatching {
+                if (eventId == null) {
+                    RetrofitClient.apiService.createEvent(request, userId)
+                } else {
+                    RetrofitClient.apiService.updateEvent(eventId, request, userId)
+                }
+            }
+
+            response.onSuccess {
+                if (it.isSuccessful) {
+                    dialog.dismiss()
+                    loadEvents()
+                } else {
+                    errorView.text = "Не удалось сохранить запись"
+                    errorView.visibility = View.VISIBLE
+                }
+            }.onFailure {
+                errorView.text = "Не удалось сохранить запись"
+                errorView.visibility = View.VISIBLE
+            }
+        }
+    }
+
+    private fun deleteRecord(event: Event) {
+        val userId = SessionManager.getUserId(this) ?: return
+        lifecycleScope.launch {
+            runCatching { RetrofitClient.apiService.deleteEvent(event.id ?: return@launch, userId) }
+                .onSuccess {
+                    if (it.isSuccessful) {
+                        loadEvents()
+                    }
+                }
+        }
     }
 }

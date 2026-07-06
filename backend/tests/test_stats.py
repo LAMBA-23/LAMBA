@@ -351,6 +351,54 @@ class TestStatsApi:
         assert updated_response.json()["all_time"]["total_expenses"] == 4200
         assert updated_response.json()["fuel_expenses"] == 4200
 
+    def test_get_stats_is_updated_after_updating_and_deleting_event(self, client):
+        user_id = _register_user(client, "stats-update-delete-user")
+        created_response = _create_event(
+            client,
+            user_id,
+            type="fuel",
+            description="Manual fuel",
+            amount=2500,
+            fuel_liters=40,
+            mileage=0,
+        )
+        event_id = created_response.json()["id"]
+
+        fuel_stats_response = client.get(f"/stats?user_id={user_id}")
+        update_response = client.put(
+            f"/events/{event_id}?user_id={user_id}",
+            json=_event_payload(
+                type="repair",
+                description="Manual repair",
+                amount=7000,
+                fuel_liters=0,
+                mileage=0,
+            ),
+        )
+        repair_stats_response = client.get(f"/stats?user_id={user_id}")
+        delete_response = client.delete(f"/events/{event_id}?user_id={user_id}")
+        deleted_stats_response = client.get(f"/stats?user_id={user_id}")
+
+        assert fuel_stats_response.status_code == 200
+        assert fuel_stats_response.json()["all_time"]["fuel_expenses"] == 2500
+        assert fuel_stats_response.json()["all_time"]["fuel_liters"] == 40
+        assert fuel_stats_response.json()["all_time"]["repair_expenses"] == 0
+        assert fuel_stats_response.json()["all_time"]["records_count"] == 1
+
+        assert update_response.status_code == 200
+        assert repair_stats_response.status_code == 200
+        assert repair_stats_response.json()["all_time"]["fuel_expenses"] == 0
+        assert repair_stats_response.json()["all_time"]["fuel_liters"] == 0
+        assert repair_stats_response.json()["all_time"]["repair_expenses"] == 7000
+        assert repair_stats_response.json()["all_time"]["records_count"] == 1
+
+        assert delete_response.status_code == 204
+        assert deleted_stats_response.status_code == 200
+        assert deleted_stats_response.json()["all_time"]["fuel_expenses"] == 0
+        assert deleted_stats_response.json()["all_time"]["fuel_liters"] == 0
+        assert deleted_stats_response.json()["all_time"]["repair_expenses"] == 0
+        assert deleted_stats_response.json()["all_time"]["records_count"] == 0
+
     def test_build_stats_period_treats_null_amount_and_mileage_as_zero(self):
         period = build_stats_period(
             [
