@@ -1,3 +1,6 @@
+from sqlalchemy import text
+
+
 def _register_user(client, username: str) -> int:
     response = client.post(
         "/auth/register",
@@ -20,6 +23,29 @@ def _event_payload(**overrides):
 
 
 class TestEventsApi:
+    def test_get_events_ignores_legacy_invalid_event_types(self, client, db_session):
+        user_id = _register_user(client, "events-legacy-invalid")
+        client.post(
+            f"/events?user_id={user_id}",
+            json=_event_payload(description="Visible fuel"),
+        )
+        car_id = client.get(f"/vehicle?user_id={user_id}").json()["id"]
+        db_session.execute(
+            text(
+                "INSERT INTO events "
+                "(car_id, type, description, amount, fuel_liters, mileage, created_at) "
+                "VALUES (:car_id, 'condition', 'Legacy condition check', 0, 0, 0, "
+                "CURRENT_TIMESTAMP)"
+            ),
+            {"car_id": car_id},
+        )
+        db_session.commit()
+
+        response = client.get(f"/events?user_id={user_id}")
+
+        assert response.status_code == 200
+        assert [event["type"] for event in response.json()] == ["fuel"]
+
     def test_get_events_returns_only_user_events_in_stable_order(self, client):
         first_user_id = _register_user(client, "events-user-1")
         second_user_id = _register_user(client, "events-user-2")

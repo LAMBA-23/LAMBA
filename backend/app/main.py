@@ -107,6 +107,8 @@ def get_car_for_user_id(db: Session, user_id: int) -> Car:
 
 
 STATISTICS_EVENT_TYPES = {"fuel", "repair", "trip"}
+EVENT_TYPES = ("fuel", "repair", "trip", "issue")
+EVENT_TYPE_CHECK_CONSTRAINT = "events_type_allowed"
 
 
 def _coalesce_int(value: int | None) -> int:
@@ -116,12 +118,35 @@ def _coalesce_int(value: int | None) -> int:
 def ensure_event_schema() -> None:
     inspector = inspect(engine)
     event_columns = {column["name"] for column in inspector.get_columns("events")}
-    if "fuel_liters" in event_columns:
+    with engine.begin() as connection:
+        if "fuel_liters" not in event_columns:
+            connection.execute(
+                text(
+                    "ALTER TABLE events "
+                    "ADD COLUMN fuel_liters INTEGER NOT NULL DEFAULT 0"
+                )
+            )
+        connection.execute(
+            text("UPDATE events SET type = 'issue' WHERE type = 'condition'")
+        )
+
+    if engine.dialect.name != "postgresql":
+        return
+
+    inspector = inspect(engine)
+    check_constraints = {
+        constraint["name"] for constraint in inspector.get_check_constraints("events")
+    }
+    if EVENT_TYPE_CHECK_CONSTRAINT in check_constraints:
         return
 
     with engine.begin() as connection:
         connection.execute(
-            text("ALTER TABLE events ADD COLUMN fuel_liters INTEGER NOT NULL DEFAULT 0")
+            text(
+                "ALTER TABLE events "
+                f"ADD CONSTRAINT {EVENT_TYPE_CHECK_CONSTRAINT} "
+                "CHECK (type IN ('fuel', 'repair', 'trip', 'issue'))"
+            )
         )
 
 
@@ -478,7 +503,11 @@ def chat_ask(
 def get_events(user_id: int = Query(...), db: Session = Depends(get_db)) -> list[Event]:
     car = get_car_for_user_id(db, user_id)
     return list(
-        db.scalars(select(Event).where(Event.car_id == car.id).order_by(Event.id))
+        db.scalars(
+            select(Event)
+            .where(Event.car_id == car.id, Event.type.in_(EVENT_TYPES))
+            .order_by(Event.id)
+        )
     )
 
 
