@@ -130,6 +130,8 @@
         android:paddingTop="18dp"
         android:paddingEnd="30dp"
         android:paddingBottom="18dp"
+        android:clipToPadding="false"
+        android:clipChildren="false"
         app:layout_constraintBottom_toTopOf="@id/layoutChatInput"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

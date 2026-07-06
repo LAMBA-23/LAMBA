@@ -116,8 +116,6 @@
             android:layout_height="0dp"
             android:layout_weight="1.5"
             android:layout_marginTop="12dp"
-            android:clickable="true"
-            android:focusable="true"
             android:foreground="?attr/selectableItemBackground">
 
             <View
@@ -180,7 +178,6 @@
                 android:layout_marginBottom="8dp"
                 android:background="@drawable/bg_card_white"
                 android:clickable="true"
-                android:elevation="3dp"
                 android:focusable="true"
                 android:foreground="?attr/selectableItemBackground">
                 <ImageView
@@ -216,7 +213,6 @@
                 android:layout_marginBottom="8dp"
                 android:background="@drawable/bg_card_white"
                 android:clickable="true"
-                android:elevation="3dp"
                 android:focusable="true"
                 android:foreground="?attr/selectableItemBackground">
                 <ImageView
@@ -252,7 +248,6 @@
                 android:layout_marginBottom="8dp"
                 android:background="@drawable/bg_card_white"
                 android:clickable="true"
-                android:elevation="3dp"
                 android:focusable="true"
                 android:foreground="?attr/selectableItemBackground">
                 <ImageView
@@ -287,7 +282,6 @@
                 android:layout_weight="1"
                 android:background="@drawable/bg_card_white"
                 android:clickable="true"
-                android:elevation="3dp"
                 android:focusable="true"
                 android:foreground="?attr/selectableItemBackground">
                 <ImageView
@@ -525,10 +519,6 @@
                 android:layout_width="match_parent"
                 android:layout_height="86dp"
                 android:background="@drawable/bg_lamba_bot_bubble"
-                android:clickable="true"
-                android:elevation="4dp"
-                android:focusable="true"
-                android:foreground="?attr/selectableItemBackground"
                 android:gravity="center_vertical"
                 android:orientation="horizontal"
                 android:paddingStart="18dp"
