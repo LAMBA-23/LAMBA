@@ -570,9 +570,7 @@ def update_event(
     db: Session = Depends(get_db),
 ) -> Event:
     car = get_car_for_user_id(db, user_id)
-    event = db.scalar(
-        select(Event).where(Event.id == event_id, Event.car_id == car.id)
-    )
+    event = db.scalar(select(Event).where(Event.id == event_id, Event.car_id == car.id))
     if event is None:
         raise HTTPException(status_code=404, detail="Event not found")
 
@@ -629,9 +627,7 @@ def delete_event(
     db: Session = Depends(get_db),
 ) -> None:
     car = get_car_for_user_id(db, user_id)
-    event = db.scalar(
-        select(Event).where(Event.id == event_id, Event.car_id == car.id)
-    )
+    event = db.scalar(select(Event).where(Event.id == event_id, Event.car_id == car.id))
     if event is None:
         raise HTTPException(status_code=404, detail="Event not found")
 
