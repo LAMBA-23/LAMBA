@@ -543,20 +543,22 @@ def _build_event_answer(
             line = f"Поездка: {_format_number(distance)} км"
         else:
             line = _format_event_line(event)
-        lines.append(
-            f"{index}. {event.created_at.strftime('%d.%m.%Y')} — {line}"
-        )
+        lines.append(f"{index}. {event.created_at.strftime('%d.%m.%Y')} — {line}")
         if index != len(filtered):
             lines.append("")
     return "\n".join(lines)
 
 
 def _build_expense_answer(events: list[Event], message: str, now: datetime) -> str:
-    expense_events, period, last_n_days = _expense_events_for_query(events, message, now)
+    expense_events, period, last_n_days = _expense_events_for_query(
+        events, message, now
+    )
     if not expense_events:
         return "За выбранный период расходов не найдено."
 
-    total_amount = sum(event.amount for event in expense_events if event.amount is not None)
+    total_amount = sum(
+        event.amount for event in expense_events if event.amount is not None
+    )
     lines = [
         f"Расходы за {_period_title(period, last_n_days)}: {_format_number(total_amount)} ₽",
         "",
@@ -816,7 +818,9 @@ def chat_ask(
     car = get_car_for_user_id(db, user_id)
     all_events = list(
         db.scalars(
-            select(Event).where(Event.car_id == car.id).order_by(Event.created_at, Event.id)
+            select(Event)
+            .where(Event.car_id == car.id)
+            .order_by(Event.created_at, Event.id)
         )
     )
     if _is_statistics_query(payload.message):
