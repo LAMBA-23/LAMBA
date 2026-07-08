@@ -115,13 +115,25 @@ def _coalesce_int(value: int | None) -> int:
 
 def ensure_event_schema() -> None:
     inspector = inspect(engine)
-    event_columns = {column["name"] for column in inspector.get_columns("events")}
-    if "fuel_liters" in event_columns:
+    event_columns = {
+        column["name"]: column for column in inspector.get_columns("events")
+    }
+    fuel_liters_column = event_columns.get("fuel_liters")
+    if fuel_liters_column is not None:
+        column_type = str(fuel_liters_column["type"]).lower()
+        if engine.dialect.name == "postgresql" and "double" not in column_type:
+            with engine.begin() as connection:
+                connection.execute(
+                    text(
+                        "ALTER TABLE events ALTER COLUMN fuel_liters "
+                        "TYPE DOUBLE PRECISION USING fuel_liters::double precision"
+                    )
+                )
         return
 
     with engine.begin() as connection:
         connection.execute(
-            text("ALTER TABLE events ADD COLUMN fuel_liters INTEGER NOT NULL DEFAULT 0")
+            text("ALTER TABLE events ADD COLUMN fuel_liters FLOAT NOT NULL DEFAULT 0")
         )
 
 

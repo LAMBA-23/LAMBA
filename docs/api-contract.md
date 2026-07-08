@@ -231,7 +231,7 @@ Response:
     "type": "fuel",
     "description": "Full tank",
     "amount": 60,
-    "fuel_liters": 40,
+    "fuel_liters": 40.5,
     "mileage": 125000,
     "created_at": "2026-06-13T12:00:00"
   }
@@ -308,7 +308,7 @@ Fuel phrases with liters can also be parsed directly:
 
 ```json
 {
-  "message": "заправилась на 10 литров за 1000 рублей"
+  "message": "заправилась на 10.5 литров за 1000 рублей"
 }
 ```
 
@@ -319,9 +319,9 @@ Parsed response:
   "status": "parsed",
   "parsed_event": {
     "type": "fuel",
-    "description": "Заправка на 10 литров",
+    "description": "Заправка на 10.5 литров",
     "amount": 1000,
-    "fuel_liters": 10,
+    "fuel_liters": 10.5,
     "mileage": null
   },
   "clarification_question": null
@@ -348,7 +348,7 @@ Allowed event types: `fuel`, `repair`, `trip`, `issue`.
 
 `amount` and `mileage` must not be negative when provided.
 
-`fuel_liters` must not be negative when provided.
+`fuel_liters` can be an integer or decimal number and must not be negative when provided.
 
 If `amount` is missing, backend stores `0`.
 
@@ -372,7 +372,7 @@ Request:
   "type": "fuel",
   "description": "Full tank",
   "amount": 60,
-  "fuel_liters": 40,
+  "fuel_liters": 40.5,
   "mileage": 125000
 }
 ```
@@ -385,7 +385,7 @@ Response:
   "type": "fuel",
   "description": "Full tank",
   "amount": 60,
-  "fuel_liters": 40,
+  "fuel_liters": 40.5,
   "mileage": 125000,
   "created_at": "2026-06-13T12:00:00"
 }
@@ -436,7 +436,7 @@ Rules:
 - `repair_expenses`: sum of `amount` for `repair` events in the period.
 - `total_expenses` / `expenses_rub`: `fuel_expenses + repair_expenses`.
 - `records_count`: number of all events in the period.
-- `fuel_liters`: sum of `fuel_liters` for `fuel` events in the period.
+- `fuel_liters`: sum of `fuel_liters` for `fuel` events in the period; decimal values are supported.
 - `avg_fuel_consumption` and `avg_fuel_consumption_l_per_100km`: return `0` until a liters source exists.
 - `avg_expense_consumption`: return `0` when it cannot be computed from the available period data.
 - Top-level legacy fields remain available: `fuel_expenses`, `repair_expenses`, `trip_count`, `total_recorded_mileage`.
@@ -460,7 +460,7 @@ Response:
     "avg_expense_consumption": 0,
     "mileage_km": 100,
     "expenses_rub": 2500,
-    "fuel_liters": 40,
+    "fuel_liters": 40.5,
     "records_count": 2,
     "avg_fuel_consumption_l_per_100km": 0
   },
@@ -473,7 +473,7 @@ Response:
     "avg_expense_consumption": 0,
     "mileage_km": 100,
     "expenses_rub": 9500,
-    "fuel_liters": 40,
+    "fuel_liters": 40.5,
     "records_count": 4,
     "avg_fuel_consumption_l_per_100km": 0
   },
@@ -486,7 +486,7 @@ Response:
     "avg_expense_consumption": 0,
     "mileage_km": 125100,
     "expenses_rub": 9500,
-    "fuel_liters": 40,
+    "fuel_liters": 40.5,
     "records_count": 5,
     "avg_fuel_consumption_l_per_100km": 0
   }
