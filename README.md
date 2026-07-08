@@ -1,32 +1,50 @@
 # LAMBA - digital twin of a car
 
-A mobile app for creating a digital twin of a car. The system collects data on trips, repairs, gas stations and the technical condition of the car, forming a timeline of the car. Interaction with the system goes using an AI agent through a conversational interface.
+LAMBA is an Android application for keeping a digital twin of a car. It helps a
+vehicle owner record trips, refueling, repairs, breakdowns, and other vehicle
+history events, then inspect them through a timeline, statistics, and an AI
+assistant chat.
 
-## Planned Features
+The current public increment is **MVP v2 / Assignment 5 Sprint 3**. Assignment 6
+work is preparing the project for handover, documentation review, and the next
+MVP v3 updates.
 
-- User authentication
-- Add a car
-- Add data about car using chat with an AI assistant
-- View the timeline with car condition
+## Current Product Access
+
+- [GitHub Release: v1.2.0 - Assignment 5 Sprint 3 Increment (MVP v2)](https://github.com/LAMBA-23/LAMBA/releases/tag/v1.2.0)
+- [Android APK asset: mvp-v2.apk](https://github.com/LAMBA-23/LAMBA/releases/download/v1.2.0/mvp-v2.apk)
+- [Hosted maintained documentation site](https://lamba-23.github.io/LAMBA/)
+- Deployed backend API: `http://186.246.27.211:8000`
+- Deployed Swagger/API docs: `http://186.246.27.211:8000/docs`
+- Demo credentials: `demo` / `demo`
+
+The backend can also be run locally with Docker Compose. See
+[Local Setup](#local-setup).
+
+## Product Scope
+
+The current product supports:
+
+- user registration and login;
+- vehicle profile setup;
+- manual vehicle-history records;
+- chat-assisted vehicle-history records;
+- vehicle timeline;
+- statistics for mileage, expenses, fuel, and records;
+- backend API documentation through Swagger UI.
+
+Main follow-up work for MVP v3 includes decimal fuel liters, start/end odometer
+trip entry, repair/breakdown wording, photo attachments, improved assistant
+statistics answers, and final handover documentation.
 
 ## Tech Stack
 
-- Frontend: Kotlin
-- Backend: FastAPI, SQLAlchemy
+- Android app: Kotlin, Gradle
+- Backend: FastAPI, SQLAlchemy, Pydantic
 - Database: PostgreSQL
 - Deployment: Docker Compose
-
-## Assignment 5 Sprint Increment Release
-
-- Release: `v1.2.0 - Assignment 5 Sprint 3 Increment (MVP v2)`
-- Sprint milestone: [Sprint 3 - Maintenance Follow-up](https://github.com/LAMBA-23/LAMBA/milestone/3)
-- Deployed backend URL: `http://186.246.27.211:8000`
-- Swagger/API docs URL: `http://186.246.27.211:8000/docs`
-- Demo credentials: `demo` / `demo`
-- Public sanitized demo video: https://drive.google.com/drive/folders/19UU6YERENNanCGjQec7BVcUMXiITHhVT
-- Runnable artifact: Android APK attached to release / Docker Compose instructions
-
-The `v1.2.0` Sprint increment includes the manual vehicle history record creation form, statistics screen and backend fixes, timeline cleanup, main screen UI improvements, Week 5 UAT evidence, and release/deployment documentation. Final server URL, public video, release tag, GitHub Release, and published artifact evidence must be added only after they are available.
+- Documentation site: GitHub Pages
+- CI: GitHub Actions
 
 ## Local Setup
 
@@ -34,7 +52,8 @@ The `v1.2.0` Sprint increment includes the manual vehicle history record creatio
 
 Requirements:
 
-- Docker and Docker Compose
+- Docker
+- Docker Compose
 
 Run:
 
@@ -42,14 +61,7 @@ Run:
 docker compose up --build
 ```
 
-For AI-backed chat endpoints, set these environment variables before startup:
-
-```text
-TIMEWEB_API_KEY
-TIMEWEB_AGENT_ID
-```
-
-Backend will be available at:
+The backend will be available at:
 
 ```text
 http://localhost:8000
@@ -61,16 +73,11 @@ Local API documentation will be available at:
 http://localhost:8000/docs
 ```
 
-Deployed MVP v2 backend is available at:
+For AI-backed chat endpoints, set these environment variables before startup:
 
 ```text
-http://186.246.27.211:8000
-```
-
-Swagger UI for the deployed backend:
-
-```text
-http://186.246.27.211:8000/docs
+TIMEWEB_API_KEY
+TIMEWEB_AGENT_ID
 ```
 
 The database is seeded automatically and idempotently:
@@ -79,7 +86,29 @@ The database is seeded automatically and idempotently:
 - temporary Android compatibility login: `demo` / `password`
 - car: `BMW M4`, year `2020`, mileage `125000`
 
-Smoke-check with curl:
+Stop the local services:
+
+```bash
+docker compose down
+```
+
+### Android App
+
+Build a debug APK:
+
+```powershell
+.\gradlew.bat assembleDebug
+```
+
+Expected local APK path after a successful debug build:
+
+```text
+app/build/outputs/apk/debug/app-debug.apk
+```
+
+## Smoke Checks
+
+### curl
 
 ```bash
 curl http://localhost:8000/health
@@ -92,7 +121,7 @@ curl "http://localhost:8000/stats?user_id=1"
 curl -X POST "http://localhost:8000/chat/ask?user_id=1" -H "Content-Type: application/json" -d "{\"message\":\"What is my vehicle history summary?\"}"
 ```
 
-Smoke-check in PowerShell:
+### PowerShell
 
 ```powershell
 Invoke-RestMethod -Uri http://localhost:8000/health
@@ -109,70 +138,61 @@ $event = @{type='fuel'; description='Full tank'; amount=60; mileage=125000} | Co
 Invoke-RestMethod -Uri "http://localhost:8000/events?user_id=$($registeredUser.user_id)" -Method Post -ContentType 'application/json' -Body $event
 
 Invoke-RestMethod -Uri "http://localhost:8000/events?user_id=$($registeredUser.user_id)"
-
 Invoke-RestMethod -Uri "http://localhost:8000/stats?user_id=$($registeredUser.user_id)"
 
 $question = @{message='What is my vehicle history summary?'} | ConvertTo-Json -Compress
 Invoke-RestMethod -Uri "http://localhost:8000/chat/ask?user_id=$($registeredUser.user_id)" -Method Post -ContentType 'application/json' -Body $question
 ```
 
-Chat parsing smoke-check in PowerShell:
-
-```powershell
-$chat = @{message='Заправился на 2500 рублей, пробег 125300'} | ConvertTo-Json -Compress
-Invoke-RestMethod -Uri http://localhost:8000/chat/parse-event -Method Post -ContentType 'application/json' -Body $chat
-```
+## Verification
 
 Backend tests:
 
 ```bash
-docker compose run --rm backend pytest tests/test_events.py tests/test_chat_parse.py
+docker compose run --rm backend pytest tests
 ```
 
-Android debug APK build:
+Backend CI checks run in GitHub Actions on pull requests and pushes to `main`.
+They cover backend linting, formatting, automated tests, coverage reporting, and
+dependency health checking.
 
-```powershell
-.\gradlew.bat assembleDebug
-```
+Link checking for Markdown files is handled by the repository Link Check
+workflow.
 
-Expected local APK path after a successful debug build:
-
-```text
-app/build/outputs/apk/debug/app-debug.apk
-```
-
-Smoke-check the deployed backend after deployment by replacing the placeholder URL:
-
-```bash
-DEPLOYED_BACKEND_URL="TODO after deployment"
-curl "$DEPLOYED_BACKEND_URL/health"
-curl "$DEPLOYED_BACKEND_URL/docs"
-curl "$DEPLOYED_BACKEND_URL/events?user_id=1"
-curl "$DEPLOYED_BACKEND_URL/stats?user_id=1"
-curl -X POST "$DEPLOYED_BACKEND_URL/chat/ask?user_id=1" -H "Content-Type: application/json" -d "{\"message\":\"What is my vehicle history summary?\"}"
-```
-
-Backend CI checks run in GitHub Actions on pull requests and pushes to `main`, covering backend linting, formatting checks, automated tests, coverage reporting, and dependency health checking.
-
-Stop:
-
-```bash
-docker compose down
-```
-
-## Documentation
+## Maintained Documentation
 
 - [Hosted maintained documentation site](https://lamba-23.github.io/LAMBA/)
 - [Development process](docs/development-process.md)
 - [API contract](docs/api-contract.md)
-- [Week 2 report](reports/week2/README.md)
-- [Week 3 report](reports/week3/README.md)
-- [Week 4 report](reports/week4/README.md)
+- [Roadmap](docs/roadmap.md)
+- [Definition of Done](docs/definition-of-done.md)
+- [Testing overview](docs/testing.md)
+- [Quality requirements](docs/quality-requirements.md)
+- [Quality requirement tests](docs/quality-requirement-tests.md)
+- [User acceptance tests](docs/user-acceptance-tests.md)
+- [Architecture overview](docs/architecture/README.md)
 - [Week 5 report](reports/week5/README.md)
-- [MVP v0](reports/week2/mvp-v0-report.md)
 
-The Week 2 MVP v0 smoke-check scenario, deployed URL, demo credentials, and current limitations are documented in [reports/week2/mvp-v0-report.md](reports/week2/mvp-v0-report.md).
+Assignment 6 also maintains these handover and workflow entry points as they
+become available:
 
-## Runnable Artifact
+- `docs/customer-handover.md`
+- `CONTRIBUTING.md`
+- `AGENTS.md`
+- `reports/week6/README.md`
+- `reports/week7/README.md`
 
-The runnable backend artifact is Docker Compose: `docker-compose.yml` starts PostgreSQL and the FastAPI backend. The Android runnable artifact for `v1.2.0` should be the debug APK at `app/build/outputs/apk/debug/app-debug.apk` or the APK attached to the GitHub Release after release publication.
+## Releases and Reports
+
+- [CHANGELOG.md](CHANGELOG.md)
+- [MVP v2 release](https://github.com/LAMBA-23/LAMBA/releases/tag/v1.2.0)
+- [Week 5 report](reports/week5/README.md)
+- [Week 4 report](reports/week4/README.md)
+- [Week 3 report](reports/week3/README.md)
+- [Week 2 report](reports/week2/README.md)
+
+## Security and Public Artifacts
+
+Do not commit secrets, `.env` files, private credentials, private customer access
+details, or private customer-identifying evidence. Public reports and repository
+documentation should use sanitized links and public evidence only.
