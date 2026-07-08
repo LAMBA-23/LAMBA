@@ -11,6 +11,12 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 object SessionRestoreNavigator {
+    internal enum class RestoreDestination {
+        MAIN_FLOW,
+        VEHICLE_SETUP,
+        ERROR,
+    }
+
     fun restore(
         activity: Activity,
         userId: Int,
@@ -27,17 +33,16 @@ object SessionRestoreNavigator {
                 withContext(Dispatchers.Main) {
                     onComplete?.invoke()
 
-                    val vehicle = vehicleResponse.body()
-                    when {
-                        vehicleResponse.isSuccessful && vehicle != null && !isPlaceholderVehicle(vehicle) -> {
+                    when (resolveDestination(vehicleResponse.code(), vehicleResponse.isSuccessful, vehicleResponse.body())) {
+                        RestoreDestination.MAIN_FLOW -> {
                             openMainFlow(activity, userId)
                         }
 
-                        vehicleResponse.isSuccessful || vehicleResponse.code() == 404 -> {
+                        RestoreDestination.VEHICLE_SETUP -> {
                             openVehicleSetup(activity, userId)
                         }
 
-                        else -> {
+                        RestoreDestination.ERROR -> {
                             onError?.invoke()
                             Toast.makeText(
                                 activity,
@@ -58,6 +63,20 @@ object SessionRestoreNavigator {
                     ).show()
                 }
             }
+        }
+    }
+
+    internal fun resolveDestination(
+        statusCode: Int,
+        isSuccessful: Boolean,
+        vehicle: Vehicle?,
+    ): RestoreDestination {
+        return when {
+            isSuccessful && vehicle != null && !isPlaceholderVehicle(vehicle) -> {
+                RestoreDestination.MAIN_FLOW
+            }
+            isSuccessful || statusCode == 404 -> RestoreDestination.VEHICLE_SETUP
+            else -> RestoreDestination.ERROR
         }
     }
 
