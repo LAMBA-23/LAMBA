@@ -37,6 +37,7 @@ DEFAULT_CAR_BRAND = "Not set"
 DEFAULT_CAR_MODEL = "Not set"
 DEFAULT_CAR_PRODUCTION_YEAR = 0
 DEFAULT_CAR_MILEAGE = 0
+EVENT_TYPE_CHECK_CONSTRAINT = "events_type_check"
 
 app = FastAPI(title="LAMBA Backend", version="0.1.0")
 
@@ -118,22 +119,44 @@ def ensure_event_schema() -> None:
     event_columns = {
         column["name"]: column for column in inspector.get_columns("events")
     }
-    fuel_liters_column = event_columns.get("fuel_liters")
-    if fuel_liters_column is not None:
-        column_type = str(fuel_liters_column["type"]).lower()
-        if engine.dialect.name == "postgresql" and "double" not in column_type:
-            with engine.begin() as connection:
+
+    with engine.begin() as connection:
+        fuel_liters_column = event_columns.get("fuel_liters")
+        if fuel_liters_column is None:
+            connection.execute(
+                text("ALTER TABLE events ADD COLUMN fuel_liters FLOAT NOT NULL DEFAULT 0")
+            )
+        else:
+            column_type = str(fuel_liters_column["type"]).lower()
+            if engine.dialect.name == "postgresql" and "double" not in column_type:
                 connection.execute(
                     text(
                         "ALTER TABLE events ALTER COLUMN fuel_liters "
                         "TYPE DOUBLE PRECISION USING fuel_liters::double precision"
                     )
                 )
+
+        connection.execute(
+            text("UPDATE events SET type = 'issue' WHERE type = 'condition'")
+        )
+
+    if engine.dialect.name != "postgresql":
+        return
+
+    inspector = inspect(engine)
+    check_constraints = {
+        constraint["name"] for constraint in inspector.get_check_constraints("events")
+    }
+    if EVENT_TYPE_CHECK_CONSTRAINT in check_constraints:
         return
 
     with engine.begin() as connection:
         connection.execute(
-            text("ALTER TABLE events ADD COLUMN fuel_liters FLOAT NOT NULL DEFAULT 0")
+            text(
+                "ALTER TABLE events "
+                f"ADD CONSTRAINT {EVENT_TYPE_CHECK_CONSTRAINT} "
+                "CHECK (type IN ('fuel', 'repair', 'trip', 'issue'))"
+            )
         )
 
 
