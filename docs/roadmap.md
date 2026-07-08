@@ -136,6 +136,24 @@ The planned MVP v2 scope is selected for customer value, quality improvement, ma
 - Maintainability: the Sprint keeps the milestone, Project board, issue metadata, acceptance criteria, reviewers, and roadmap aligned as traceable planning artifacts.
 - Done evidence: each selected PBI has acceptance criteria, Story Points, implementer and reviewer information, Work Status, and must be reviewed and verified before being marked Done.
 
+## Sprint 4 - MVP v3 Trial Release and Transition Readiness
+
+- Dates: 2026-07-06 to 2026-07-12
+- MVP target: MVP v3 trial release
+- Sprint Goal: Improve MVP v3 transition readiness by stabilizing customer-facing behavior, closing priority security gaps, and preparing the product for more independent customer use.
+- Focus / expected outcome: The team delivers a more secure and deployment-ready MVP v3 candidate with reduced cross-user access risk, safer credential handling, and fewer transition blockers for customer trial use.
+
+Selected Sprint PBIs:
+
+Security hardening:
+- Prevent cross-user data access by removing manual `user_id` abuse paths and ensuring each user can access only their own vehicle data.
+- Add password hashing, or track unfinished hashing work explicitly as a Sprint 4 security-hardening blocker.
+- Add HTTPS / deployment transport security, or record HTTP-only login and data transfer as a transition blocker for Week 6.
+- Remove, disable, or restrict demo access if it can bypass normal login or expose user data.
+- Audit API secret handling, rotate exposed secrets if needed, keep only a sanitized `.env.example` public, and keep real `.env` or secrets out of version control.
+- Add basic rate limiting for login and chat, or record the missing protection as a tracked follow-up if Sprint 4 scope is too large.
+- Restrict deployment CORS settings instead of `allow_origins=["*"]`, or record open CORS as a transition blocker if not fixed in Sprint 4.
+
 ## Continuing Architecture, Quality, and Process Work
 
 Assignment 5 also requires maintained project assets that must stay current as the product evolves:
