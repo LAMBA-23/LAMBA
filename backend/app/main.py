@@ -304,6 +304,213 @@ def build_stats_response(
     )
 
 
+EXPENSE_CATEGORY_LABELS = {
+    "fuel": "Топливо",
+    "repair": "Ремонт",
+    "trip": "Поездки",
+    "issue": "Проблемы",
+}
+EXPENSE_CATEGORY_ORDER = ("fuel", "repair", "trip", "issue")
+
+
+def _format_number(value: int) -> str:
+    return f"{value:,}".replace(",", " ")
+
+
+def _normalize_query_text(message: str) -> str:
+    return message.strip().lower().replace("ё", "е")
+
+
+def _detect_period_label(message: str) -> str | None:
+    normalized = _normalize_query_text(message)
+    if "недел" in normalized:
+        return "week"
+    if "месяц" in normalized:
+        return "month"
+    if "все время" in normalized or "всё время" in normalized:
+        return "all_time"
+    return None
+
+
+def _period_start_at(period: str | None, now: datetime) -> datetime | None:
+    if period == "week":
+        return now - timedelta(days=7)
+    if period == "month":
+        return now - timedelta(days=30)
+    return None
+
+
+def _period_title(period: str | None) -> str:
+    if period == "week":
+        return "неделю"
+    if period == "month":
+        return "месяц"
+    if period == "all_time":
+        return "всё время"
+    return "последние 5 записей"
+
+
+def _statistics_period_title(period: str | None) -> str:
+    if period is None:
+        return "всё время"
+    return _period_title(period)
+
+
+def _detect_expense_category(message: str) -> str | None:
+    normalized = _normalize_query_text(message)
+    if any(keyword in normalized for keyword in ("топлив", "бензин", "заправ")):
+        return "fuel"
+    if any(keyword in normalized for keyword in ("ремонт", "сервис")):
+        return "repair"
+    if any(keyword in normalized for keyword in ("проблем", "полом")):
+        return "issue"
+    if "поезд" in normalized:
+        return "trip"
+    return None
+
+
+def _is_statistics_query(message: str) -> bool:
+    normalized = _normalize_query_text(message)
+    return "статистик" in normalized
+
+
+def _is_expense_query(message: str) -> bool:
+    normalized = _normalize_query_text(message)
+    return (
+        "расход" in normalized
+        or "потрат" in normalized
+        or _detect_expense_category(normalized) is not None
+    )
+
+
+def _expense_events_for_query(
+    events: list[Event], message: str, now: datetime
+) -> tuple[list[Event], str | None]:
+    period = _detect_period_label(message)
+    start_at = _period_start_at(period, now)
+    category = _detect_expense_category(message)
+
+    filtered = [
+        event
+        for event in events
+        if event.amount is not None
+        and event.amount > 0
+        and (start_at is None or event.created_at >= start_at)
+        and (category is None or event.type == category)
+    ]
+    filtered.sort(key=lambda event: (event.created_at, event.id), reverse=True)
+
+    if period is None:
+        filtered = filtered[:5]
+
+    return filtered, period
+
+
+def _format_expense_line(event: Event) -> str:
+    line = f"{event.description} — {_format_number(event.amount)} ₽"
+    if (
+        event.type == "fuel"
+        and event.fuel_liters is not None
+        and event.fuel_liters > 0
+    ):
+        line += f", {_format_number(event.fuel_liters)} л"
+    return line
+
+
+def _build_expense_answer(events: list[Event], message: str, now: datetime) -> str:
+    expense_events, period = _expense_events_for_query(events, message, now)
+    if not expense_events:
+        return "За выбранный период расходов не найдено."
+
+    total_amount = sum(event.amount for event in expense_events if event.amount is not None)
+    lines = [f"Расходы за {_period_title(period)}: {_format_number(total_amount)} ₽", ""]
+    lines.extend(["По категориям:", ""])
+
+    for event_type in EXPENSE_CATEGORY_ORDER:
+        category_total = sum(
+            event.amount
+            for event in expense_events
+            if event.type == event_type and event.amount is not None
+        )
+        if category_total <= 0:
+            continue
+        lines.append(
+            f"* {EXPENSE_CATEGORY_LABELS[event_type]}: {_format_number(category_total)} ₽"
+        )
+
+    lines.extend(["", "Последние расходы:", ""])
+    for index, event in enumerate(expense_events, start=1):
+        lines.append(f"{index}. {_format_expense_line(event)}")
+        if index != len(expense_events):
+            lines.append("")
+
+    return "\n".join(lines)
+
+
+def _build_statistics_answer(
+    events: list[Event], message: str, now: datetime, car: Car
+) -> str:
+    period = _detect_period_label(message)
+    start_at = _period_start_at(period, now)
+    period_events = [
+        event for event in events if start_at is None or event.created_at >= start_at
+    ]
+    total_expenses = sum(
+        event.amount
+        for event in period_events
+        if event.amount is not None and event.amount > 0
+    )
+    fuel_liters = sum(
+        event.fuel_liters
+        for event in period_events
+        if event.type == "fuel"
+        and event.fuel_liters is not None
+        and event.fuel_liters > 0
+    )
+    if period in (None, "all_time"):
+        mileage = max(
+            [_current_total_mileage(events, car), _coalesce_int(car.current_mileage)]
+            + [_coalesce_int(event.mileage) for event in events]
+        )
+    else:
+        mileage = _sum_trip_distance(events, start_at=start_at)
+
+    return "\n".join(
+        (
+            f"Краткая статистика за {_statistics_period_title(period)}:",
+            "",
+            f"* Расходы: {_format_number(total_expenses)} ₽",
+            f"* Пробег: {_format_number(mileage)} км",
+            f"* Топливо: {_format_number(fuel_liters)} л",
+            f"* Записей: {_format_number(len(period_events))}",
+        )
+    )
+
+
+def _build_llm_vehicle_context(car: Car, events: list[Event]) -> str:
+    context_lines = []
+    has_real_car_data = (
+        car.brand != DEFAULT_CAR_BRAND
+        and car.production_year != DEFAULT_CAR_PRODUCTION_YEAR
+    )
+    if has_real_car_data:
+        context_lines.append(
+            f"Автомобиль: {car.brand} {car.model}, {car.production_year} г., пробег {car.current_mileage} км."
+        )
+
+    for ev in events:
+        line = f"- [{ev.created_at.isoformat()}] [{ev.type}] {ev.description}"
+        if ev.amount is not None and ev.amount > 0:
+            line += f", сумма: {ev.amount}"
+        if ev.fuel_liters is not None and ev.fuel_liters > 0:
+            line += f", литры: {ev.fuel_liters}"
+        if ev.mileage is not None and ev.mileage > 0:
+            line += f", пробег: {ev.mileage}"
+        context_lines.append(line)
+
+    return "\n".join(context_lines)
+
+
 @app.on_event("startup")
 def on_startup() -> None:
     Base.metadata.create_all(bind=engine)
@@ -466,13 +673,24 @@ def chat_ask(
     user_id: int = Query(...),
     db: Session = Depends(get_db),
 ) -> ChatAskResponse:
-    MAX_CONTEXT_EVENTS = 50
-
+    MAX_CONTEXT_EVENTS = 30
+    now = datetime.now(timezone.utc).replace(tzinfo=None)
     car = get_car_for_user_id(db, user_id)
     all_events = list(
-        db.scalars(select(Event).where(Event.car_id == car.id).order_by(Event.id))
+        db.scalars(
+            select(Event).where(Event.car_id == car.id).order_by(Event.created_at, Event.id)
+        )
     )
-    events = all_events[-MAX_CONTEXT_EVENTS:]
+    if _is_statistics_query(payload.message):
+        return ChatAskResponse(
+            answer=_build_statistics_answer(all_events, payload.message, now, car)
+        )
+    if _is_expense_query(payload.message):
+        return ChatAskResponse(
+            answer=_build_expense_answer(all_events, payload.message, now)
+        )
+
+    events = list(reversed(all_events[-MAX_CONTEXT_EVENTS:]))
 
     context_lines = []
     has_real_car_data = (
@@ -491,7 +709,7 @@ def chat_ask(
             line += f", пробег: {ev.mileage}"
         context_lines.append(line)
 
-    vehicle_context = "\n".join(context_lines)
+    vehicle_context = _build_llm_vehicle_context(car, events)
     try:
         answer = ask_deepseek(message=payload.message, vehicle_context=vehicle_context)
     except Exception:
