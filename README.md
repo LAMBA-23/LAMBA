@@ -177,7 +177,7 @@ Assignment 6 also maintains these handover and workflow entry points as they
 become available:
 
 - `docs/customer-handover.md`
-- `CONTRIBUTING.md`
+- [CONTRIBUTING.md](CONTRIBUTING.md)
 - `AGENTS.md`
 - `reports/week6/README.md`
 - `reports/week7/README.md`
