@@ -187,6 +187,25 @@ class TestEventsApi:
         assert timeline_response.status_code == 200
         assert timeline_response.json() == [created_event]
 
+    def test_post_fuel_event_accepts_decimal_liters(self, client):
+        user_id = _register_user(client, "events-decimal-fuel-liters")
+
+        create_response = client.post(
+            f"/events?user_id={user_id}",
+            json=_event_payload(
+                description="Fuel with decimal liters",
+                fuel_liters=35.7,
+            ),
+        )
+        timeline_response = client.get(f"/events?user_id={user_id}")
+
+        assert create_response.status_code == 200
+        created_event = create_response.json()
+        assert created_event["type"] == "fuel"
+        assert created_event["fuel_liters"] == 35.7
+        assert timeline_response.status_code == 200
+        assert timeline_response.json() == [created_event]
+
     def test_post_event_supports_manual_form_event_types_and_fields(self, client):
         user_id = _register_user(client, "events-manual-form-types")
 

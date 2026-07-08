@@ -30,7 +30,8 @@ type, description, amount, fuel_liters, mileage, needs_clarification, clarificat
 Rules:
 - Parse exactly one event.
 - Use null for unknown fields.
-- amount, fuel_liters, and mileage must be integers when present.
+- amount and mileage must be integers when present.
+- fuel_liters may be an integer or decimal number when present.
 - fuel_liters is only for liters of fuel.
 - amount is only money.
 - mileage is odometer mileage, except for trip where mileage is traveled distance.
@@ -172,12 +173,12 @@ def _apply_guardrails(message: str, parsed_event: ParsedChatEvent) -> ParsedChat
     return parsed_event
 
 
-def _fuel_description(fuel_liters: int) -> str:
+def _fuel_description(fuel_liters: float) -> str:
     return (
         _ru(0x417, 0x430, 0x43F, 0x440, 0x430, 0x432, 0x43A, 0x430)
         + " "
         + _ru(0x43D, 0x430)
-        + f" {fuel_liters} "
+        + f" {fuel_liters:g} "
         + _ru(0x43B, 0x438, 0x442, 0x440, 0x43E, 0x432)
     )
 
@@ -192,7 +193,7 @@ def _trip_description(distance_km: int) -> str:
     )
 
 
-def _extract_fuel_liters(message: str) -> int | None:
+def _extract_fuel_liters(message: str) -> float | None:
     units = "|".join(
         re.escape(unit)
         for unit in (
@@ -203,8 +204,8 @@ def _extract_fuel_liters(message: str) -> int | None:
             _ru(0x43B, 0x438, 0x442, 0x440, 0x43E, 0x432),
         )
     )
-    match = re.search(rf"\b(\d+)\s*(?:{units})\b", message)
-    return int(match.group(1)) if match else None
+    match = re.search(rf"\b(\d+(?:[.,]\d+)?)\s*(?:{units})\b", message)
+    return float(match.group(1).replace(",", ".")) if match else None
 
 
 def _extract_money_amount(message: str) -> int | None:

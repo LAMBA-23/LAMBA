@@ -146,3 +146,21 @@ def test_guardrails_parse_fuel_liters_and_amount_separately() -> None:
     assert result.mileage is None
     assert result.needs_clarification is False
     assert result.clarification_question is None
+
+
+def test_guardrails_parse_decimal_fuel_liters() -> None:
+    result = _apply_guardrails(
+        "\u0437\u0430\u043f\u0440\u0430\u0432\u0438\u043b\u0430\u0441\u044c \u043d\u0430 35,7 \u043b\u0438\u0442\u0440\u0430",
+        ParsedChatEvent(
+            needs_clarification=True,
+            clarification_question="\u0423\u0442\u043e\u0447\u043d\u0438\u0442\u0435 \u0442\u0438\u043f \u0441\u043e\u0431\u044b\u0442\u0438\u044f.",
+        ),
+    )
+
+    assert result.type == "fuel"
+    assert (
+        result.description
+        == "\u0417\u0430\u043f\u0440\u0430\u0432\u043a\u0430 \u043d\u0430 35.7 \u043b\u0438\u0442\u0440\u043e\u0432"
+    )
+    assert getattr(result, "fuel_liters", None) == 35.7
+    assert result.needs_clarification is False

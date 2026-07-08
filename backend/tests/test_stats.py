@@ -157,6 +157,36 @@ class TestStatsApi:
         assert data["trip_count"] == 1
         assert data["total_recorded_mileage"] == 125100
 
+    def test_get_stats_sums_decimal_fuel_liters(self, client):
+        user_id = _register_user(client, "stats-decimal-fuel-liters")
+
+        _create_event(
+            client,
+            user_id,
+            type="fuel",
+            description="first decimal fuel",
+            amount=2500,
+            mileage=0,
+            fuel_liters=35.7,
+        )
+        _create_event(
+            client,
+            user_id,
+            type="fuel",
+            description="second decimal fuel",
+            amount=1000,
+            mileage=0,
+            fuel_liters=10.5,
+        )
+
+        response = client.get(f"/stats?user_id={user_id}")
+        data = response.json()
+
+        assert response.status_code == 200
+        assert data["week"]["fuel_liters"] == 46.2
+        assert data["month"]["fuel_liters"] == 46.2
+        assert data["all_time"]["fuel_liters"] == 46.2
+
     def test_manual_issue_event_counts_as_record_without_expenses_or_mileage(
         self, client
     ):
