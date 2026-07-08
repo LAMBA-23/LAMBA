@@ -218,6 +218,43 @@ class TestStatsApi:
         assert data["trip_count"] == 0
         assert data["total_recorded_mileage"] == 0
 
+    def test_repair_counts_as_expense_but_breakdown_issue_does_not(self, client):
+        user_id = _register_user(client, "stats-repair-breakdown")
+
+        repair_response = _create_event(
+            client,
+            user_id,
+            type="repair",
+            description="Brake repair",
+            amount=9000,
+            mileage=200000,
+        )
+        issue_response = _create_event(
+            client,
+            user_id,
+            type="issue",
+            description="Engine warning light",
+            amount=5000,
+            mileage=200050,
+        )
+        stats_response = client.get(f"/stats?user_id={user_id}")
+        timeline_response = client.get(f"/events?user_id={user_id}")
+        data = stats_response.json()
+
+        assert repair_response.status_code == 200
+        assert issue_response.status_code == 200
+        assert stats_response.status_code == 200
+        assert timeline_response.status_code == 200
+        assert [event["type"] for event in timeline_response.json()] == [
+            "repair",
+            "issue",
+        ]
+        assert data["all_time"]["records_count"] == 2
+        assert data["all_time"]["repair_expenses"] == 9000
+        assert data["all_time"]["total_expenses"] == 9000
+        assert data["repair_expenses"] == 9000
+        assert data["total_recorded_mileage"] == 0
+
     def test_get_stats_uses_trip_distance_payload_to_store_and_report_delta(
         self, client
     ):
