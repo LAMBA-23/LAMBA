@@ -367,6 +367,7 @@ Deterministic expense answers:
 - `week` / `за неделю` -> last 7 days.
 - `month` / `за месяц` -> last 30 days.
 - `all time` / `за всё время` -> all expense records.
+- `за последние N дней` -> last `N` days.
 - Category-specific filters:
   - fuel / бензин / заправки -> `fuel`
   - repair / сервис -> `repair`
@@ -386,6 +387,16 @@ Deterministic statistics answers:
 - Questions such as `Покажи статистику` return a short summary built from database data.
 - The summary includes expenses, mileage, fuel liters, and record count for the selected period.
 - If no period is specified for statistics, backend uses all available history.
+- Statistics queries also support `за последние N дней`.
+
+Deterministic event answers:
+
+- Questions containing `события` are answered from database events without calling the LLM.
+- If no period is specified, backend returns the latest 5 events sorted from newest to oldest.
+- Event queries support `за неделю`, `за месяц`, `за всё время`, and `за последние N дней`.
+- Event answers are returned as a numbered list.
+- Event dates are rendered as plain text `DD.MM.YYYY` without markdown markers.
+- Fuel events are rendered without repeating the amount from `description`.
 
 General assistant questions:
 

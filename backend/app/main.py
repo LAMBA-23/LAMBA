@@ -321,6 +321,15 @@ def _normalize_query_text(message: str) -> str:
     return message.strip().lower().replace("ё", "е")
 
 
+def _detect_last_n_days(message: str) -> int | None:
+    normalized = _normalize_query_text(message)
+    match = re.search(r"последн\w*\s+(\d+)\s+д", normalized)
+    if match is None:
+        return None
+    days = int(match.group(1))
+    return days if days > 0 else None
+
+
 def _detect_period_label(message: str) -> str | None:
     normalized = _normalize_query_text(message)
     if "недел" in normalized:
@@ -332,7 +341,11 @@ def _detect_period_label(message: str) -> str | None:
     return None
 
 
-def _period_start_at(period: str | None, now: datetime) -> datetime | None:
+def _period_start_at(
+    period: str | None, now: datetime, last_n_days: int | None = None
+) -> datetime | None:
+    if last_n_days is not None:
+        return now - timedelta(days=last_n_days)
     if period == "week":
         return now - timedelta(days=7)
     if period == "month":
@@ -340,7 +353,23 @@ def _period_start_at(period: str | None, now: datetime) -> datetime | None:
     return None
 
 
-def _period_title(period: str | None) -> str:
+def _format_days_label(days: int) -> str:
+    last_two_digits = days % 100
+    last_digit = days % 10
+    if 11 <= last_two_digits <= 14:
+        suffix = "дней"
+    elif last_digit == 1:
+        suffix = "день"
+    elif last_digit in (2, 3, 4):
+        suffix = "дня"
+    else:
+        suffix = "дней"
+    return f"последние {days} {suffix}"
+
+
+def _period_title(period: str | None, last_n_days: int | None = None) -> str:
+    if last_n_days is not None:
+        return _format_days_label(last_n_days)
     if period == "week":
         return "неделю"
     if period == "month":
@@ -350,10 +379,12 @@ def _period_title(period: str | None) -> str:
     return "последние 5 записей"
 
 
-def _statistics_period_title(period: str | None) -> str:
+def _statistics_period_title(period: str | None, last_n_days: int | None = None) -> str:
     if period is None:
+        if last_n_days is not None:
+            return _period_title(period, last_n_days)
         return "всё время"
-    return _period_title(period)
+    return _period_title(period, last_n_days)
 
 
 def _detect_expense_category(message: str) -> str | None:
@@ -374,6 +405,11 @@ def _is_statistics_query(message: str) -> bool:
     return "статистик" in normalized
 
 
+def _is_event_query(message: str) -> bool:
+    normalized = _normalize_query_text(message)
+    return "событ" in normalized
+
+
 def _is_expense_query(message: str) -> bool:
     normalized = _normalize_query_text(message)
     return (
@@ -385,9 +421,10 @@ def _is_expense_query(message: str) -> bool:
 
 def _expense_events_for_query(
     events: list[Event], message: str, now: datetime
-) -> tuple[list[Event], str | None]:
+) -> tuple[list[Event], str | None, int | None]:
     period = _detect_period_label(message)
-    start_at = _period_start_at(period, now)
+    last_n_days = _detect_last_n_days(message)
+    start_at = _period_start_at(period, now, last_n_days)
     category = _detect_expense_category(message)
 
     filtered = [
@@ -400,30 +437,130 @@ def _expense_events_for_query(
     ]
     filtered.sort(key=lambda event: (event.created_at, event.id), reverse=True)
 
-    if period is None:
+    if period is None and last_n_days is None:
         filtered = filtered[:5]
 
-    return filtered, period
+    return filtered, period, last_n_days
+
+
+def _strip_dates(text_value: str) -> str:
+    return re.sub(r"\b\d{2}\.\d{2}\.\d{4}\b:?", "", text_value)
+
+
+def _clean_event_description(event: Event) -> str:
+    description = _strip_dates(event.description).strip(" ,:-")
+    return description.strip(" ,:-")
 
 
 def _format_expense_line(event: Event) -> str:
-    line = f"{event.description} — {_format_number(event.amount)} ₽"
-    if (
-        event.type == "fuel"
-        and event.fuel_liters is not None
-        and event.fuel_liters > 0
-    ):
-        line += f", {_format_number(event.fuel_liters)} л"
-    return line
+    if event.type == "fuel":
+        line = f"Заправка — {_format_number(event.amount)} ₽"
+        if event.fuel_liters is not None and event.fuel_liters > 0:
+            line += f", {_format_number(event.fuel_liters)} л"
+        return line
+
+    description = _clean_event_description(event)
+    if description:
+        return f"{description} — {_format_number(event.amount)} ₽"
+    return f"{EXPENSE_CATEGORY_LABELS.get(event.type, 'Событие')} — {_format_number(event.amount)} ₽"
+
+
+def _format_event_line(event: Event) -> str:
+    if event.type == "fuel":
+        parts = []
+        if event.amount is not None and event.amount > 0:
+            parts.append(f"{_format_number(event.amount)} ₽")
+        if event.fuel_liters is not None and event.fuel_liters > 0:
+            parts.append(f"{_format_number(event.fuel_liters)} л")
+        suffix = ", ".join(parts)
+        return f"Заправка: {suffix}" if suffix else "Заправка"
+
+    if event.type == "trip":
+        if event.mileage is not None and event.mileage > 0:
+            return f"Поездка: {_format_number(event.mileage)} км"
+        return "Поездка"
+
+    if event.type == "repair":
+        description = _clean_event_description(event)
+        if description and event.amount is not None and event.amount > 0:
+            return f"Ремонт: {description}, {_format_number(event.amount)} ₽"
+        if description:
+            return f"Ремонт: {description}"
+        if event.amount is not None and event.amount > 0:
+            return f"Ремонт: {_format_number(event.amount)} ₽"
+        return "Ремонт"
+
+    description = _clean_event_description(event)
+    if description and event.amount is not None and event.amount > 0:
+        return f"Проблема: {description}, {_format_number(event.amount)} ₽"
+    if description:
+        return f"Проблема: {description}"
+    if event.amount is not None and event.amount > 0:
+        return f"Проблема: {_format_number(event.amount)} ₽"
+    return "Проблема"
+
+
+def _build_trip_distance_map(events: list[Event], car: Car) -> dict[int, int]:
+    known_mileage = _coalesce_int(car.current_mileage)
+    distances: dict[int, int] = {}
+
+    for event in events:
+        if event.type != "trip":
+            continue
+        effective_mileage = _event_effective_mileage(event, known_mileage)
+        trip_distance = max(0, effective_mileage - known_mileage)
+        distances[event.id] = trip_distance
+        known_mileage = max(known_mileage, effective_mileage)
+
+    return distances
+
+
+def _build_event_answer(
+    events: list[Event], message: str, now: datetime, car: Car
+) -> str:
+    period = _detect_period_label(message)
+    last_n_days = _detect_last_n_days(message)
+    start_at = _period_start_at(period, now, last_n_days)
+    filtered = [
+        event for event in events if start_at is None or event.created_at >= start_at
+    ]
+    filtered.sort(key=lambda event: (event.created_at, event.id), reverse=True)
+
+    if period is None and last_n_days is None:
+        filtered = filtered[:5]
+        title = "Последние события:"
+    else:
+        title = f"События за {_period_title(period, last_n_days)}:"
+
+    if not filtered:
+        return "За выбранный период событий не найдено."
+
+    trip_distances = _build_trip_distance_map(events, car)
+    lines = [title, ""]
+    for index, event in enumerate(filtered, start=1):
+        if event.type == "trip":
+            distance = trip_distances.get(event.id, _coalesce_int(event.mileage))
+            line = f"Поездка: {_format_number(distance)} км"
+        else:
+            line = _format_event_line(event)
+        lines.append(
+            f"{index}. {event.created_at.strftime('%d.%m.%Y')} — {line}"
+        )
+        if index != len(filtered):
+            lines.append("")
+    return "\n".join(lines)
 
 
 def _build_expense_answer(events: list[Event], message: str, now: datetime) -> str:
-    expense_events, period = _expense_events_for_query(events, message, now)
+    expense_events, period, last_n_days = _expense_events_for_query(events, message, now)
     if not expense_events:
         return "За выбранный период расходов не найдено."
 
     total_amount = sum(event.amount for event in expense_events if event.amount is not None)
-    lines = [f"Расходы за {_period_title(period)}: {_format_number(total_amount)} ₽", ""]
+    lines = [
+        f"Расходы за {_period_title(period, last_n_days)}: {_format_number(total_amount)} ₽",
+        "",
+    ]
     lines.extend(["По категориям:", ""])
 
     for event_type in EXPENSE_CATEGORY_ORDER:
@@ -451,7 +588,8 @@ def _build_statistics_answer(
     events: list[Event], message: str, now: datetime, car: Car
 ) -> str:
     period = _detect_period_label(message)
-    start_at = _period_start_at(period, now)
+    last_n_days = _detect_last_n_days(message)
+    start_at = _period_start_at(period, now, last_n_days)
     period_events = [
         event for event in events if start_at is None or event.created_at >= start_at
     ]
@@ -477,7 +615,7 @@ def _build_statistics_answer(
 
     return "\n".join(
         (
-            f"Краткая статистика за {_statistics_period_title(period)}:",
+            f"Краткая статистика за {_statistics_period_title(period, last_n_days)}:",
             "",
             f"* Расходы: {_format_number(total_expenses)} ₽",
             f"* Пробег: {_format_number(mileage)} км",
@@ -688,6 +826,10 @@ def chat_ask(
     if _is_expense_query(payload.message):
         return ChatAskResponse(
             answer=_build_expense_answer(all_events, payload.message, now)
+        )
+    if _is_event_query(payload.message):
+        return ChatAskResponse(
+            answer=_build_event_answer(all_events, payload.message, now, car)
         )
 
     events = list(reversed(all_events[-MAX_CONTEXT_EVENTS:]))

@@ -311,7 +311,7 @@ def test_chat_ask_returns_latest_five_expenses_without_llm(monkeypatch):
         "Последние расходы:\n\n"
         "1. Эвакуатор — 3 000 ₽\n\n"
         "2. Замена масла — 7 000 ₽\n\n"
-        "3. Заправка 2 — 2 500 ₽, 40 л\n\n"
+        "3. Заправка — 2 500 ₽, 40 л\n\n"
         "4. Платная дорога — 1 500 ₽\n\n"
         "5. Ремонт 1 — 2 000 ₽"
     )
@@ -378,7 +378,7 @@ def test_chat_ask_filters_weekly_expenses(monkeypatch):
         "* Проблемы: 1 200 ₽\n\n"
         "Последние расходы:\n\n"
         "1. Свежая проблема — 1 200 ₽\n\n"
-        "2. Свежая заправка — 2 500 ₽, 35 л"
+        "2. Заправка — 2 500 ₽, 35 л"
     )
 
 
@@ -496,7 +496,7 @@ def test_chat_ask_filters_monthly_expenses(monkeypatch):
         "* Проблемы: 2 200 ₽\n\n"
         "Последние расходы:\n\n"
         "1. Платная диагностика — 2 200 ₽\n\n"
-        "2. Заправка за месяц — 3 000 ₽, 45 л"
+        "2. Заправка — 3 000 ₽, 45 л"
     )
 
 
@@ -546,7 +546,7 @@ def test_chat_ask_filters_all_time_expenses(monkeypatch):
         "Последние расходы:\n\n"
         "1. Платная парковка — 500 ₽\n\n"
         "2. Старый ремонт — 6 500 ₽\n\n"
-        "3. Старая заправка — 2 000 ₽, 30 л"
+        "3. Заправка — 2 000 ₽, 30 л"
     )
 
 
@@ -648,3 +648,193 @@ def test_chat_ask_keeps_llm_flow_for_non_expense_questions(monkeypatch):
     assert response.status_code == 200
     assert response.json()["answer"] == "LLM answer"
     assert captured["message"] == "Какой цвет у моей машины?"
+
+
+def test_chat_ask_filters_expenses_for_last_n_days(monkeypatch):
+    user_id = _register_and_get_user_id("ask-user-expenses-9")
+
+    _create_event(
+        user_id,
+        event_type="fuel",
+        description="Старый расход",
+        amount=1200,
+        fuel_liters=20,
+        mileage=105000,
+    )
+    _create_event(
+        user_id,
+        event_type="fuel",
+        description="Расход 3 дня назад",
+        amount=800,
+        fuel_liters=10,
+        mileage=105050,
+    )
+    _create_event(
+        user_id,
+        event_type="repair",
+        description="Свежий ремонт",
+        amount=1000,
+        mileage=105100,
+    )
+
+    with database_module.engine.begin() as connection:
+        connection.exec_driver_sql(
+            "UPDATE events SET created_at = ? WHERE description = ?",
+            ("2026-06-30 12:00:00", "Старый расход"),
+        )
+        connection.exec_driver_sql(
+            "UPDATE events SET created_at = ? WHERE description = ?",
+            ("2026-07-05 12:00:00", "Расход 3 дня назад"),
+        )
+        connection.exec_driver_sql(
+            "UPDATE events SET created_at = ? WHERE description = ?",
+            ("2026-07-06 12:00:00", "Свежий ремонт"),
+        )
+
+    def fail_if_called(*args, **kwargs):
+        raise AssertionError("LLM must not be called for expense queries")
+
+    monkeypatch.setattr(main_module, "ask_deepseek", fail_if_called)
+
+    response = client.post(
+        f"/chat/ask?user_id={user_id}",
+        json={"message": "Покажи расходы за последние 6 дней"},
+    )
+
+    assert response.status_code == 200
+    assert response.json()["answer"] == (
+        "Расходы за последние 6 дней: 1 800 ₽\n\n"
+        "По категориям:\n\n"
+        "* Топливо: 800 ₽\n"
+        "* Ремонт: 1 000 ₽\n\n"
+        "Последние расходы:\n\n"
+        "1. Свежий ремонт — 1 000 ₽\n\n"
+        "2. Заправка — 800 ₽, 10 л"
+    )
+
+
+def test_chat_ask_returns_latest_events_as_numbered_list_without_llm(monkeypatch):
+    user_id = _register_and_get_user_id("ask-user-events-1")
+
+    _create_event(
+        user_id,
+        event_type="trip",
+        description="Поездка в центр",
+        mileage=200,
+    )
+    _create_event(
+        user_id,
+        event_type="fuel",
+        description="Заправка",
+        amount=200,
+        fuel_liters=3,
+        mileage=887,
+    )
+    _create_event(
+        user_id,
+        event_type="repair",
+        description="Замена фильтра",
+        amount=1000,
+        mileage=900,
+    )
+
+    def fail_if_called(*args, **kwargs):
+        raise AssertionError("LLM must not be called for event queries")
+
+    monkeypatch.setattr(main_module, "ask_deepseek", fail_if_called)
+
+    response = client.post(
+        f"/chat/ask?user_id={user_id}",
+        json={"message": "Покажи последние события"},
+    )
+
+    assert response.status_code == 200
+    assert response.json()["answer"] == (
+        "Последние события:\n\n"
+        "1. 08.07.2026 — Ремонт: Замена фильтра, 1 000 ₽\n\n"
+        "2. 08.07.2026 — Заправка: 200 ₽, 3 л\n\n"
+        "3. 08.07.2026 — Поездка: 200 км"
+    )
+
+
+def test_chat_ask_returns_events_for_last_n_days_as_numbered_list(monkeypatch):
+    user_id = _register_and_get_user_id("ask-user-events-2")
+
+    _create_event(
+        user_id,
+        event_type="trip",
+        description="Старый выезд",
+        mileage=100,
+    )
+    _create_event(
+        user_id,
+        event_type="trip",
+        description="Свежая поездка",
+        mileage=10,
+    )
+    _create_event(
+        user_id,
+        event_type="fuel",
+        description="Свежая заправка",
+        amount=500,
+        fuel_liters=20,
+        mileage=677,
+    )
+
+    with database_module.engine.begin() as connection:
+        connection.exec_driver_sql(
+            "UPDATE events SET created_at = ? WHERE description = ?",
+            ("2026-07-02 12:00:00", "Старый выезд"),
+        )
+        connection.exec_driver_sql(
+            "UPDATE events SET created_at = ? WHERE description = ?",
+            ("2026-07-06 12:00:00", "Свежая поездка"),
+        )
+        connection.exec_driver_sql(
+            "UPDATE events SET created_at = ? WHERE description = ?",
+            ("2026-07-06 13:00:00", "Свежая заправка"),
+        )
+
+    def fail_if_called(*args, **kwargs):
+        raise AssertionError("LLM must not be called for event queries")
+
+    monkeypatch.setattr(main_module, "ask_deepseek", fail_if_called)
+
+    response = client.post(
+        f"/chat/ask?user_id={user_id}",
+        json={"message": "Покажи события за последние 3 дня"},
+    )
+
+    assert response.status_code == 200
+    assert response.json()["answer"] == (
+        "События за последние 3 дня:\n\n"
+        "1. 06.07.2026 — Заправка: 500 ₽, 20 л\n\n"
+        "2. 06.07.2026 — Поездка: 10 км"
+    )
+
+
+def test_chat_ask_does_not_repeat_amount_in_fuel_expense_line(monkeypatch):
+    user_id = _register_and_get_user_id("ask-user-expenses-10")
+
+    _create_event(
+        user_id,
+        event_type="fuel",
+        description="Заправка 06.07.2026: 916, 3 л, 200 ₽",
+        amount=200,
+        fuel_liters=3,
+        mileage=916,
+    )
+
+    def fail_if_called(*args, **kwargs):
+        raise AssertionError("LLM must not be called for expense queries")
+
+    monkeypatch.setattr(main_module, "ask_deepseek", fail_if_called)
+
+    response = client.post(
+        f"/chat/ask?user_id={user_id}",
+        json={"message": "Покажи последние расходы"},
+    )
+
+    assert response.status_code == 200
+    assert "200 ₽ — 200 ₽" not in response.json()["answer"]
+    assert "Заправка — 200 ₽, 3 л" in response.json()["answer"]
