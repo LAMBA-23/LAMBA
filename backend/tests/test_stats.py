@@ -223,6 +223,44 @@ class TestStatsApi:
         assert stats_response.json()["month"]["mileage"] == 100
         assert stats_response.json()["total_recorded_mileage"] == 125100
 
+    def test_get_stats_uses_odometer_start_end_trip_distance(self, client):
+        user_id = _register_user(client, "stats-trip-odometer-range")
+        vehicle_response = client.post(
+            "/vehicle",
+            json={
+                "user_id": user_id,
+                "brand": "BMW",
+                "model": "M4",
+                "production_year": 2020,
+                "current_mileage": 125000,
+            },
+        )
+
+        trip_response = _create_event(
+            client,
+            user_id,
+            type="trip",
+            description="trip by odometer",
+            amount=0,
+            mileage=None,
+            odometer_start=125000,
+            odometer_end=125150,
+        )
+        stats_response = client.get(f"/stats?user_id={user_id}")
+
+        assert vehicle_response.status_code == 201
+        assert trip_response.status_code == 200
+        assert trip_response.json()["mileage"] == 125150
+        assert trip_response.json()["odometer_start"] == 125000
+        assert trip_response.json()["odometer_end"] == 125150
+        assert trip_response.json()["trip_distance"] == 150
+        assert stats_response.status_code == 200
+        assert stats_response.json()["all_time"]["mileage"] == 125150
+        assert stats_response.json()["all_time"]["mileage_km"] == 125150
+        assert stats_response.json()["week"]["mileage"] == 150
+        assert stats_response.json()["month"]["mileage"] == 150
+        assert stats_response.json()["total_recorded_mileage"] == 125150
+
     def test_get_stats_sums_multiple_trip_deltas_from_initial_mileage(self, client):
         user_id = _register_user(client, "stats-multiple-trips")
         vehicle_response = client.post(

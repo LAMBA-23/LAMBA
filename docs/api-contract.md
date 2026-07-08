@@ -233,6 +233,9 @@ Response:
     "amount": 60,
     "fuel_liters": 40,
     "mileage": 125000,
+    "odometer_start": null,
+    "odometer_end": null,
+    "trip_distance": null,
     "created_at": "2026-06-13T12:00:00"
   }
 ]
@@ -426,7 +429,7 @@ Allowed event types: `fuel`, `repair`, `trip`, `issue`.
 
 `description` must not be empty.
 
-`amount` and `mileage` must not be negative when provided.
+`amount`, `mileage`, `odometer_start`, and `odometer_end` must not be negative when provided.
 
 `fuel_liters` must not be negative when provided.
 
@@ -438,12 +441,46 @@ If `mileage` is missing for `trip`, backend tries to extract trip distance from 
 
 If `mileage` is missing for non-trip events, backend stores `0`.
 
+For `trip` events, `odometer_start` and `odometer_end` can be provided together.
+When they are provided, backend stores `odometer_end` as the event `mileage` and
+calculates the trip distance as `odometer_end - odometer_start`.
+The calculated distance is returned as `trip_distance`.
+
 For `trip` events, `mileage` is interpreted as:
 
 - trip distance when the provided value is less than or equal to the previous known mileage;
 - an already-updated odometer value when the provided value is greater than the previous known mileage.
 
 When a trip distance is provided, backend stores the new odometer mileage in the event record.
+
+Trip by odometer request:
+
+```json
+{
+  "type": "trip",
+  "description": "Trip by odometer",
+  "amount": 0,
+  "odometer_start": 125000,
+  "odometer_end": 125150
+}
+```
+
+Trip by odometer response:
+
+```json
+{
+  "id": 2,
+  "type": "trip",
+  "description": "Trip by odometer",
+  "amount": 0,
+  "fuel_liters": 0,
+  "mileage": 125150,
+  "odometer_start": 125000,
+  "odometer_end": 125150,
+  "trip_distance": 150,
+  "created_at": "2026-06-13T12:05:00"
+}
+```
 
 Request:
 
@@ -453,7 +490,10 @@ Request:
   "description": "Full tank",
   "amount": 60,
   "fuel_liters": 40,
-  "mileage": 125000
+  "mileage": 125000,
+  "odometer_start": null,
+  "odometer_end": null,
+  "trip_distance": null
 }
 ```
 
@@ -467,6 +507,9 @@ Response:
   "amount": 60,
   "fuel_liters": 40,
   "mileage": 125000,
+  "odometer_start": null,
+  "odometer_end": null,
+  "trip_distance": null,
   "created_at": "2026-06-13T12:00:00"
 }
 ```
@@ -509,8 +552,8 @@ Rules:
 - `amount = null` is treated as `0`.
 - `fuel_liters = null` is treated as `0`.
 - `mileage = null` is treated as `0`.
-- `week.mileage` / `week.mileage_km`: total traveled distance for `trip` events in the last 7 days, calculated as chronological delta between previous known mileage and each trip event's stored odometer mileage.
-- `month.mileage` / `month.mileage_km`: total traveled distance for `trip` events in the last 30 days, calculated as chronological delta between previous known mileage and each trip event's stored odometer mileage.
+- `week.mileage` / `week.mileage_km`: total traveled distance for `trip` events in the last 7 days. For odometer trips, this is `odometer_end - odometer_start`; otherwise it is calculated as chronological delta between previous known mileage and each trip event's stored odometer mileage.
+- `month.mileage` / `month.mileage_km`: total traveled distance for `trip` events in the last 30 days. For odometer trips, this is `odometer_end - odometer_start`; otherwise it is calculated as chronological delta between previous known mileage and each trip event's stored odometer mileage.
 - `all_time.mileage` / `all_time.mileage_km`: current total vehicle odometer mileage, calculated as `initial car mileage + cumulative trip distance`.
 - `fuel_expenses`: sum of `amount` for `fuel` events in the period.
 - `repair_expenses`: sum of `amount` for `repair` events in the period.

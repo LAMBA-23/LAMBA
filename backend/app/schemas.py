@@ -3,7 +3,7 @@ from __future__ import annotations
 from datetime import datetime
 from typing import Any, Literal
 
-from pydantic import BaseModel, ConfigDict, Field, field_validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
 
 EventType = Literal["fuel", "repair", "trip", "issue"]
@@ -93,6 +93,8 @@ class EventCreate(BaseModel):
     amount: int | None = None
     fuel_liters: int | None = None
     mileage: int | None = None
+    odometer_start: int | None = None
+    odometer_end: int | None = None
 
     @field_validator("description")
     @classmethod
@@ -123,6 +125,34 @@ class EventCreate(BaseModel):
             raise ValueError("mileage must not be negative")
         return v
 
+    @field_validator("odometer_start", "odometer_end")
+    @classmethod
+    def non_negative_odometer_value(cls, v: int | None) -> int | None:
+        if v is not None and v < 0:
+            raise ValueError("odometer values must not be negative")
+        return v
+
+    @model_validator(mode="after")
+    def valid_trip_odometer_range(self) -> "EventCreate":
+        has_any_odometer = (
+            self.odometer_start is not None or self.odometer_end is not None
+        )
+        has_full_odometer = (
+            self.odometer_start is not None and self.odometer_end is not None
+        )
+        if has_any_odometer and self.type != "trip":
+            raise ValueError("odometer_start and odometer_end are only for trip events")
+        if has_any_odometer and not has_full_odometer:
+            raise ValueError("odometer_start and odometer_end must be provided together")
+        if (
+            has_full_odometer
+            and self.odometer_end is not None
+            and self.odometer_start is not None
+            and self.odometer_end < self.odometer_start
+        ):
+            raise ValueError("odometer_end must be greater than or equal to odometer_start")
+        return self
+
 
 class EventResponse(BaseModel):
     model_config = ConfigDict(from_attributes=True)
@@ -133,6 +163,9 @@ class EventResponse(BaseModel):
     amount: int
     fuel_liters: int
     mileage: int
+    odometer_start: int | None = None
+    odometer_end: int | None = None
+    trip_distance: int | None = None
     created_at: datetime
 
 

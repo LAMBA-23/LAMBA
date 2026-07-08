@@ -50,8 +50,20 @@ class Event(Base):
     amount: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
     fuel_liters: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
     mileage: Mapped[int] = mapped_column(Integer, nullable=False)
+    odometer_start: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    odometer_end: Mapped[int | None] = mapped_column(Integer, nullable=True)
     created_at: Mapped[datetime] = mapped_column(
         default=datetime.utcnow, nullable=False
     )
 
     car: Mapped[Car] = relationship(back_populates="events")
+
+    @property
+    def trip_distance(self) -> int | None:
+        if (
+            self.type == "trip"
+            and self.odometer_start is not None
+            and self.odometer_end is not None
+        ):
+            return max(0, self.odometer_end - self.odometer_start)
+        return None
