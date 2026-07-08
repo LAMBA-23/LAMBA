@@ -143,14 +143,18 @@ class EventCreate(BaseModel):
         if has_any_odometer and self.type != "trip":
             raise ValueError("odometer_start and odometer_end are only for trip events")
         if has_any_odometer and not has_full_odometer:
-            raise ValueError("odometer_start and odometer_end must be provided together")
+            raise ValueError(
+                "odometer_start and odometer_end must be provided together"
+            )
         if (
             has_full_odometer
             and self.odometer_end is not None
             and self.odometer_start is not None
             and self.odometer_end < self.odometer_start
         ):
-            raise ValueError("odometer_end must be greater than or equal to odometer_start")
+            raise ValueError(
+                "odometer_end must be greater than or equal to odometer_start"
+            )
         return self
 
 

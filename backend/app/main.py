@@ -264,9 +264,7 @@ def _extract_trip_distance_km(text_value: str) -> int | None:
     return int(match.group(1))
 
 
-def _event_mileage_from_payload(
-    payload: EventCreate, previous_mileage: int
-) -> int:
+def _event_mileage_from_payload(payload: EventCreate, previous_mileage: int) -> int:
     if payload.type == "trip" and payload.odometer_end is not None:
         return payload.odometer_end
 
