@@ -110,6 +110,8 @@ Supporting PBIs:
 
 The following items were completed and included in the MVP v2 release:
 
+- [#49 US-06: Ask AI assistant](https://github.com/LAMBA-23/LAMBA/issues/49)
+- [#160 PBI: Enable AI assistant to use vehicle statistics in responses](https://github.com/LAMBA-23/LAMBA/issues/160)
 - [#161 PBI: Add a manual form for creating vehicle history records](https://github.com/LAMBA-23/LAMBA/issues/161)
 - [#194 Bug: frontend issues](https://github.com/LAMBA-23/LAMBA/issues/194)
 - [#196 PBI: Change buttons on the main screen](https://github.com/LAMBA-23/LAMBA/issues/196)
@@ -122,10 +124,8 @@ The following items were completed and included in the MVP v2 release:
 
 The following items were not completed in Sprint 3 and moved to Backlog:
 
-- [#49 US-06: Ask AI assistant](https://github.com/LAMBA-23/LAMBA/issues/49) — partially addressed in Sprint 2, full acceptance criteria not met because #160 was not completed.
-- [#51 US-08: Receive maintenance recommendations](https://github.com/LAMBA-23/LAMBA/issues/51) — not started, deferred because #160 was not completed first.
+- [#51 US-08: Receive maintenance recommendations](https://github.com/LAMBA-23/LAMBA/issues/51) — not started, deferred until the assistant and history flow were stabilized.
 - [#52 US-09: Receive notifications](https://github.com/LAMBA-23/LAMBA/issues/52) — not started, depends on #51.
-- [#160 PBI: Enable AI assistant to use vehicle statistics in responses](https://github.com/LAMBA-23/LAMBA/issues/160) — not completed before sprint end, moved to Backlog.
 
 ### MVP v2 Scope Justification
 

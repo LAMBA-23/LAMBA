@@ -145,6 +145,16 @@ The protected default branch is `main`.
 | Smoke-check procedure in `README.md` | Manual verification of local backend startup, auth, vehicle, events, stats, and chat endpoints | Available for repeatable manual regression checks | Useful as manual support evidence only |
 | Events API manual add/read check | Manual verification that `POST /events` creates an event and `GET /events` returns it | Available as repeatable exploratory evidence | Does not count as QRT because it is manual |
 
+Manual smoke checklist for history-form statistics regression:
+
+1. Create a chat event and confirm it still appears in History and changes Statistics.
+2. Create a fuel record through `History -> Add history record` and confirm fuel expenses, fuel liters, and records count change after reopening Statistics.
+3. Create a repair record through the same form and confirm repair expenses and records count change.
+4. Create a trip record through the same form and confirm mileage and records count change.
+5. Edit a form-created record and confirm History and Statistics both reflect the updated backend values.
+6. Delete a form-created record and confirm it disappears from History and Statistics.
+7. Save a form record, return to History, and confirm the timeline does not show a duplicate entry.
+
 ## Repository Documentation Status
 
 | Required document | Status | Notes |

@@ -116,8 +116,6 @@
             android:layout_height="0dp"
             android:layout_weight="1.5"
             android:layout_marginTop="12dp"
-            android:clickable="true"
-            android:focusable="true"
             android:foreground="?attr/selectableItemBackground">
 
             <View
@@ -180,7 +178,6 @@
                 android:layout_marginBottom="8dp"
                 android:background="@drawable/bg_card_white"
                 android:clickable="true"
-                android:elevation="3dp"
                 android:focusable="true"
                 android:foreground="?attr/selectableItemBackground">
                 <ImageView
@@ -216,7 +213,6 @@
                 android:layout_marginBottom="8dp"
                 android:background="@drawable/bg_card_white"
                 android:clickable="true"
-                android:elevation="3dp"
                 android:focusable="true"
                 android:foreground="?attr/selectableItemBackground">
                 <ImageView
@@ -252,7 +248,6 @@
                 android:layout_marginBottom="8dp"
                 android:background="@drawable/bg_card_white"
                 android:clickable="true"
-                android:elevation="3dp"
                 android:focusable="true"
                 android:foreground="?attr/selectableItemBackground">
                 <ImageView
@@ -287,7 +282,6 @@
                 android:layout_weight="1"
                 android:background="@drawable/bg_card_white"
                 android:clickable="true"
-                android:elevation="3dp"
                 android:focusable="true"
                 android:foreground="?attr/selectableItemBackground">
                 <ImageView
@@ -344,19 +338,10 @@
                     android:inputType="textCapSentences|textMultiLine"
                     android:maxLines="3"
                     android:paddingStart="18dp"
-                    android:paddingEnd="50dp"
+                    android:paddingEnd="18dp"
                     android:textColor="#101114"
                     android:textColorHint="#9B9BA3"
                     android:textSize="17sp" />
-
-                <ImageView
-                    android:layout_width="27dp"
-                    android:layout_height="27dp"
-                    android:layout_gravity="end|center_vertical"
-                    android:layout_marginEnd="16dp"
-                    android:contentDescription="Голос"
-                    android:src="@drawable/ic_lamba_mic"
-                    app:tint="#77777E" />
             </FrameLayout>
 
             <ImageButton
@@ -525,10 +510,6 @@
                 android:layout_width="match_parent"
                 android:layout_height="86dp"
                 android:background="@drawable/bg_lamba_bot_bubble"
-                android:clickable="true"
-                android:elevation="4dp"
-                android:focusable="true"
-                android:foreground="?attr/selectableItemBackground"
                 android:gravity="center_vertical"
                 android:orientation="horizontal"
                 android:paddingStart="18dp"

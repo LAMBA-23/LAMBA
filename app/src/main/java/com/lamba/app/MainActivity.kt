@@ -55,12 +55,6 @@ class MainActivity : AppCompatActivity() {
         tvProfileName.text = SessionManager.getUserName(this) ?: "Пользователь"
         renderRequestHistory(menuRequests, drawerOverlay)
 
-        cardCar.setOnClickListener {
-            val intent = Intent(this, AddVehicleActivity::class.java)
-            intent.putExtra("USER_ID", userId)
-            startActivity(intent)
-        }
-
         btnTalkToCar.setOnClickListener {
             openChat("Проверь состояние автомобиля")
         }
@@ -112,13 +106,6 @@ class MainActivity : AppCompatActivity() {
         menuStats.setOnClickListener {
             drawerOverlay.visibility = View.GONE
             startActivity(Intent(this, com.lamba.app.network.StatisticsActivity::class.java))
-        }
-
-        menuProfile.setOnClickListener {
-            drawerOverlay.visibility = View.GONE
-            val intent = Intent(this, AddVehicleActivity::class.java)
-            intent.putExtra("USER_ID", userId)
-            startActivity(intent)
         }
 
         loadVehicleData(tvHeader, tvCarName, tvCarInfo)
