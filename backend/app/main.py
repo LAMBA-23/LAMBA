@@ -37,6 +37,7 @@ DEFAULT_CAR_BRAND = "Not set"
 DEFAULT_CAR_MODEL = "Not set"
 DEFAULT_CAR_PRODUCTION_YEAR = 0
 DEFAULT_CAR_MILEAGE = 0
+EVENT_TYPE_CHECK_CONSTRAINT = "events_type_check"
 
 app = FastAPI(title="LAMBA Backend", version="0.1.0")
 
@@ -117,19 +118,37 @@ def _coalesce_int(value: int | None) -> int:
 
 def ensure_event_schema() -> None:
     inspector = inspect(engine)
-    event_columns = {column["name"] for column in inspector.get_columns("events")}
+    event_columns = {
+        column["name"]: column for column in inspector.get_columns("events")
+    }
+
     with engine.begin() as connection:
-        if "fuel_liters" not in event_columns:
+        fuel_liters_column = event_columns.get("fuel_liters")
+        if fuel_liters_column is None:
             connection.execute(
                 text(
                     "ALTER TABLE events "
-                    "ADD COLUMN fuel_liters INTEGER NOT NULL DEFAULT 0"
+                    "ADD COLUMN fuel_liters FLOAT NOT NULL DEFAULT 0"
                 )
             )
+        else:
+            column_type = str(fuel_liters_column["type"]).lower()
+            if engine.dialect.name == "postgresql" and "double" not in column_type:
+                connection.execute(
+                    text(
+                        "ALTER TABLE events ALTER COLUMN fuel_liters "
+                        "TYPE DOUBLE PRECISION USING fuel_liters::double precision"
+                    )
+                )
+
         if "odometer_start" not in event_columns:
-            connection.execute(text("ALTER TABLE events ADD COLUMN odometer_start INTEGER"))
+            connection.execute(
+                text("ALTER TABLE events ADD COLUMN odometer_start INTEGER")
+            )
         if "odometer_end" not in event_columns:
-            connection.execute(text("ALTER TABLE events ADD COLUMN odometer_end INTEGER"))
+            connection.execute(
+                text("ALTER TABLE events ADD COLUMN odometer_end INTEGER")
+            )
         connection.execute(
             text("UPDATE events SET type = 'issue' WHERE type = 'condition'")
         )
@@ -360,7 +379,9 @@ EXPENSE_CATEGORY_LABELS = {
 EXPENSE_CATEGORY_ORDER = ("fuel", "repair", "trip", "issue")
 
 
-def _format_number(value: int) -> str:
+def _format_number(value: int | float) -> str:
+    if isinstance(value, float) and value.is_integer():
+        value = int(value)
     return f"{value:,}".replace(",", " ")
 
 

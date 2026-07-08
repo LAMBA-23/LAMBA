@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from sqlalchemy import ForeignKey, Integer, String
+from sqlalchemy import Float, ForeignKey, Integer, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from .database import Base
@@ -48,7 +48,7 @@ class Event(Base):
     type: Mapped[str] = mapped_column(String(32), nullable=False)
     description: Mapped[str] = mapped_column(String(500), nullable=False)
     amount: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
-    fuel_liters: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
+    fuel_liters: Mapped[float] = mapped_column(Float, default=0, nullable=False)
     mileage: Mapped[int] = mapped_column(Integer, nullable=False)
     odometer_start: Mapped[int | None] = mapped_column(Integer, nullable=True)
     odometer_end: Mapped[int | None] = mapped_column(Integer, nullable=True)

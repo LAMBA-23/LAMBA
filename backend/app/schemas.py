@@ -91,7 +91,7 @@ class EventCreate(BaseModel):
     type: EventType
     description: str
     amount: int | None = None
-    fuel_liters: int | None = None
+    fuel_liters: float | None = None
     mileage: int | None = None
     odometer_start: int | None = None
     odometer_end: int | None = None
@@ -113,7 +113,7 @@ class EventCreate(BaseModel):
 
     @field_validator("fuel_liters")
     @classmethod
-    def non_negative_fuel_liters(cls, v: int | None) -> int | None:
+    def non_negative_fuel_liters(cls, v: float | None) -> float | None:
         if v is not None and v < 0:
             raise ValueError("fuel_liters must not be negative")
         return v
@@ -161,7 +161,7 @@ class EventResponse(BaseModel):
     type: EventType
     description: str
     amount: int
-    fuel_liters: int
+    fuel_liters: float
     mileage: int
     odometer_start: int | None = None
     odometer_end: int | None = None
@@ -177,7 +177,7 @@ class ParsedEventPayload(BaseModel):
     type: EventType
     description: str
     amount: int | None = None
-    fuel_liters: int | None = None
+    fuel_liters: float | None = None
     mileage: int | None = None
 
 
@@ -185,7 +185,7 @@ class ParsedChatEvent(BaseModel):
     type: EventType | None = None
     description: str | None = None
     amount: int | None = None
-    fuel_liters: int | None = None
+    fuel_liters: float | None = None
     mileage: int | None = None
     needs_clarification: bool
     clarification_question: str | None = None
@@ -207,7 +207,7 @@ class StatsPeriodResponse(BaseModel):
     avg_expense_consumption: int
     mileage_km: int
     expenses_rub: int
-    fuel_liters: int
+    fuel_liters: float
     avg_fuel_consumption_l_per_100km: int
 
 
