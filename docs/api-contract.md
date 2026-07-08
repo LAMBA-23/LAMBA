@@ -328,6 +328,86 @@ Parsed response:
 }
 ```
 
+## POST /chat/ask
+
+Answers a free-form user question about the vehicle history.
+
+Request:
+
+```json
+{
+  "message": "Покажи последние расходы"
+}
+```
+
+Response:
+
+```json
+{
+  "answer": "Расходы за последние 5 записей: 9500 ₽\n\n..."
+}
+```
+
+Behavior:
+
+- Backend classifies the message as an expense query, a statistics query, or a general assistant question.
+- Expense and statistics queries are answered deterministically from database events and do not call the LLM.
+- Other questions continue through the existing LLM flow.
+
+Deterministic expense answers:
+
+- An expense is any event with `amount > 0`, regardless of type: `fuel`, `repair`, `trip`, `issue`.
+- Events with `amount = 0`, `amount = null`, or missing amount are not shown in expense answers.
+- Category mapping:
+  - `fuel` -> `Топливо`
+  - `repair` -> `Ремонт`
+  - `trip` -> `Поездки`
+  - `issue` -> `Проблемы`
+- No period -> latest 5 expense events, sorted from newest to oldest.
+- `week` / `за неделю` -> last 7 days.
+- `month` / `за месяц` -> last 30 days.
+- `all time` / `за всё время` -> all expense records.
+- `за последние N дней` -> last `N` days.
+- Category-specific filters:
+  - fuel / бензин / заправки -> `fuel`
+  - repair / сервис -> `repair`
+  - issue / проблемы / поломки -> `issue`
+  - trip / поездки -> `trip`
+- Expense answers do not include event date.
+- Expense answers do not include mileage.
+- For `fuel`, if `fuel_liters > 0`, the response shows liters in the line item.
+- If no expenses match, backend returns exactly:
+
+```text
+За выбранный период расходов не найдено.
+```
+
+Deterministic statistics answers:
+
+- Questions such as `Покажи статистику` return a short summary built from database data.
+- The summary includes expenses, mileage, fuel liters, and record count for the selected period.
+- If no period is specified for statistics, backend uses all available history.
+- Statistics queries also support `за последние N дней`.
+
+Deterministic event answers:
+
+- Questions containing `события` are answered from database events without calling the LLM.
+- If no period is specified, backend returns the latest 5 events sorted from newest to oldest.
+- Event queries support `за неделю`, `за месяц`, `за всё время`, and `за последние N дней`.
+- Event answers are returned as a numbered list.
+- Event dates are rendered as plain text `DD.MM.YYYY` without markdown markers.
+- Fuel events are rendered without repeating the amount from `description`.
+
+General assistant questions:
+
+- Non-expense and non-statistics questions continue through the LLM flow.
+- Backend sends at most 30 latest events to the LLM context.
+- Context events are sorted from newest to oldest.
+- Context includes `created_at` for each event.
+- Context includes `amount` only when `amount > 0`.
+- Context includes `fuel_liters` only when `fuel_liters > 0`.
+- Context includes `mileage` when `mileage > 0`.
+
 ## POST /events
 
 Creates an event for a user's car.
