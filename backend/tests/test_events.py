@@ -235,6 +235,45 @@ class TestEventsApi:
         assert timeline_response.status_code == 200
         assert timeline_response.json() == created_events
 
+    def test_post_repair_and_breakdown_records_are_saved_distinctly(self, client):
+        user_id = _register_user(client, "events-repair-breakdown")
+
+        repair_response = client.post(
+            f"/events?user_id={user_id}",
+            json={
+                "type": "repair",
+                "description": "Oil service",
+                "amount": 7000,
+                "mileage": 125000,
+            },
+        )
+        issue_response = client.post(
+            f"/events?user_id={user_id}",
+            json={
+                "type": "issue",
+                "description": "Engine warning light",
+                "mileage": 125050,
+            },
+        )
+        timeline_response = client.get(f"/events?user_id={user_id}")
+
+        assert repair_response.status_code == 200
+        repair = repair_response.json()
+        assert repair["type"] == "repair"
+        assert repair["description"] == "Oil service"
+        assert repair["amount"] == 7000
+        assert repair["mileage"] == 125000
+
+        assert issue_response.status_code == 200
+        issue = issue_response.json()
+        assert issue["type"] == "issue"
+        assert issue["description"] == "Engine warning light"
+        assert issue["amount"] == 0
+        assert issue["mileage"] == 125050
+
+        assert timeline_response.status_code == 200
+        assert timeline_response.json() == [repair, issue]
+
     def test_post_trip_distance_stores_new_odometer_and_keeps_timeline_response(
         self, client
     ):

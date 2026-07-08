@@ -427,6 +427,11 @@ POST /events?user_id=2
 
 Allowed event types: `fuel`, `repair`, `trip`, `issue`.
 
+Repair and breakdown records use separate event types:
+
+- `repair` is for completed repair or service work. If `amount > 0`, it is counted in `repair_expenses` and `total_expenses`.
+- `issue` is for a breakdown/problem note. It is returned in the timeline and counted in `records_count`, but it does not increase repair expenses, total expenses, mileage, or fuel liters.
+
 `description` must not be empty.
 
 `amount`, `mileage`, `odometer_start`, and `odometer_end` must not be negative when provided.
