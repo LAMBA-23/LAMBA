@@ -392,19 +392,10 @@
                 android:inputType="textCapSentences|textMultiLine"
                 android:maxLines="3"
                 android:paddingStart="18dp"
-                android:paddingEnd="50dp"
+                android:paddingEnd="18dp"
                 android:textColor="#101114"
                 android:textColorHint="#9B9BA3"
                 android:textSize="16sp" />
-
-            <ImageView
-                android:layout_width="27dp"
-                android:layout_height="27dp"
-                android:layout_gravity="end|center_vertical"
-                android:layout_marginEnd="16dp"
-                android:contentDescription="Голос"
-                android:src="@drawable/ic_lamba_mic"
-                app:tint="#77777E" />
         </FrameLayout>
 
         <FrameLayout
