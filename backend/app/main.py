@@ -141,6 +141,14 @@ def ensure_event_schema() -> None:
                     )
                 )
 
+        if "odometer_start" not in event_columns:
+            connection.execute(
+                text("ALTER TABLE events ADD COLUMN odometer_start INTEGER")
+            )
+        if "odometer_end" not in event_columns:
+            connection.execute(
+                text("ALTER TABLE events ADD COLUMN odometer_end INTEGER")
+            )
         connection.execute(
             text("UPDATE events SET type = 'issue' WHERE type = 'condition'")
         )
@@ -183,10 +191,25 @@ def _has_configured_vehicle_record(events: list[Event]) -> bool:
 
 
 def _event_effective_mileage(event: Event, known_mileage: int) -> int:
+    if event.type == "trip" and event.odometer_end is not None:
+        return event.odometer_end
+
     mileage = _coalesce_int(event.mileage)
     if event.type == "trip" and mileage <= known_mileage:
         return known_mileage + mileage
     return mileage
+
+
+def _event_trip_distance(event: Event, known_mileage: int) -> int:
+    if (
+        event.type == "trip"
+        and event.odometer_start is not None
+        and event.odometer_end is not None
+    ):
+        return max(0, event.odometer_end - event.odometer_start)
+
+    effective_mileage = _event_effective_mileage(event, known_mileage)
+    return max(0, effective_mileage - known_mileage)
 
 
 def _sum_trip_distance(events: list[Event], start_at: datetime | None = None) -> int:
@@ -203,7 +226,7 @@ def _sum_trip_distance(events: list[Event], start_at: datetime | None = None) ->
     for event in events:
         effective_mileage = _event_effective_mileage(event, known_mileage)
         if event.type == "trip":
-            trip_delta = max(0, effective_mileage - known_mileage)
+            trip_delta = _event_trip_distance(event, known_mileage)
             if start_at is None or event.created_at >= start_at:
                 total_distance += trip_delta
             known_mileage = max(known_mileage, effective_mileage)
@@ -239,6 +262,32 @@ def _extract_trip_distance_km(text_value: str) -> int | None:
     if match is None:
         return None
     return int(match.group(1))
+
+
+def _event_mileage_from_payload(payload: EventCreate, previous_mileage: int) -> int:
+    if payload.type == "trip" and payload.odometer_end is not None:
+        return payload.odometer_end
+
+    event_mileage = payload.mileage
+    if payload.type == "trip" and event_mileage is None:
+        event_mileage = _extract_trip_distance_km(payload.description)
+    if event_mileage is None:
+        event_mileage = 0
+
+    if payload.type != "trip":
+        return event_mileage
+
+    return _event_effective_mileage(
+        Event(
+            car_id=0,
+            type=payload.type,
+            description=payload.description,
+            amount=payload.amount if payload.amount is not None else 0,
+            fuel_liters=payload.fuel_liters if payload.fuel_liters is not None else 0,
+            mileage=event_mileage,
+        ),
+        previous_mileage,
+    )
 
 
 def build_stats_period(
@@ -525,7 +574,7 @@ def _build_trip_distance_map(events: list[Event], car: Car) -> dict[int, int]:
         if event.type != "trip":
             continue
         effective_mileage = _event_effective_mileage(event, known_mileage)
-        trip_distance = max(0, effective_mileage - known_mileage)
+        trip_distance = _event_trip_distance(event, known_mileage)
         distances[event.id] = trip_distance
         known_mileage = max(known_mileage, effective_mileage)
 
@@ -908,26 +957,7 @@ def create_event(
     )
     previous_mileage = _current_trip_mileage(car, existing_events)
 
-    event_mileage = payload.mileage
-    if payload.type == "trip" and event_mileage is None:
-        event_mileage = _extract_trip_distance_km(payload.description)
-    if event_mileage is None:
-        event_mileage = 0
-
-    if payload.type == "trip":
-        event_mileage = _event_effective_mileage(
-            Event(
-                car_id=car.id,
-                type=payload.type,
-                description=payload.description,
-                amount=payload.amount if payload.amount is not None else 0,
-                fuel_liters=payload.fuel_liters
-                if payload.fuel_liters is not None
-                else 0,
-                mileage=event_mileage,
-            ),
-            previous_mileage,
-        )
+    event_mileage = _event_mileage_from_payload(payload, previous_mileage)
 
     event = Event(
         car_id=car.id,
@@ -936,6 +966,8 @@ def create_event(
         amount=payload.amount if payload.amount is not None else 0,
         fuel_liters=payload.fuel_liters if payload.fuel_liters is not None else 0,
         mileage=event_mileage,
+        odometer_start=payload.odometer_start,
+        odometer_end=payload.odometer_end,
     )
     db.add(event)
     db.commit()
@@ -964,32 +996,15 @@ def update_event(
     )
     previous_mileage = _current_trip_mileage(car, existing_events)
 
-    event_mileage = payload.mileage
-    if payload.type == "trip" and event_mileage is None:
-        event_mileage = _extract_trip_distance_km(payload.description)
-    if event_mileage is None:
-        event_mileage = 0
-
-    if payload.type == "trip":
-        event_mileage = _event_effective_mileage(
-            Event(
-                car_id=car.id,
-                type=payload.type,
-                description=payload.description,
-                amount=payload.amount if payload.amount is not None else 0,
-                fuel_liters=payload.fuel_liters
-                if payload.fuel_liters is not None
-                else 0,
-                mileage=event_mileage,
-            ),
-            previous_mileage,
-        )
+    event_mileage = _event_mileage_from_payload(payload, previous_mileage)
 
     event.type = payload.type
     event.description = payload.description
     event.amount = payload.amount if payload.amount is not None else 0
     event.fuel_liters = payload.fuel_liters if payload.fuel_liters is not None else 0
     event.mileage = event_mileage
+    event.odometer_start = payload.odometer_start
+    event.odometer_end = payload.odometer_end
 
     db.commit()
     db.refresh(event)

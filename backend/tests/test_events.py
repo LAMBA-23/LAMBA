@@ -269,6 +269,42 @@ class TestEventsApi:
         assert timeline_response.status_code == 200
         assert timeline_response.json() == [created_event]
 
+    def test_post_trip_with_odometer_start_and_end_stores_trip_details(self, client):
+        user_id = _register_user(client, "events-trip-odometer-range")
+        vehicle_response = client.post(
+            "/vehicle",
+            json={
+                "user_id": user_id,
+                "brand": "Toyota",
+                "model": "Camry",
+                "production_year": 2023,
+                "current_mileage": 125000,
+            },
+        )
+
+        create_response = client.post(
+            f"/events?user_id={user_id}",
+            json={
+                "type": "trip",
+                "description": "Trip by odometer",
+                "amount": 0,
+                "odometer_start": 125000,
+                "odometer_end": 125150,
+            },
+        )
+        timeline_response = client.get(f"/events?user_id={user_id}")
+
+        assert vehicle_response.status_code == 201
+        assert create_response.status_code == 200
+        created_event = create_response.json()
+        assert created_event["type"] == "trip"
+        assert created_event["mileage"] == 125150
+        assert created_event["odometer_start"] == 125000
+        assert created_event["odometer_end"] == 125150
+        assert created_event["trip_distance"] == 150
+        assert timeline_response.status_code == 200
+        assert timeline_response.json() == [created_event]
+
     def test_post_trip_extracts_distance_from_description_when_mileage_is_missing(
         self, client
     ):
@@ -379,6 +415,21 @@ class TestEventsApi:
             _event_payload(amount=-1),
             _event_payload(mileage=-1),
             _event_payload(fuel_liters=-1),
+            _event_payload(
+                type="trip",
+                odometer_start=125150,
+                odometer_end=125000,
+            ),
+            _event_payload(
+                type="trip",
+                odometer_start=125000,
+                odometer_end=None,
+            ),
+            _event_payload(
+                type="fuel",
+                odometer_start=125000,
+                odometer_end=125150,
+            ),
         ]
 
         for payload in invalid_payloads:
