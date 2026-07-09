@@ -77,18 +77,29 @@ object HistoryRecordEventMapper {
             HistoryRecordType.TRIP -> {
                 val date = values["date"].orEmpty()
                 val tripDescription = values["description"].orEmpty()
-                val mileage = values["mileage"].toIntValue()
-                val details = if (tripDescription.isBlank()) {
-                    "$mileage км"
+                val odometerStart = values["odometerStart"].toOptionalIntValue()
+                val odometerEnd = values["odometerEnd"].toOptionalIntValue()
+                val legacyMileage = values["mileage"].toOptionalIntValue().takeIf {
+                    odometerStart == null && odometerEnd == null
+                }
+                val details = when {
+                    legacyMileage != null && tripDescription.isBlank() -> "$legacyMileage км"
+                    legacyMileage != null -> "$tripDescription, $legacyMileage км"
+                    else -> tripDescription
+                }
+                val description = if (details.isBlank()) {
+                    "Поездка $date"
                 } else {
-                    "$tripDescription, $mileage км"
+                    "Поездка $date: $details"
                 }
                 EventCreateRequest(
                     type = "trip",
-                    description = "Поездка $date: $details",
+                    description = description,
                     amount = null,
                     fuelLiters = null,
-                    mileage = mileage,
+                    mileage = legacyMileage,
+                    odometerStart = odometerStart,
+                    odometerEnd = odometerEnd,
                 )
             }
         }
@@ -114,13 +125,20 @@ object HistoryRecordEventMapper {
 
             event.type == "trip" -> {
                 val parsed = parseTripDescription(event.description)
+                val tripDistance = event.tripDistance
+                    ?: calculateTripDistance(event.odometerStart, event.odometerEnd)
+                    ?: tripMileageOverride
+                    ?: event.mileage
+                val values = mutableMapOf(
+                    "date" to parsed["date"].orIfBlank(formatEventDate(event.createdAt)),
+                    "mileage" to tripDistance.toString(),
+                    "description" to parsed["description"].orEmpty(),
+                )
+                event.odometerStart?.let { values["odometerStart"] = it.toString() }
+                event.odometerEnd?.let { values["odometerEnd"] = it.toString() }
                 HistoryRecordFormData(
                     type = HistoryRecordType.TRIP,
-                    values = mapOf(
-                        "date" to parsed["date"].orIfBlank(formatEventDate(event.createdAt)),
-                        "mileage" to (tripMileageOverride ?: event.mileage).toString(),
-                        "description" to parsed["description"].orEmpty(),
-                    ),
+                    values = values,
                 )
             }
 
@@ -199,7 +217,7 @@ object HistoryRecordEventMapper {
         val withoutPrefix = description.removePrefix(prefix)
         val separatorIndex = withoutPrefix.indexOf(": ")
         if (separatorIndex <= 0) {
-            return emptyMap()
+            return mapOf("date" to withoutPrefix.trim(), "description" to "")
         }
         val date = withoutPrefix.substring(0, separatorIndex)
         val details = withoutPrefix.substring(separatorIndex + 2)
@@ -210,15 +228,32 @@ object HistoryRecordEventMapper {
                 "description" to details.removeSuffix(suffix.value),
             )
         }
-        return mapOf("date" to date, "description" to "")
+        return mapOf("date" to date, "description" to details)
     }
 
     private fun String?.toIntValue(): Int {
         return this.orEmpty().replace(" ", "").replace(',', '.').toDouble().toInt()
     }
 
+    private fun String?.toOptionalIntValue(): Int? {
+        return this.orEmpty()
+            .trim()
+            .takeIf { it.isNotBlank() }
+            ?.replace(" ", "")
+            ?.replace(',', '.')
+            ?.toDouble()
+            ?.toInt()
+    }
+
     private fun String?.toDoubleValue(): Double {
         return this.orEmpty().replace(" ", "").replace(',', '.').toDouble()
+    }
+
+    private fun calculateTripDistance(odometerStart: Int?, odometerEnd: Int?): Int? {
+        if (odometerStart == null || odometerEnd == null) {
+            return null
+        }
+        return (odometerEnd - odometerStart).takeIf { it >= 0 }
     }
 
     private fun Double.formatPlainNumber(): String {

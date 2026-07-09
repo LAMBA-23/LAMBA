@@ -32,6 +32,8 @@ class RetrofitChatBackend(
                 amount = event.amount,
                 fuelLiters = event.fuelLiters,
                 mileage = event.mileage,
+                odometerStart = event.odometerStart,
+                odometerEnd = event.odometerEnd,
             ),
             userId,
         )
