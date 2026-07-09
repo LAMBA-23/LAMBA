@@ -2,34 +2,27 @@
 
 ## Current product status and handover scope
 
-The current product state is a runnable fast backend application with a customer-accessible hosted endpoint and documented local deployment. This handover document describes the actual state today, not future work.
+The current product state is a runnable backend application with documented local deployment and a documented hosted endpoint. This handover document describes the actual state today, not an assumed transfer that has already happened.
 
-- Product repository: `LAMBA` contains the backend service, database deployment config, API contract, and verification documentation.
+- Product repository: `LAMBA` contains the backend service, database deployment configuration, API contract, and verification documentation.
 - Deployment model: Docker Compose with PostgreSQL and FastAPI.
-- Hosted runtime available: `http://186.246.27.211:8000`.
-- Customer-facing API reference: `http://186.246.27.211:8000/docs`.
+- Hosted runtime documented in the repository: `http://186.246.27.211:8000`.
+- Customer-facing API reference documented in the repository: `http://186.246.27.211:8000/docs`.
 
-Customer-access scope:
+Current handover status: **Not yet at `Ready for independent use`**
 
-- Customer can use the hosted backend today through the provided URL and demo credentials.
-- Customer can run the backend locally using the repository and Docker Compose.
-- Customer has not yet been given ownership of the hosted production environment, hosting account, or repository administration.
-
-Current handover status: **Ready for independent use**
-
-Blocker for stronger handover level: production deployment and hosting account ownership remain retained by the team.
+Reason: no customer access, deployment ownership, hosting account ownership, or repository administration has been transferred yet. The product and documentation exist, but formal handover has not been completed.
 
 ## What has been transferred, delegated, or retained
 
 Transferred/delegated to the customer:
 
-- The repository content needed to run the product locally.
-- Local deployment instructions and verification steps.
-- A team-hosted runtime endpoint for evaluation and use.
+- No customer-facing transfer has been completed yet.
+- The repository contains instructions for local setup and verification, but those instructions have not been formally handed over as a completed customer transition.
 
 Intentionally retained by the team:
 
-- Hosted backend infrastructure and production deployment account.
+- Hosted backend infrastructure and deployment account.
 - GitHub repository administration and branch management.
 - Mobile app distribution channel and production APK publication.
 
