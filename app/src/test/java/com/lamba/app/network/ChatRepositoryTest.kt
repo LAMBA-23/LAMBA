@@ -44,7 +44,7 @@ class ChatRepositoryTest {
             type = "fuel",
             description = "Заправка на 40 литров",
             amount = 2500,
-            fuelLiters = 40,
+            fuelLiters = 40.0,
             mileage = null,
         )
         val savedEvent = Event(
@@ -52,7 +52,7 @@ class ChatRepositoryTest {
             type = "fuel",
             description = "Заправка на 40 литров",
             amount = 2500,
-            fuelLiters = 40,
+            fuelLiters = 40.0,
             mileage = 0,
             createdAt = "2026-06-21T12:00:00",
         )

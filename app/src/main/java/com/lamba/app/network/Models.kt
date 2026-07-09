@@ -51,7 +51,7 @@ data class ParsedEventPayload(
     @SerializedName("type") val type: String,
     @SerializedName("description") val description: String,
     @SerializedName("amount") val amount: Int? = null,
-    @SerializedName("fuel_liters") val fuelLiters: Int? = null,
+    @SerializedName("fuel_liters") val fuelLiters: Double? = null,
     @SerializedName("mileage") val mileage: Int? = null
 )
 
@@ -65,7 +65,7 @@ data class EventCreateRequest(
     @SerializedName("type") val type: String,
     @SerializedName("description") val description: String,
     @SerializedName("amount") val amount: Int? = null,
-    @SerializedName("fuel_liters") val fuelLiters: Int? = null,
+    @SerializedName("fuel_liters") val fuelLiters: Double? = null,
     @SerializedName("mileage") val mileage: Int? = null
 )
 
@@ -74,7 +74,7 @@ data class Event(
     @SerializedName("type") val type: String,
     @SerializedName("description") val description: String,
     @SerializedName("amount") val amount: Int,
-    @SerializedName("fuel_liters") val fuelLiters: Int = 0,
+    @SerializedName("fuel_liters") val fuelLiters: Double = 0.0,
     @SerializedName("mileage") val mileage: Int,
     @SerializedName("created_at") val createdAt: String? = null
 ) {
@@ -119,7 +119,7 @@ data class StatsPeriod(
     @SerializedName("avg_expense_consumption") val avgExpenseConsumption: Int = 0,
     @SerializedName("mileage_km") val mileageKm: Int = 0,
     @SerializedName("expenses_rub") val expensesRub: Int = 0,
-    @SerializedName("fuel_liters") val fuelLiters: Int = 0,
+    @SerializedName("fuel_liters") val fuelLiters: Double = 0.0,
     @SerializedName("avg_fuel_consumption_l_per_100km") val avgFuelConsumptionLPer100Km: Int = 0
 )
 

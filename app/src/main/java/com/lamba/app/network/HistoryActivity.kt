@@ -7,6 +7,7 @@ import android.graphics.drawable.ColorDrawable
 import android.graphics.drawable.GradientDrawable
 import android.os.Bundle
 import android.text.InputType
+import android.text.method.DigitsKeyListener
 import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
@@ -333,6 +334,9 @@ class HistoryActivity : AppCompatActivity() {
                 setHintTextColor(Color.parseColor("#9B9BA3"))
                 textSize = 16f
                 setPadding(18.dp, if (field.singleLine) 0 else 14.dp, 18.dp, 0)
+                if (field.key == "litres") {
+                    keyListener = DigitsKeyListener.getInstance("0123456789.,")
+                }
                 setText(value ?: if (field.key == "date") todayForInput() else "")
                 field.input = this
             })

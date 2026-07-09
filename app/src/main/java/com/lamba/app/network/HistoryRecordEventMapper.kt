@@ -25,13 +25,13 @@ object HistoryRecordEventMapper {
     ): EventCreateRequest {
         return when (type) {
             HistoryRecordType.FUEL -> {
-                val litres = values["litres"].toIntValue()
+                val litres = values["litres"].toDoubleValue()
                 val cost = values["cost"].toIntValue()
                 val fuelType = values["fuelType"].orEmpty()
                 val date = values["date"].orEmpty()
                 EventCreateRequest(
                     type = "fuel",
-                    description = "Заправка $date: $fuelType, $litres л, $cost ₽",
+                    description = "Заправка $date: $fuelType, ${litres.formatPlainNumber()} л, $cost ₽",
                     amount = cost,
                     fuelLiters = litres,
                     mileage = null,
@@ -106,7 +106,7 @@ object HistoryRecordEventMapper {
                     values = mapOf(
                         "date" to parsed["date"].orIfBlank(formatEventDate(event.createdAt)),
                         "fuelType" to parsed["fuelType"].orIfBlank("Не указано"),
-                        "litres" to event.fuelLiters.toString(),
+                        "litres" to event.fuelLiters.formatPlainNumber(),
                         "cost" to event.amount.toString(),
                     ),
                 )
@@ -215,6 +215,18 @@ object HistoryRecordEventMapper {
 
     private fun String?.toIntValue(): Int {
         return this.orEmpty().replace(" ", "").replace(',', '.').toDouble().toInt()
+    }
+
+    private fun String?.toDoubleValue(): Double {
+        return this.orEmpty().replace(" ", "").replace(',', '.').toDouble()
+    }
+
+    private fun Double.formatPlainNumber(): String {
+        return if (this % 1.0 == 0.0) {
+            this.toLong().toString()
+        } else {
+            this.toString()
+        }
     }
 
     private fun String?.orIfBlank(fallback: String): String {
