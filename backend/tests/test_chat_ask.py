@@ -3,6 +3,7 @@ from __future__ import annotations
 import importlib
 import os
 import sys
+from datetime import datetime
 from pathlib import Path
 
 from fastapi.testclient import TestClient
@@ -715,6 +716,7 @@ def test_chat_ask_filters_expenses_for_last_n_days(monkeypatch):
 
 def test_chat_ask_returns_latest_events_as_numbered_list_without_llm(monkeypatch):
     user_id = _register_and_get_user_id("ask-user-events-1")
+    today = datetime.now().strftime("%d.%m.%Y")
 
     _create_event(
         user_id,
@@ -749,12 +751,11 @@ def test_chat_ask_returns_latest_events_as_numbered_list_without_llm(monkeypatch
     )
 
     assert response.status_code == 200
-    assert response.json()["answer"] == (
-        "Последние события:\n\n"
-        "1. 08.07.2026 — Ремонт: Замена фильтра, 1 000 ₽\n\n"
-        "2. 08.07.2026 — Заправка: 200 ₽, 3 л\n\n"
-        "3. 08.07.2026 — Поездка: 200 км"
-    )
+    answer = response.json()["answer"]
+    assert answer.startswith("Последние события:\n\n")
+    assert f"1. {today} — Ремонт: Замена фильтра, 1 000 ₽" in answer
+    assert f"2. {today} — Заправка: 200 ₽, 3 л" in answer
+    assert f"3. {today} — Поездка: 200 км" in answer
 
 
 def test_chat_ask_returns_events_for_last_n_days_as_numbered_list(monkeypatch):

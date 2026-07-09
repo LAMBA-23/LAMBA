@@ -23,6 +23,7 @@ services:
       TIMEWEB_AGENT_ID: ${TIMEWEB_AGENT_ID:-fc0c89ec-4868-408c-99cd-dc6d5ea764c8}
       TIMEWEB_MODEL: ${TIMEWEB_MODEL:-deepseek-chat}
       TIMEWEB_TIMEOUT_SECONDS: ${TIMEWEB_TIMEOUT_SECONDS:-20}
+      CORS_ALLOWED_ORIGINS: ${CORS_ALLOWED_ORIGINS:-}
     ports:
       - "8000:8000"
     depends_on:
