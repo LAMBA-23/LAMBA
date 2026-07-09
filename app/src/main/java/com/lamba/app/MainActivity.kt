@@ -22,7 +22,10 @@ class MainActivity : AppCompatActivity() {
     private var userId: Int = -1
     private lateinit var drawerOverlay: View
     private lateinit var menuRequests: LinearLayout
-    private var vehicleName: String = "машина"
+    private lateinit var logoutPopup: TextView
+    private lateinit var menuProfile: LinearLayout
+    private var isLogoutPopupVisible = false
+    private var vehicleName: String = "РјР°С€РёРЅР°"
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -37,7 +40,6 @@ class MainActivity : AppCompatActivity() {
         val tvCarName = findViewById<TextView>(R.id.tvCarName)
         val tvCarInfo = findViewById<TextView>(R.id.tvCarInfo)
         val tvProfileName = findViewById<TextView>(R.id.tvProfileName)
-        val cardCar = findViewById<View>(R.id.cardCar)
         val btnTalkToCar = findViewById<View>(R.id.btnTalkToCar)
         val btnExpenses = findViewById<View>(R.id.btnExpenses)
         val btnService = findViewById<View>(R.id.btnService)
@@ -46,35 +48,36 @@ class MainActivity : AppCompatActivity() {
         val btnHomeSend = findViewById<ImageButton>(R.id.btnHomeSend)
         val btnMenu = findViewById<ImageButton>(R.id.btnMenu)
         drawerOverlay = findViewById(R.id.drawerOverlay)
+        val drawerPanel = findViewById<LinearLayout>(R.id.drawerPanel)
         val drawerScrim = findViewById<View>(R.id.drawerScrim)
         val btnDrawerClose = findViewById<ImageButton>(R.id.btnDrawerClose)
         val menuHistory = findViewById<LinearLayout>(R.id.menuHistory)
         val menuStats = findViewById<LinearLayout>(R.id.menuStats)
-        val menuLogout = findViewById<LinearLayout>(R.id.menuLogout)
         menuRequests = findViewById(R.id.menuRequests)
-        val menuProfile = findViewById<LinearLayout>(R.id.menuProfile)
+        logoutPopup = findViewById(R.id.logoutPopup)
+        menuProfile = findViewById(R.id.menuProfile)
 
-        tvProfileName.text = SessionManager.getUserName(this) ?: "Пользователь"
+        tvProfileName.text = SessionManager.getUserName(this) ?: "РџРѕР»СЊР·РѕРІР°С‚РµР»СЊ"
         renderRequestHistory(menuRequests, drawerOverlay)
 
         btnTalkToCar.setOnClickListener {
-            openChat("Проверь состояние автомобиля")
+            openChat("РџСЂРѕРІРµСЂСЊ СЃРѕСЃС‚РѕСЏРЅРёРµ Р°РІС‚РѕРјРѕР±РёР»СЏ")
         }
 
         btnExpenses.setOnClickListener {
-            openChat("Покажи последние расходы")
+            openChat("РџРѕРєР°Р¶Рё РїРѕСЃР»РµРґРЅРёРµ СЂР°СЃС…РѕРґС‹")
         }
 
         btnService.setOnClickListener {
-            openChat("Когда было последнее ТО?")
+            openChat("РљРѕРіРґР° Р±С‹Р»Рѕ РїРѕСЃР»РµРґРЅРµРµ РўРћ?")
         }
 
         btnAddRecord.setOnClickListener {
-            openChat("Добавить запись")
+            openChat("Р”РѕР±Р°РІРёС‚СЊ Р·Р°РїРёСЃСЊ")
         }
 
         btnHomeSend.setOnClickListener {
-            val text = etHomeMessage.text.toString().trim().ifBlank { "Привет" }
+            val text = etHomeMessage.text.toString().trim().ifBlank { "РџСЂРёРІРµС‚" }
             etHomeMessage.text.clear()
             openChat(text)
         }
@@ -89,29 +92,41 @@ class MainActivity : AppCompatActivity() {
         }
 
         btnMenu.setOnClickListener {
+            dismissLogoutPopup(immediate = true)
             drawerOverlay.visibility = View.VISIBLE
         }
 
         drawerScrim.setOnClickListener {
+            dismissLogoutPopup(immediate = true)
             drawerOverlay.visibility = View.GONE
         }
 
+        drawerPanel.setOnClickListener {
+            dismissLogoutPopup()
+        }
+
         btnDrawerClose.setOnClickListener {
+            dismissLogoutPopup(immediate = true)
             drawerOverlay.visibility = View.GONE
         }
 
         menuHistory.setOnClickListener {
+            dismissLogoutPopup(immediate = true)
             drawerOverlay.visibility = View.GONE
             startActivity(Intent(this, com.lamba.app.network.HistoryActivity::class.java))
         }
 
         menuStats.setOnClickListener {
+            dismissLogoutPopup(immediate = true)
             drawerOverlay.visibility = View.GONE
             startActivity(Intent(this, com.lamba.app.network.StatisticsActivity::class.java))
         }
 
-        menuLogout.setOnClickListener {
-            drawerOverlay.visibility = View.GONE
+        menuProfile.setOnClickListener {
+            toggleLogoutPopup()
+        }
+
+        logoutPopup.setOnClickListener {
             showLogoutDialog()
         }
 
@@ -126,6 +141,10 @@ class MainActivity : AppCompatActivity() {
     }
 
     override fun onBackPressed() {
+        if (isLogoutPopupVisible) {
+            dismissLogoutPopup()
+            return
+        }
         moveTaskToBack(true)
     }
 
@@ -147,6 +166,7 @@ class MainActivity : AppCompatActivity() {
                 ellipsize = android.text.TextUtils.TruncateAt.END
                 setPadding(0, 12.dp, 0, 12.dp)
                 setOnClickListener {
+                    dismissLogoutPopup(immediate = true)
                     drawerOverlay.visibility = View.GONE
                     openChat(request)
                 }
@@ -164,10 +184,10 @@ class MainActivity : AppCompatActivity() {
 
     private fun loadVehicleData(tvHeader: TextView, tvCarName: TextView, tvCarInfo: TextView) {
         if (userId == -1) {
-            vehicleName = "машина"
-            tvHeader.text = "Привет! Я твоя машина."
-            tvCarName.text = "Автомобиль не добавлен"
-            tvCarInfo.text = "Добавьте автомобиль, чтобы начать"
+            vehicleName = "РјР°С€РёРЅР°"
+            tvHeader.text = "РџСЂРёРІРµС‚! РЇ С‚РІРѕСЏ РјР°С€РёРЅР°."
+            tvCarName.text = "РђРІС‚РѕРјРѕР±РёР»СЊ РЅРµ РґРѕР±Р°РІР»РµРЅ"
+            tvCarInfo.text = "Р”РѕР±Р°РІСЊС‚Рµ Р°РІС‚РѕРјРѕР±РёР»СЊ, С‡С‚РѕР±С‹ РЅР°С‡Р°С‚СЊ"
             return
         }
 
@@ -179,38 +199,39 @@ class MainActivity : AppCompatActivity() {
                     if (response.isSuccessful && response.body() != null) {
                         val vehicle = response.body()!!
                         vehicleName = "${vehicle.brand} ${vehicle.model}".trim()
-                        tvHeader.text = "Привет! Я твоя $vehicleName."
+                        tvHeader.text = "РџСЂРёРІРµС‚! РЇ С‚РІРѕСЏ $vehicleName."
                         tvCarName.text = vehicleName
-                        tvCarInfo.text = "${vehicle.currentMileage} км • ${vehicle.productionYear}"
+                        tvCarInfo.text = "${vehicle.currentMileage} РєРј вЂў ${vehicle.productionYear}"
                     } else if (response.code() == 404) {
                         val intent = Intent(this@MainActivity, AddVehicleActivity::class.java)
                         intent.putExtra("USER_ID", userId)
                         startActivity(intent)
                         finish()
                     } else {
-                        vehicleName = "машина"
-                        tvHeader.text = "Привет! Я твоя машина."
-                        tvCarName.text = "Ошибка загрузки"
-                        tvCarInfo.text = "Попробуйте позже"
+                        vehicleName = "РјР°С€РёРЅР°"
+                        tvHeader.text = "РџСЂРёРІРµС‚! РЇ С‚РІРѕСЏ РјР°С€РёРЅР°."
+                        tvCarName.text = "РћС€РёР±РєР° Р·Р°РіСЂСѓР·РєРё"
+                        tvCarInfo.text = "РџРѕРїСЂРѕР±СѓР№С‚Рµ РїРѕР·Р¶Рµ"
                     }
                 }
             } catch (e: Exception) {
                 withContext(Dispatchers.Main) {
-                    vehicleName = "машина"
-                    tvHeader.text = "Привет! Я твоя машина."
-                    tvCarName.text = "Автомобиль не добавлен"
-                    tvCarInfo.text = "Добавьте автомобиль, чтобы начать"
+                    vehicleName = "РјР°С€РёРЅР°"
+                    tvHeader.text = "РџСЂРёРІРµС‚! РЇ С‚РІРѕСЏ РјР°С€РёРЅР°."
+                    tvCarName.text = "РђРІС‚РѕРјРѕР±РёР»СЊ РЅРµ РґРѕР±Р°РІР»РµРЅ"
+                    tvCarInfo.text = "Р”РѕР±Р°РІСЊС‚Рµ Р°РІС‚РѕРјРѕР±РёР»СЊ, С‡С‚РѕР±С‹ РЅР°С‡Р°С‚СЊ"
                 }
             }
         }
     }
 
     private fun showLogoutDialog() {
+        dismissLogoutPopup(immediate = true)
         AlertDialog.Builder(this)
-            .setTitle("Выйти из аккаунта?")
-            .setMessage("Мы удалим локальные данные этого аккаунта с устройства.")
-            .setNegativeButton("Отмена", null)
-            .setPositiveButton("Выйти") { _, _ ->
+            .setTitle("Р’С‹Р№С‚Рё РёР· Р°РєРєР°СѓРЅС‚Р°?")
+            .setMessage("РњС‹ СѓРґР°Р»РёРј Р»РѕРєР°Р»СЊРЅС‹Рµ РґР°РЅРЅС‹Рµ СЌС‚РѕРіРѕ Р°РєРєР°СѓРЅС‚Р° СЃ СѓСЃС‚СЂРѕР№СЃС‚РІР°.")
+            .setNegativeButton("РћС‚РјРµРЅР°", null)
+            .setPositiveButton("Р’С‹Р№С‚Рё") { _, _ ->
                 SessionManager.clearSession(this)
                 val intent = Intent(this, WelcomeActivity::class.java).apply {
                     flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
@@ -219,6 +240,54 @@ class MainActivity : AppCompatActivity() {
                 finish()
             }
             .show()
+    }
+
+    private fun toggleLogoutPopup() {
+        if (isLogoutPopupVisible) {
+            dismissLogoutPopup()
+        } else {
+            showLogoutPopup()
+        }
+    }
+
+    private fun showLogoutPopup() {
+        logoutPopup.animate().cancel()
+        isLogoutPopupVisible = true
+        logoutPopup.alpha = 0f
+        logoutPopup.translationY = 12.dp.toFloat()
+        logoutPopup.visibility = View.VISIBLE
+        logoutPopup.animate()
+            .alpha(1f)
+            .translationY(0f)
+            .setDuration(180L)
+            .start()
+    }
+
+    private fun dismissLogoutPopup(immediate: Boolean = false) {
+        if (!isLogoutPopupVisible && logoutPopup.visibility != View.VISIBLE) {
+            return
+        }
+
+        logoutPopup.animate().cancel()
+        isLogoutPopupVisible = false
+
+        if (immediate) {
+            logoutPopup.visibility = View.GONE
+            logoutPopup.alpha = 1f
+            logoutPopup.translationY = 0f
+            return
+        }
+
+        logoutPopup.animate()
+            .alpha(0f)
+            .translationY(12.dp.toFloat())
+            .setDuration(160L)
+            .withEndAction {
+                logoutPopup.visibility = View.GONE
+                logoutPopup.alpha = 1f
+                logoutPopup.translationY = 0f
+            }
+            .start()
     }
 
     private val Int.dp: Int
