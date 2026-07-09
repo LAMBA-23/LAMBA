@@ -10,6 +10,7 @@ enum class HistoryRecordType(
     FUEL("Заправка", "Новая заправка", R.drawable.ic_lamba_fuel),
     MAINTENANCE("ТО", "Новое ТО", R.drawable.ic_lamba_build),
     REPAIR("Ремонт", "Новый ремонт", R.drawable.ic_lamba_repair),
+    BREAKDOWN("Поломка", "Новая поломка", R.drawable.ic_lamba_issue),
     TRIP("Поездка", "Новая поездка", R.drawable.ic_lamba_route),
 }
 
@@ -74,6 +75,24 @@ object HistoryRecordEventMapper {
                 )
             }
 
+            HistoryRecordType.BREAKDOWN -> {
+                val name = values["name"].orEmpty()
+                val description = values["description"].orEmpty()
+                val date = values["date"].orEmpty()
+                EventCreateRequest(
+                    type = "issue",
+                    description = buildRepairDescription(
+                        prefix = "Поломка",
+                        date = date,
+                        name = name,
+                        description = description,
+                    ),
+                    amount = null,
+                    fuelLiters = null,
+                    mileage = null,
+                )
+            }
+
             HistoryRecordType.TRIP -> {
                 val date = values["date"].orEmpty()
                 val tripDescription = values["description"].orEmpty()
@@ -132,6 +151,18 @@ object HistoryRecordEventMapper {
                         "name" to parsed["name"].orIfBlank(event.description),
                         "date" to parsed["date"].orIfBlank(formatEventDate(event.createdAt)),
                         "cost" to event.amount.toString(),
+                        "description" to parsed["description"].orEmpty(),
+                    ),
+                )
+            }
+
+            event.type == "issue" -> {
+                val parsed = parseRepairDescription(event.description, "Поломка")
+                HistoryRecordFormData(
+                    type = HistoryRecordType.BREAKDOWN,
+                    values = mapOf(
+                        "name" to parsed["name"].orIfBlank(event.description),
+                        "date" to parsed["date"].orIfBlank(formatEventDate(event.createdAt)),
                         "description" to parsed["description"].orEmpty(),
                     ),
                 )
