@@ -500,6 +500,33 @@
                 android:layout_height="wrap_content"
                 android:orientation="vertical" />
 
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginTop="18dp"
+                android:layout_marginBottom="18dp"
+                android:background="#E7E7EA" />
+
+            <LinearLayout
+                android:id="@+id/menuLogout"
+                style="@style/LambaDrawerEntry">
+
+                <ImageView
+                    style="@style/LambaDrawerIcon"
+                    android:src="@drawable/ic_lamba_close"
+                    app:tint="#960018" />
+
+                <TextView
+                    style="@style/LambaDrawerText"
+                    android:text="Выйти" />
+
+                <ImageView
+                    style="@style/LambaDrawerArrow"
+                    android:rotation="180"
+                    android:src="@drawable/ic_lamba_arrow_back"
+                    app:tint="#77777E" />
+            </LinearLayout>
+
             <Space
                 android:layout_width="1dp"
                 android:layout_height="0dp"

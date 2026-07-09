@@ -1,5 +1,6 @@
 package com.lamba.app
 
+import android.app.AlertDialog
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
@@ -49,6 +50,7 @@ class MainActivity : AppCompatActivity() {
         val btnDrawerClose = findViewById<ImageButton>(R.id.btnDrawerClose)
         val menuHistory = findViewById<LinearLayout>(R.id.menuHistory)
         val menuStats = findViewById<LinearLayout>(R.id.menuStats)
+        val menuLogout = findViewById<LinearLayout>(R.id.menuLogout)
         menuRequests = findViewById(R.id.menuRequests)
         val menuProfile = findViewById<LinearLayout>(R.id.menuProfile)
 
@@ -106,6 +108,11 @@ class MainActivity : AppCompatActivity() {
         menuStats.setOnClickListener {
             drawerOverlay.visibility = View.GONE
             startActivity(Intent(this, com.lamba.app.network.StatisticsActivity::class.java))
+        }
+
+        menuLogout.setOnClickListener {
+            drawerOverlay.visibility = View.GONE
+            showLogoutDialog()
         }
 
         loadVehicleData(tvHeader, tvCarName, tvCarInfo)
@@ -196,6 +203,22 @@ class MainActivity : AppCompatActivity() {
                 }
             }
         }
+    }
+
+    private fun showLogoutDialog() {
+        AlertDialog.Builder(this)
+            .setTitle("Выйти из аккаунта?")
+            .setMessage("Мы удалим локальные данные этого аккаунта с устройства.")
+            .setNegativeButton("Отмена", null)
+            .setPositiveButton("Выйти") { _, _ ->
+                SessionManager.clearSession(this)
+                val intent = Intent(this, WelcomeActivity::class.java).apply {
+                    flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                }
+                startActivity(intent)
+                finish()
+            }
+            .show()
     }
 
     private val Int.dp: Int
