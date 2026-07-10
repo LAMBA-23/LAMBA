@@ -2,7 +2,7 @@
 
 This document is the canonical detailed QRT artifact. It maps each quality requirement to the automated test or CI check that verifies it.
 
-For MVP v2 / Sprint 3, Assignment 5 does not require adding a fixed number of new QRTs. New QRTs are added here only when an implemented or newly important product area introduces a measurable quality scenario with direct automated evidence.
+For MVP v3 / Sprint 4, new QRTs are added only when an implemented or newly important product area introduces a measurable quality scenario with direct automated evidence.
 
 ## Contents
 
@@ -13,7 +13,9 @@ For MVP v2 / Sprint 3, Assignment 5 does not require adding a fixed number of ne
 - [QRT-004: Assistant context correctness](#qrt-004-assistant-context-correctness)
 - [QRT-005: Statistics calculation correctness](#qrt-005-statistics-calculation-correctness)
 - [QRT-006: Critical-module coverage gate](#qrt-006-critical-module-coverage-gate)
-- [MVP v2 / Sprint 3 QRT Note](#mvp-v2--sprint-3-qrt-note)
+- [QRT-007: Secure password storage](#qrt-007-secure-password-storage)
+- [QRT-008: Login and chat request-rate protection](#qrt-008-login-and-chat-request-rate-protection)
+- [MVP v3 / Sprint 4 QRT Note](#mvp-v3--sprint-4-qrt-note)
 
 ## Evidence Types
 
@@ -110,8 +112,42 @@ For MVP v2 / Sprint 3, Assignment 5 does not require adding a fixed number of ne
 
 **Evidence location:** `.github/workflows/backend-ci.yml`; coverage output for `app/*`; critical-module table in `docs/testing.md`.
 
-## MVP v2 / Sprint 3 QRT Note
+## QRT-007: Secure password storage
 
-The repository now contains implemented manual event, assistant, and statistics behavior, so QRT-004 through QRT-006 are documented as active automated evidence rather than future placeholders.
+**Linked quality requirement:** [QR-007](quality-requirements.md#qr-007-secure-password-storage)
+
+**Verification method:** Automated FastAPI authentication integration tests using `TestClient` and SQLite-backed test persistence.
+
+**Test data, setup, or environment:** Standard backend test environment. The tests register a new user, inspect the persisted user row, verify that the stored value differs from the submitted password and has the repository's password-hash prefix, then verify successful login with the correct password and failed login with an incorrect password or removed demo credentials.
+
+**Automated command or CI check:** `docker compose run --rm backend pytest tests/test_auth.py -q`; also covered by `python -m coverage run -m pytest tests` in the `Backend CI` workflow.
+
+**Expected measurable result:** The tested registration stores a non-plaintext salted password hash, correct-password login succeeds, wrong-password login fails, removed demo credentials fail, and the command exits with 0 failures.
+
+**Evidence location:** `backend/tests/test_auth.py`; `backend/app/security.py`; `backend/app/main.py`; `.github/workflows/backend-ci.yml`; latest local or CI backend pytest output recorded in `docs/testing.md`.
+
+**Limitations:** The test verifies password hashing behavior and login semantics. It does not independently audit cryptographic strength beyond the implemented salted hash format.
+
+## QRT-008: Login and chat request-rate protection
+
+**Linked quality requirement:** [QR-008](quality-requirements.md#qr-008-login-and-chat-request-rate-protection)
+
+**Verification method:** Automated FastAPI integration tests for login and chat endpoint rate limiting plus isolated fixed-window limiter behavior through the request flow.
+
+**Test data, setup, or environment:** Standard backend test environment. Tests send repeated requests with stable `X-Forwarded-For` client identifiers so the limiter key is deterministic. Login uses nonexistent credentials for the first five allowed attempts. Chat creates a test user, replaces the external AI call with a test double, sends twenty allowed chat requests, and then sends one additional request.
+
+**Automated command or CI check:** `docker compose run --rm backend pytest tests/test_auth.py tests/test_rate_limiting.py tests/test_chat_ask.py -q`; also covered by `python -m coverage run -m pytest tests` in the `Backend CI` workflow.
+
+**Expected measurable result:** The sixth login request from the same client address returns HTTP 429 with `Too many login attempts`, the twenty-first chat request from the same client address returns HTTP 429 with `Too many chat requests`, and the command exits with 0 failures.
+
+**Evidence location:** `backend/tests/test_auth.py`; `backend/tests/test_rate_limiting.py`; `backend/tests/test_chat_ask.py`; `backend/app/rate_limit.py`; `backend/app/main.py`; `.github/workflows/backend-ci.yml`; latest local or CI backend pytest output recorded in `docs/testing.md`.
+
+**Limitations:** The route-level tests verify configured request counts and HTTP 429 behavior. Window expiration is supported by `FixedWindowRateLimiter.allow` pruning old attempts, but current route tests do not sleep for 60 seconds or monkeypatch monotonic time to prove end-to-end recovery after window expiry.
+
+## MVP v3 / Sprint 4 QRT Note
+
+The repository now contains implemented password hashing and request-rate limiting behavior, so QRT-007 and QRT-008 are documented as active automated evidence rather than future placeholders.
+
+CORS behavior is covered by `backend/tests/test_cors.py` as automated regression evidence. It is not documented as a separate QRT because the current automated tests verify default denied-origin behavior but do not yet verify an explicitly allowed origin configured through `CORS_ALLOWED_ORIGINS`.
 
 US-08 maintenance recommendations and US-09 notifications still do not have dedicated implementation behavior in the repository. Add future QRTs for them only when recommendation or notification behavior introduces a measurable quality scenario with direct automated verification.
