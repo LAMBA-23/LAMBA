@@ -1,6 +1,8 @@
 package com.lamba.app.network
 
 import android.content.Context
+import com.lamba.app.chat.ChatSessionState
+import com.lamba.app.chat.KeyValueStore
 
 object SessionManager {
     private const val PREFS_NAME = "lamba_session"
@@ -41,12 +43,14 @@ object SessionManager {
     fun clearSession(context: Context) {
         val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
         val userId = getUserId(context)
+        val chatSessionState = ChatSessionState(SharedPreferencesKeyValueStore(context))
 
         with(prefs.edit()) {
             remove(KEY_USER_ID)
             remove(KEY_USER_NAME)
             if (userId != null) {
                 remove(chatRequestsKey(userId))
+                chatSessionState.clearCurrentChatId(userId)
             }
             apply()
         }
@@ -79,5 +83,36 @@ object SessionManager {
             .orEmpty()
     }
 
+    fun setCurrentChatId(context: Context, chatId: Long) {
+        val userId = getUserId(context) ?: return
+        ChatSessionState(SharedPreferencesKeyValueStore(context)).setCurrentChatId(userId, chatId)
+    }
+
+    fun getCurrentChatId(context: Context): Long? {
+        val userId = getUserId(context) ?: return null
+        return ChatSessionState(SharedPreferencesKeyValueStore(context)).getCurrentChatId(userId)
+    }
+
+    fun clearCurrentChatId(context: Context) {
+        val userId = getUserId(context) ?: return
+        ChatSessionState(SharedPreferencesKeyValueStore(context)).clearCurrentChatId(userId)
+    }
+
     private fun chatRequestsKey(userId: Int): String = "$KEY_CHAT_REQUESTS_PREFIX$userId"
+
+    private class SharedPreferencesKeyValueStore(
+        context: Context,
+    ) : KeyValueStore {
+        private val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+
+        override fun putString(key: String, value: String) {
+            prefs.edit().putString(key, value).apply()
+        }
+
+        override fun getString(key: String): String? = prefs.getString(key, null)
+
+        override fun remove(key: String) {
+            prefs.edit().remove(key).apply()
+        }
+    }
 }

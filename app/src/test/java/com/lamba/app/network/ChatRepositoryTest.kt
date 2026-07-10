@@ -157,6 +157,21 @@ class ChatRepositoryTest {
         assertTrue(backend.savedEvents.isEmpty())
     }
 
+    @Test
+    fun questionPassesChatContextToBackend() = runBlocking {
+        val backend = FakeChatBackend()
+        val repository = ChatRepository(backend)
+        val chatContext = listOf(
+            ChatContextMessage(sender = "user", text = "Привет"),
+            ChatContextMessage(sender = "assistant", text = "Здравствуйте"),
+        )
+
+        val result = repository.sendMessage("Что дальше?", chatContext)
+
+        assertEquals(ChatSendResult.Answer("OK"), result)
+        assertEquals(chatContext, backend.lastChatContext)
+    }
+
     private class FakeChatBackend(
         private val parseResponse: ChatParseResponse? = null,
         private val savedEvent: Event? = null,
@@ -165,6 +180,7 @@ class ChatRepositoryTest {
     ) : ChatBackend {
 
         val savedEvents = mutableListOf<ParsedEventPayload>()
+        var lastChatContext: List<ChatContextMessage>? = null
 
         override suspend fun parseMessage(message: String): ChatParseResponse {
             parseError?.let { throw it }
@@ -177,7 +193,11 @@ class ChatRepositoryTest {
             return requireNotNull(savedEvent)
         }
 
-        override suspend fun askQuestion(message: String): String {
+        override suspend fun askQuestion(
+            message: String,
+            chatContext: List<ChatContextMessage>,
+        ): String {
+            lastChatContext = chatContext
             return "OK"
         }
     }
