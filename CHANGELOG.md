@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Android side drawer account block now opens an animated logout sheet with confirmation and local session cleanup (#271).
+
 ## [1.2.0] - 2026-07-05
 
 ### Added

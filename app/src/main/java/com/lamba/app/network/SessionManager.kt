@@ -38,6 +38,20 @@ object SessionManager {
             ?.takeIf { it.isNotBlank() }
     }
 
+    fun clearSession(context: Context) {
+        val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        val userId = getUserId(context)
+
+        with(prefs.edit()) {
+            remove(KEY_USER_ID)
+            remove(KEY_USER_NAME)
+            if (userId != null) {
+                remove(chatRequestsKey(userId))
+            }
+            apply()
+        }
+    }
+
     fun addChatRequest(context: Context, message: String) {
         val request = message.trim()
         if (request.isBlank()) return
