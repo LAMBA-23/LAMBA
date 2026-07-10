@@ -25,7 +25,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var logoutPopup: TextView
     private lateinit var menuProfile: LinearLayout
     private var isLogoutPopupVisible = false
-    private var vehicleName: String = "РјР°С€РёРЅР°"
+    private var vehicleName: String = "машина"
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -57,27 +57,27 @@ class MainActivity : AppCompatActivity() {
         logoutPopup = findViewById(R.id.logoutPopup)
         menuProfile = findViewById(R.id.menuProfile)
 
-        tvProfileName.text = SessionManager.getUserName(this) ?: "РџРѕР»СЊР·РѕРІР°С‚РµР»СЊ"
+        tvProfileName.text = SessionManager.getUserName(this) ?: "Пользователь"
         renderRequestHistory(menuRequests, drawerOverlay)
 
         btnTalkToCar.setOnClickListener {
-            openChat("РџСЂРѕРІРµСЂСЊ СЃРѕСЃС‚РѕСЏРЅРёРµ Р°РІС‚РѕРјРѕР±РёР»СЏ")
+            openChat("Проверь состояние автомобиля")
         }
 
         btnExpenses.setOnClickListener {
-            openChat("РџРѕРєР°Р¶Рё РїРѕСЃР»РµРґРЅРёРµ СЂР°СЃС…РѕРґС‹")
+            openChat("Покажи последние расходы")
         }
 
         btnService.setOnClickListener {
-            openChat("РљРѕРіРґР° Р±С‹Р»Рѕ РїРѕСЃР»РµРґРЅРµРµ РўРћ?")
+            openChat("Когда было последнее ТО?")
         }
 
         btnAddRecord.setOnClickListener {
-            openChat("Р”РѕР±Р°РІРёС‚СЊ Р·Р°РїРёСЃСЊ")
+            openChat("Добавить запись")
         }
 
         btnHomeSend.setOnClickListener {
-            val text = etHomeMessage.text.toString().trim().ifBlank { "РџСЂРёРІРµС‚" }
+            val text = etHomeMessage.text.toString().trim().ifBlank { "Привет" }
             etHomeMessage.text.clear()
             openChat(text)
         }
@@ -184,10 +184,10 @@ class MainActivity : AppCompatActivity() {
 
     private fun loadVehicleData(tvHeader: TextView, tvCarName: TextView, tvCarInfo: TextView) {
         if (userId == -1) {
-            vehicleName = "РјР°С€РёРЅР°"
-            tvHeader.text = "РџСЂРёРІРµС‚! РЇ С‚РІРѕСЏ РјР°С€РёРЅР°."
-            tvCarName.text = "РђРІС‚РѕРјРѕР±РёР»СЊ РЅРµ РґРѕР±Р°РІР»РµРЅ"
-            tvCarInfo.text = "Р”РѕР±Р°РІСЊС‚Рµ Р°РІС‚РѕРјРѕР±РёР»СЊ, С‡С‚РѕР±С‹ РЅР°С‡Р°С‚СЊ"
+            vehicleName = "машина"
+            tvHeader.text = "Привет! Я твоя машина."
+            tvCarName.text = "Автомобиль не добавлен"
+            tvCarInfo.text = "Добавьте автомобиль, чтобы начать"
             return
         }
 
@@ -199,27 +199,27 @@ class MainActivity : AppCompatActivity() {
                     if (response.isSuccessful && response.body() != null) {
                         val vehicle = response.body()!!
                         vehicleName = "${vehicle.brand} ${vehicle.model}".trim()
-                        tvHeader.text = "РџСЂРёРІРµС‚! РЇ С‚РІРѕСЏ $vehicleName."
+                        tvHeader.text = "Привет! Я твоя $vehicleName."
                         tvCarName.text = vehicleName
-                        tvCarInfo.text = "${vehicle.currentMileage} РєРј вЂў ${vehicle.productionYear}"
+                        tvCarInfo.text = "${vehicle.currentMileage} км • ${vehicle.productionYear}"
                     } else if (response.code() == 404) {
                         val intent = Intent(this@MainActivity, AddVehicleActivity::class.java)
                         intent.putExtra("USER_ID", userId)
                         startActivity(intent)
                         finish()
                     } else {
-                        vehicleName = "РјР°С€РёРЅР°"
-                        tvHeader.text = "РџСЂРёРІРµС‚! РЇ С‚РІРѕСЏ РјР°С€РёРЅР°."
-                        tvCarName.text = "РћС€РёР±РєР° Р·Р°РіСЂСѓР·РєРё"
-                        tvCarInfo.text = "РџРѕРїСЂРѕР±СѓР№С‚Рµ РїРѕР·Р¶Рµ"
+                        vehicleName = "машина"
+                        tvHeader.text = "Привет! Я твоя машина."
+                        tvCarName.text = "Ошибка загрузки"
+                        tvCarInfo.text = "Попробуйте позже"
                     }
                 }
             } catch (e: Exception) {
                 withContext(Dispatchers.Main) {
-                    vehicleName = "РјР°С€РёРЅР°"
-                    tvHeader.text = "РџСЂРёРІРµС‚! РЇ С‚РІРѕСЏ РјР°С€РёРЅР°."
-                    tvCarName.text = "РђРІС‚РѕРјРѕР±РёР»СЊ РЅРµ РґРѕР±Р°РІР»РµРЅ"
-                    tvCarInfo.text = "Р”РѕР±Р°РІСЊС‚Рµ Р°РІС‚РѕРјРѕР±РёР»СЊ, С‡С‚РѕР±С‹ РЅР°С‡Р°С‚СЊ"
+                    vehicleName = "машина"
+                    tvHeader.text = "Привет! Я твоя машина."
+                    tvCarName.text = "Автомобиль не добавлен"
+                    tvCarInfo.text = "Добавьте автомобиль, чтобы начать"
                 }
             }
         }
@@ -228,10 +228,10 @@ class MainActivity : AppCompatActivity() {
     private fun showLogoutDialog() {
         dismissLogoutPopup(immediate = true)
         AlertDialog.Builder(this)
-            .setTitle("Р’С‹Р№С‚Рё РёР· Р°РєРєР°СѓРЅС‚Р°?")
-            .setMessage("РњС‹ СѓРґР°Р»РёРј Р»РѕРєР°Р»СЊРЅС‹Рµ РґР°РЅРЅС‹Рµ СЌС‚РѕРіРѕ Р°РєРєР°СѓРЅС‚Р° СЃ СѓСЃС‚СЂРѕР№СЃС‚РІР°.")
-            .setNegativeButton("РћС‚РјРµРЅР°", null)
-            .setPositiveButton("Р’С‹Р№С‚Рё") { _, _ ->
+            .setTitle("Выйти из аккаунта?")
+            .setMessage("Мы удалим локальные данные этого аккаунта с устройства.")
+            .setNegativeButton("Отмена", null)
+            .setPositiveButton("Выйти") { _, _ ->
                 SessionManager.clearSession(this)
                 val intent = Intent(this, WelcomeActivity::class.java).apply {
                     flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
