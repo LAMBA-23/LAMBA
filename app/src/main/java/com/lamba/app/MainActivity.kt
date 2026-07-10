@@ -24,7 +24,6 @@ class MainActivity : AppCompatActivity() {
     private var userId: Int = -1
     private lateinit var drawerOverlay: View
     private lateinit var menuRequests: LinearLayout
-    private lateinit var menuNewChat: LinearLayout
     private lateinit var logoutPopup: TextView
     private lateinit var menuProfile: LinearLayout
     private var isLogoutPopupVisible = false
@@ -58,7 +57,6 @@ class MainActivity : AppCompatActivity() {
         val menuHistory = findViewById<LinearLayout>(R.id.menuHistory)
         val menuStats = findViewById<LinearLayout>(R.id.menuStats)
         menuRequests = findViewById(R.id.menuRequests)
-        menuNewChat = findViewById(R.id.menuNewChat)
         logoutPopup = findViewById(R.id.logoutPopup)
         menuProfile = findViewById(R.id.menuProfile)
 
@@ -125,13 +123,6 @@ class MainActivity : AppCompatActivity() {
             dismissLogoutPopup(immediate = true)
             drawerOverlay.visibility = View.GONE
             startActivity(Intent(this, com.lamba.app.network.StatisticsActivity::class.java))
-        }
-
-        menuNewChat.setOnClickListener {
-            dismissLogoutPopup(immediate = true)
-            drawerOverlay.visibility = View.GONE
-            SessionManager.clearCurrentChatId(this)
-            openChat()
         }
 
         menuProfile.setOnClickListener {
