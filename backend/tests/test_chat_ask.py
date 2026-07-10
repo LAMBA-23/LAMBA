@@ -759,6 +759,8 @@ def test_chat_ask_returns_latest_events_as_numbered_list_without_llm(monkeypatch
 
 
 def test_chat_ask_returns_events_for_last_n_days_as_numbered_list(monkeypatch):
+    from datetime import datetime, timedelta
+
     user_id = _register_and_get_user_id("ask-user-events-2")
 
     _create_event(
@@ -782,24 +784,34 @@ def test_chat_ask_returns_events_for_last_n_days_as_numbered_list(monkeypatch):
         mileage=677,
     )
 
+    now = datetime.now()
+    old_date = (now - timedelta(days=5)).strftime("%Y-%m-%d %H:%M:%S")
+    recent_date_1 = (now - timedelta(days=1)).strftime("%Y-%m-%d %H:%M:%S")
+    recent_date_2 = (now - timedelta(days=1)).strftime("%Y-%m-%d %H:%M:%S")
+
     with database_module.engine.begin() as connection:
         connection.exec_driver_sql(
             "UPDATE events SET created_at = ? WHERE description = ?",
-            ("2026-07-02 12:00:00", "Старый выезд"),
+            (old_date, "Старый выезд"),
         )
         connection.exec_driver_sql(
             "UPDATE events SET created_at = ? WHERE description = ?",
-            ("2026-07-06 12:00:00", "Свежая поездка"),
+            (recent_date_1, "Свежая поездка"),
         )
         connection.exec_driver_sql(
             "UPDATE events SET created_at = ? WHERE description = ?",
-            ("2026-07-06 13:00:00", "Свежая заправка"),
+            (recent_date_2, "Свежая заправка"),
         )
 
     def fail_if_called(*args, **kwargs):
         raise AssertionError("LLM must not be called for event queries")
 
     monkeypatch.setattr(main_module, "ask_deepseek", fail_if_called)
+
+    recent_date_1_obj = now - timedelta(days=1)
+    recent_date_2_obj = now - timedelta(days=1)
+    expected_date_1 = recent_date_1_obj.strftime("%d.%m.%Y")
+    expected_date_2 = recent_date_2_obj.strftime("%d.%m.%Y")
 
     response = client.post(
         f"/chat/ask?user_id={user_id}",
@@ -809,8 +821,8 @@ def test_chat_ask_returns_events_for_last_n_days_as_numbered_list(monkeypatch):
     assert response.status_code == 200
     assert response.json()["answer"] == (
         "События за последние 3 дня:\n\n"
-        "1. 06.07.2026 — Заправка: 500 ₽, 20 л\n\n"
-        "2. 06.07.2026 — Поездка: 10 км"
+        f"1. {expected_date_1} — Заправка: 500 ₽, 20 л\n\n"
+        f"2. {expected_date_2} — Поездка: 10 км"
     )
 
 
