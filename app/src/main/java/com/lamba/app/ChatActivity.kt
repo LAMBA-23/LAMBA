@@ -18,12 +18,13 @@ import com.lamba.app.chat.ChatMessageType
 import com.lamba.app.chat.ChatSender
 import com.lamba.app.chat.LocalChatService
 import com.lamba.app.chat.LocalChatWithMessages
-import com.lamba.app.network.ChatFailureStage
+import com.lamba.app.network.ChatBackendException
 import com.lamba.app.network.ChatContextMessage
+import com.lamba.app.network.ChatFailureStage
 import com.lamba.app.network.ChatRepository
 import com.lamba.app.network.ChatSendResult
-import com.lamba.app.network.Event
 import com.lamba.app.network.ChatTitleRequest
+import com.lamba.app.network.Event
 import com.lamba.app.network.RetrofitChatBackend
 import com.lamba.app.network.RetrofitClient
 import com.lamba.app.network.SessionManager
@@ -48,7 +49,7 @@ class ChatActivity : AppCompatActivity() {
     private lateinit var tvChatStatus: TextView
     private lateinit var tvChatTitle: TextView
     private var isSending = false
-    private var vehicleName = "РјР°С€РёРЅР°"
+    private var vehicleName = "машина"
     private var currentChatId: Long? = null
     private var hasPersistedMessages = false
     private var hasGeneratedTitle = false
@@ -67,7 +68,7 @@ class ChatActivity : AppCompatActivity() {
         vehicleName = intent.getStringExtra(EXTRA_VEHICLE_NAME)
             ?.trim()
             ?.takeIf { it.isNotEmpty() }
-            ?: "РјР°С€РёРЅР°"
+            ?: "машина"
 
         layoutSuggestions = findViewById(R.id.layoutSuggestions)
         rvChatMessages = findViewById(R.id.rvChatMessages)
@@ -85,15 +86,15 @@ class ChatActivity : AppCompatActivity() {
         rvChatMessages.adapter = adapter
         loadVehicleNameIfNeeded()
 
-        setupSuggestion(R.id.suggestStatus, "РџСЂРѕРІРµСЂСЊ СЃРѕСЃС‚РѕСЏРЅРёРµ Р°РІС‚РѕРјРѕР±РёР»СЏ", R.drawable.ic_lamba_timeline)
-        setupSuggestion(R.id.suggestExpenses, "РџРѕРєР°Р¶Рё РїРѕСЃР»РµРґРЅРёРµ СЂР°СЃС…РѕРґС‹", R.drawable.ic_lamba_wallet)
-        setupSuggestion(R.id.suggestService, "РљРѕРіРґР° Р±С‹Р»Рѕ РїРѕСЃР»РµРґРЅРµРµ РўРћ?", R.drawable.ic_lamba_build)
-        setupSuggestion(R.id.suggestAddRecord, "Р”РѕР±Р°РІРёС‚СЊ Р·Р°РїРёСЃСЊ", R.drawable.ic_lamba_add_box)
+        setupSuggestion(R.id.suggestStatus, "Проверить состояние автомобиля", R.drawable.ic_lamba_timeline)
+        setupSuggestion(R.id.suggestExpenses, "Показать последние расходы", R.drawable.ic_lamba_wallet)
+        setupSuggestion(R.id.suggestService, "Когда было последнее ТО?", R.drawable.ic_lamba_build)
+        setupSuggestion(R.id.suggestAddRecord, "Добавить запись", R.drawable.ic_lamba_add_box)
 
         btnChatSend.setOnClickListener {
             val text = etChatBackMessage.text.toString().trim()
             if (text.isEmpty()) {
-                Toast.makeText(this, "Р’РІРµРґРёС‚Рµ СЃРѕРѕР±С‰РµРЅРёРµ", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "Введите сообщение", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
             if (!isSending) {
@@ -114,7 +115,7 @@ class ChatActivity : AppCompatActivity() {
             loadChatState(
                 initialMessage = intent.getStringExtra(EXTRA_INITIAL_MESSAGE)
                     ?.trim()
-                    ?.takeIf { it.isNotEmpty() }
+                    ?.takeIf { it.isNotEmpty() },
             )
         } else if (messageList.isEmpty()) {
             showNewChatGreeting()
@@ -179,7 +180,7 @@ class ChatActivity : AppCompatActivity() {
     }
 
     private fun loadVehicleNameIfNeeded() {
-        if (vehicleName != "РјР°С€РёРЅР°") return
+        if (vehicleName != "машина") return
         val userId = SessionManager.getUserId(this) ?: return
 
         lifecycleScope.launch {
@@ -199,10 +200,10 @@ class ChatActivity : AppCompatActivity() {
     }
 
     private fun initialGreeting(): String {
-        return if (vehicleName == "РјР°С€РёРЅР°") {
-            "РџСЂРёРІРµС‚. РЇ С‚РІРѕСЏ РјР°С€РёРЅР°. Р”Рѕ СЃР»РµРґСѓСЋС‰РµР№ Р·Р°РјРµРЅС‹ РјР°СЃР»Р° РѕСЃС‚Р°Р»РѕСЃСЊ РїСЂРёРјРµСЂРЅРѕ 1 250 РєРј. Р§С‚Рѕ С…РѕС‡РµС€СЊ СѓР·РЅР°С‚СЊ?"
+        return if (vehicleName == "машина") {
+            "Привет. Я твоя машина. До следующей замены масла осталось примерно 1 250 км. Что хочешь узнать?"
         } else {
-            "РџСЂРёРІРµС‚. РЇ С‚РІРѕСЏ $vehicleName. Р”Рѕ СЃР»РµРґСѓСЋС‰РµР№ Р·Р°РјРµРЅС‹ РјР°СЃР»Р° РѕСЃС‚Р°Р»РѕСЃСЊ РїСЂРёРјРµСЂРЅРѕ 1 250 РєРј. Р§С‚Рѕ С…РѕС‡РµС€СЊ СѓР·РЅР°С‚СЊ?"
+            "Привет. Я твоя $vehicleName. До следующей замены масла осталось примерно 1 250 км. Что хочешь узнать?"
         }
     }
 
@@ -217,8 +218,7 @@ class ChatActivity : AppCompatActivity() {
 
         val repository = chatRepository
         if (repository == null) {
-            val errorText =
-                "Р’РѕР№РґРёС‚Рµ РІ Р°РєРєР°СѓРЅС‚, С‡С‚РѕР±С‹ СЃРѕС…СЂР°РЅСЏС‚СЊ Р·Р°РїРёСЃРё Р°РІС‚РѕРјРѕР±РёР»СЏ."
+            val errorText = "Войдите в аккаунт, чтобы сохранять записи автомобиля."
             addMessage(errorText, isFromUser = false)
             lifecycleScope.launch {
                 persistAssistantReplyIfNeeded(message, errorText, ChatMessageType.ERROR)
@@ -386,21 +386,21 @@ class ChatActivity : AppCompatActivity() {
 
     private fun formatSavedEvent(event: Event): String {
         val eventType = when (event.type) {
-            "fuel" -> "Р—Р°РїСЂР°РІРєР°"
-            "repair" -> "Р РµРјРѕРЅС‚"
-            "trip" -> "РџРѕРµР·РґРєР°"
-            "issue" -> "РџСЂРѕР±Р»РµРјР°"
+            "fuel" -> "Заправка"
+            "repair" -> "Ремонт"
+            "trip" -> "Поездка"
+            "issue" -> "Проблема"
             else -> event.type
         }
         val lines = mutableListOf(
-            "РЇ СЃРѕС…СЂР°РЅРёР»Р° Р·Р°РїРёСЃСЊ РІ РёСЃС‚РѕСЂРёРё $vehicleName.",
+            "Я сохранила запись в истории $vehicleName.",
             "$eventType: ${event.description}",
         )
         if (event.amount > 0) {
-            lines.add("РЎСѓРјРјР°: ${event.amount} в‚Ѕ")
+            lines.add("Сумма: ${event.amount} ₽")
         }
         if (event.type == "trip" || event.mileage > 0) {
-            lines.add("РџСЂРѕР±РµРі: ${event.mileage} РєРј")
+            lines.add("Пробег: ${event.mileage} км")
         }
         return lines.joinToString(separator = "\n")
     }
@@ -408,12 +408,10 @@ class ChatActivity : AppCompatActivity() {
     private fun failureMessage(stage: ChatFailureStage): String {
         return when (stage) {
             ChatFailureStage.PARSING ->
-                "РќРµ СѓРґР°Р»РѕСЃСЊ РѕР±СЂР°Р±РѕС‚Р°С‚СЊ СЃРѕРѕР±С‰РµРЅРёРµ. " +
-                    "РџСЂРѕРІРµСЂСЊС‚Рµ РїРѕРґРєР»СЋС‡РµРЅРёРµ Рё РїРѕРїСЂРѕР±СѓР№С‚Рµ РµС‰С‘ СЂР°Р·."
+                "Не удалось обработать сообщение. Проверьте подключение и попробуйте ещё раз."
 
             ChatFailureStage.SAVING ->
-                "РЇ РїРѕРЅСЏР»Р° Р·Р°РїРёСЃСЊ, РЅРѕ РЅРµ СЃРјРѕРіР»Р° СЃРѕС…СЂР°РЅРёС‚СЊ РµС‘ РІ РёСЃС‚РѕСЂРёСЋ. " +
-                    "РџРѕРїСЂРѕР±СѓР№С‚Рµ РµС‰С‘ СЂР°Р·."
+                "Я поняла запись, но не смогла сохранить её в историю. Попробуйте ещё раз."
         }
     }
 }
