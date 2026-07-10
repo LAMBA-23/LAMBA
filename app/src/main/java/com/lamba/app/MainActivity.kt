@@ -152,11 +152,9 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun openChatWithMessage(initialMessage: String) {
+        SessionManager.clearCurrentChatId(this)
         val intent = Intent(this, ChatActivity::class.java)
         intent.putExtra(ChatActivity.EXTRA_INITIAL_MESSAGE, initialMessage)
-        SessionManager.getCurrentChatId(this)?.let { currentChatId ->
-            intent.putExtra(ChatActivity.EXTRA_CHAT_ID, currentChatId)
-        }
         intent.putExtra(ChatActivity.EXTRA_VEHICLE_NAME, vehicleName)
         startActivity(intent)
     }

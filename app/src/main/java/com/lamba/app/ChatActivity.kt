@@ -109,13 +109,18 @@ class ChatActivity : AppCompatActivity() {
         }
 
         if (savedInstanceState == null) {
+            val initialMessage = intent.getStringExtra(EXTRA_INITIAL_MESSAGE)
+                ?.trim()
+                ?.takeIf { it.isNotEmpty() }
             currentChatId = intent.getLongExtra(EXTRA_CHAT_ID, -1L)
                 .takeIf { it > 0 }
-                ?: SessionManager.getCurrentChatId(this)
+                ?: if (initialMessage == null) {
+                    SessionManager.getCurrentChatId(this)
+                } else {
+                    null
+                }
             loadChatState(
-                initialMessage = intent.getStringExtra(EXTRA_INITIAL_MESSAGE)
-                    ?.trim()
-                    ?.takeIf { it.isNotEmpty() },
+                initialMessage = initialMessage,
             )
         } else if (messageList.isEmpty()) {
             showNewChatGreeting()
