@@ -10,6 +10,8 @@ import android.widget.ImageButton
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.lifecycleScope
+import com.lamba.app.chat.LocalChatService
 import com.lamba.app.network.RetrofitClient
 import com.lamba.app.network.SessionManager
 import kotlinx.coroutines.CoroutineScope
@@ -22,10 +24,12 @@ class MainActivity : AppCompatActivity() {
     private var userId: Int = -1
     private lateinit var drawerOverlay: View
     private lateinit var menuRequests: LinearLayout
+    private lateinit var menuNewChat: LinearLayout
     private lateinit var logoutPopup: TextView
     private lateinit var menuProfile: LinearLayout
     private var isLogoutPopupVisible = false
-    private var vehicleName: String = "машина"
+    private var vehicleName: String = "РјР°С€РёРЅР°"
+    private val localChatRepository by lazy { LocalChatService.getRepository(this) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -54,32 +58,33 @@ class MainActivity : AppCompatActivity() {
         val menuHistory = findViewById<LinearLayout>(R.id.menuHistory)
         val menuStats = findViewById<LinearLayout>(R.id.menuStats)
         menuRequests = findViewById(R.id.menuRequests)
+        menuNewChat = findViewById(R.id.menuNewChat)
         logoutPopup = findViewById(R.id.logoutPopup)
         menuProfile = findViewById(R.id.menuProfile)
 
-        tvProfileName.text = SessionManager.getUserName(this) ?: "Пользователь"
-        renderRequestHistory(menuRequests, drawerOverlay)
+        tvProfileName.text = SessionManager.getUserName(this) ?: "РџРѕР»СЊР·РѕРІР°С‚РµР»СЊ"
+        renderChatHistory(menuRequests, drawerOverlay)
 
         btnTalkToCar.setOnClickListener {
-            openChat("Проверь состояние автомобиля")
+            openChatWithMessage("РџСЂРѕРІРµСЂСЊ СЃРѕСЃС‚РѕСЏРЅРёРµ Р°РІС‚РѕРјРѕР±РёР»СЏ")
         }
 
         btnExpenses.setOnClickListener {
-            openChat("Покажи последние расходы")
+            openChatWithMessage("РџРѕРєР°Р¶Рё РїРѕСЃР»РµРґРЅРёРµ СЂР°СЃС…РѕРґС‹")
         }
 
         btnService.setOnClickListener {
-            openChat("Когда было последнее ТО?")
+            openChatWithMessage("РљРѕРіРґР° Р±С‹Р»Рѕ РїРѕСЃР»РµРґРЅРµРµ РўРћ?")
         }
 
         btnAddRecord.setOnClickListener {
-            openChat("Добавить запись")
+            openChatWithMessage("Р”РѕР±Р°РІРёС‚СЊ Р·Р°РїРёСЃСЊ")
         }
 
         btnHomeSend.setOnClickListener {
-            val text = etHomeMessage.text.toString().trim().ifBlank { "Привет" }
+            val text = etHomeMessage.text.toString().trim().ifBlank { "РџСЂРёРІРµС‚" }
             etHomeMessage.text.clear()
-            openChat(text)
+            openChatWithMessage(text)
         }
 
         etHomeMessage.setOnEditorActionListener { _, actionId, _ ->
@@ -122,6 +127,13 @@ class MainActivity : AppCompatActivity() {
             startActivity(Intent(this, com.lamba.app.network.StatisticsActivity::class.java))
         }
 
+        menuNewChat.setOnClickListener {
+            dismissLogoutPopup(immediate = true)
+            drawerOverlay.visibility = View.GONE
+            SessionManager.clearCurrentChatId(this)
+            openChat()
+        }
+
         menuProfile.setOnClickListener {
             toggleLogoutPopup()
         }
@@ -136,7 +148,7 @@ class MainActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
         if (::menuRequests.isInitialized && ::drawerOverlay.isInitialized) {
-            renderRequestHistory(menuRequests, drawerOverlay)
+            renderChatHistory(menuRequests, drawerOverlay)
         }
     }
 
@@ -148,46 +160,65 @@ class MainActivity : AppCompatActivity() {
         moveTaskToBack(true)
     }
 
-    private fun openChat(initialMessage: String) {
+    private fun openChatWithMessage(initialMessage: String) {
         val intent = Intent(this, ChatActivity::class.java)
         intent.putExtra(ChatActivity.EXTRA_INITIAL_MESSAGE, initialMessage)
+        SessionManager.getCurrentChatId(this)?.let { currentChatId ->
+            intent.putExtra(ChatActivity.EXTRA_CHAT_ID, currentChatId)
+        }
         intent.putExtra(ChatActivity.EXTRA_VEHICLE_NAME, vehicleName)
         startActivity(intent)
     }
 
-    private fun renderRequestHistory(container: LinearLayout, drawerOverlay: View) {
-        container.removeAllViews()
-        SessionManager.getChatRequests(this).forEach { request ->
-            val item = TextView(this).apply {
-                text = request
-                setTextColor(android.graphics.Color.parseColor("#101114"))
-                textSize = 18f
-                maxLines = 2
-                ellipsize = android.text.TextUtils.TruncateAt.END
-                setPadding(0, 12.dp, 0, 12.dp)
-                setOnClickListener {
-                    dismissLogoutPopup(immediate = true)
-                    drawerOverlay.visibility = View.GONE
-                    openChat(request)
+    private fun openChat(chatId: Long? = null) {
+        val intent = Intent(this, ChatActivity::class.java)
+        if (chatId != null) {
+            intent.putExtra(ChatActivity.EXTRA_CHAT_ID, chatId)
+        }
+        intent.putExtra(ChatActivity.EXTRA_VEHICLE_NAME, vehicleName)
+        startActivity(intent)
+    }
+
+    private fun renderChatHistory(container: LinearLayout, drawerOverlay: View) {
+        lifecycleScope.launch {
+            val chats = SessionManager.getUserId(this@MainActivity)
+                ?.let { localChatRepository.getChatsForUser(it) }
+                .orEmpty()
+
+            container.removeAllViews()
+            chats.forEach { chat ->
+                val item = TextView(this@MainActivity).apply {
+                    text = chat.chat.title
+                    setTextColor(android.graphics.Color.parseColor("#101114"))
+                    textSize = 18f
+                    maxLines = 2
+                    ellipsize = android.text.TextUtils.TruncateAt.END
+                    setPadding(0, 12.dp, 0, 12.dp)
+                    setOnClickListener {
+                        dismissLogoutPopup(immediate = true)
+                        drawerOverlay.visibility = View.GONE
+                        SessionManager.setCurrentChatId(this@MainActivity, chat.chat.id)
+                        openChat(chat.chat.id)
+                    }
                 }
+                container.addView(item)
+                container.addView(View(this@MainActivity).apply {
+                    setBackgroundColor(android.graphics.Color.parseColor("#E7E7EA"))
+                    layoutParams = LinearLayout.LayoutParams(
+                        LinearLayout.LayoutParams.MATCH_PARENT,
+                        1,
+                    )
+                })
             }
-            container.addView(item)
-            container.addView(View(this).apply {
-                setBackgroundColor(android.graphics.Color.parseColor("#E7E7EA"))
-                layoutParams = LinearLayout.LayoutParams(
-                    LinearLayout.LayoutParams.MATCH_PARENT,
-                    1,
-                )
-            })
         }
     }
 
     private fun loadVehicleData(tvHeader: TextView, tvCarName: TextView, tvCarInfo: TextView) {
         if (userId == -1) {
-            vehicleName = "машина"
-            tvHeader.text = "Привет! Я твоя машина."
-            tvCarName.text = "Автомобиль не добавлен"
-            tvCarInfo.text = "Добавьте автомобиль, чтобы начать"
+            vehicleName = "РјР°С€РёРЅР°"
+            tvHeader.text = "РџСЂРёРІРµС‚! РЇ С‚РІРѕСЏ РјР°С€РёРЅР°."
+            tvCarName.text = "РђРІС‚РѕРјРѕР±РёР»СЊ РЅРµ РґРѕР±Р°РІР»РµРЅ"
+            tvCarInfo.text = "Р”РѕР±Р°РІСЊС‚Рµ Р°РІС‚РѕРјРѕР±РёР»СЊ, С‡С‚РѕР±С‹ РЅР°С‡Р°С‚СЊ"
             return
         }
 
@@ -199,27 +230,27 @@ class MainActivity : AppCompatActivity() {
                     if (response.isSuccessful && response.body() != null) {
                         val vehicle = response.body()!!
                         vehicleName = "${vehicle.brand} ${vehicle.model}".trim()
-                        tvHeader.text = "Привет! Я твоя $vehicleName."
+                        tvHeader.text = "РџСЂРёРІРµС‚! РЇ С‚РІРѕСЏ $vehicleName."
                         tvCarName.text = vehicleName
-                        tvCarInfo.text = "${vehicle.currentMileage} км • ${vehicle.productionYear}"
+                        tvCarInfo.text = "${vehicle.currentMileage} РєРј вЂў ${vehicle.productionYear}"
                     } else if (response.code() == 404) {
                         val intent = Intent(this@MainActivity, AddVehicleActivity::class.java)
                         intent.putExtra("USER_ID", userId)
                         startActivity(intent)
                         finish()
                     } else {
-                        vehicleName = "машина"
-                        tvHeader.text = "Привет! Я твоя машина."
-                        tvCarName.text = "Ошибка загрузки"
-                        tvCarInfo.text = "Попробуйте позже"
+                        vehicleName = "РјР°С€РёРЅР°"
+                        tvHeader.text = "РџСЂРёРІРµС‚! РЇ С‚РІРѕСЏ РјР°С€РёРЅР°."
+                        tvCarName.text = "РћС€РёР±РєР° Р·Р°РіСЂСѓР·РєРё"
+                        tvCarInfo.text = "РџРѕРїСЂРѕР±СѓР№С‚Рµ РїРѕР·Р¶Рµ"
                     }
                 }
-            } catch (e: Exception) {
+            } catch (_: Exception) {
                 withContext(Dispatchers.Main) {
-                    vehicleName = "машина"
-                    tvHeader.text = "Привет! Я твоя машина."
-                    tvCarName.text = "Автомобиль не добавлен"
-                    tvCarInfo.text = "Добавьте автомобиль, чтобы начать"
+                    vehicleName = "РјР°С€РёРЅР°"
+                    tvHeader.text = "РџСЂРёРІРµС‚! РЇ С‚РІРѕСЏ РјР°С€РёРЅР°."
+                    tvCarName.text = "РђРІС‚РѕРјРѕР±РёР»СЊ РЅРµ РґРѕР±Р°РІР»РµРЅ"
+                    tvCarInfo.text = "Р”РѕР±Р°РІСЊС‚Рµ Р°РІС‚РѕРјРѕР±РёР»СЊ, С‡С‚РѕР±С‹ РЅР°С‡Р°С‚СЊ"
                 }
             }
         }
@@ -228,16 +259,21 @@ class MainActivity : AppCompatActivity() {
     private fun showLogoutDialog() {
         dismissLogoutPopup(immediate = true)
         AlertDialog.Builder(this)
-            .setTitle("Выйти из аккаунта?")
-            .setMessage("Мы удалим локальные данные этого аккаунта с устройства.")
-            .setNegativeButton("Отмена", null)
-            .setPositiveButton("Выйти") { _, _ ->
-                SessionManager.clearSession(this)
-                val intent = Intent(this, WelcomeActivity::class.java).apply {
-                    flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+            .setTitle("Р’С‹Р№С‚Рё РёР· Р°РєРєР°СѓРЅС‚Р°?")
+            .setMessage("РњС‹ СѓРґР°Р»РёРј Р»РѕРєР°Р»СЊРЅС‹Рµ РґР°РЅРЅС‹Рµ СЌС‚РѕРіРѕ Р°РєРєР°СѓРЅС‚Р° СЃ СѓСЃС‚СЂРѕР№СЃС‚РІР°.")
+            .setNegativeButton("РћС‚РјРµРЅР°", null)
+            .setPositiveButton("Р’С‹Р№С‚Рё") { _, _ ->
+                lifecycleScope.launch {
+                    SessionManager.getUserId(this@MainActivity)?.let { currentUserId ->
+                        localChatRepository.clearUserChats(currentUserId)
+                    }
+                    SessionManager.clearSession(this@MainActivity)
+                    val intent = Intent(this@MainActivity, WelcomeActivity::class.java).apply {
+                        flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                    }
+                    startActivity(intent)
+                    finish()
                 }
-                startActivity(intent)
-                finish()
             }
             .show()
     }

@@ -495,6 +495,26 @@
             </LinearLayout>
 
             <LinearLayout
+                android:id="@+id/menuNewChat"
+                style="@style/LambaDrawerEntry">
+
+                <ImageView
+                    style="@style/LambaDrawerIcon"
+                    android:src="@drawable/ic_lamba_plus"
+                    app:tint="#960018" />
+
+                <TextView
+                    style="@style/LambaDrawerText"
+                    android:text="РќРѕРІС‹Р№ С‡Р°С‚" />
+
+                <ImageView
+                    style="@style/LambaDrawerArrow"
+                    android:rotation="180"
+                    android:src="@drawable/ic_lamba_arrow_back"
+                    app:tint="#77777E" />
+            </LinearLayout>
+
+            <LinearLayout
                 android:id="@+id/menuRequests"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
