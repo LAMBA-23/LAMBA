@@ -686,7 +686,10 @@ def test_chat_ask_filters_expenses_for_last_n_days(monkeypatch):
         )
         connection.exec_driver_sql(
             "UPDATE events SET created_at = ? WHERE description = ?",
-            ((now - timedelta(days=3)).strftime("%Y-%m-%d %H:%M:%S"), "Расход 3 дня назад"),
+            (
+                (now - timedelta(days=3)).strftime("%Y-%m-%d %H:%M:%S"),
+                "Расход 3 дня назад",
+            ),
         )
         connection.exec_driver_sql(
             "UPDATE events SET created_at = ? WHERE description = ?",
