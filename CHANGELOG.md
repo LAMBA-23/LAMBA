@@ -14,9 +14,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Password hashing and secure auth in backend (#265)
 - Local chat history persistence for last 5 dialogs (#277)
 - Application launcher icon (#242)
-- Support for decimal fuel liters in events (#245)
-- Support for trip records by odometer start/end values (#246)
-- Support for repair and breakdown event records (#247)
 - Android side drawer account block now opens an animated logout sheet with confirmation and local session cleanup (#271).
 
 ### Changed
