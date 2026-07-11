@@ -1,5 +1,5 @@
 @startuml
-title LAMBA Dynamic View - Chat Event Capture
+title LAMBA Dynamic View - Local Chat Dialog and Backend Answer
 
 skinparam shadowing false
 skinparam backgroundColor #FFFFFF
@@ -24,16 +24,19 @@ skinparam sequence {
 actor "End user" as User
 
 box "Mobile client" #EEF2FF
-participant "Android UI\nChat, History, Stats" as UI
+participant "Android UI\nChat + side menu" as UI
+participant "SessionManager" as Session
+participant "LocalChatHistoryRepository" as LocalRepo
+database "Room\nlocal_chat_history.db" as RoomDb
 participant "ChatRepository" as Repo
 participant "Retrofit API Client" as Retrofit
 end box
 
 box "Backend" #EAF7EF
 participant "FastAPI API Layer" as API
-participant "Chat Parser /\nAI Service" as Parser
-participant "Events Service" as Events
-participant "Statistics Service" as Stats
+participant "Rate Limiter /\nCORS Middleware" as Security
+participant "Assistant Service" as Assistant
+participant "Chat Title Service" as TitleService
 participant "SQLAlchemy\nPersistence" as Persistence
 end box
 
@@ -42,48 +45,71 @@ database "PostgreSQL" as DB
 participant "Timeweb Cloud\nAI Agent API" as TimewebAI
 end box
 
-User -> UI : write message
-UI -> Repo : send message
-Repo -> Retrofit : parse event
-Retrofit -> API : POST /chat/parse-event
-API -> Parser : parse event
-Parser -> TimewebAI : AI request
-TimewebAI --> Parser : AI response
-Parser --> API : parsed result
+User -> UI : open chat
+UI -> Session : read current user and chat id
 
-alt AI parser unavailable or clarification needed
-  API --> Retrofit : clarification question
-  Retrofit --> Repo : clarification
-  Repo --> UI : show question
-  UI --> User : ask for details
-else Event parsed successfully
-  API --> Retrofit : parsed event
-  Retrofit --> Repo : event draft
-  Repo -> Retrofit : save event
-  Retrofit -> API : POST /events
-  API -> Events : validate event
-  Events -> Persistence : save event
-  Persistence -> DB : INSERT event
-  DB --> Persistence : saved row
-  Persistence --> Events : saved event
-  Events --> API : event response
-  API --> Retrofit : saved event
-  Retrofit --> Repo : saved event
-  Repo --> UI : show confirmation
+alt Current dialog exists
+  UI -> LocalRepo : load current chat
+  LocalRepo -> RoomDb : SELECT chat + messages
+  RoomDb --> LocalRepo : saved dialog
+  LocalRepo --> UI : restored messages
+else New dialog
+  UI --> User : show greeting only
+end
 
-  UI -> Retrofit : refresh data
-  Retrofit -> API : GET /events, GET /stats
-  API -> Events : load history
-  Events -> Persistence : query events
-  Persistence -> DB : SELECT events
-  DB --> Persistence : event rows
-  Persistence --> Events : history data
-  API -> Stats : build statistics
-  Stats -> Persistence : read events
-  Persistence --> Stats : event data
-  Stats --> API : statistics data
-  API --> Retrofit : history and stats
-  Retrofit --> UI : updated views
+User -> UI : send message
+UI -> Repo : ask assistant with local context
+Repo -> Retrofit : POST /chat/ask
+Retrofit -> API : message + recent dialog context
+API -> Security : enforce CORS and chat rate limit
+Security --> API : accepted request
+API -> Persistence : load vehicle and events
+Persistence -> DB : SELECT car/events
+DB --> Persistence : vehicle history
+Persistence --> API : context data
+API -> Assistant : build answer
+Assistant -> TimewebAI : AI request when needed
+TimewebAI --> Assistant : AI response
+Assistant --> API : assistant answer
+API --> Retrofit : answer
+Retrofit --> Repo : answer
+Repo --> UI : assistant message
+
+UI -> LocalRepo : create or update local dialog
+LocalRepo -> RoomDb : INSERT/UPDATE chat and messages
+LocalRepo -> RoomDb : DELETE oldest dialogs beyond five
+RoomDb --> LocalRepo : persisted local history
+LocalRepo --> Session : store current chat id
+
+opt First completed exchange
+  UI -> Retrofit : POST /chat/title
+  Retrofit -> API : first user message + assistant reply
+  API -> Security : enforce chat rate limit
+  API -> TitleService : generate short title
+  TitleService -> TimewebAI : title request when configured
+  TimewebAI --> TitleService : title response
+  TitleService --> API : title or fallback
+  API --> Retrofit : title
+  Retrofit --> UI : title
+  UI -> LocalRepo : update local title
+  LocalRepo -> RoomDb : UPDATE chat title
+end
+
+opt User switches dialog
+  User -> UI : select saved dialog
+  UI -> LocalRepo : load selected chat
+  LocalRepo -> RoomDb : SELECT selected chat + messages
+  RoomDb --> LocalRepo : saved dialog
+  LocalRepo --> UI : restored dialog
+  UI -> Session : store selected chat id
+end
+
+opt User logs out
+  User -> UI : confirm logout
+  UI -> LocalRepo : clear user chats
+  LocalRepo -> RoomDb : DELETE user chats and messages
+  UI -> Session : clear local session and current chat id
+  UI --> User : open welcome screen
 end
 
 @enduml

@@ -56,6 +56,7 @@ actor "Customer /\nReviewer" as Reviewer
 node "Android device /\nemulator" as AndroidNode #EEF2FF {
   artifact "LAMBA Android APK" as APK
   rectangle "Kotlin Android app" as AndroidApp
+  database "Room database\nlocal_chat_history.db\nlast five local dialogs" as RoomDb
 }
 
 node "Docker Compose host\n(local or deployed server)" as Host #ECFDF5 {
@@ -81,6 +82,7 @@ node "Development / CI boundary" as DevCi #F8FAFC {
 
 Reviewer -down-> APK : installs / runs
 APK -down-> AndroidApp : launches
+AndroidApp -down-> RoomDb : local chat history\nper device/user
 AndroidApp -right-> Backend : HTTP / JSON API
 Reviewer -right-> Backend : optional API docs\n/docs on port 8000
 
@@ -99,6 +101,9 @@ TIMEWEB_API_KEY
 TIMEWEB_AGENT_ID
 TIMEWEB_MODEL
 TIMEWEB_TIMEOUT_SECONDS
+CORS_ALLOWED_ORIGINS
+LOGIN_RATE_LIMIT
+CHAT_RATE_LIMIT
 end note
 
 note bottom of Host
@@ -119,12 +124,14 @@ endlegend
 
 note bottom
   Deployment principles:
-  Customer accesses MVP v2 through the Android APK.
+  Customer accesses MVP v3 through the Android APK.
+  Recent chat dialogs are local Room data on the Android device.
+  Vehicle profile and event history are server-side PostgreSQL data.
   Android app communicates with the backend over HTTP/JSON.
   Backend and PostgreSQL are started together by Docker Compose.
   PostgreSQL state is stored in postgres_data volume.
   AI provider is external and accessed only by the backend.
-  Secrets and AI credentials are backend runtime configuration, not Android client data.
+  Secrets, AI credentials, CORS origins, and rate-limit settings are backend runtime configuration, not Android client data.
 end note
 
 @enduml

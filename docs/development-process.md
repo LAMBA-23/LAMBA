@@ -17,17 +17,15 @@ The team uses a feature-branch workflow with a protected `main` branch and pull-
 
 ### Branch Naming
 
-Branches are named using the pattern `<issue-number>-short-description`:
+Branches are named using the pattern `<issue-number>-short-description` without tool names or private context:
 
 - `69-parsing-from-chat`
 - `67-post-vehicle-endpoint`
-- `feat/chat-ask-deepseek`
-- `docs/week4-llm-report`
+- `282-update-part6-maintained-docs`
 
 Prefix conventions:
 
-- Bare issue number for product PBIs (e.g., `69-parsing-from-chat`)
-- `feat/` for feature branches (e.g., `feat/chat-ask-deepseek`)
+- Bare issue number for product PBIs and issue-linked Course Tasks (e.g., `69-parsing-from-chat`)
 - `docs/` for documentation-only changes (e.g., `docs/week4-llm-report`)
 - `fix/` for bug fixes
 
@@ -38,29 +36,24 @@ The following Mermaid gitGraph illustrates the team's typical branching, review,
 ```mermaid
 gitGraph
     commit id: "initial setup"
-    branch feature/69-parsing-from-chat
-    checkout feature/69-parsing-from-chat
+    branch 69-parsing-from-chat
+    checkout 69-parsing-from-chat
     commit id: "add chat parser"
     commit id: "add parser tests"
     checkout main
-    merge feature/69-parsing-from-chat id: "merge #69" tag: "PR #69"
-    branch feature/67-post-vehicle-endpoint
-    checkout feature/67-post-vehicle-endpoint
+    merge 69-parsing-from-chat id: "merge #69" tag: "PR #69"
+    branch 67-post-vehicle-endpoint
+    checkout 67-post-vehicle-endpoint
     commit id: "add vehicle endpoint"
     commit id: "add validation"
     checkout main
-    merge feature/67-post-vehicle-endpoint id: "merge #67" tag: "PR #67"
-    branch docs/roadmap
-    checkout docs/roadmap
-    commit id: "create roadmap"
+    merge 67-post-vehicle-endpoint id: "merge #67" tag: "PR #67"
+    branch 282-update-part6-maintained-docs
+    checkout 282-update-part6-maintained-docs
+    commit id: "update maintained docs"
     checkout main
-    merge docs/roadmap id: "merge #64" tag: "PR #64"
+    merge 282-update-part6-maintained-docs id: "merge #282" tag: "PR #282"
     tag: "v0.1.0"
-    branch feat/chat-ask-deepseek
-    checkout feat/chat-ask-deepseek
-    commit id: "add deepseek integration"
-    checkout main
-    merge feat/chat-ask-deepseek id: "merge chat-ask" tag: "PR chat-ask"
 ```
 
 **What the diagram shows:**
@@ -78,7 +71,7 @@ gitGraph
 - The branch is linked to a pull request using `Closes #<issue-number>`.
 - The PR must include a summary, testing evidence, acceptance criteria verification, and changelog checklist.
 - At least one different team member must approve the PR before merge.
-- CI must pass (linting, formatting, tests, coverage, link check).
+- CI must pass for the affected area, including backend linting, formatting, tests, coverage, dependency health, Android unit tests and debug assembly, and link check where applicable.
 - After merge, the issue is automatically closed if the PR includes `Closes #N`.
 - The protected `main` branch does not allow direct pushes or force pushes.
 
@@ -92,6 +85,8 @@ The team uses GitHub issue templates to ensure consistent PBI structure. Blank i
 | [Other PBI](https://github.com/LAMBA-23/LAMBA/issues/new?template=other-pbi.yml) | Technical, infrastructure, testing, or documentation work | Type, description, acceptance criteria, story points, implementer, reviewer |
 | [Bug Report](https://github.com/LAMBA-23/LAMBA/issues/new?template=bug-report.yml) | Defects and regressions | Problem description, reproduction steps, expected vs actual behavior, environment |
 | [Course Task](https://github.com/LAMBA-23/LAMBA/issues/new?template=course-task.yml) | Course reporting and submission evidence (not a PBI) | Description, expected evidence/deliverable |
+
+Course Task issues are used for Assignment reporting, maintained documentation alignment, submission packaging, and other course evidence work. They are not Product Backlog Items, but they still need clear scope, expected evidence, verification commands, a dedicated branch, review, and CI evidence when repository files change.
 
 ### Workflow States
 
@@ -143,6 +138,8 @@ The Sprint Backlog is managed through [GitHub Projects](https://github.com/orgs/
 - [Sprint 1 - MVP v1 Foundation](https://github.com/LAMBA-23/LAMBA/milestone/1) (2026-06-15 to 2026-06-21)
 - [Sprint 2 - Chat Event Capture & Assistant & Statistics](https://github.com/LAMBA-23/LAMBA/milestone/2) (2026-06-22 to 2026-06-28)
 - [Sprint 3 - Maintenance Follow-up](https://github.com/LAMBA-23/LAMBA/milestone/3) (2026-06-29 to 2026-07-05)
+- [Sprint 4 - Trial Release and Transition Readiness](https://github.com/LAMBA-23/LAMBA/milestone/4) (2026-07-06 to 2026-07-12)
+- [Sprint 5 - Final Transition and Delivery](https://github.com/LAMBA-23/LAMBA/milestone/5) (2026-07-13 to 2026-07-19)
 
 Issues assigned to a Sprint milestone are the authoritative Sprint Backlog items.
 
@@ -159,6 +156,11 @@ The backend requires the following configuration:
 | `TIMEWEB_AGENT_ID` | LLM agent identifier | Docker Compose default / `.env` |
 | `TIMEWEB_MODEL` | LLM model name | Docker Compose default / `.env` |
 | `TIMEWEB_TIMEOUT_SECONDS` | LLM request timeout | Docker Compose default / `.env` |
+| `CORS_ALLOWED_ORIGINS` | Comma-separated browser origins allowed by backend CORS middleware | Docker Compose / `.env` |
+| `LOGIN_RATE_LIMIT` | Login request limit per client within the configured window | Environment override; code default is 5 |
+| `LOGIN_RATE_LIMIT_WINDOW_SECONDS` | Login rate-limit window in seconds | Environment override; code default is 60 |
+| `CHAT_RATE_LIMIT` | Chat and chat-title request limit per client within the configured window | Environment override; code default is 20 |
+| `CHAT_RATE_LIMIT_WINDOW_SECONDS` | Chat and chat-title rate-limit window in seconds | Environment override; code default is 60 |
 
 ### Secrets Handling
 
@@ -168,12 +170,14 @@ The backend requires the following configuration:
 - A sanitized `.env.example` is committed as a template for developers.
 - CI secrets (API keys) are stored in GitHub Secrets (repository Settings → Secrets and variables → Actions) and injected into the CI environment.
 - Docker Compose uses `${VAR:-default}` syntax for optional variables with safe defaults.
+- Production-like backend configuration must not use wildcard CORS origins.
 
 ### Committed Configuration Artifacts
 
 - `.env.example` — sanitized template showing required variables
 - `docker-compose.yml` — full service definition with default values
 - `.github/workflows/backend-ci.yml` — CI pipeline configuration
+- `.github/workflows/android-ci.yml` - Android JVM unit-test and debug APK assembly CI configuration
 - `.github/workflows/lychee.yml` — link-check configuration
 
 ## Development Environment
@@ -200,11 +204,14 @@ The Android app is built with Gradle. Requirements:
 - Android SDK
 - JDK 17+
 - Gradle wrapper (`./gradlew`)
+- Kotlin kapt for Room annotation processing, configured in `app/build.gradle.kts`
+- Room runtime, KTX, and compiler dependencies for local chat-history persistence
 
-Build:
+Common checks:
 
 ```bash
-./gradlew assembleDebug
+./gradlew :app:testDebugUnitTest --no-daemon
+./gradlew :app:assembleDebug --no-daemon
 ```
 
 ### Reproducible Environment
@@ -212,10 +219,11 @@ Build:
 - Python dependencies are pinned in `backend/requirements.txt`.
 - Docker images use specific base versions (`postgres:16`, `python:3.12`).
 - Gradle wrapper ensures consistent Android build tool versions.
+- Room local chat-history code is verified by Android JVM tests and debug APK assembly.
 
 ## CI Pipeline
 
-The team uses GitHub Actions for continuous integration. Two workflows run on PRs and pushes to `main`:
+The team uses GitHub Actions for continuous integration. Backend CI, Android CI, and Link Check run on pull requests and pushes to `main`:
 
 ### Backend CI (`.github/workflows/backend-ci.yml`)
 
@@ -227,11 +235,23 @@ The team uses GitHub Actions for continuous integration. Two workflows run on PR
 | Tests + coverage | `coverage run -m pytest tests` then `coverage report --include="app/*" --fail-under=30` |
 | Dependency health | `pip check` |
 
+Because Backend CI runs the full backend pytest suite, it also covers the automated checks behind `QRT-007` secure password storage and `QRT-008` login and chat request-rate protection.
+
+### Android CI (`.github/workflows/android-ci.yml`)
+
+| Step | What it checks |
+|---|---|
+| Set up JDK and Android SDK | Android build environment for Gradle |
+| Run Android unit tests | `./gradlew :app:testDebugUnitTest --no-daemon` |
+| Run Android debug build | `./gradlew :app:assembleDebug --no-daemon` |
+
 ### Link Check (`.github/workflows/lychee.yml`)
 
 | Step | What it checks |
 |---|---|
 | Lychee link check | All Markdown files, validates internal and public external links |
+
+There is no automatic deployment workflow in the repository. Deployment is handled separately from CI.
 
 ### Branch Protection
 
@@ -258,10 +278,10 @@ The `main` branch is protected:
 
 ### Current Deployment
 
-The MVP backend is deployed on a university network server:
+The MVP backend is deployed on the current public server:
 
-- Backend: `http://10.93.26.193:8000`
-- Swagger UI: `http://10.93.26.193:8000/docs`
+- Backend: `http://186.246.27.211:8000`
+- Swagger UI: `http://186.246.27.211:8000/docs`
 
 ### Deployment Model
 
@@ -269,6 +289,11 @@ The MVP backend is deployed on a university network server:
 - The backend Dockerfile builds a Python 3.12 image with the FastAPI application.
 - PostgreSQL data is persisted via Docker volumes.
 - Environment variables are passed through Docker Compose configuration.
+- Password hashing is backend-owned; the database stores salted password hashes instead of plaintext passwords.
+- Login and chat rate limits are enforced in the FastAPI backend with configurable fixed-window limits.
+- `CORS_ALLOWED_ORIGINS` controls browser origins; production-like deployments must avoid wildcard origins.
+- Android Room chat-history data is stored locally on the Android device and is not part of the backend deployment.
+- CI does not automatically deploy the backend or publish an Android artifact.
 
 ## Maintenance Rules
 
