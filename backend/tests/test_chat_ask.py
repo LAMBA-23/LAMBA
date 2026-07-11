@@ -3,7 +3,7 @@ from __future__ import annotations
 import importlib
 import os
 import sys
-from datetime import datetime
+from datetime import datetime, timedelta
 from pathlib import Path
 
 from fastapi.testclient import TestClient
@@ -678,18 +678,19 @@ def test_chat_ask_filters_expenses_for_last_n_days(monkeypatch):
         mileage=105100,
     )
 
+    now = datetime.now()
     with database_module.engine.begin() as connection:
         connection.exec_driver_sql(
             "UPDATE events SET created_at = ? WHERE description = ?",
-            ("2026-06-30 12:00:00", "Старый расход"),
+            ((now - timedelta(days=10)).strftime("%Y-%m-%d %H:%M:%S"), "Старый расход"),
         )
         connection.exec_driver_sql(
             "UPDATE events SET created_at = ? WHERE description = ?",
-            ("2026-07-05 12:00:00", "Расход 3 дня назад"),
+            ((now - timedelta(days=3)).strftime("%Y-%m-%d %H:%M:%S"), "Расход 3 дня назад"),
         )
         connection.exec_driver_sql(
             "UPDATE events SET created_at = ? WHERE description = ?",
-            ("2026-07-06 12:00:00", "Свежий ремонт"),
+            ((now - timedelta(days=1)).strftime("%Y-%m-%d %H:%M:%S"), "Свежий ремонт"),
         )
 
     def fail_if_called(*args, **kwargs):
