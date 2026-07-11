@@ -16,17 +16,18 @@ A mobile app for creating a digital twin of a car. The system collects data on t
 - Database: PostgreSQL
 - Deployment: Docker Compose
 
-## Assignment 5 Sprint Increment Release
+## Assignment 6 Sprint Increment Release
 
-- Release: `v1.2.0 - Assignment 5 Sprint 3 Increment (MVP v2)`
-- Sprint milestone: [Sprint 3 - Maintenance Follow-up](https://github.com/LAMBA-23/LAMBA/milestone/3)
+- Release: `v1.3.0 - Assignment 6 Sprint 4 Increment (MVP v3 Trial Release)`
+- Sprint milestone: [Sprint 4 - Trial Release and Transition Readiness](https://github.com/LAMBA-23/LAMBA/milestone/4)
 - Deployed backend URL: `http://186.246.27.211:8000`
 - Swagger/API docs URL: `http://186.246.27.211:8000/docs`
-- Demo credentials: `demo` / `demo`
-- Public sanitized demo video: https://drive.google.com/drive/folders/19UU6YERENNanCGjQec7BVcUMXiITHhVT
+- Week 6 report: [reports/week6/README.md](./reports/week6/README.md)
+- Customer handover: [docs/customer-handover.md](./docs/customer-handover.md)
+- Public sanitized demo video: [TODO: add video link after recording]
 - Runnable artifact: Android APK attached to release / Docker Compose instructions
 
-The `v1.2.0` Sprint increment includes the manual vehicle history record creation form, statistics screen and backend fixes, timeline cleanup, main screen UI improvements, Week 5 UAT evidence, and release/deployment documentation. Final server URL, public video, release tag, GitHub Release, and published artifact evidence must be added only after they are available.
+The `v1.3.0` Sprint increment includes security hardening with password hashing and rate limiting, Android logout functionality with local session cleanup, local chat history persistence for the last five dialogs, improved statistics UI for adaptive display, support for decimal fuel liters in events, trip records by odometer start/end values, repair and breakdown event records, application launcher icon, and session restore improvements after app restart.
 
 ## Local Setup
 
@@ -73,18 +74,14 @@ Swagger UI for the deployed backend:
 http://186.246.27.211:8000/docs
 ```
 
-The database is seeded automatically and idempotently:
-
-- user: `demo` / `demo`
-- temporary Android compatibility login: `demo` / `password`
-- car: `BMW M4`, year `2020`, mileage `125000`
+Note: Demo credentials have been removed for security. Register a new user using the Android app or POST /auth/register endpoint. A default car will be created automatically for each new user.
 
 Smoke-check with curl:
 
 ```bash
 curl http://localhost:8000/health
-curl -X POST http://localhost:8000/auth/register -H "Content-Type: application/json" -d "{\"username\":\"new-user\",\"password\":\"password123\"}"
-curl -X POST http://localhost:8000/auth/login -H "Content-Type: application/json" -d "{\"username\":\"demo\",\"password\":\"demo\"}"
+curl -X POST http://localhost:8000/auth/register -H "Content-Type: application/json" -d "{\"username\":\"test-user\",\"password\":\"test-pass123\"}"
+curl -X POST http://localhost:8000/auth/login -H "Content-Type: application/json" -d "{\"username\":\"test-user\",\"password\":\"test-pass123\"}"
 curl "http://localhost:8000/vehicle?user_id=1"
 curl -X POST "http://localhost:8000/events?user_id=1" -H "Content-Type: application/json" -d "{\"type\":\"fuel\",\"description\":\"Full tank\",\"amount\":60,\"mileage\":125000}"
 curl "http://localhost:8000/events?user_id=1"
@@ -97,10 +94,10 @@ Smoke-check in PowerShell:
 ```powershell
 Invoke-RestMethod -Uri http://localhost:8000/health
 
-$registration = @{username='new-user'; password='password123'} | ConvertTo-Json -Compress
+$registration = @{username='test-user'; password='test-pass123'} | ConvertTo-Json -Compress
 $registeredUser = Invoke-RestMethod -Uri http://localhost:8000/auth/register -Method Post -ContentType 'application/json' -Body $registration
 
-$login = @{username='demo'; password='demo'} | ConvertTo-Json -Compress
+$login = @{username='test-user'; password='test-pass123'} | ConvertTo-Json -Compress
 Invoke-RestMethod -Uri http://localhost:8000/auth/login -Method Post -ContentType 'application/json' -Body $login
 
 Invoke-RestMethod -Uri "http://localhost:8000/vehicle?user_id=$($registeredUser.user_id)"
@@ -175,4 +172,4 @@ The Week 2 MVP v0 smoke-check scenario, deployed URL, demo credentials, and curr
 
 ## Runnable Artifact
 
-The runnable backend artifact is Docker Compose: `docker-compose.yml` starts PostgreSQL and the FastAPI backend. The Android runnable artifact for `v1.2.0` should be the debug APK at `app/build/outputs/apk/debug/app-debug.apk` or the APK attached to the GitHub Release after release publication.
+The runnable backend artifact is Docker Compose: `docker-compose.yml` starts PostgreSQL and the FastAPI backend. The Android runnable artifact for `v1.3.0` should be the debug APK at `app/build/outputs/apk/debug/app-debug.apk` or the APK attached to the GitHub Release after release publication.
