@@ -32,6 +32,3 @@ This retrospective is public and sanitized. It focuses on team process, delivery
 
 - Before the next Sprint Review, verify every customer-critical data-entry workflow end-to-end using realistic data, including edge cases like fractional values, older accounts, and cross-flow consistency between History, Statistics, and Chat.
 - Capture recording and publication permissions explicitly at the beginning of any future customer meeting that may serve dual purposes (Sprint Review, UAT, transition confirmation).
-- Decompose remaining Sprint scope into smaller verifiable items before Sprint commitment, especially when the implementation approach is still uncertain (e.g., recommendations delivery mechanism).
-- Plan a realistic independent-use window before the Sprint Review where the customer can try the product without guided assistance, so the team discovers usability and data-compatibility issues earlier.
-- Continue maintaining the customer-facing documentation set as a first-class deliverable, because the customer explicitly requested comprehensive documentation including process, quality, architecture, and development evidence.
