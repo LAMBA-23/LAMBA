@@ -280,6 +280,10 @@ Expected Week 7 follow-up work:
 
 ![Reviewed issue-linked PR](images/reviewed-issue-linked-pr.png)
 
+### Product Backlog board
+
+![Product Backlog board](images/product-backlog-board.png)
+
 ### Sprint Backlog board
 
 ![Sprint Backlog board](images/sprint-backlog-board.png)
