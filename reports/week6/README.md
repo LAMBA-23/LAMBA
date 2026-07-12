@@ -136,14 +136,14 @@ At the same time:
 - the backend and product services were already deployed on infrastructure provided and controlled by the customer;
 - the customer had not yet started regular independent use because the product had not been finally handed over;
 - the customer stated that the intended everyday use is vehicle bookkeeping: trips, refuellings, expenses, and AI-assisted interaction;
-- the customer confirmed that the product should be ready for use after the remaining Week 7 work is completed.
+- the customer confirmed that the product should be ready for use after the remaining follow-up work is completed.
 
 The reached Week 6 status:
 
 - **Handover level:** not yet `Ready for independent use`;
 - **Customer confirmation:** `Accepted with follow-up items` for the trial direction, not final acceptance of MVP v3.
 
-Final handover status must be confirmed again during Week 7.
+Final handover status must be confirmed again during the follow-up Sprint.
 
 ## 17. Customer feedback response table
 
@@ -264,7 +264,7 @@ Expected Week 7 follow-up work:
 | @mariachizhikova08 | [#257](https://github.com/LAMBA-23/LAMBA/pull/257), [#263](https://github.com/LAMBA-23/LAMBA/pull/263), [#270](https://github.com/LAMBA-23/LAMBA/pull/270), [#274](https://github.com/LAMBA-23/LAMBA/pull/274), [#255](https://github.com/LAMBA-23/LAMBA/issues/255) | UAT documentation, AGENTS.md, decimal fuel Android form, breakdown form with photo, Android CI. |
 | @vasilisatumakina29 | [#252](https://github.com/LAMBA-23/LAMBA/pull/252), [#254](https://github.com/LAMBA-23/LAMBA/pull/254), [#266](https://github.com/LAMBA-23/LAMBA/pull/266), [#276](https://github.com/LAMBA-23/LAMBA/pull/276), [#279](https://github.com/LAMBA-23/LAMBA/pull/279), [#283](https://github.com/LAMBA-23/LAMBA/pull/283), [#286](https://github.com/LAMBA-23/LAMBA/pull/286), [#288](https://github.com/LAMBA-23/LAMBA/pull/288) | Sprint planning docs, testing evidence, CORS hardening, logout, local chat history, maintained documentation, changelog, Sprint Review transcript and summary, retrospective, reflection, LLM report. |
 | @Elis-bett | [#244](https://github.com/LAMBA-23/LAMBA/pull/244), [#275](https://github.com/LAMBA-23/LAMBA/pull/275), [#280](https://github.com/LAMBA-23/LAMBA/pull/280), [#285](https://github.com/LAMBA-23/LAMBA/pull/285) | Application icon, customer-handover document, responsive statistics UI, README and changelog updates. |
-| @vanya630 | [#292](https://github.com/LAMBA-23/LAMBA/issues/292), [#296](https://github.com/LAMBA-23/LAMBA/issues/296) | Week 6 and Week 7 retrospective, reflection, and LLM report course tasks. |
+| @vanya630 | [#292](https://github.com/LAMBA-23/LAMBA/issues/292), [#296](https://github.com/LAMBA-23/LAMBA/issues/296) | Week 6 retrospective, reflection, and LLM report course tasks. |
 
 ## 31. Embedded screenshots from reports/week6/images/
 
