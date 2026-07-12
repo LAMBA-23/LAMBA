@@ -92,7 +92,7 @@ Documentation must be updated when the change affects the documented behavior or
 - Completion-standard changes require updates to `docs/definition-of-done.md`.
 - User-visible functionality, fixes, and release-relevant changes require an entry in `CHANGELOG.md` unless the PR explicitly records why it is not applicable.
 - Assignment reporting changes require updates to the relevant `reports/week*` directory that exists for the assignment.
-- Customer handover documentation must be updated when project transfer, customer-facing setup, or delivery instructions change. TODO: add and link `docs/customer-handover.md` after it exists in the repository.
+- Customer handover documentation must be updated when project transfer, customer-facing setup, or delivery instructions change.
 
 ## Documentation Update Checklist
 
@@ -111,9 +111,8 @@ When functionality changes, check whether each document needs an update:
 - `docs/roadmap.md`
 - `docs/user-stories.md`
 - `reports/week5/README.md`
-- `docs/customer-handover.md` - TODO: check after this file exists.
-- `reports/week6/` - TODO: check after this directory exists.
-- `reports/week7/` - TODO: check after this directory exists.
+- `docs/customer-handover.md`
+- `reports/week6/`
 
 ## Testing Expectations
 
@@ -231,12 +230,6 @@ Current Assignment-related documentation in this repository:
 - [User acceptance tests](docs/user-acceptance-tests.md)
 - [Definition of Done](docs/definition-of-done.md)
 - [Development process](docs/development-process.md)
-
-Assignment 6 expected locations that are not present in the current repository snapshot:
-
-- `reports/week6/` - TODO: add a link after the directory exists.
-- `reports/week7/` - TODO: add a link after the directory exists.
-- `docs/customer-handover.md` - TODO: add a link after the file exists.
 
 ## References
 

@@ -15,7 +15,7 @@ For MVP v3 / Sprint 4, new QRTs are added only when an implemented or newly impo
 - [QRT-006: Critical-module coverage gate](#qrt-006-critical-module-coverage-gate)
 - [QRT-007: Secure password storage](#qrt-007-secure-password-storage)
 - [QRT-008: Login and chat request-rate protection](#qrt-008-login-and-chat-request-rate-protection)
-- [MVP v3 / Sprint 4 QRT Note](#mvp-v3--sprint-4-qrt-note)
+- [MVP v3 Sprint 4 QRT Note](#mvp-v3-sprint-4-qrt-note)
 
 ## Evidence Types
 
@@ -132,19 +132,19 @@ For MVP v3 / Sprint 4, new QRTs are added only when an implemented or newly impo
 
 **Linked quality requirement:** [QR-008](quality-requirements.md#qr-008-login-and-chat-request-rate-protection)
 
-**Verification method:** Automated FastAPI integration tests for login and chat endpoint rate limiting plus isolated fixed-window limiter behavior through the request flow.
+**Verification method:** Automated FastAPI integration tests for login and chat endpoint rate limiting plus fixed-window recovery behavior through the chat request flow.
 
-**Test data, setup, or environment:** Standard backend test environment. Tests send repeated requests with stable `X-Forwarded-For` client identifiers so the limiter key is deterministic. Login uses nonexistent credentials for the first five allowed attempts. Chat creates a test user, replaces the external AI call with a test double, sends twenty allowed chat requests, and then sends one additional request.
+**Test data, setup, or environment:** Standard backend test environment. Tests send repeated requests with stable `X-Forwarded-For` client identifiers so the limiter key is deterministic. Login uses nonexistent credentials for the first five allowed attempts. Chat creates a test user, replaces the external AI call with a test double, sends twenty allowed chat requests, and then sends one additional request. The chat recovery test monkeypatches monotonic time so it can verify the request is allowed again after the configured window without waiting 60 real seconds.
 
 **Automated command or CI check:** `docker compose run --rm backend pytest tests/test_auth.py tests/test_rate_limiting.py tests/test_chat_ask.py -q`; also covered by `python -m coverage run -m pytest tests` in the `Backend CI` workflow.
 
-**Expected measurable result:** The sixth login request from the same client address returns HTTP 429 with `Too many login attempts`, the twenty-first chat request from the same client address returns HTTP 429 with `Too many chat requests`, and the command exits with 0 failures.
+**Expected measurable result:** The sixth login request from the same client address returns HTTP 429 with `Too many login attempts`, the twenty-first chat request from the same client address returns HTTP 429 with `Too many chat requests`, a chat request from the same client address succeeds again after the virtual rate-limit window expires, and the command exits with 0 failures.
 
-**Evidence location:** `backend/tests/test_auth.py`; `backend/tests/test_rate_limiting.py`; `backend/tests/test_chat_ask.py`; `backend/app/rate_limit.py`; `backend/app/main.py`; `.github/workflows/backend-ci.yml`; latest local or CI backend pytest output recorded in `docs/testing.md`.
+**Evidence location:** `backend/tests/test_auth.py`; `backend/tests/test_rate_limiting.py::test_chat_ask_is_rate_limited`; `backend/tests/test_rate_limiting.py::test_chat_ask_allows_requests_after_rate_limit_window`; `backend/tests/test_chat_ask.py`; `backend/app/rate_limit.py`; `backend/app/main.py`; `.github/workflows/backend-ci.yml`; latest local or CI backend pytest output recorded in `docs/testing.md`.
 
-**Limitations:** The route-level tests verify configured request counts and HTTP 429 behavior. Window expiration is supported by `FixedWindowRateLimiter.allow` pruning old attempts, but current route tests do not sleep for 60 seconds or monkeypatch monotonic time to prove end-to-end recovery after window expiry.
+**Limitations:** The route-level recovery test uses controlled monotonic time rather than waiting 60 real seconds. This keeps the test deterministic and fast, but it does not measure real wall-clock timing accuracy under production load.
 
-## MVP v3 / Sprint 4 QRT Note
+## MVP v3 Sprint 4 QRT Note
 
 The repository now contains implemented password hashing and request-rate limiting behavior, so QRT-007 and QRT-008 are documented as active automated evidence rather than future placeholders.
 

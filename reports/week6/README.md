@@ -87,8 +87,8 @@ The following planned items were not completed and remain Sprint 5 follow-up wor
 ## 9. Link to current access or run instructions
 
 - [Root README - Local Setup](../../README.md#local-setup)
-- [Root README - Assignment 6 Sprint Increment Release](../../README.md#assignment-6-sprint-increment-release)
-- [Root README - Runnable Artifact](../../README.md#runnable-artifact)
+- [Root README - Current Product Access](../../README.md#current-product-access)
+- [Root README - Verification](../../README.md#verification)
 
 ## 10. Link to README.md
 
