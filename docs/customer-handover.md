@@ -2,7 +2,7 @@
 
 ## Current product status and handover scope
 
-The current product state is a runnable backend application with documented local deployment and a documented hosted endpoint. This handover document describes the actual state today, not an assumed transfer that has already happened.
+The current product is an Android mobile application supported by a FastAPI backend, PostgreSQL database, Docker Compose deployment configuration, and AI integration. This handover document describes the actual state today, not an assumed transfer that has already happened.
 
 The handover scope encompasses the **entire product ecosystem**, including:
 
@@ -27,7 +27,7 @@ The handover scope encompasses the **entire product ecosystem**, including:
 
 ### Status Context:
 
-1. **Trial Validation:** The customer has independently tested a subset of trial workflows. Core features such as **chat history** and **session persistence** successfully passed validation.
+1. **Trial Validation:** The customer has executed a subset of UAT workflows during the customer meeting. Core features such as **chat history** and **session persistence** successfully passed validation.
 2. **Follow-up Items:** Several customer-critical features require remediation during Week 7 scope before final acceptance.
 3. **Scope Realignment:** Final acceptance criteria apply specifically to the upcoming **MVP v3** package, not the current trial version.
 4. **Operational Status:** The application is already running on the customer's hardware, but the team retains temporary technical responsibility for managing and updating the deployment until final sign-off.
@@ -39,23 +39,23 @@ The handover scope encompasses the **entire product ecosystem**, including:
 ### Infrastructure & Deployment Ownership
 
 * **Hosting Server:** Provided, owned, and controlled exclusively by the **customer**.
-* **Deployment Management:** Temporarily maintained by the development team for updates, to be fully transitioned upon MVP v3 delivery.
+* **Deployment Management:** Temporarily maintained by the development team for updates, to be fully transitioned upon archive delivery and customer's confirmation.
 
 ### Codebase & Administrative Rights
 
 * **GitHub Repository Administration:** Intentionally **retained by the development team**. The customer explicitly stated that administrative rights to the team's GitHub repository are **not required**.
-* **Public Access:** There is no requirement to make the repository or product publicly accessible.
+* **Public Access:** The customer does not require public access to the deployed product and does not require repository administrator rights. The course repository remains publicly readable under the course requirements.
 
 ---
 
 ## Agreed Final Handover Format
 
-The final delivery mechanism has been explicitly aligned with the customer's request. Instead of repository transfers or cloud account migrations, the handover will consist of a **complete offline package** delivered via a **private storage channel** accessible to the customer.
+The final delivery mechanism has been explicitly aligned with the customer's request. Instead of repository transfers or cloud account migrations, the handover will consist of a **complete archive package** delivered via a **private storage channel** accessible to the customer.
 
 ### Delivery Package Components:
 
 * Full source code archives for both **Android frontend** and **FastAPI backend**.
-* Production-ready **Docker Compose** deployment configurations.
+* Current **Docker Compose** deployment configurations.
 * Step-by-step instructions for building the Android APK.
 * Comprehensive, non-technical installation and deployment guides.
 * Environment variable templates (excluding secret keys).
@@ -189,12 +189,6 @@ The customer should use these primary entry points for normal use, operation, an
 
 ## Remaining actions
 
-- Transfer production deployment and hosting account to the customer if full infrastructure handover is required.
-- Provide explicit customer GitHub access or a repository transfer path.
-- Publish or distribute the Android app artifact through customer-approved channels.
-- Add customer-side monitoring and incident response documentation.
-
-## Related customer-relevant documentation
 
 - [ ] Complete customer-critical Week 7 feature scope and fixes.
 - [ ] Verify all updated User Acceptance Testing (UAT) scenarios.
@@ -204,3 +198,12 @@ The customer should use these primary entry points for normal use, operation, an
 - [ ] Transfer production environment secrets securely via a separate channel.
 - [ ] Request final customer sign-off on this handover document (`docs/customer-handover.md`) to verify it meets the agreed level of transfer.
 - [ ] Update Handover Level to `Ready for independent use` and Status to `Accepted` upon final confirmation.
+
+
+## Related customer-relevant documentation
+
+- `README.md`
+- `docs/api-contract.md`
+- `docs/testing.md`
+- `docs/quality-requirements.md`
+- `docs/quality-requirement-tests.md`
