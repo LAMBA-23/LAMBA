@@ -7,7 +7,7 @@ interface ChatBackend {
 
     suspend fun saveEvent(event: ParsedEventPayload): Event
 
-    suspend fun askQuestion(message: String): String
+    suspend fun askQuestion(message: String, chatContext: List<ChatContextMessage>): String
 }
 
 class RetrofitChatBackend(
@@ -42,8 +42,14 @@ class RetrofitChatBackend(
             ?: throw ChatBackendException("Event saving returned an empty response")
     }
 
-    override suspend fun askQuestion(message: String): String {
-        val response = api.chatAsk(ChatAskRequest(message = message), userId)
+    override suspend fun askQuestion(
+        message: String,
+        chatContext: List<ChatContextMessage>,
+    ): String {
+        val response = api.chatAsk(
+            ChatAskRequest(message = message, chatContext = chatContext),
+            userId,
+        )
         if (!response.isSuccessful) {
             throw ChatBackendException("Chat ask failed with HTTP ${response.code()}")
         }
@@ -58,9 +64,12 @@ class ChatRepository(
     private val backend: ChatBackend,
 ) {
 
-    suspend fun sendMessage(message: String): ChatSendResult {
+    suspend fun sendMessage(
+        message: String,
+        chatContext: List<ChatContextMessage> = emptyList(),
+    ): ChatSendResult {
         if (isQuestion(message)) {
-            return handleQuestion(message)
+            return handleQuestion(message, chatContext)
         }
         return handleEventParsing(message)
     }
@@ -85,9 +94,12 @@ class ChatRepository(
             lower.contains("пробег")
     }
 
-    private suspend fun handleQuestion(message: String): ChatSendResult {
+    private suspend fun handleQuestion(
+        message: String,
+        chatContext: List<ChatContextMessage>,
+    ): ChatSendResult {
         val answer = try {
-            backend.askQuestion(message)
+            backend.askQuestion(message, chatContext)
         } catch (error: CancellationException) {
             throw error
         } catch (_: Exception) {

@@ -53,17 +53,18 @@
 
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="56dp"
+                android:layout_height="wrap_content"
                 android:gravity="center_vertical"
-                android:orientation="horizontal">
+                android:orientation="horizontal"
+                android:paddingBottom="4dp">
 
                 <ImageButton
                     android:id="@+id/btnStatsBack"
-                    android:layout_width="52dp"
-                    android:layout_height="52dp"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
                     android:background="?attr/selectableItemBackgroundBorderless"
                     android:contentDescription="Назад"
-                    android:padding="12dp"
+                    android:padding="10dp"
                     android:src="@drawable/ic_lamba_arrow_back"
                     app:tint="#960018" />
 
@@ -77,22 +78,18 @@
                     <TextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:ellipsize="end"
-                        android:maxLines="1"
                         android:text="Статистика"
                         android:textColor="#101114"
-                        android:textSize="26sp"
+                        android:textSize="24sp"
                         android:textStyle="bold" />
 
                     <TextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="4dp"
-                        android:ellipsize="end"
-                        android:maxLines="1"
+                        android:layout_marginTop="2dp"
                         android:text="Что машина помнит о себе."
                         android:textColor="#77777E"
-                        android:textSize="16sp" />
+                        android:textSize="14sp" />
                 </LinearLayout>
             </LinearLayout>
 
@@ -108,14 +105,24 @@
                 android:foreground="?attr/selectableItemBackground"
                 android:gravity="center"
                 android:orientation="horizontal"
-                android:paddingStart="18dp"
-                android:paddingEnd="18dp">
+                android:paddingStart="16dp"
+                android:paddingEnd="12dp">
 
                 <TextView
                     android:id="@+id/tvPeriodChip"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="За всё время  ˅"
+                    android:text="За всё время"
+                    android:textColor="#960018"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/tvPeriodCheck"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:text="▾"
                     android:textColor="#960018"
                     android:textSize="16sp"
                     android:textStyle="bold" />
@@ -123,9 +130,10 @@
 
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="150dp"
-                android:layout_marginTop="22dp"
-                android:orientation="horizontal">
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:orientation="horizontal"
+                android:minHeight="140dp">
 
                 <androidx.constraintlayout.widget.ConstraintLayout
                     android:layout_width="0dp"
@@ -134,14 +142,14 @@
                     android:layout_weight="1"
                     android:background="@drawable/bg_lamba_bot_bubble"
                     android:elevation="4dp"
-                    android:padding="18dp">
+                    android:padding="16dp">
 
                     <ImageView
                         android:id="@+id/iconMileage"
-                        android:layout_width="44dp"
-                        android:layout_height="44dp"
+                        android:layout_width="40dp"
+                        android:layout_height="40dp"
                         android:background="@drawable/bg_icon_red_light"
-                        android:padding="10dp"
+                        android:padding="9dp"
                         android:src="@drawable/ic_lamba_timeline"
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toTopOf="parent"
@@ -151,12 +159,10 @@
                         android:id="@+id/tvMileageTitle"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:layout_marginStart="10dp"
-                        android:ellipsize="end"
-                        android:maxLines="1"
+                        android:layout_marginStart="8dp"
                         android:text="Пробег"
                         android:textColor="#77777E"
-                        android:textSize="15sp"
+                        android:textSize="14sp"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintStart_toEndOf="@id/iconMileage"
                         app:layout_constraintTop_toTopOf="@id/iconMileage" />
@@ -165,12 +171,10 @@
                         android:id="@+id/tvMileageValue"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="16dp"
-                        android:ellipsize="end"
-                        android:maxLines="1"
+                        android:layout_marginTop="12dp"
                         android:text="0 км"
                         android:textColor="#101114"
-                        android:textSize="23sp"
+                        android:textSize="20sp"
                         android:textStyle="bold"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintStart_toStartOf="parent"
@@ -179,12 +183,10 @@
                     <TextView
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="5dp"
-                        android:ellipsize="end"
-                        android:maxLines="1"
+                        android:layout_marginTop="4dp"
                         android:text="Всего записано"
                         android:textColor="#77777E"
-                        android:textSize="14sp"
+                        android:textSize="13sp"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toBottomOf="@id/tvMileageValue" />
@@ -197,14 +199,14 @@
                     android:layout_weight="1"
                     android:background="@drawable/bg_lamba_bot_bubble"
                     android:elevation="4dp"
-                    android:padding="18dp">
+                    android:padding="16dp">
 
                     <ImageView
                         android:id="@+id/iconTotalExpenses"
-                        android:layout_width="44dp"
-                        android:layout_height="44dp"
+                        android:layout_width="40dp"
+                        android:layout_height="40dp"
                         android:background="@drawable/bg_icon_red_light"
-                        android:padding="10dp"
+                        android:padding="9dp"
                         android:src="@drawable/ic_lamba_wallet"
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toTopOf="parent"
@@ -214,12 +216,10 @@
                         android:id="@+id/tvTotalExpensesTitle"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:layout_marginStart="10dp"
-                        android:ellipsize="end"
-                        android:maxLines="1"
+                        android:layout_marginStart="8dp"
                         android:text="Топливо"
                         android:textColor="#77777E"
-                        android:textSize="15sp"
+                        android:textSize="14sp"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintStart_toEndOf="@id/iconTotalExpenses"
                         app:layout_constraintTop_toTopOf="@id/iconTotalExpenses" />
@@ -228,12 +228,10 @@
                         android:id="@+id/tvTotalExpensesValue"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="16dp"
-                        android:ellipsize="end"
-                        android:maxLines="1"
+                        android:layout_marginTop="12dp"
                         android:text="0 л"
                         android:textColor="#101114"
-                        android:textSize="23sp"
+                        android:textSize="20sp"
                         android:textStyle="bold"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintStart_toStartOf="parent"
@@ -242,12 +240,10 @@
                     <TextView
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="5dp"
-                        android:ellipsize="end"
-                        android:maxLines="1"
+                        android:layout_marginTop="4dp"
                         android:text="Сколько заправлено"
                         android:textColor="#77777E"
-                        android:textSize="14sp"
+                        android:textSize="13sp"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toBottomOf="@id/tvTotalExpensesValue" />
@@ -256,25 +252,26 @@
 
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="150dp"
-                android:layout_marginTop="16dp"
-                android:orientation="horizontal">
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:orientation="horizontal"
+                android:minHeight="120dp">
 
                 <androidx.constraintlayout.widget.ConstraintLayout
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
-                    android:layout_marginEnd="8dp"
+                    android:layout_marginEnd="6dp"
                     android:layout_weight="1"
                     android:background="@drawable/bg_lamba_bot_bubble"
                     android:elevation="4dp"
-                    android:padding="18dp">
+                    android:padding="14dp">
 
                     <ImageView
                         android:id="@+id/iconFuel"
-                        android:layout_width="44dp"
-                        android:layout_height="44dp"
+                        android:layout_width="36dp"
+                        android:layout_height="36dp"
                         android:background="@drawable/bg_icon_red_light"
-                        android:padding="10dp"
+                        android:padding="8dp"
                         android:src="@drawable/ic_lamba_stats"
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toTopOf="parent"
@@ -284,12 +281,10 @@
                         android:id="@+id/tvFuelTitle"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:layout_marginStart="10dp"
-                        android:ellipsize="end"
-                        android:maxLines="1"
+                        android:layout_marginStart="6dp"
                         android:text="Топливо"
                         android:textColor="#77777E"
-                        android:textSize="15sp"
+                        android:textSize="13sp"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintStart_toEndOf="@id/iconFuel"
                         app:layout_constraintTop_toTopOf="@id/iconFuel" />
@@ -298,12 +293,10 @@
                         android:id="@+id/tvFuelValue"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="16dp"
-                        android:ellipsize="end"
-                        android:maxLines="1"
+                        android:layout_marginTop="10dp"
                         android:text="0 ₽"
                         android:textColor="#101114"
-                        android:textSize="23sp"
+                        android:textSize="18sp"
                         android:textStyle="bold"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintStart_toStartOf="parent"
@@ -312,12 +305,10 @@
                     <TextView
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="5dp"
-                        android:ellipsize="end"
-                        android:maxLines="1"
+                        android:layout_marginTop="3dp"
                         android:text="Расходы на заправки"
                         android:textColor="#77777E"
-                        android:textSize="14sp"
+                        android:textSize="12sp"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toBottomOf="@id/tvFuelValue" />
@@ -326,18 +317,18 @@
                 <androidx.constraintlayout.widget.ConstraintLayout
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
-                    android:layout_marginStart="8dp"
+                    android:layout_marginStart="6dp"
                     android:layout_weight="1"
                     android:background="@drawable/bg_lamba_bot_bubble"
                     android:elevation="4dp"
-                    android:padding="18dp">
+                    android:padding="14dp">
 
                     <ImageView
                         android:id="@+id/iconRepair"
-                        android:layout_width="44dp"
-                        android:layout_height="44dp"
+                        android:layout_width="36dp"
+                        android:layout_height="36dp"
                         android:background="@drawable/bg_icon_red_light"
-                        android:padding="10dp"
+                        android:padding="8dp"
                         android:src="@drawable/ic_lamba_build"
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toTopOf="parent"
@@ -347,12 +338,10 @@
                         android:id="@+id/tvRepairTitle"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:layout_marginStart="10dp"
-                        android:ellipsize="end"
-                        android:maxLines="1"
+                        android:layout_marginStart="6dp"
                         android:text="Ремонт"
                         android:textColor="#77777E"
-                        android:textSize="15sp"
+                        android:textSize="13sp"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintStart_toEndOf="@id/iconRepair"
                         app:layout_constraintTop_toTopOf="@id/iconRepair" />
@@ -361,12 +350,10 @@
                         android:id="@+id/tvRepairValue"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="16dp"
-                        android:ellipsize="end"
-                        android:maxLines="1"
+                        android:layout_marginTop="10dp"
                         android:text="0 ₽"
                         android:textColor="#101114"
-                        android:textSize="23sp"
+                        android:textSize="18sp"
                         android:textStyle="bold"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintStart_toStartOf="parent"
@@ -375,12 +362,10 @@
                     <TextView
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="5dp"
-                        android:ellipsize="end"
-                        android:maxLines="1"
+                        android:layout_marginTop="3dp"
                         android:text="Обслуживание"
                         android:textColor="#77777E"
-                        android:textSize="14sp"
+                        android:textSize="12sp"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toBottomOf="@id/tvRepairValue" />
@@ -390,25 +375,25 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="18dp"
+                android:layout_marginTop="16dp"
                 android:background="@drawable/bg_lamba_bot_bubble"
                 android:elevation="4dp"
                 android:gravity="center_vertical"
                 android:orientation="horizontal"
-                android:padding="20dp">
+                android:padding="16dp">
 
                 <ImageView
-                    android:layout_width="50dp"
-                    android:layout_height="50dp"
+                    android:layout_width="44dp"
+                    android:layout_height="44dp"
                     android:background="@drawable/bg_icon_red_light"
-                    android:padding="12dp"
+                    android:padding="10dp"
                     android:src="@drawable/ic_lamba_timeline"
                     app:tint="#960018" />
 
                 <LinearLayout
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="16dp"
+                    android:layout_marginStart="14dp"
                     android:layout_weight="1"
                     android:orientation="vertical">
 
@@ -417,49 +402,49 @@
                         android:layout_height="wrap_content"
                         android:text="Записей"
                         android:textColor="#77777E"
-                        android:textSize="15sp" />
+                        android:textSize="14sp" />
 
                     <TextView
                         android:id="@+id/tvRecordsValue"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="4dp"
+                        android:layout_marginTop="2dp"
                         android:text="0 события"
                         android:textColor="#101114"
-                        android:textSize="28sp"
+                        android:textSize="24sp"
                         android:textStyle="bold" />
 
                     <TextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="6dp"
+                        android:layout_marginTop="4dp"
                         android:text="История автомобиля уже содержит данные о поездках, топливе и ремонте."
                         android:textColor="#77777E"
-                        android:textSize="15sp" />
+                        android:textSize="13sp" />
                 </LinearLayout>
             </LinearLayout>
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="18dp"
+                android:layout_marginTop="16dp"
                 android:background="@drawable/bg_lamba_bot_bubble"
                 android:elevation="4dp"
                 android:orientation="vertical"
-                android:padding="20dp">
+                android:padding="16dp">
 
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="Структура расходов"
                     android:textColor="#101114"
-                    android:textSize="21sp"
+                    android:textSize="18sp"
                     android:textStyle="bold" />
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="18dp"
+                    android:layout_marginTop="14dp"
                     android:gravity="center_vertical"
                     android:orientation="horizontal">
 
@@ -469,7 +454,7 @@
                         android:layout_weight="1"
                         android:text="Топливо"
                         android:textColor="#101114"
-                        android:textSize="16sp"
+                        android:textSize="15sp"
                         android:textStyle="bold" />
 
                     <TextView
@@ -478,14 +463,14 @@
                         android:layout_height="wrap_content"
                         android:text="0 ₽"
                         android:textColor="#77777E"
-                        android:textSize="16sp" />
+                        android:textSize="15sp" />
                 </LinearLayout>
 
                 <FrameLayout
                     android:id="@+id/fuelProgressTrack"
                     android:layout_width="match_parent"
-                    android:layout_height="10dp"
-                    android:layout_marginTop="10dp"
+                    android:layout_height="8dp"
+                    android:layout_marginTop="8dp"
                     android:background="#F1D7DC">
 
                     <View
@@ -498,7 +483,7 @@
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="18dp"
+                    android:layout_marginTop="14dp"
                     android:gravity="center_vertical"
                     android:orientation="horizontal">
 
@@ -508,7 +493,7 @@
                         android:layout_weight="1"
                         android:text="Ремонт"
                         android:textColor="#101114"
-                        android:textSize="16sp"
+                        android:textSize="15sp"
                         android:textStyle="bold" />
 
                     <TextView
@@ -517,14 +502,14 @@
                         android:layout_height="wrap_content"
                         android:text="0 ₽"
                         android:textColor="#77777E"
-                        android:textSize="16sp" />
+                        android:textSize="15sp" />
                 </LinearLayout>
 
                 <FrameLayout
                     android:id="@+id/repairProgressTrack"
                     android:layout_width="match_parent"
-                    android:layout_height="10dp"
-                    android:layout_marginTop="10dp"
+                    android:layout_height="8dp"
+                    android:layout_marginTop="8dp"
                     android:background="#F1D7DC">
 
                     <View

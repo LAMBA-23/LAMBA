@@ -8,19 +8,21 @@ Accepted
 
 LAMBA has a Kotlin Android client for user interaction and a FastAPI backend for vehicle history, statistics, chat parsing, and AI-backed answers. The Android app needs to create and read vehicle data, but direct mobile access to PostgreSQL or the Timeweb Cloud AI Agent API would expose infrastructure details and credentials in the client.
 
-The current implementation already uses Retrofit and JSON request/response models in the Android app, and FastAPI routes with Pydantic schemas in the backend. Architecture views show Android communicating with the backend over HTTP/JSON while the backend owns persistence and AI integration.
+The current implementation already uses Retrofit and JSON request/response models in the Android app, and FastAPI routes with Pydantic schemas in the backend. Architecture views show Android communicating with the backend over HTTP/JSON while the backend owns server-side persistence, authentication behavior, rate limiting, CORS configuration, and AI integration.
 
 ## Decision
 
-LAMBA uses a backend-owned REST/JSON boundary between the Android app and server-side capabilities. The Android app calls backend endpoints for authentication, vehicle profile, event history, statistics, chat parsing, and assistant answers. The backend owns database access, validation, business rules, and external AI provider calls.
+LAMBA uses a backend-owned REST/JSON boundary between the Android app and server-side capabilities. The Android app calls backend endpoints for authentication, vehicle profile, event history, statistics, chat parsing, assistant answers, and chat titles. The backend owns database access, validation, business rules, password hashing, rate limiting, CORS configuration, and external AI provider calls.
 
-For MVP v2 this keeps the customer-facing mobile app focused on interaction and local UI state, while keeping data ownership, persistence, and external service configuration on the backend.
+For MVP v3 this keeps the customer-facing mobile app focused on interaction, local UI state, and recent local chat history, while keeping durable vehicle-history ownership, server-side security controls, and external service configuration on the backend.
 
 ## Quality requirements addressed
 
 - QR-001: Vehicle event data integrity
 - QR-002: Timeline API response time
 - QR-003: Backend regression testability
+- QR-007: Secure password storage
+- QR-008: Login and chat request-rate protection
 
 ## Consequences
 
@@ -29,7 +31,7 @@ For MVP v2 this keeps the customer-facing mobile app focused on interaction and 
 - Backend validation is the single gate before vehicle events are persisted.
 - Android, backend, database, and AI provider responsibilities stay visible in the static, dynamic, and deployment views.
 - The REST/JSON API can be tested through FastAPI tests and exercised by the Android Retrofit client.
-- AI credentials and database connection details stay out of the Android client.
+- Password hashing, rate limiting, CORS origin decisions, AI credentials, and database connection details stay out of the Android client.
 
 ### Negative / Trade-offs
 
