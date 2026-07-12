@@ -4,7 +4,6 @@
 **Meeting date:** 2026-07-10
 **Participants:** Team representative; Customer.  
 **Recording consent:** Granted at the beginning of the meeting.  
-**Publication consent:** Public transcript publication permission was not captured in the recording, but asked early.
 
 [00:00]
 
