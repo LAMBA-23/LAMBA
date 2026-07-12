@@ -2,39 +2,82 @@
 
 ## Current product status and handover scope
 
-The current product state is a runnable backend application with documented local deployment and a documented hosted endpoint. This handover document describes the actual state today, not an assumed transfer that has already happened.
+The current product is an Android mobile application supported by a FastAPI backend, PostgreSQL database, Docker Compose deployment configuration, and AI integration. This handover document describes the actual state today, not an assumed transfer that has already happened.
 
-- Product repository: `LAMBA` contains the backend service, database deployment configuration, API contract, and verification documentation.
-- Deployment model: Docker Compose with PostgreSQL and FastAPI.
-- Hosted runtime documented in the repository: `http://186.246.27.211:8000`.
-- Customer-facing API reference documented in the repository: `http://186.246.27.211:8000/docs`.
+The handover scope encompasses the **entire product ecosystem**, including:
 
-Current handover status: **Not yet at `Ready for independent use`**
+* **Android Frontend:** Kotlin-based mobile application.
+* **Backend Service:** FastAPI application.
+* **Database:** PostgreSQL with migration configurations.
+* **Deployment Configuration:** Docker Compose orchestration.
+* **AI Integration:** DeepSeek-chat integration via Timeweb.
+* **Documentation:** Technical specifications, user guides, and process history.
 
-Reason: no customer access, deployment ownership, hosting account ownership, or repository administration has been transferred yet. The product and documentation exist, but formal handover has not been completed.
+### Component Locations & Runtime
+
+* **Product Repository:** `LAMBA` (contains all frontend, backend, deployment configs, and documentation).
+* **Deployment Model:** Docker Compose on customer-controlled infrastructure.
+* **Hosted Runtime:** `http://186.246.27.211:8000` (Deployed directly on the server provided and managed by the customer).
+* **API Reference:** `http://186.246.27.211:8000/docs`.
+
+## Handover Level and Transition Status
+
+* **Current Handover Level:** **Not yet at `Ready for independent use`**
+* **Customer Confirmation Status:** **Accepted with follow-up items** (Based on Trial Release evaluation).
+
+### Status Context:
+
+1. **Trial Validation:** The customer has executed a subset of UAT workflows during the customer meeting. Core features such as **chat history** and **session persistence** successfully passed validation.
+2. **Follow-up Items:** Several customer-critical features require remediation during Week 7 scope before final acceptance.
+3. **Scope Realignment:** Final acceptance criteria apply specifically to the upcoming **MVP v3** package, not the current trial version.
+4. **Operational Status:** The application is already running on the customer's hardware, but the team retains temporary technical responsibility for managing and updating the deployment until final sign-off.
+
+---
 
 ## What has been transferred, delegated, or retained
 
-Transferred/delegated to the customer:
+### Infrastructure & Deployment Ownership
 
-- No customer-facing transfer has been completed yet.
-- The repository contains instructions for local setup and verification, but those instructions have not been formally handed over as a completed customer transition.
+* **Hosting Server:** Provided, owned, and controlled exclusively by the **customer**.
+* **Deployment Management:** Temporarily maintained by the development team for updates, to be fully transitioned upon archive delivery and customer's confirmation.
 
-Intentionally retained by the team:
+### Codebase & Administrative Rights
 
-- Hosted backend infrastructure and deployment account.
-- GitHub repository administration and branch management.
-- Mobile app distribution channel and production APK publication.
+* **GitHub Repository Administration:** Intentionally **retained by the development team**. The customer explicitly stated that administrative rights to the team's GitHub repository are **not required**.
+* **Public Access:** The customer does not require public access to the deployed product and does not require repository administrator rights. The course repository remains publicly readable under the course requirements.
+
+---
+
+## Agreed Final Handover Format
+
+The final delivery mechanism has been explicitly aligned with the customer's request. Instead of repository transfers or cloud account migrations, the handover will consist of a **complete archive package** delivered via a **private storage channel** accessible to the customer.
+
+### Delivery Package Components:
+
+* Full source code archives for both **Android frontend** and **FastAPI backend**.
+* Current **Docker Compose** deployment configurations.
+* Step-by-step instructions for building the Android APK.
+* Comprehensive, non-technical installation and deployment guides.
+* Environment variable templates (excluding secret keys).
+* Troubleshooting, backup, and system recovery playbooks.
+* The complete set of maintained product and process documentation (including weekly reports) to enable seamless transition to any future engineering team.
+
+> **Note:** The final handover format is fully agreed upon, but the comprehensive archive package has not yet been delivered. Delivery will occur upon MVP v3 completion.
+
+---
 
 ## Access and use
 
 ### Hosted backend access
 
-- Backend base URL: `http://186.246.27.211:8000`
-- Swagger/API docs: `http://186.246.27.211:8000/docs`
-- Demo login:
-  - username: `demo`
-  - password: `demo`
+* **Base URL:** `http://186.246.27.211:8000`
+* **Swagger UI:** `http://186.246.27.211:8000/docs`
+
+### Authentication & Credentials
+
+* **No Default/Demo Accounts:** In compliance with security requirements, hardcoded `demo/demo` credentials have been completely removed from the repository.
+* **Access Method:** To test the application, register a new user directly via the Android mobile interface or use the `POST /auth/register` API endpoint.
+* **Production Secrets:** Real production credentials and API tokens are never stored in Git and will be transferred to the customer via a separate, secure private channel.
 
 ### Local use
 
@@ -56,10 +99,10 @@ After startup:
 
 ## Required configuration and secrets handling
 
-The backend requires the following environment variables in `docker-compose.yml` or local environment:
+The system depends on external AI infrastructure. The customer must supply the following environment variables in `docker-compose.yml` or local environment for full functionality:
 
 - `DATABASE_URL` — PostgreSQL connection string for the backend.
-- `TIMEWEB_API_KEY` — AI chat API key.
+- `TIMEWEB_API_KEY` — AI chat API key (Must be kept out of version control, provided via `.env`).
 - `TIMEWEB_AGENT_ID` — AI chat agent identifier.
 - `TIMEWEB_MODEL` — optional model name, default `deepseek-chat`.
 - `TIMEWEB_TIMEOUT_SECONDS` — optional request timeout, default `20`.
@@ -117,9 +160,9 @@ curl http://localhost:8000/docs
 
 Then verify functionality:
 
-- `POST /auth/login` with `demo` / `demo`
-- `GET /vehicle?user_id=1`
-- Access Swagger UI at `/docs`
+1. Register a new user via `POST /auth/register` or through the Android UI.
+2. Test session functionality using `GET /vehicle?user_id=1` (or the corresponding active user ID).
+3. Access the interactive Swagger UI directly at `/docs`.
 
 ## Main customer-facing documentation
 
@@ -132,28 +175,30 @@ The customer should use these primary entry points for normal use, operation, an
 
 ## Documentation sufficiency and support needs
 
-This documentation set is sufficient for the customer to evaluate the current backed runtime, run it locally, and verify basic use cases. It is not sufficient for a full customer-managed production deployment because the hosting account and deployment ownership remain team-retained.
+* **Current State:** The existing documentation is sufficient for technical verification, running local smoke tests, and reviewing the API contract.
+* **Target State:** It is **insufficient** for the requested non-technical handover package. 
+* **Required Adjustments:** Before final handover, the team must expand the documentation to include clear, highly detailed, non-technical instructions covering end-to-end usage, deployment, backup/recovery, and system troubleshooting for future engineering teams.
 
-Team support still required for:
-
-- hosted backend availability and production endpoint management
-- AI chat credential provisioning and secret handling
-- Android app distribution beyond the debug APK
+---
 
 ## Known limitations and risks
 
-- Hosted backend is team-hosted and not transferred to a customer-owned account.
-- No customer-managed deployment or cloud account is documented.
 - Android delivery is limited to a debug APK artifact, not a published app.
 - AI chat features depend on external Timeweb/DeepSeek credentials.
 - Monitoring and support processes are limited to health checks and logs.
 
 ## Remaining actions
 
-- Transfer production deployment and hosting account to the customer if full infrastructure handover is required.
-- Provide explicit customer GitHub access or a repository transfer path.
-- Publish or distribute the Android app artifact through customer-approved channels.
-- Add customer-side monitoring and incident response documentation.
+
+- [ ] Complete customer-critical Week 7 feature scope and fixes.
+- [ ] Verify all updated User Acceptance Testing (UAT) scenarios.
+- [ ] Expand documentation into a comprehensive, non-technical handover package (Usage, Deployment, Backup, Troubleshooting).
+- [ ] Prepare clean frontend, backend, and documentation archives, ensuring zero leakage of production secrets.
+- [ ] Deliver the archive packages to the customer via the designated private storage channel.
+- [ ] Transfer production environment secrets securely via a separate channel.
+- [ ] Request final customer sign-off on this handover document (`docs/customer-handover.md`) to verify it meets the agreed level of transfer.
+- [ ] Update Handover Level to `Ready for independent use` and Status to `Accepted` upon final confirmation.
+
 
 ## Related customer-relevant documentation
 
