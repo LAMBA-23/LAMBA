@@ -532,52 +532,6 @@ This would allow users to create history records without using the chat.
 - **Traceability:** To be linked to relevant GitHub issues or PBIs after implementation.
 - **Resulting PBIs/issues:** To be completed after execution.
 
-## UAT-013: Separate account/profile page
-
-- **Scenario ID:** UAT-013
-- **Status:** Removed from the Assignment 6 MVP scope.
-- **User goal:** A user can open a separate account/profile page if this feature is included in a future scope.
-- **Preconditions:**
-  - The user is registered or logged in.
-  - A vehicle profile exists.
-  - A separate account/profile page is included in the current scope when this scenario is executed.
-
-| Step | User action | Expected outcome |
-|---|---|---|
-| 1 | Open Profile from bottom navigation. | The Profile screen opens instead of the add-vehicle screen. |
-| 2 | Review account information. | The user can view account information such as name and email. |
-| 3 | Review active vehicle information. | The user can view the active vehicle information. |
-| 4 | Edit supported profile or vehicle fields. | The app allows changes only for supported editable fields. |
-| 5 | Save changes. | The updated information is saved successfully. |
-| 6 | Leave and return to Profile. | The updated information remains visible. |
-| 7 | Review account actions. | Logout is available from Profile if session persistence is implemented. |
-
-### Week 6 Execution Result
-
-- **Execution status:** Not executed
-- **Date:** 10 July 2026
-- **Executed by:** Not executed
-- **Evidence:** private Week 6 meeting recording and sanitized transcript
-- **Result:** Removed from current scope by customer agreement
-- **Customer comments or observed issues:**
-  - Due to the remaining deadline and higher-priority must-have items, the team proposed not implementing a separate account page.
-  - The customer agreed that a separate account page is not necessary for the final course version.
-  - Session persistence and logout remain covered by UAT-012.
-- **Traceability:** Product Backlog Item scope decision listed below.
-- **Resulting PBIs:**
-  - No additional implementation work is required for Assignment 6 because the customer agreed to remove the separate account page from the MVP v3 scope.
-
-### Week 7 Execution Result
-
-- **Execution status:** To be completed after the Week 7 transition confirmation.
-- **Date:** To be completed after the Week 7 transition confirmation.
-- **Executed by:** To be completed after the Week 7 transition confirmation.
-- **Evidence:** To be added in the private Moodle submission if applicable.
-- **Result:** To be completed after execution.
-- **Customer comments or observed issues:** To be completed after the Week 7 transition confirmation.
-- **Traceability:** To be linked to relevant GitHub issues or PBIs after implementation.
-- **Resulting PBIs/issues:** To be completed after execution.
-
 ## Week 4 UAT Summary
 
 - **Scenarios executed:** 4 (UAT-001, UAT-002, UAT-003, UAT-004)
@@ -593,7 +547,7 @@ This would allow users to create history records without using the chat.
 
 ## Week 6 UAT Summary
 
-- **Scenarios executed:** UAT-005, UAT-006, UAT-008, UAT-009, UAT-011, UAT-012. UAT-007, UAT-010, and UAT-013 were not executed as functional tests.
+- **Scenarios executed:** UAT-005, UAT-006, UAT-008, UAT-009, UAT-011, UAT-012. UAT-007 and UAT-010 were not executed as functional tests.
 - **Passed:**
   - UAT-008
   - UAT-012
@@ -606,8 +560,6 @@ This would allow users to create history records without using the chat.
 - **Not executed because implementation was incomplete:**
   - UAT-007
   - UAT-010
-- **Removed from current MVP scope by customer agreement:**
-  - UAT-013
 - **Most important feedback points:**
   - Recommendations should become simple rule-based notifications instead of proactive AI chat messages.
   - Fractional fuel values are mandatory.
