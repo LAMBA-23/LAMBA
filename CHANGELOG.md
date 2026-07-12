@@ -7,6 +7,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.3.0] - 2026-07-12
+
+### Added
+
+- Password hashing and secure auth in backend (#265)
+- Local chat history persistence for last 5 dialogs (#277)
+- Application launcher icon (#242)
+- Android side drawer account block now opens an animated logout sheet with confirmation and local session cleanup (#271).
+
+### Changed
+
+- Backend login rate limiting and restricted CORS (#265)
+- Statistics UI layout adjusted for adaptive display (#278)
+- Session restore improved after app restart (#243)
+
+### Fixed
+
+- Frontend layout issues on statistics screen (#278)
+
 ## [1.2.0] - 2026-07-05
 
 ### Added

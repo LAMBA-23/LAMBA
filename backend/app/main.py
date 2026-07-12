@@ -11,7 +11,7 @@ from sqlalchemy.orm import Session
 
 from .chat_parser import parse_chat_message
 from .database import Base, engine, get_db
-from .deepseek_chat import ask_deepseek
+from .deepseek_chat import ask_deepseek, generate_chat_title
 from .models import Car, Event, User
 from .rate_limit import FixedWindowRateLimiter
 from .schemas import (
@@ -19,8 +19,11 @@ from .schemas import (
     CarResponse,
     ChatAskRequest,
     ChatAskResponse,
+    ChatContextMessage,
     ChatParseRequest,
     ChatParseResponse,
+    ChatTitleRequest,
+    ChatTitleResponse,
     EventCreate,
     EventResponse,
     LoginRequest,
@@ -758,6 +761,14 @@ def _build_llm_vehicle_context(car: Car, events: list[Event]) -> str:
     return "\n".join(context_lines)
 
 
+def _build_chat_context(messages: list[ChatContextMessage] | None) -> str | None:
+    if not messages:
+        return None
+    lines = [f"{message.sender}: {message.text.strip()}" for message in messages]
+    lines = [line for line in lines if line.strip()]
+    return "\n".join(lines) if lines else None
+
+
 @app.on_event("startup")
 def on_startup() -> None:
     Base.metadata.create_all(bind=engine)
@@ -982,11 +993,45 @@ def chat_ask(
         context_lines.append(line)
 
     vehicle_context = _build_llm_vehicle_context(car, events)
+    chat_context = _build_chat_context(payload.chat_context)
     try:
-        answer = ask_deepseek(message=payload.message, vehicle_context=vehicle_context)
+        try:
+            answer = ask_deepseek(
+                message=payload.message,
+                vehicle_context=vehicle_context,
+                chat_context=chat_context,
+            )
+        except TypeError:
+            answer = ask_deepseek(
+                message=payload.message,
+                vehicle_context=vehicle_context,
+            )
     except Exception:
         answer = "Не удалось получить ответ от AI-ассистента. Попробуйте позже."
     return ChatAskResponse(answer=answer)
+
+
+@app.post("/chat/title", response_model=ChatTitleResponse)
+def chat_title(
+    payload: ChatTitleRequest,
+    request: Request,
+    user_id: int = Query(...),
+    db: Session = Depends(get_db),
+) -> ChatTitleResponse:
+    enforce_rate_limit(
+        request,
+        scope="chat",
+        limit=CHAT_RATE_LIMIT,
+        window_seconds=CHAT_RATE_LIMIT_WINDOW_SECONDS,
+        detail="Too many chat requests",
+    )
+    get_user(db, user_id)
+    return ChatTitleResponse(
+        title=generate_chat_title(
+            first_user_message=payload.first_user_message,
+            first_assistant_reply=payload.first_assistant_reply,
+        )
+    )
 
 
 @app.get("/events", response_model=list[EventResponse])
