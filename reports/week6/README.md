@@ -268,14 +268,4 @@ Expected Week 7 follow-up work:
 
 ## 31. Embedded screenshots from reports/week6/images/
 
-### Sprint milestone
-
-![Sprint milestone](images/sprint-milestone.png)
-
-### Week 6 release
-
-![Week 6 release](images/week6-release.png)
-
-### Example reviewed issue-linked PR
-
-![Reviewed issue-linked PR](images/reviewed-issue-linked-pr.png)
+Screenshots will be added to `reports/week6/images/` after the required evidence is captured.
