@@ -36,6 +36,7 @@ class StatisticsActivity : AppCompatActivity() {
     private lateinit var repairProgressTrack: FrameLayout
     private lateinit var repairProgressFill: View
     private lateinit var tvPeriodChip: TextView
+    private lateinit var tvPeriodCheck: TextView
     private var selectedPeriod: String = PERIOD_ALL_TIME
     private var latestStats: Stats = Stats()
 
@@ -60,6 +61,7 @@ class StatisticsActivity : AppCompatActivity() {
         fuelProgressFill = findViewById(R.id.fuelProgressFill)
         repairProgressTrack = findViewById(R.id.repairProgressTrack)
         repairProgressFill = findViewById(R.id.repairProgressFill)
+        tvPeriodCheck = findViewById(R.id.tvPeriodCheck)
 
         setupPeriodSelector()
         renderStats(Stats())
@@ -73,6 +75,7 @@ class StatisticsActivity : AppCompatActivity() {
     private fun setupPeriodSelector() {
         val periodChip = findViewById<LinearLayout>(R.id.periodChip)
         tvPeriodChip = findViewById(R.id.tvPeriodChip)
+        tvPeriodCheck = findViewById(R.id.tvPeriodCheck)
         periodChip.setOnClickListener {
             showPeriodDropdown(periodChip)
         }
@@ -157,7 +160,7 @@ class StatisticsActivity : AppCompatActivity() {
 
             setOnClickListener {
                 selectedPeriod = period
-                tvPeriodChip.text = "$period  ˅"
+                tvPeriodChip.text = period
                 renderStats(latestStats)
                 animateDropdownDismiss(popup)
             }

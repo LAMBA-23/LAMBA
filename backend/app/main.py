@@ -1,24 +1,29 @@
 from __future__ import annotations
 
+import os
 import re
 from datetime import datetime, timedelta, timezone
 
-from fastapi import Depends, FastAPI, HTTPException, Query, Response, status
+from fastapi import Depends, FastAPI, HTTPException, Query, Request, Response, status
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy import inspect, select, text
 from sqlalchemy.orm import Session
 
 from .chat_parser import parse_chat_message
 from .database import Base, engine, get_db
-from .deepseek_chat import ask_deepseek
+from .deepseek_chat import ask_deepseek, generate_chat_title
 from .models import Car, Event, User
+from .rate_limit import FixedWindowRateLimiter
 from .schemas import (
     CarCreate,
     CarResponse,
     ChatAskRequest,
     ChatAskResponse,
+    ChatContextMessage,
     ChatParseRequest,
     ChatParseResponse,
+    ChatTitleRequest,
+    ChatTitleResponse,
     EventCreate,
     EventResponse,
     LoginRequest,
@@ -29,48 +34,64 @@ from .schemas import (
     StatsPeriodResponse,
     StatsResponse,
 )
+from .security import hash_password, is_password_hashed, verify_password
 
-DEMO_USERNAME = "demo"
-DEMO_PASSWORD = "demo"
-DEMO_COMPATIBLE_PASSWORDS = {DEMO_PASSWORD, "password"}
 DEFAULT_CAR_BRAND = "Not set"
 DEFAULT_CAR_MODEL = "Not set"
 DEFAULT_CAR_PRODUCTION_YEAR = 0
 DEFAULT_CAR_MILEAGE = 0
 EVENT_TYPE_CHECK_CONSTRAINT = "events_type_check"
+LOGIN_RATE_LIMIT = int(os.getenv("LOGIN_RATE_LIMIT", "5"))
+LOGIN_RATE_LIMIT_WINDOW_SECONDS = int(
+    os.getenv("LOGIN_RATE_LIMIT_WINDOW_SECONDS", "60")
+)
+CHAT_RATE_LIMIT = int(os.getenv("CHAT_RATE_LIMIT", "20"))
+CHAT_RATE_LIMIT_WINDOW_SECONDS = int(os.getenv("CHAT_RATE_LIMIT_WINDOW_SECONDS", "60"))
+CORS_ALLOWED_ORIGINS = [
+    origin.strip()
+    for origin in os.getenv("CORS_ALLOWED_ORIGINS", "").split(",")
+    if origin.strip()
+]
 
 app = FastAPI(title="LAMBA Backend", version="0.1.0")
+rate_limiter = FixedWindowRateLimiter()
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=CORS_ALLOWED_ORIGINS,
     allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
 
-def seed_demo_data(db: Session) -> None:
-    # Demo stays available as a normal seeded account for smoke checks.
-    user = db.scalar(select(User).where(User.username == DEMO_USERNAME))
+def remove_demo_account(db: Session) -> None:
+    user = db.scalar(select(User).where(User.username == "demo"))
     if user is None:
-        user = User(username=DEMO_USERNAME, password=DEMO_PASSWORD)
-        db.add(user)
-        db.flush()
+        return
 
     car = db.scalar(select(Car).where(Car.user_id == user.id))
-    if car is None:
-        db.add(
-            Car(
-                user_id=user.id,
-                brand="BMW",
-                model="M4",
-                production_year=2020,
-                current_mileage=125000,
-            )
-        )
+    if car is not None:
+        for event in db.scalars(select(Event).where(Event.car_id == car.id)):
+            db.delete(event)
+        db.delete(car)
 
+    db.delete(user)
     db.commit()
+
+
+def upgrade_legacy_passwords(db: Session) -> None:
+    users = list(db.scalars(select(User)))
+    changed = False
+
+    for user in users:
+        if is_password_hashed(user.password):
+            continue
+        user.password = hash_password(user.password)
+        changed = True
+
+    if changed:
+        db.commit()
 
 
 def create_default_car(user_id: int) -> Car:
@@ -105,6 +126,29 @@ def get_or_create_user_car(db: Session, user: User) -> Car:
 def get_car_for_user_id(db: Session, user_id: int) -> Car:
     user = get_user(db, user_id)
     return get_or_create_user_car(db, user)
+
+
+def _client_identifier(request: Request) -> str:
+    forwarded_for = request.headers.get("x-forwarded-for")
+    if forwarded_for:
+        return forwarded_for.split(",")[0].strip()
+    if request.client is not None and request.client.host:
+        return request.client.host
+    return "unknown"
+
+
+def enforce_rate_limit(
+    request: Request,
+    *,
+    scope: str,
+    limit: int,
+    window_seconds: int,
+    detail: str,
+) -> None:
+    key = f"{scope}:{_client_identifier(request)}"
+    if rate_limiter.allow(key, limit=limit, window_seconds=window_seconds):
+        return
+    raise HTTPException(status_code=429, detail=detail)
 
 
 STATISTICS_EVENT_TYPES = {"fuel", "repair", "trip"}
@@ -717,13 +761,22 @@ def _build_llm_vehicle_context(car: Car, events: list[Event]) -> str:
     return "\n".join(context_lines)
 
 
+def _build_chat_context(messages: list[ChatContextMessage] | None) -> str | None:
+    if not messages:
+        return None
+    lines = [f"{message.sender}: {message.text.strip()}" for message in messages]
+    lines = [line for line in lines if line.strip()]
+    return "\n".join(lines) if lines else None
+
+
 @app.on_event("startup")
 def on_startup() -> None:
     Base.metadata.create_all(bind=engine)
     ensure_event_schema()
     db = next(get_db())
     try:
-        seed_demo_data(db)
+        remove_demo_account(db)
+        upgrade_legacy_passwords(db)
     finally:
         db.close()
 
@@ -734,16 +787,26 @@ def health() -> dict[str, str]:
 
 
 @app.post("/auth/login", response_model=LoginResponse, response_model_exclude_none=True)
-def login(payload: LoginRequest, db: Session = Depends(get_db)) -> LoginResponse:
-    user = db.scalar(select(User).where(User.username == payload.username))
-    is_demo_compatible_login = (
-        payload.username == DEMO_USERNAME
-        and payload.password in DEMO_COMPATIBLE_PASSWORDS
+def login(
+    payload: LoginRequest,
+    request: Request,
+    db: Session = Depends(get_db),
+) -> LoginResponse:
+    enforce_rate_limit(
+        request,
+        scope="login",
+        limit=LOGIN_RATE_LIMIT,
+        window_seconds=LOGIN_RATE_LIMIT_WINDOW_SECONDS,
+        detail="Too many login attempts",
     )
-    if user is None or (
-        user.password != payload.password and not is_demo_compatible_login
-    ):
+    user = db.scalar(select(User).where(User.username == payload.username))
+    if user is None or not verify_password(payload.password, user.password):
         return LoginResponse(success=False)
+
+    if not is_password_hashed(user.password):
+        user.password = hash_password(payload.password)
+        db.commit()
+
     return LoginResponse(success=True, user_id=user.id)
 
 
@@ -755,7 +818,7 @@ def register(
     if existing_user is not None:
         raise HTTPException(status_code=400, detail="Username is already registered")
 
-    user = User(username=payload.username, password=payload.password)
+    user = User(username=payload.username, password=hash_password(payload.password))
     db.add(user)
     db.flush()
     db.add(create_default_car(user.id))
@@ -876,9 +939,17 @@ def parse_event_from_chat(payload: ChatParseRequest) -> ChatParseResponse:
 @app.post("/chat/ask", response_model=ChatAskResponse)
 def chat_ask(
     payload: ChatAskRequest,
+    request: Request,
     user_id: int = Query(...),
     db: Session = Depends(get_db),
 ) -> ChatAskResponse:
+    enforce_rate_limit(
+        request,
+        scope="chat",
+        limit=CHAT_RATE_LIMIT,
+        window_seconds=CHAT_RATE_LIMIT_WINDOW_SECONDS,
+        detail="Too many chat requests",
+    )
     MAX_CONTEXT_EVENTS = 30
     now = datetime.now(timezone.utc).replace(tzinfo=None)
     car = get_car_for_user_id(db, user_id)
@@ -922,11 +993,45 @@ def chat_ask(
         context_lines.append(line)
 
     vehicle_context = _build_llm_vehicle_context(car, events)
+    chat_context = _build_chat_context(payload.chat_context)
     try:
-        answer = ask_deepseek(message=payload.message, vehicle_context=vehicle_context)
+        try:
+            answer = ask_deepseek(
+                message=payload.message,
+                vehicle_context=vehicle_context,
+                chat_context=chat_context,
+            )
+        except TypeError:
+            answer = ask_deepseek(
+                message=payload.message,
+                vehicle_context=vehicle_context,
+            )
     except Exception:
         answer = "Не удалось получить ответ от AI-ассистента. Попробуйте позже."
     return ChatAskResponse(answer=answer)
+
+
+@app.post("/chat/title", response_model=ChatTitleResponse)
+def chat_title(
+    payload: ChatTitleRequest,
+    request: Request,
+    user_id: int = Query(...),
+    db: Session = Depends(get_db),
+) -> ChatTitleResponse:
+    enforce_rate_limit(
+        request,
+        scope="chat",
+        limit=CHAT_RATE_LIMIT,
+        window_seconds=CHAT_RATE_LIMIT_WINDOW_SECONDS,
+        detail="Too many chat requests",
+    )
+    get_user(db, user_id)
+    return ChatTitleResponse(
+        title=generate_chat_title(
+            first_user_message=payload.first_user_message,
+            first_assistant_reply=payload.first_assistant_reply,
+        )
+    )
 
 
 @app.get("/events", response_model=list[EventResponse])
