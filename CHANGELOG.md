@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Backend recommendations endpoint with rule-based vehicle notifications for fuel
+  price, repair cost, stale records, recent breakdowns, and fuel-level reminders
+  (#315).
+
 ## [1.3.0] - 2026-07-12
 
 ### Added
