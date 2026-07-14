@@ -187,6 +187,59 @@ class TestStatsApi:
         assert data["month"]["fuel_liters"] == 46.2
         assert data["all_time"]["fuel_liters"] == 46.2
 
+    def test_get_stats_sums_decimal_expenses_and_trip_distance(self, client):
+        user_id = _register_user(client, "stats-decimal-expenses-distance")
+        vehicle_response = client.post(
+            "/vehicle",
+            json={
+                "user_id": user_id,
+                "brand": "BMW",
+                "model": "M4",
+                "production_year": 2020,
+                "current_mileage": 125000,
+            },
+        )
+
+        _create_event(
+            client,
+            user_id,
+            type="fuel",
+            description="decimal fuel cost",
+            amount=2500.125,
+            mileage=0,
+            fuel_liters=35.5,
+        )
+        _create_event(
+            client,
+            user_id,
+            type="repair",
+            description="decimal repair cost",
+            amount=7000.5,
+            mileage=0,
+        )
+        trip_response = _create_event(
+            client,
+            user_id,
+            type="trip",
+            description="decimal trip",
+            amount=0,
+            mileage=100.25,
+        )
+
+        response = client.get(f"/stats?user_id={user_id}")
+        data = response.json()
+
+        assert vehicle_response.status_code == 201
+        assert trip_response.status_code == 200
+        assert trip_response.json()["mileage"] == 125100.25
+        assert response.status_code == 200
+        assert data["week"]["fuel_expenses"] == 2500.125
+        assert data["week"]["repair_expenses"] == 7000.5
+        assert data["week"]["total_expenses"] == 9500.625
+        assert data["week"]["mileage"] == 100.25
+        assert data["all_time"]["mileage"] == 125100.25
+        assert data["total_recorded_mileage"] == 125100.25
+
     def test_manual_issue_event_counts_as_record_without_expenses_or_mileage(
         self, client
     ):

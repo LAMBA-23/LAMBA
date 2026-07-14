@@ -1,3 +1,5 @@
+from decimal import Decimal
+
 from app.chat_parser import _apply_guardrails
 from app.schemas import ParsedChatEvent
 
@@ -160,7 +162,40 @@ def test_guardrails_parse_decimal_fuel_liters() -> None:
     assert result.type == "fuel"
     assert (
         result.description
-        == "\u0417\u0430\u043f\u0440\u0430\u0432\u043a\u0430 \u043d\u0430 35.7 \u043b\u0438\u0442\u0440\u043e\u0432"
+        == "\u0417\u0430\u043f\u0440\u0430\u0432\u043a\u0430 \u043d\u0430 35,7 \u043b\u0438\u0442\u0440\u043e\u0432"
     )
-    assert getattr(result, "fuel_liters", None) == 35.7
+    assert getattr(result, "fuel_liters", None) == Decimal("35.7")
+    assert result.needs_clarification is False
+
+
+def test_guardrails_parse_decimal_fuel_amount() -> None:
+    result = _apply_guardrails(
+        "\u0437\u0430\u043f\u0440\u0430\u0432\u0438\u043b\u0430\u0441\u044c \u043d\u0430 35,5 \u043b\u0438\u0442\u0440\u0430 \u0437\u0430 2500,125 \u0440\u0443\u0431\u043b\u0435\u0439",
+        ParsedChatEvent(
+            needs_clarification=True,
+            clarification_question="\u0423\u0442\u043e\u0447\u043d\u0438\u0442\u0435 \u0442\u0438\u043f \u0441\u043e\u0431\u044b\u0442\u0438\u044f.",
+        ),
+    )
+
+    assert result.type == "fuel"
+    assert result.amount == Decimal("2500.125")
+    assert getattr(result, "fuel_liters", None) == Decimal("35.5")
+    assert result.needs_clarification is False
+
+
+def test_guardrails_parse_decimal_trip_distance() -> None:
+    result = _apply_guardrails(
+        "\u043f\u0440\u043e\u0435\u0445\u0430\u043b 120,345 \u043a\u043c",
+        ParsedChatEvent(
+            needs_clarification=True,
+            clarification_question="\u0423\u0442\u043e\u0447\u043d\u0438\u0442\u0435 \u0442\u0438\u043f \u0441\u043e\u0431\u044b\u0442\u0438\u044f.",
+        ),
+    )
+
+    assert result.type == "trip"
+    assert (
+        result.description
+        == "\u041f\u043e\u0435\u0437\u0434\u043a\u0430 \u043d\u0430 120,345 \u043a\u0438\u043b\u043e\u043c\u0435\u0442\u0440\u043e\u0432"
+    )
+    assert result.mileage == Decimal("120.345")
     assert result.needs_clarification is False

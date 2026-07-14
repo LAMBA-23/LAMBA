@@ -247,9 +247,9 @@ class StatisticsActivity : AppCompatActivity() {
         contentContainer.alpha = if (isLoading) 0.45f else 1f
     }
 
-    private fun updateProgress(track: FrameLayout, fill: View, value: Int, total: Int) {
+    private fun updateProgress(track: FrameLayout, fill: View, value: Double, total: Double) {
         track.post {
-            val targetWidth = if (total > 0) {
+            val targetWidth = if (total > 0.0) {
                 (track.width * (value.toFloat() / total.toFloat())).toInt()
             } else {
                 0
@@ -261,19 +261,13 @@ class StatisticsActivity : AppCompatActivity() {
         }
     }
 
-    private fun formatMoney(value: Int): String = "$value ₽"
+    private fun formatMoney(value: Double): String = DecimalNumberUtils.formatMoney(value)
 
     private fun formatLitres(value: Double): String = "${formatPlainNumber(value)} л"
 
-    private fun formatMileage(value: Int): String = "$value км"
+    private fun formatMileage(value: Double): String = DecimalNumberUtils.formatKilometers(value)
 
-    private fun formatPlainNumber(value: Double): String {
-        return if (value % 1.0 == 0.0) {
-            value.toLong().toString()
-        } else {
-            value.toString().replace('.', ',')
-        }
-    }
+    private fun formatPlainNumber(value: Double): String = DecimalNumberUtils.formatDecimal(value)
 
     private fun roundedBackground(color: String, radius: Float): GradientDrawable {
         return GradientDrawable().apply {

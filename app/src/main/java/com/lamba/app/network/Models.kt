@@ -50,9 +50,9 @@ data class ChatParseRequest(
 data class ParsedEventPayload(
     @SerializedName("type") val type: String,
     @SerializedName("description") val description: String,
-    @SerializedName("amount") val amount: Int? = null,
+    @SerializedName("amount") val amount: Double? = null,
     @SerializedName("fuel_liters") val fuelLiters: Double? = null,
-    @SerializedName("mileage") val mileage: Int? = null
+    @SerializedName("mileage") val mileage: Double? = null
 )
 
 data class ChatParseResponse(
@@ -64,18 +64,18 @@ data class ChatParseResponse(
 data class EventCreateRequest(
     @SerializedName("type") val type: String,
     @SerializedName("description") val description: String,
-    @SerializedName("amount") val amount: Int? = null,
+    @SerializedName("amount") val amount: Double? = null,
     @SerializedName("fuel_liters") val fuelLiters: Double? = null,
-    @SerializedName("mileage") val mileage: Int? = null
+    @SerializedName("mileage") val mileage: Double? = null
 )
 
 data class Event(
     @SerializedName("id") val id: Int? = null,
     @SerializedName("type") val type: String,
     @SerializedName("description") val description: String,
-    @SerializedName("amount") val amount: Int,
+    @SerializedName("amount") val amount: Double,
     @SerializedName("fuel_liters") val fuelLiters: Double = 0.0,
-    @SerializedName("mileage") val mileage: Int,
+    @SerializedName("mileage") val mileage: Double,
     @SerializedName("created_at") val createdAt: String? = null
 ) {
     companion object {
@@ -92,10 +92,10 @@ data class Event(
 }
 
 data class Stats(
-    @SerializedName("fuel_expenses") val fuelExpenses: Int = 0,
-    @SerializedName("repair_expenses") val repairExpenses: Int = 0,
+    @SerializedName("fuel_expenses") val fuelExpenses: Double = 0.0,
+    @SerializedName("repair_expenses") val repairExpenses: Double = 0.0,
     @SerializedName("trip_count") val tripCount: Int = 0,
-    @SerializedName("total_recorded_mileage") val totalRecordedMileage: Int = 0,
+    @SerializedName("total_recorded_mileage") val totalRecordedMileage: Double = 0.0,
     @SerializedName("week") val week: StatsPeriod = StatsPeriod(),
     @SerializedName("month") val month: StatsPeriod = StatsPeriod(),
     @SerializedName("all_time") val allTime: StatsPeriod = StatsPeriod()
@@ -110,17 +110,17 @@ data class Stats(
 }
 
 data class StatsPeriod(
-    @SerializedName("mileage") val mileage: Int = 0,
-    @SerializedName("total_expenses") val totalExpenses: Int = 0,
-    @SerializedName("fuel_expenses") val fuelExpenses: Int = 0,
-    @SerializedName("repair_expenses") val repairExpenses: Int = 0,
+    @SerializedName("mileage") val mileage: Double = 0.0,
+    @SerializedName("total_expenses") val totalExpenses: Double = 0.0,
+    @SerializedName("fuel_expenses") val fuelExpenses: Double = 0.0,
+    @SerializedName("repair_expenses") val repairExpenses: Double = 0.0,
     @SerializedName("records_count") val recordsCount: Int = 0,
-    @SerializedName("avg_fuel_consumption") val avgFuelConsumption: Int = 0,
-    @SerializedName("avg_expense_consumption") val avgExpenseConsumption: Int = 0,
-    @SerializedName("mileage_km") val mileageKm: Int = 0,
-    @SerializedName("expenses_rub") val expensesRub: Int = 0,
+    @SerializedName("avg_fuel_consumption") val avgFuelConsumption: Double = 0.0,
+    @SerializedName("avg_expense_consumption") val avgExpenseConsumption: Double = 0.0,
+    @SerializedName("mileage_km") val mileageKm: Double = 0.0,
+    @SerializedName("expenses_rub") val expensesRub: Double = 0.0,
     @SerializedName("fuel_liters") val fuelLiters: Double = 0.0,
-    @SerializedName("avg_fuel_consumption_l_per_100km") val avgFuelConsumptionLPer100Km: Int = 0
+    @SerializedName("avg_fuel_consumption_l_per_100km") val avgFuelConsumptionLPer100Km: Double = 0.0
 )
 
 enum class StatsPeriodKey {

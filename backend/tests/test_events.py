@@ -206,6 +206,82 @@ class TestEventsApi:
         assert timeline_response.status_code == 200
         assert timeline_response.json() == [created_event]
 
+    def test_post_fuel_event_accepts_decimal_liters_and_amount(self, client):
+        user_id = _register_user(client, "events-decimal-fuel-cost")
+
+        create_response = client.post(
+            f"/events?user_id={user_id}",
+            json=_event_payload(
+                description="Fuel with decimal liters and cost",
+                amount=2500.125,
+                fuel_liters=35.75,
+            ),
+        )
+        timeline_response = client.get(f"/events?user_id={user_id}")
+
+        assert create_response.status_code == 200
+        created_event = create_response.json()
+        assert created_event["amount"] == 2500.125
+        assert created_event["fuel_liters"] == 35.75
+        assert timeline_response.status_code == 200
+        assert timeline_response.json() == [created_event]
+
+    def test_post_repair_event_accepts_decimal_amount(self, client):
+        user_id = _register_user(client, "events-decimal-repair-cost")
+
+        response = client.post(
+            f"/events?user_id={user_id}",
+            json=_event_payload(
+                type="repair",
+                description="Repair with decimal cost",
+                amount=7000.5,
+                mileage=0,
+            ),
+        )
+
+        assert response.status_code == 200
+        assert response.json()["amount"] == 7000.5
+
+    def test_post_trip_event_accepts_decimal_distance(self, client):
+        user_id = _register_user(client, "events-decimal-trip-distance")
+        vehicle_response = client.post(
+            "/vehicle",
+            json={
+                "user_id": user_id,
+                "brand": "Toyota",
+                "model": "Camry",
+                "production_year": 2023,
+                "current_mileage": 125000,
+            },
+        )
+
+        response = client.post(
+            f"/events?user_id={user_id}",
+            json={
+                "type": "trip",
+                "description": "Drove 100.5 km",
+                "amount": 0,
+                "mileage": 100.5,
+            },
+        )
+
+        assert vehicle_response.status_code == 201
+        assert response.status_code == 200
+        assert response.json()["mileage"] == 125100.5
+
+    def test_post_event_rejects_more_than_three_decimal_places(self, client):
+        user_id = _register_user(client, "events-invalid-decimal-places")
+
+        response = client.post(
+            f"/events?user_id={user_id}",
+            json=_event_payload(
+                amount=12.3456,
+                fuel_liters=10,
+            ),
+        )
+
+        assert response.status_code == 422
+
     def test_post_event_supports_manual_form_event_types_and_fields(self, client):
         user_id = _register_user(client, "events-manual-form-types")
 

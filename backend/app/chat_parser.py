@@ -1,6 +1,7 @@
 import json
 import os
 import re
+from decimal import Decimal, InvalidOperation
 from typing import Any
 from urllib import error, request
 
@@ -30,8 +31,7 @@ type, description, amount, fuel_liters, mileage, needs_clarification, clarificat
 Rules:
 - Parse exactly one event.
 - Use null for unknown fields.
-- amount and mileage must be integers when present.
-- fuel_liters may be an integer or decimal number when present.
+- amount, fuel_liters and trip mileage may be integer or decimal numbers with up to 3 decimal places when present.
 - fuel_liters is only for liters of fuel.
 - amount is only money.
 - mileage is odometer mileage, except for trip where mileage is traveled distance.
@@ -58,6 +58,25 @@ NON_TIMELINE_CONDITION_QUESTION = (
 
 def _ru(*points: int) -> str:
     return "".join(chr(point) for point in points)
+
+
+def _parse_decimal(value: str) -> Decimal | None:
+    try:
+        parsed = Decimal(value.replace(",", "."))
+    except InvalidOperation:
+        return None
+    if parsed < 0:
+        return None
+    if max(0, -parsed.normalize().as_tuple().exponent) > 3:
+        return None
+    return parsed
+
+
+def _format_decimal(value: Decimal) -> str:
+    normalized = value.quantize(Decimal("0.001")).normalize()
+    if normalized == normalized.to_integral_value():
+        return str(int(normalized))
+    return format(normalized, "f").replace(".", ",")
 
 
 def parse_chat_message(message: str) -> ParsedChatEvent:
@@ -173,27 +192,27 @@ def _apply_guardrails(message: str, parsed_event: ParsedChatEvent) -> ParsedChat
     return parsed_event
 
 
-def _fuel_description(fuel_liters: float) -> str:
+def _fuel_description(fuel_liters: Decimal) -> str:
     return (
         _ru(0x417, 0x430, 0x43F, 0x440, 0x430, 0x432, 0x43A, 0x430)
         + " "
         + _ru(0x43D, 0x430)
-        + f" {fuel_liters:g} "
+        + f" {_format_decimal(fuel_liters)} "
         + _ru(0x43B, 0x438, 0x442, 0x440, 0x43E, 0x432)
     )
 
 
-def _trip_description(distance_km: int) -> str:
+def _trip_description(distance_km: Decimal) -> str:
     return (
         _ru(0x41F, 0x43E, 0x435, 0x437, 0x434, 0x43A, 0x430)
         + " "
         + _ru(0x43D, 0x430)
-        + f" {distance_km} "
+        + f" {_format_decimal(distance_km)} "
         + _ru(0x43A, 0x438, 0x43B, 0x43E, 0x43C, 0x435, 0x442, 0x440, 0x43E, 0x432)
     )
 
 
-def _extract_fuel_liters(message: str) -> float | None:
+def _extract_fuel_liters(message: str) -> Decimal | None:
     units = "|".join(
         re.escape(unit)
         for unit in (
@@ -204,11 +223,11 @@ def _extract_fuel_liters(message: str) -> float | None:
             _ru(0x43B, 0x438, 0x442, 0x440, 0x43E, 0x432),
         )
     )
-    match = re.search(rf"\b(\d+(?:[.,]\d+)?)\s*(?:{units})\b", message)
-    return float(match.group(1).replace(",", ".")) if match else None
+    match = re.search(rf"\b(\d+(?:[.,]\d{{1,3}})?)\s*(?:{units})\b", message)
+    return _parse_decimal(match.group(1)) if match else None
 
 
-def _extract_money_amount(message: str) -> int | None:
+def _extract_money_amount(message: str) -> Decimal | None:
     units = "|".join(
         re.escape(unit)
         for unit in (
@@ -220,11 +239,11 @@ def _extract_money_amount(message: str) -> int | None:
             _ru(0x440, 0x443, 0x431, 0x43B, 0x44C),
         )
     )
-    match = re.search(rf"\b(\d+)\s*(?:{units})\b", message)
-    return int(match.group(1)) if match else None
+    match = re.search(rf"\b(\d+(?:[.,]\d{{1,3}})?)\s*(?:{units})\b", message)
+    return _parse_decimal(match.group(1)) if match else None
 
 
-def _extract_trip_distance_km(message: str) -> int | None:
+def _extract_trip_distance_km(message: str) -> Decimal | None:
     trip_keywords = [
         _ru(0x43F, 0x440, 0x43E, 0x435, 0x445, 0x430, 0x43B),
         _ru(0x43F, 0x440, 0x43E, 0x435, 0x445, 0x430, 0x43B, 0x430),
@@ -260,8 +279,8 @@ def _extract_trip_distance_km(message: str) -> int | None:
             _ru(0x43A, 0x438, 0x43B, 0x43E, 0x43C, 0x435, 0x442, 0x440, 0x43E, 0x432),
         )
     )
-    match = re.search(rf"\b(\d+)\s*(?:{units})\b", message)
-    return int(match.group(1)) if match else None
+    match = re.search(rf"\b(\d+(?:[.,]\d{{1,3}})?)\s*(?:{units})\b", message)
+    return _parse_decimal(match.group(1)) if match else None
 
 
 def _looks_like_fuel_liters_message(message: str) -> bool:
