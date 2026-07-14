@@ -49,7 +49,9 @@ class Event(Base):
     type: Mapped[str] = mapped_column(String(32), nullable=False)
     description: Mapped[str] = mapped_column(String(500), nullable=False)
     amount: Mapped[Decimal] = mapped_column(Numeric(12, 3), default=0, nullable=False)
-    fuel_liters: Mapped[Decimal] = mapped_column(Numeric(12, 3), default=0, nullable=False)
+    fuel_liters: Mapped[Decimal] = mapped_column(
+        Numeric(12, 3), default=0, nullable=False
+    )
     mileage: Mapped[Decimal] = mapped_column(Numeric(12, 3), nullable=False)
     odometer_start: Mapped[int | None] = mapped_column(Integer, nullable=True)
     odometer_end: Mapped[int | None] = mapped_column(Integer, nullable=True)

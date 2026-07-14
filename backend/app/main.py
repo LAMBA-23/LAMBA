@@ -275,7 +275,9 @@ def _event_trip_distance(event: Event, known_mileage: Decimal) -> Decimal:
     return max(ZERO_DECIMAL, effective_mileage - known_mileage)
 
 
-def _sum_trip_distance(events: list[Event], start_at: datetime | None = None) -> Decimal:
+def _sum_trip_distance(
+    events: list[Event], start_at: datetime | None = None
+) -> Decimal:
     if not events:
         return ZERO_DECIMAL
 
@@ -329,7 +331,9 @@ def _extract_trip_distance_km(text_value: str) -> Decimal | None:
     return Decimal(match.group(1).replace(",", "."))
 
 
-def _event_mileage_from_payload(payload: EventCreate, previous_mileage: Decimal) -> Decimal:
+def _event_mileage_from_payload(
+    payload: EventCreate, previous_mileage: Decimal
+) -> Decimal:
     if payload.type == "trip" and payload.odometer_end is not None:
         return Decimal(payload.odometer_end)
 
@@ -764,7 +768,10 @@ def _build_statistics_answer(
     )
     if period in (None, "all_time"):
         mileage = max(
-            [_current_total_mileage(events, car), Decimal(_coalesce_int(car.current_mileage))]
+            [
+                _current_total_mileage(events, car),
+                Decimal(_coalesce_int(car.current_mileage)),
+            ]
             + [_coalesce_decimal(event.mileage) for event in events]
         )
     else:

@@ -223,9 +223,7 @@ class EventResponse(BaseModel):
     created_at: datetime
 
     @field_serializer("amount", "fuel_liters", "mileage", "trip_distance")
-    def serialize_decimal(
-        self, value: Decimal | None
-    ) -> int | float | None:
+    def serialize_decimal(self, value: Decimal | None) -> int | float | None:
         return _decimal_json(value)
 
 
@@ -246,9 +244,7 @@ class ParsedEventPayload(BaseModel):
         return _non_negative_decimal(v)
 
     @field_serializer("amount", "fuel_liters", "mileage")
-    def serialize_decimal(
-        self, value: Decimal | None
-    ) -> int | float | None:
+    def serialize_decimal(self, value: Decimal | None) -> int | float | None:
         return _decimal_json(value)
 
 
@@ -267,9 +263,7 @@ class ParsedChatEvent(BaseModel):
         return _decimal_with_max_places(v)
 
     @field_serializer("amount", "fuel_liters", "mileage")
-    def serialize_decimal(
-        self, value: Decimal | None
-    ) -> int | float | None:
+    def serialize_decimal(self, value: Decimal | None) -> int | float | None:
         return _decimal_json(value)
 
 
