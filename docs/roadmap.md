@@ -181,11 +181,19 @@ Open or deferred Sprint 4-related work remains in the issue tracker and is not c
 - Sprint Goal: Prepare the final course delivery by stabilizing MVP v3 after Sprint 4 feedback, completing realistic APK validation, updating release/deployment evidence, finalizing transition documentation, and deciding what recommendation or notification scope is product-ready.
 - Focus / expected outcome: The team completes follow-up maintenance after the customer trial, fixes remaining blockers, updates customer-facing documentation, prepares final transition evidence, and delivers the MVP v3 release.
 
-Planned focus:
+Selected Sprint PBIs:
+
+- [#264 PBI: allow decimal fuel liters in event form](https://github.com/LAMBA-23/LAMBA/issues/264)
+- [#272 PBI: Support trip recording using start and end odometer values](https://github.com/LAMBA-23/LAMBA/issues/272)
+- [#273 PBI: Add breakdown records with photo attachment UI](https://github.com/LAMBA-23/LAMBA/issues/273)
+- [#51 US-08: Receive maintenance recommendations](https://github.com/LAMBA-23/LAMBA/issues/51)
+- [#52 US-09: Receive notifications](https://github.com/LAMBA-23/LAMBA/issues/52)
+
+Sprint 5 focus areas:
 
 - Follow-up maintenance after customer trial and Sprint 4 feedback.
 - Fix remaining blockers that prevent realistic customer APK use or final release evidence.
-- Update customer-facing documentation and handover materials when those files are added in the repository.
+- Update customer-facing documentation and handover materials.
 - Finalize transition, release, and delivery evidence for MVP v3.
 - Keep any unfinished recommendation or notification behavior tracked honestly instead of including it in completed outcome.
 
