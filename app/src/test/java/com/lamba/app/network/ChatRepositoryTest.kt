@@ -3,6 +3,7 @@ package com.lamba.app.network
 import java.io.IOException
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
@@ -123,14 +124,14 @@ class ChatRepositoryTest {
             type = "fuel",
             description = "Заправка на 40 литров",
             amount = null,
-            fuel_liters = 40.0,
+            fuelLiters = 40.0,
             mileage = 125000,
         )
         val savedEvent = Event(
             id = 1,
             type = "fuel",
             description = "Заправка на 40 литров",
-            amount = null,
+            amount = 0,
             mileage = 125000,
             createdAt = "2026-07-14T12:00:00",
         )
