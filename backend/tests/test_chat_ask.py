@@ -321,9 +321,8 @@ def test_chat_ask_returns_latest_five_expenses_without_llm(monkeypatch):
 def test_chat_ask_filters_weekly_expenses(monkeypatch):
     user_id = _register_and_get_user_id("ask-user-expenses-2")
 
-    now = datetime.now()
-    old_timestamp = (now - timedelta(days=20)).strftime("%Y-%m-%d %H:%M:%S")
-    recent_timestamp = (now - timedelta(days=2)).strftime("%Y-%m-%d %H:%M:%S")
+    old_timestamp = "2026-06-01 12:00:00"
+    recent_timestamp = "2026-07-07 12:00:00"
 
     _create_event(
         user_id,
@@ -440,9 +439,8 @@ def test_chat_ask_returns_general_statistics_summary_without_llm(monkeypatch):
 def test_chat_ask_filters_monthly_expenses(monkeypatch):
     user_id = _register_and_get_user_id("ask-user-expenses-4")
 
-    now = datetime.now()
-    old_timestamp = (now - timedelta(days=60)).strftime("%Y-%m-%d %H:%M:%S")
-    recent_timestamp = (now - timedelta(days=5)).strftime("%Y-%m-%d %H:%M:%S")
+    old_timestamp = "2026-05-01 12:00:00"
+    recent_timestamp = "2026-07-01 12:00:00"
 
     _create_event(
         user_id,
