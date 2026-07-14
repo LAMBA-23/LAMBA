@@ -263,9 +263,17 @@ class StatisticsActivity : AppCompatActivity() {
 
     private fun formatMoney(value: Int): String = "$value ₽"
 
-    private fun formatLitres(value: Int): String = "$value л"
+    private fun formatLitres(value: Double): String = "${formatPlainNumber(value)} л"
 
     private fun formatMileage(value: Int): String = "$value км"
+
+    private fun formatPlainNumber(value: Double): String {
+        return if (value % 1.0 == 0.0) {
+            value.toLong().toString()
+        } else {
+            value.toString().replace('.', ',')
+        }
+    }
 
     private fun roundedBackground(color: String, radius: Float): GradientDrawable {
         return GradientDrawable().apply {

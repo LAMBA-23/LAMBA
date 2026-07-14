@@ -19,10 +19,32 @@ class HistoryRecordEventMapperTest {
 
         assertEquals("fuel", request.type)
         assertEquals(2500, request.amount)
-        assertEquals(40, request.fuelLiters)
+        assertEquals(40.0, request.fuelLiters ?: 0.0, 0.0)
         assertEquals(null, request.mileage)
         assertEquals(
             "Заправка 2026-07-06: AI-95, 40 л, 2500 ₽",
+            request.description,
+        )
+    }
+
+    @Test
+    fun decimalFuelFormValuesMapToFuelEventRequest() {
+        val request = HistoryRecordEventMapper.toEventRequest(
+            HistoryRecordType.FUEL,
+            mapOf(
+                "date" to "2026-07-06",
+                "fuelType" to "AI-95",
+                "litres" to "35.7",
+                "cost" to "2500",
+            ),
+        )
+
+        assertEquals("fuel", request.type)
+        assertEquals(2500, request.amount)
+        assertEquals(35.7, request.fuelLiters ?: 0.0, 0.0)
+        assertEquals(null, request.mileage)
+        assertEquals(
+            "Заправка 2026-07-06: AI-95, 35.7 л, 2500 ₽",
             request.description,
         )
     }
