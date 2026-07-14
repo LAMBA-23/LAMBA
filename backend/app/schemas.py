@@ -225,6 +225,21 @@ class StatsResponse(BaseModel):
     all_time: StatsPeriodResponse
 
 
+RecommendationSeverity = Literal["info", "warning"]
+
+
+class RecommendationItem(BaseModel):
+    id: str
+    severity: RecommendationSeverity
+    title: str
+    message: str
+    source: str
+
+
+class RecommendationsResponse(BaseModel):
+    recommendations: list[RecommendationItem]
+
+
 class ChatAskRequest(BaseModel):
     message: str = Field(min_length=1)
     chat_context: list["ChatContextMessage"] | None = None
