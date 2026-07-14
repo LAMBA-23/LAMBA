@@ -29,6 +29,8 @@ from .schemas import (
     LoginRequest,
     LoginResponse,
     ParsedEventPayload,
+    RecommendationItem,
+    RecommendationsResponse,
     RegisterRequest,
     RegisterResponse,
     StatsPeriodResponse,
@@ -419,12 +421,165 @@ EXPENSE_CATEGORY_LABELS = {
     "issue": "Проблемы",
 }
 EXPENSE_CATEGORY_ORDER = ("fuel", "repair", "trip", "issue")
+FUEL_PRICE_WARNING_RUB_PER_LITER = 80
+REPAIR_MONTH_WARNING_RUB = 20000
+STALE_RECORD_DAYS = 14
+MILEAGE_SINCE_FUEL_WARNING_KM = 500
 
 
 def _format_number(value: int | float) -> str:
     if isinstance(value, float) and value.is_integer():
         value = int(value)
     return f"{value:,}".replace(",", " ")
+
+
+def _build_recommendations(
+    events: list[Event], now: datetime, car: Car
+) -> list[RecommendationItem]:
+    recommendations: list[RecommendationItem] = []
+    if not events:
+        return [
+            RecommendationItem(
+                id="no_events",
+                severity="info",
+                title="Add first vehicle record",
+                message=(
+                    "No events are saved yet. Add fuel, trip, repair, or breakdown "
+                    "records to unlock rule-based maintenance recommendations."
+                ),
+                source="events_count == 0",
+            )
+        ]
+
+    latest_event = max(events, key=lambda event: event.created_at)
+    days_since_latest = (now - latest_event.created_at).days
+    if days_since_latest >= STALE_RECORD_DAYS:
+        recommendations.append(
+            RecommendationItem(
+                id="stale_records",
+                severity="info",
+                title="Update vehicle history",
+                message=(
+                    f"No new records for {days_since_latest} days. Add recent "
+                    "fuel, trip, or service data so statistics stay reliable."
+                ),
+                source=f"days_since_latest_event >= {STALE_RECORD_DAYS}",
+            )
+        )
+
+    fuel_events = [
+        event
+        for event in events
+        if event.type == "fuel"
+        and event.amount is not None
+        and event.amount > 0
+        and event.fuel_liters is not None
+        and event.fuel_liters > 0
+    ]
+    recent_fuel_events = sorted(
+        fuel_events, key=lambda event: event.created_at, reverse=True
+    )[:3]
+    recent_fuel_liters = sum(event.fuel_liters for event in recent_fuel_events)
+    recent_fuel_amount = sum(event.amount for event in recent_fuel_events)
+    if recent_fuel_liters > 0:
+        average_price = recent_fuel_amount / recent_fuel_liters
+        if average_price > FUEL_PRICE_WARNING_RUB_PER_LITER:
+            recommendations.append(
+                RecommendationItem(
+                    id="high_fuel_price",
+                    severity="warning",
+                    title="Fuel price looks high",
+                    message=(
+                        "Average fuel price in the latest refuels is "
+                        f"{_format_number(average_price)} RUB/L. Compare stations "
+                        "or check if the entered amount and liters are correct."
+                    ),
+                    source=(
+                        "sum(last_3_fuel.amount) / sum(last_3_fuel.fuel_liters) "
+                        f"> {FUEL_PRICE_WARNING_RUB_PER_LITER}"
+                    ),
+                )
+            )
+
+    month_start = now - timedelta(days=30)
+    monthly_repair_expenses = sum(
+        event.amount
+        for event in events
+        if event.type == "repair"
+        and event.amount is not None
+        and event.created_at >= month_start
+    )
+    if monthly_repair_expenses > REPAIR_MONTH_WARNING_RUB:
+        recommendations.append(
+            RecommendationItem(
+                id="high_monthly_repair_cost",
+                severity="warning",
+                title="Repair expenses increased",
+                message=(
+                    "Repair expenses in the last 30 days are "
+                    f"{_format_number(monthly_repair_expenses)} RUB. Review repeated "
+                    "service work and plan a diagnostic check if needed."
+                ),
+                source=f"repair_expenses_30d > {REPAIR_MONTH_WARNING_RUB}",
+            )
+        )
+
+    recent_issue = next(
+        (
+            event
+            for event in sorted(events, key=lambda item: item.created_at, reverse=True)
+            if event.type == "issue" and event.created_at >= month_start
+        ),
+        None,
+    )
+    if recent_issue is not None:
+        recommendations.append(
+            RecommendationItem(
+                id="recent_breakdown",
+                severity="warning",
+                title="Follow up on recent breakdown",
+                message=(
+                    "A breakdown/problem was recorded in the last 30 days. Check "
+                    "whether it was diagnosed or repaired before longer trips."
+                ),
+                source="latest_issue.created_at >= now - 30 days",
+            )
+        )
+
+    latest_fuel = next(
+        (
+            event
+            for event in sorted(
+                fuel_events,
+                key=lambda item: item.created_at,
+                reverse=True,
+            )
+            if event.mileage is not None and event.mileage > 0
+        ),
+        None,
+    )
+    current_mileage = _current_total_mileage(events, car)
+    if latest_fuel is not None:
+        mileage_since_fuel = max(0, current_mileage - latest_fuel.mileage)
+        if mileage_since_fuel >= MILEAGE_SINCE_FUEL_WARNING_KM:
+            recommendations.append(
+                RecommendationItem(
+                    id="long_distance_since_fuel",
+                    severity="info",
+                    title="Check fuel level",
+                    message=(
+                        f"About {_format_number(mileage_since_fuel)} km were recorded "
+                        "since the latest fuel event. Check fuel level before the "
+                        "next trip."
+                    ),
+                    source=(
+                        "current_mileage - latest_fuel.mileage "
+                        f">= {MILEAGE_SINCE_FUEL_WARNING_KM}"
+                    ),
+                )
+            )
+
+    return recommendations
 
 
 def _normalize_query_text(message: str) -> str:
@@ -1155,3 +1310,21 @@ def get_stats(
         )
     )
     return build_stats_response(events, now, car)
+
+
+@app.get("/recommendations", response_model=RecommendationsResponse)
+def get_recommendations(
+    user_id: int = Query(...), db: Session = Depends(get_db)
+) -> RecommendationsResponse:
+    car = get_car_for_user_id(db, user_id)
+    now = datetime.now(timezone.utc).replace(tzinfo=None)
+    events = list(
+        db.scalars(
+            select(Event)
+            .where(Event.car_id == car.id)
+            .order_by(Event.created_at, Event.id)
+        )
+    )
+    return RecommendationsResponse(
+        recommendations=_build_recommendations(events, now, car)
+    )

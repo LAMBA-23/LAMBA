@@ -620,3 +620,49 @@ Response:
   }
 }
 ```
+
+## GET /recommendations
+
+Returns lightweight rule-based recommendations for the user's car. The endpoint is
+intended for the notifications/recommendations tab and does not call the AI
+service.
+
+Query parameters:
+
+- `user_id` (int, required) -- the ID of the user whose vehicle recommendations
+  should be returned.
+
+Example:
+
+```text
+GET /recommendations?user_id=2
+```
+
+Rules:
+
+- Empty history returns an informational recommendation to add the first vehicle
+  record.
+- No records for 14 or more days returns an informational history-update
+  recommendation.
+- Average fuel price for the latest three fuel records above 80 RUB/L returns a
+  warning.
+- Repair expenses above 20000 RUB during the last 30 days return a warning.
+- A breakdown/problem record during the last 30 days returns a follow-up warning.
+- More than 500 km since the latest fuel record with mileage returns a fuel-level
+  reminder.
+
+Response:
+
+```json
+{
+  "recommendations": [
+    {
+      "id": "high_fuel_price",
+      "severity": "warning",
+      "title": "Fuel price looks high",
+      "message": "Average fuel price in the latest refuels is 100 RUB/L. Compare stations or check if the entered amount and liters are correct.",
+      "source": "sum(last_3_fuel.amount) / sum(last_3_fuel.fuel_liters) > 80"
+    }
+  ]
+}
+```
