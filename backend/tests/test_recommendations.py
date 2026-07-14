@@ -40,10 +40,7 @@ def _set_event_created_at(db_session, description: str, created_at: datetime) ->
 
 
 def _recommendation_ids(response_json) -> set[str]:
-    return {
-        recommendation["id"]
-        for recommendation in response_json["recommendations"]
-    }
+    return {recommendation["id"] for recommendation in response_json["recommendations"]}
 
 
 class TestRecommendationsApi:
