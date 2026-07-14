@@ -76,6 +76,45 @@ class ChatRepository(
 
     private fun isQuestion(message: String): Boolean {
         val lower = message.trim().lowercase()
+        val hasGreeting = lower.startsWith("привет") ||
+            lower.startsWith("здравствуй") ||
+            lower.startsWith("добрый") ||
+            lower.startsWith("хай") ||
+            lower.startsWith("хей") ||
+            lower.startsWith("йо") ||
+            lower.startsWith("спасибо") ||
+            lower.startsWith("благодарю") ||
+            lower.startsWith("пока") ||
+            lower.startsWith("до свидания")
+        val hasEventKeywords = lower.contains("заправ") ||
+            lower.contains("топлив") ||
+            lower.contains("бензин") ||
+            lower.contains("дизель") ||
+            lower.contains("ремонт") ||
+            lower.contains("поменял") ||
+            lower.contains("заменил") ||
+            lower.contains("сервис") ||
+            lower.contains("масло") ||
+            lower.contains("пробег") ||
+            lower.contains("поездк") ||
+            lower.contains("проехал") ||
+            lower.contains("поехал") ||
+            lower.contains("съездил") ||
+            lower.contains("маршрут") ||
+            lower.contains("дорог") ||
+            lower.contains("путь") ||
+            lower.contains("чек") ||
+            lower.contains("ошибк") ||
+            lower.contains("не завод") ||
+            lower.contains("загорел") ||
+            lower.contains("ламп") ||
+            lower.contains("стук") ||
+            lower.contains("скрип") ||
+            lower.contains("проблем") ||
+            lower.contains("полом")
+
+        if (hasGreeting && hasEventKeywords) return false
+
         return lower.endsWith("?") ||
             lower.startsWith("как") ||
             lower.startsWith("что") ||
@@ -87,6 +126,7 @@ class ChatRepository(
             lower.startsWith("провер") ||
             lower.startsWith("расскаж") ||
             lower.startsWith("опис") ||
+            hasGreeting ||
             lower.contains("последн") ||
             lower.contains("истори") ||
             lower.contains("статистик") ||

@@ -1037,6 +1037,11 @@ def parse_event_from_chat(payload: ChatParseRequest) -> ChatParseResponse:
         or parsed.description is None
         or not parsed.description.strip()
     ):
+        if parsed.clarification_question:
+            return ChatParseResponse(
+                status="clarification_needed",
+                clarification_question=parsed.clarification_question,
+            )
         return ChatParseResponse(
             status="clarification_needed",
             clarification_question=(
