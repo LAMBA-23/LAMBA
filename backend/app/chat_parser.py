@@ -481,12 +481,24 @@ def _is_greeting(message: str) -> bool:
         "здорово",
         "салют",
     ]
-    return any(greeting in message for greeting in greetings)
+    has_event_keywords = (
+        _contains_fuel_keywords(message)
+        or _contains_repair_keywords(message)
+        or _contains_trip_keywords(message)
+        or _contains_issue_keywords(message)
+    )
+    return any(greeting in message for greeting in greetings) and not has_event_keywords
 
 
 def _is_thanks(message: str) -> bool:
     thanks = ["спасибо", "благодарю", "пасиб", "сенкс", "thanks"]
-    return any(thank in message for thank in thanks)
+    has_event_keywords = (
+        _contains_fuel_keywords(message)
+        or _contains_repair_keywords(message)
+        or _contains_trip_keywords(message)
+        or _contains_issue_keywords(message)
+    )
+    return any(thank in message for thank in thanks) and not has_event_keywords
 
 
 def _call_timeweb_agent_api(

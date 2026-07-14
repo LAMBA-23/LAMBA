@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- AI chat assistant now responds to greetings and thanks with friendly, emoji-rich messages instead of asking for event details (#316).
+
 ## [1.3.0] - 2026-07-12
 
 ### Added

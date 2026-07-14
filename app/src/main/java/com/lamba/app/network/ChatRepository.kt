@@ -89,8 +89,14 @@ class ChatRepository(
             lower.startsWith("опис") ||
             lower.startsWith("привет") ||
             lower.startsWith("здравствуй") ||
+            lower.startsWith("добрый") ||
+            lower.startsWith("хай") ||
+            lower.startsWith("хей") ||
+            lower.startsWith("йо") ||
             lower.startsWith("спасибо") ||
+            lower.startsWith("благодарю") ||
             lower.startsWith("пока") ||
+            lower.startsWith("до свидания") ||
             lower.contains("последн") ||
             lower.contains("истори") ||
             lower.contains("статистик") ||
