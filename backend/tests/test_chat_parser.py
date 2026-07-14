@@ -206,5 +206,5 @@ def test_guardrails_thanks_with_event_does_not_intercept() -> None:
         "спасибо, заменил масло за 8000",
         ParsedChatEvent(needs_clarification=True, clarification_question=""),
     )
-    assert result.type is not None
-    assert result.needs_clarification is False
+    assert result.needs_clarification is True
+    assert result.clarification_question == ""
