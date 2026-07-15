@@ -92,13 +92,13 @@ class HistoryRecordEventMapperTest {
     }
 
     @Test
-    fun tripFormValuesMapDecimalDistanceToTripEventRequest() {
+    fun tripOdometerFormValuesMapToTripEventRequest() {
         val request = HistoryRecordEventMapper.toEventRequest(
             HistoryRecordType.TRIP,
             mapOf(
                 "date" to "2026-07-06",
-                "odometerStart" to "125000",
-                "odometerEnd" to "125120",
+                "odometerStart" to "120000",
+                "odometerEnd" to "120120",
                 "description" to "Дом - аэропорт",
             ),
         )
@@ -107,9 +107,24 @@ class HistoryRecordEventMapperTest {
         assertEquals(null, request.amount)
         assertEquals(null, request.fuelLiters)
         assertEquals(null, request.mileage)
-        assertEquals(125000, request.odometerStart)
-        assertEquals(125120, request.odometerEnd)
-        assertEquals("Поездка 2026-07-06: Дом - аэропорт, 125000-125120, 120 км", request.description)
+        assertEquals(120000, request.odometerStart)
+        assertEquals(120120, request.odometerEnd)
+        assertEquals("Поездка 2026-07-06: Дом - аэропорт", request.description)
+    }
+
+    @Test
+    fun tripOdometerDecimalValuesAreRejected() {
+        assertThrows(IllegalArgumentException::class.java) {
+            HistoryRecordEventMapper.toEventRequest(
+                HistoryRecordType.TRIP,
+                mapOf(
+                    "date" to "2026-07-06",
+                    "odometerStart" to "120000,5",
+                    "odometerEnd" to "120120",
+                    "description" to "Дом - аэропорт",
+                ),
+            )
+        }
     }
 
     @Test
@@ -139,6 +154,66 @@ class HistoryRecordEventMapperTest {
     }
 
     @Test
+    fun tripEventUsesBackendTripDistanceFirst() {
+        val data = HistoryRecordEventMapper.fromEvent(
+            Event(
+                id = 1,
+                type = "trip",
+                description = "Поездка 2026-07-06: Дом - аэропорт",
+                amount = 0.0,
+                mileage = 120120.0,
+                odometerStart = 120000,
+                odometerEnd = 120150,
+                tripDistance = 130,
+            ),
+        )
+
+        assertEquals(HistoryRecordType.TRIP, data.type)
+        assertEquals("130", data.values["mileage"])
+        assertEquals("120000", data.values["odometerStart"])
+        assertEquals("120150", data.values["odometerEnd"])
+        assertEquals("Дом - аэропорт", data.values["description"])
+    }
+
+    @Test
+    fun tripEventFallsBackToOdometerDistance() {
+        val data = HistoryRecordEventMapper.fromEvent(
+            Event(
+                id = 1,
+                type = "trip",
+                description = "Поездка 2026-07-06: Дом - аэропорт",
+                amount = 0.0,
+                mileage = 120120.0,
+                odometerStart = 120000,
+                odometerEnd = 120120,
+                tripDistance = null,
+            ),
+        )
+
+        assertEquals("120", data.values["mileage"])
+    }
+
+    @Test
+    fun legacyTripEventFallsBackToMileageOverride() {
+        val data = HistoryRecordEventMapper.fromEvent(
+            Event(
+                id = 1,
+                type = "trip",
+                description = "Поездка 2026-07-06: Дом - аэропорт, 120 км",
+                amount = 0.0,
+                mileage = 120120.0,
+                tripDistance = null,
+            ),
+            tripMileageOverride = 120.0,
+        )
+
+        assertEquals("120", data.values["mileage"])
+        assertEquals(null, data.values["odometerStart"])
+        assertEquals(null, data.values["odometerEnd"])
+        assertEquals("Дом - аэропорт", data.values["description"])
+    }
+
+    @Test
     fun breakdownFormValuesMapToIssueEventRequest() {
         val request = HistoryRecordEventMapper.toEventRequest(
             HistoryRecordType.BREAKDOWN,
@@ -161,19 +236,19 @@ class HistoryRecordEventMapperTest {
 
     @Test
     fun breakdownPhotoUriIsSavedAndReadBackFromDescription() {
-        val photoUri = "content://media/external/images/media/10"
         val request = HistoryRecordEventMapper.toEventRequest(
             HistoryRecordType.BREAKDOWN,
             mapOf(
                 "date" to "2026-07-06",
                 "name" to "Горит Check Engine",
-                "description" to "Индикатор",
-                "photoUri" to photoUri,
+                "description" to "Индикатор появился после запуска",
+                "photoUri" to "content://photo/issue-1",
             ),
         )
+
         val formData = HistoryRecordEventMapper.fromEvent(
             Event(
-                id = 6,
+                id = 5,
                 type = "issue",
                 description = request.description,
                 amount = 0.0,
@@ -182,8 +257,8 @@ class HistoryRecordEventMapperTest {
             ),
         )
 
-        assertEquals(photoUri, formData.values["photoUri"])
-        assertEquals("Индикатор", formData.values["description"])
+        assertEquals("content://photo/issue-1", formData.values["photoUri"])
+        assertEquals("Индикатор появился после запуска", formData.values["description"])
     }
 
     @Test
