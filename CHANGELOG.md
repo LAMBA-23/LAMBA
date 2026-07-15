@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Authorized event-photo retrieval, normalized originals, thumbnails, and a
+  configurable local/S3-compatible backend storage adapter (#332).
 - Backend recommendations endpoint with rule-based vehicle notifications for fuel
   price, repair cost, stale records, recent breakdowns, and fuel-level reminders
   (#315).
@@ -18,6 +20,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Breakdown photos are validated by decoded image content, stripped of embedded
+  metadata, orientation-corrected, and replaced with failure-safe cleanup (#332).
 - AI chat assistant now responds to greetings and thanks with friendly, emoji-rich messages instead of asking for event details (#316).
 - Android manual trip records now use start and end odometer values instead of
   a single mileage field.

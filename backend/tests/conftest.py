@@ -18,8 +18,11 @@ TEST_DB_DIR = Path(tempfile.gettempdir()) / "lamba-pytest"
 TEST_DB_DIR.mkdir(parents=True, exist_ok=True)
 TEST_DB_PATH = TEST_DB_DIR / f"test-{os.getpid()}-{uuid4().hex}.db"
 TEST_DATABASE_URL = f"sqlite:///{TEST_DB_PATH.as_posix()}"
+TEST_PHOTO_DIR = TEST_DB_DIR / f"photos-{os.getpid()}-{uuid4().hex}"
 
 os.environ["DATABASE_URL"] = TEST_DATABASE_URL
+os.environ["PHOTO_STORAGE_BACKEND"] = "local"
+os.environ["EVENT_PHOTO_DIR"] = str(TEST_PHOTO_DIR)
 
 database = importlib.import_module("app.database")
 Base = database.Base
@@ -87,6 +90,9 @@ def pytest_sessionfinish(session, exitstatus):
     test_engine.dispose()
     gc.collect()
     _unlink_sqlite_artifacts_with_retries(TEST_DB_PATH)
+    for photo_file in TEST_PHOTO_DIR.glob("*"):
+        photo_file.unlink(missing_ok=True)
+    TEST_PHOTO_DIR.rmdir()
 
 
 def _unlink_sqlite_artifacts_with_retries(

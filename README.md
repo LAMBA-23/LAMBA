@@ -71,6 +71,28 @@ TIMEWEB_AGENT_ID
 
 Do not commit API keys, credentials, or `.env` files to the repository.
 
+Event photos use the persistent Docker volume by default. The default backend
+configuration is:
+
+```text
+PHOTO_STORAGE_BACKEND=local
+EVENT_PHOTO_DIR=/app/uploads/event_photos
+```
+
+For a private S3-compatible bucket, set `PHOTO_STORAGE_BACKEND=s3` and provide:
+
+```text
+PHOTO_S3_BUCKET
+PHOTO_S3_ENDPOINT
+PHOTO_S3_REGION
+PHOTO_S3_PREFIX
+AWS_ACCESS_KEY_ID
+AWS_SECRET_ACCESS_KEY
+```
+
+The bucket must remain private. Photo bytes are returned only through the
+owner-checked event photo API; the backend does not publish storage object URLs.
+
 Create a user through the Android application or through the API:
 
 ```bash
