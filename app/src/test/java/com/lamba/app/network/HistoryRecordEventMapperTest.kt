@@ -235,7 +235,7 @@ class HistoryRecordEventMapperTest {
     }
 
     @Test
-    fun breakdownPhotoUriIsSavedAndReadBackFromDescription() {
+    fun breakdownPhotoUriIsNotSavedInNewEventDescription() {
         val request = HistoryRecordEventMapper.toEventRequest(
             HistoryRecordType.BREAKDOWN,
             mapOf(
@@ -257,8 +257,45 @@ class HistoryRecordEventMapperTest {
             ),
         )
 
-        assertEquals("content://photo/issue-1", formData.values["photoUri"])
+        assertEquals("", formData.values["photoUri"])
         assertEquals("Индикатор появился после запуска", formData.values["description"])
+    }
+
+    @Test
+    fun legacyBreakdownPhotoUriIsReadBackFromDescription() {
+        val formData = HistoryRecordEventMapper.fromEvent(
+            Event(
+                id = 5,
+                type = "issue",
+                description = "РџРѕР»РѕРјРєР° 2026-07-06: Р“РѕСЂРёС‚ Check Engine. РРЅРґРёРєР°С‚РѕСЂ РїРѕСЏРІРёР»СЃСЏ РїРѕСЃР»Рµ Р·Р°РїСѓСЃРєР°\nPhoto: content://photo/issue-1",
+                amount = 0.0,
+                mileage = 0.0,
+                createdAt = "2026-07-06T10:00:00",
+            ),
+        )
+
+        assertEquals("content://photo/issue-1", formData.values["photoUri"])
+        assertEquals("content://photo/issue-1", formData.values["photoUri"])
+    }
+
+    @Test
+    fun backendPhotoUrlIsMappedToBreakdownFormValues() {
+        val formData = HistoryRecordEventMapper.fromEvent(
+            Event(
+                id = 5,
+                type = "issue",
+                description = "РџРѕР»РѕРјРєР° 2026-07-06: Р“РѕСЂРёС‚ Check Engine",
+                amount = 0.0,
+                mileage = 0.0,
+                photoUrl = "/uploads/event_photos/photo.webp",
+                photoMimeType = "image/webp",
+                photoSize = 42,
+                createdAt = "2026-07-06T10:00:00",
+            ),
+        )
+
+        assertEquals("/uploads/event_photos/photo.webp", formData.values["photoUrl"])
+        assertEquals("", formData.values["photoUri"])
     }
 
     @Test

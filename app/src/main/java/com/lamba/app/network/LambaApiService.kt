@@ -1,11 +1,14 @@
 package com.lamba.app.network
 
+import okhttp3.MultipartBody
 import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.Body
 import retrofit2.http.DELETE
 import retrofit2.http.GET
+import retrofit2.http.Multipart
+import retrofit2.http.Part
 import retrofit2.http.PUT
 import retrofit2.http.Path
 import retrofit2.http.POST
@@ -61,6 +64,20 @@ interface LambaApiService {
         @Query("user_id") userId: Int,
     ): Response<Event>
 
+    @Multipart
+    @POST("events/{event_id}/photo")
+    suspend fun uploadEventPhoto(
+        @Path("event_id") eventId: Int,
+        @Part file: MultipartBody.Part,
+        @Query("user_id") userId: Int,
+    ): Response<Event>
+
+    @DELETE("events/{event_id}/photo")
+    suspend fun deleteEventPhoto(
+        @Path("event_id") eventId: Int,
+        @Query("user_id") userId: Int,
+    ): Response<Unit>
+
     @DELETE("events/{event_id}")
     suspend fun deleteEvent(
         @Path("event_id") eventId: Int,
@@ -83,5 +100,13 @@ object RetrofitClient {
             .addConverterFactory(GsonConverterFactory.create())
             .build()
             .create(LambaApiService::class.java)
+    }
+
+    fun resolveBackendUrl(url: String): String {
+        return if (url.startsWith("http://") || url.startsWith("https://")) {
+            url
+        } else {
+            BASE_URL.trimEnd('/') + "/" + url.trimStart('/')
+        }
     }
 }

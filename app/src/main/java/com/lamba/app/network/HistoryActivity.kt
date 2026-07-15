@@ -2,6 +2,7 @@ package com.lamba.app.network
 
 import android.app.AlertDialog
 import android.content.Intent
+import android.graphics.BitmapFactory
 import android.graphics.Color
 import android.graphics.Typeface
 import android.graphics.drawable.ColorDrawable
@@ -22,13 +23,17 @@ import android.widget.LinearLayout
 import android.widget.ProgressBar
 import android.widget.ScrollView
 import android.widget.TextView
+import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.lamba.app.R
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import java.net.URL
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -45,6 +50,8 @@ class HistoryActivity : AppCompatActivity() {
     private var activeIssuePhotoUri: String? = null
     private var activeIssuePhotoPreview: ImageView? = null
     private var activeIssuePhotoButton: Button? = null
+    private var activeIssuePhotoRemoveButton: Button? = null
+    private var activeIssuePhotoRemoved: Boolean = false
 
     private val issuePhotoPicker = registerForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
         if (uri != null) {
@@ -52,8 +59,10 @@ class HistoryActivity : AppCompatActivity() {
                 contentResolver.takePersistableUriPermission(uri, Intent.FLAG_GRANT_READ_URI_PERMISSION)
             }
             activeIssuePhotoUri = uri.toString()
+            activeIssuePhotoRemoved = false
             activeIssuePhotoPreview?.let { showPhotoPreview(it, uri) }
             activeIssuePhotoButton?.text = "Заменить фото"
+            activeIssuePhotoRemoveButton?.visibility = View.VISIBLE
         }
     }
 
@@ -247,11 +256,13 @@ class HistoryActivity : AppCompatActivity() {
         val dialog = BottomSheetDialog(this)
         val editingRecord = event?.let { historyRecordsByEventId[it.id] ?: it.toUiModel() }
         val initialIssuePhotoUri = if (type == HistoryRecordType.BREAKDOWN) {
-            editingRecord?.values?.get("photoUri").orEmpty()
+            editingRecord?.values?.get("photoUrl").orEmpty()
+                .ifBlank { editingRecord?.values?.get("photoUri").orEmpty() }
         } else {
             ""
         }
-        activeIssuePhotoUri = initialIssuePhotoUri.ifBlank { null }
+        activeIssuePhotoUri = null
+        activeIssuePhotoRemoved = false
         val formContent = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
             setPadding(24.dp, 18.dp, 24.dp, 24.dp)
@@ -275,6 +286,8 @@ class HistoryActivity : AppCompatActivity() {
                 activeIssuePhotoUri = null
                 activeIssuePhotoPreview = null
                 activeIssuePhotoButton = null
+                activeIssuePhotoRemoveButton = null
+                activeIssuePhotoRemoved = false
             }
         }
         formContent.addView(errorView)
@@ -297,9 +310,6 @@ class HistoryActivity : AppCompatActivity() {
                     val values = fields.associate { field ->
                         field.key to field.input.text.toString().trim()
                     }.toMutableMap()
-                    if (type == HistoryRecordType.BREAKDOWN) {
-                        values["photoUri"] = activeIssuePhotoUri.orEmpty()
-                    }
                     saveRecord(type, values, event?.id, errorView, dialog)
                 }
             }
@@ -485,8 +495,10 @@ class HistoryActivity : AppCompatActivity() {
             container.addView(createDetailRow(row.first, row.second))
         }
         if (record.type == HistoryRecordType.BREAKDOWN) {
-            record.values["photoUri"].orEmpty().takeIf { it.isNotBlank() }?.let { photoUri ->
-                container.addView(createStoredPhotoView(photoUri))
+            record.values["photoUrl"].orEmpty()
+                .ifBlank { record.values["photoUri"].orEmpty() }
+                .takeIf { it.isNotBlank() }?.let { photoReference ->
+                    container.addView(createStoredPhotoView(photoReference))
             }
         }
 
@@ -606,13 +618,37 @@ class HistoryActivity : AppCompatActivity() {
                 visibility = View.GONE
                 activeIssuePhotoPreview = this
                 if (initialPhotoUri.isNotBlank()) {
-                    showPhotoPreview(this, Uri.parse(initialPhotoUri))
+                    showPhotoPreview(this, initialPhotoUri)
+                }
+            })
+
+            addView(Button(this@HistoryActivity).apply {
+                layoutParams = LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.MATCH_PARENT,
+                    48.dp,
+                ).apply {
+                    topMargin = 10.dp
+                }
+                background = ContextCompat.getDrawable(this@HistoryActivity, R.drawable.bg_button_white_outline)
+                text = "Удалить фото"
+                setTextColor(Color.parseColor("#960018"))
+                textSize = 15f
+                typeface = Typeface.DEFAULT_BOLD
+                isAllCaps = false
+                visibility = if (initialPhotoUri.isBlank()) View.GONE else View.VISIBLE
+                activeIssuePhotoRemoveButton = this
+                setOnClickListener {
+                    activeIssuePhotoUri = null
+                    activeIssuePhotoRemoved = true
+                    activeIssuePhotoPreview?.visibility = View.GONE
+                    activeIssuePhotoButton?.text = "Выбрать фото"
+                    visibility = View.GONE
                 }
             })
         }
     }
 
-    private fun createStoredPhotoView(photoUri: String): ImageView {
+    private fun createStoredPhotoView(photoReference: String): ImageView {
         return ImageView(this).apply {
             layoutParams = LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,
@@ -622,7 +658,7 @@ class HistoryActivity : AppCompatActivity() {
             }
             background = roundedBackground("#FFF7F8", 18.dp.toFloat())
             scaleType = ImageView.ScaleType.CENTER_CROP
-            showPhotoPreview(this, Uri.parse(photoUri))
+            showPhotoPreview(this, photoReference)
         }
     }
 
@@ -891,10 +927,40 @@ class HistoryActivity : AppCompatActivity() {
                 }
             }
 
-            response.onSuccess {
-                if (it.isSuccessful) {
+            response.onSuccess { eventResponse ->
+                if (eventResponse.isSuccessful) {
+                    val savedEventId = eventResponse.body()?.id
+                    var uploadFailed = false
+                    if (type == HistoryRecordType.BREAKDOWN && savedEventId != null) {
+                        if (activeIssuePhotoRemoved && eventId != null) {
+                            runCatching {
+                                RetrofitClient.apiService.deleteEventPhoto(savedEventId, userId)
+                            }
+                        }
+                        val selectedPhotoUri = activeIssuePhotoUri
+                        if (!selectedPhotoUri.isNullOrBlank()) {
+                            uploadFailed = runCatching {
+                                val part = withContext(Dispatchers.IO) {
+                                    UriMultipartHelper.createImagePart(
+                                        contentResolver,
+                                        Uri.parse(selectedPhotoUri),
+                                    )
+                                }
+                                RetrofitClient.apiService.uploadEventPhoto(savedEventId, part, userId)
+                            }.getOrNull()?.isSuccessful != true
+                        }
+                    }
+                    activeIssuePhotoUri = null
+                    activeIssuePhotoRemoved = false
                     dialog.dismiss()
                     loadEvents()
+                    if (uploadFailed) {
+                        Toast.makeText(
+                            this@HistoryActivity,
+                            "Запись сохранена, но фотографию загрузить не удалось.",
+                            Toast.LENGTH_LONG,
+                        ).show()
+                    }
                 } else {
                     errorView.text = "Не удалось сохранить запись"
                     errorView.visibility = View.VISIBLE
@@ -912,6 +978,29 @@ class HistoryActivity : AppCompatActivity() {
             imageView.visibility = View.VISIBLE
             true
         }.getOrDefault(false)
+    }
+
+    private fun showPhotoPreview(imageView: ImageView, photoReference: String): Boolean {
+        if (photoReference.startsWith("http://") ||
+            photoReference.startsWith("https://") ||
+            photoReference.startsWith("/uploads/")
+        ) {
+            lifecycleScope.launch {
+                val bitmap = withContext(Dispatchers.IO) {
+                    runCatching {
+                        URL(RetrofitClient.resolveBackendUrl(photoReference)).openStream().use {
+                            BitmapFactory.decodeStream(it)
+                        }
+                    }.getOrNull()
+                }
+                if (bitmap != null) {
+                    imageView.setImageBitmap(bitmap)
+                    imageView.visibility = View.VISIBLE
+                }
+            }
+            return true
+        }
+        return showPhotoPreview(imageView, Uri.parse(photoReference))
     }
 
     private fun deleteRecord(event: Event) {
