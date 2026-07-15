@@ -130,7 +130,6 @@ class HistoryRecordEventMapperTest {
     }
 
     @Test
-<<<<<<< HEAD
     fun tripEventUsesBackendTripDistanceFirst() {
         val data = HistoryRecordEventMapper.fromEvent(
             Event(
@@ -188,7 +187,9 @@ class HistoryRecordEventMapperTest {
         assertEquals(null, data.values["odometerStart"])
         assertEquals(null, data.values["odometerEnd"])
         assertEquals("Дом - аэропорт", data.values["description"])
-=======
+    }
+
+    @Test
     fun breakdownFormValuesMapToIssueEventRequest() {
         val request = HistoryRecordEventMapper.toEventRequest(
             HistoryRecordType.BREAKDOWN,
@@ -226,6 +227,5 @@ class HistoryRecordEventMapperTest {
         assertEquals("2026-07-06", formData.values["date"])
         assertEquals("Горит Check Engine", formData.values["name"])
         assertEquals("Индикатор появился после запуска", formData.values["description"])
->>>>>>> main
     }
 }
