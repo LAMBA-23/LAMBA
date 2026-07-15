@@ -26,13 +26,13 @@ object HistoryRecordEventMapper {
     ): EventCreateRequest {
         return when (type) {
             HistoryRecordType.FUEL -> {
-                val litres = values["litres"].toDoubleValue()
-                val cost = values["cost"].toIntValue()
+                val litres = values["litres"].toDecimalValue()
+                val cost = values["cost"].toDecimalValue()
                 val fuelType = values["fuelType"].orEmpty()
                 val date = values["date"].orEmpty()
                 EventCreateRequest(
                     type = "fuel",
-                    description = "Заправка $date: $fuelType, ${litres.formatPlainNumber()} л, $cost ₽",
+                    description = "Заправка $date: $fuelType, ${DecimalNumberUtils.formatDecimal(litres)} л, ${DecimalNumberUtils.formatDecimal(cost)} ₽",
                     amount = cost,
                     fuelLiters = litres,
                     mileage = null,
@@ -51,7 +51,7 @@ object HistoryRecordEventMapper {
                         name = name,
                         description = description,
                     ),
-                    amount = values["cost"].toIntValue(),
+                    amount = values["cost"].toDecimalValue(),
                     fuelLiters = null,
                     mileage = null,
                 )
@@ -69,7 +69,7 @@ object HistoryRecordEventMapper {
                         name = name,
                         description = description,
                     ),
-                    amount = values["cost"].toIntValue(),
+                    amount = values["cost"].toDecimalValue(),
                     fuelLiters = null,
                     mileage = null,
                 )
@@ -96,11 +96,12 @@ object HistoryRecordEventMapper {
             HistoryRecordType.TRIP -> {
                 val date = values["date"].orEmpty()
                 val tripDescription = values["description"].orEmpty()
-                val mileage = values["mileage"].toIntValue()
+                val mileage = values["mileage"].toDecimalValue()
+                val formattedMileage = DecimalNumberUtils.formatDecimal(mileage)
                 val details = if (tripDescription.isBlank()) {
-                    "$mileage км"
+                    "$formattedMileage км"
                 } else {
-                    "$tripDescription, $mileage км"
+                    "$tripDescription, $formattedMileage км"
                 }
                 EventCreateRequest(
                     type = "trip",
@@ -115,7 +116,7 @@ object HistoryRecordEventMapper {
 
     fun fromEvent(
         event: Event,
-        tripMileageOverride: Int? = null,
+        tripMileageOverride: Double? = null,
     ): HistoryRecordFormData {
         return when {
             event.type == "fuel" -> {
@@ -125,8 +126,8 @@ object HistoryRecordEventMapper {
                     values = mapOf(
                         "date" to parsed["date"].orIfBlank(formatEventDate(event.createdAt)),
                         "fuelType" to parsed["fuelType"].orIfBlank("Не указано"),
-                        "litres" to event.fuelLiters.formatPlainNumber(),
-                        "cost" to event.amount.toString(),
+                        "litres" to DecimalNumberUtils.formatDecimal(event.fuelLiters),
+                        "cost" to DecimalNumberUtils.formatDecimal(event.amount),
                     ),
                 )
             }
@@ -137,7 +138,7 @@ object HistoryRecordEventMapper {
                     type = HistoryRecordType.TRIP,
                     values = mapOf(
                         "date" to parsed["date"].orIfBlank(formatEventDate(event.createdAt)),
-                        "mileage" to (tripMileageOverride ?: event.mileage).toString(),
+                        "mileage" to DecimalNumberUtils.formatDecimal(tripMileageOverride ?: event.mileage),
                         "description" to parsed["description"].orEmpty(),
                     ),
                 )
@@ -150,7 +151,7 @@ object HistoryRecordEventMapper {
                     values = mapOf(
                         "name" to parsed["name"].orIfBlank(event.description),
                         "date" to parsed["date"].orIfBlank(formatEventDate(event.createdAt)),
-                        "cost" to event.amount.toString(),
+                        "cost" to DecimalNumberUtils.formatDecimal(event.amount),
                         "description" to parsed["description"].orEmpty(),
                     ),
                 )
@@ -175,7 +176,7 @@ object HistoryRecordEventMapper {
                     values = mapOf(
                         "name" to parsed["name"].orIfBlank(event.description),
                         "date" to parsed["date"].orIfBlank(formatEventDate(event.createdAt)),
-                        "cost" to event.amount.toString(),
+                        "cost" to DecimalNumberUtils.formatDecimal(event.amount),
                         "description" to parsed["description"].orEmpty(),
                     ),
                 )
@@ -197,10 +198,8 @@ object HistoryRecordEventMapper {
     }
 
     private fun parseFuelDescription(description: String): Map<String, String> {
-        val match = Regex("""^Заправка (.*?): (.*), (\d+) л, (\d+) ₽$""").matchEntire(description)
-        if (match == null) {
-            return emptyMap()
-        }
+        val match = Regex("""^Заправка (.*?): (.*), (\d+(?:[.,]\d{1,3})?) л, (\d+(?:[.,]\d{1,3})?) ₽$""").matchEntire(description)
+            ?: return emptyMap()
         return mapOf(
             "date" to match.groupValues[1],
             "fuelType" to match.groupValues[2],
@@ -212,9 +211,7 @@ object HistoryRecordEventMapper {
         prefix: String,
     ): Map<String, String> {
         val match = Regex("^$prefix (.*?): (.*?)(?:\\. (.*))?$").matchEntire(description)
-        if (match == null) {
-            return emptyMap()
-        }
+            ?: return emptyMap()
         return mapOf(
             "date" to match.groupValues[1],
             "name" to match.groupValues[2],
@@ -234,7 +231,7 @@ object HistoryRecordEventMapper {
         }
         val date = withoutPrefix.substring(0, separatorIndex)
         val details = withoutPrefix.substring(separatorIndex + 2)
-        val suffix = Regex(""", (\d+) км$""").find(details)
+        val suffix = Regex(""", (\d+(?:[.,]\d{1,3})?) км$""").find(details)
         if (suffix != null) {
             return mapOf(
                 "date" to date,
@@ -244,20 +241,9 @@ object HistoryRecordEventMapper {
         return mapOf("date" to date, "description" to "")
     }
 
-    private fun String?.toIntValue(): Int {
-        return this.orEmpty().replace(" ", "").replace(',', '.').toDouble().toInt()
-    }
-
-    private fun String?.toDoubleValue(): Double {
-        return this.orEmpty().replace(" ", "").replace(',', '.').toDouble()
-    }
-
-    private fun Double.formatPlainNumber(): String {
-        return if (this % 1.0 == 0.0) {
-            this.toLong().toString()
-        } else {
-            this.toString()
-        }
+    private fun String?.toDecimalValue(): Double {
+        return DecimalNumberUtils.parsePositiveDecimal(this.orEmpty())
+            ?: throw IllegalArgumentException("Invalid decimal value")
     }
 
     private fun String?.orIfBlank(fallback: String): String {

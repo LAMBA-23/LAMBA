@@ -3,6 +3,7 @@ from __future__ import annotations
 import os
 import re
 from datetime import datetime, timedelta, timezone
+from decimal import Decimal, InvalidOperation
 
 from fastapi import Depends, FastAPI, HTTPException, Query, Request, Response, status
 from fastapi.middleware.cors import CORSMiddleware
@@ -156,10 +157,27 @@ def enforce_rate_limit(
 STATISTICS_EVENT_TYPES = {"fuel", "repair", "trip"}
 EVENT_TYPES = ("fuel", "repair", "trip", "issue")
 EVENT_TYPE_CHECK_CONSTRAINT = "events_type_allowed"
+ZERO_DECIMAL = Decimal("0")
+DECIMAL_SCALE = Decimal("0.001")
 
 
 def _coalesce_int(value: int | None) -> int:
     return value if value is not None else 0
+
+
+def _to_decimal(value: object) -> Decimal:
+    if value is None:
+        return ZERO_DECIMAL
+    if isinstance(value, Decimal):
+        return value
+    try:
+        return Decimal(str(value))
+    except InvalidOperation:
+        return ZERO_DECIMAL
+
+
+def _coalesce_decimal(value: object) -> Decimal:
+    return _to_decimal(value)
 
 
 def ensure_event_schema() -> None:
@@ -169,23 +187,24 @@ def ensure_event_schema() -> None:
     }
 
     with engine.begin() as connection:
+        if engine.dialect.name == "postgresql":
+            for column_name in ("amount", "fuel_liters", "mileage"):
+                if column_name in event_columns:
+                    connection.execute(
+                        text(
+                            f"ALTER TABLE events ALTER COLUMN {column_name} "
+                            f"TYPE NUMERIC(12, 3) USING {column_name}::numeric"
+                        )
+                    )
+
         fuel_liters_column = event_columns.get("fuel_liters")
         if fuel_liters_column is None:
             connection.execute(
                 text(
                     "ALTER TABLE events "
-                    "ADD COLUMN fuel_liters FLOAT NOT NULL DEFAULT 0"
+                    "ADD COLUMN fuel_liters NUMERIC(12, 3) NOT NULL DEFAULT 0"
                 )
             )
-        else:
-            column_type = str(fuel_liters_column["type"]).lower()
-            if engine.dialect.name == "postgresql" and "double" not in column_type:
-                connection.execute(
-                    text(
-                        "ALTER TABLE events ALTER COLUMN fuel_liters "
-                        "TYPE DOUBLE PRECISION USING fuel_liters::double precision"
-                    )
-                )
 
         if "odometer_start" not in event_columns:
             connection.execute(
@@ -236,38 +255,40 @@ def _has_configured_vehicle_record(events: list[Event]) -> bool:
     )
 
 
-def _event_effective_mileage(event: Event, known_mileage: int) -> int:
+def _event_effective_mileage(event: Event, known_mileage: Decimal) -> Decimal:
     if event.type == "trip" and event.odometer_end is not None:
-        return event.odometer_end
+        return Decimal(event.odometer_end)
 
-    mileage = _coalesce_int(event.mileage)
+    mileage = _coalesce_decimal(event.mileage)
     if event.type == "trip" and mileage <= known_mileage:
         return known_mileage + mileage
     return mileage
 
 
-def _event_trip_distance(event: Event, known_mileage: int) -> int:
+def _event_trip_distance(event: Event, known_mileage: Decimal) -> Decimal:
     if (
         event.type == "trip"
         and event.odometer_start is not None
         and event.odometer_end is not None
     ):
-        return max(0, event.odometer_end - event.odometer_start)
+        return max(ZERO_DECIMAL, Decimal(event.odometer_end - event.odometer_start))
 
     effective_mileage = _event_effective_mileage(event, known_mileage)
-    return max(0, effective_mileage - known_mileage)
+    return max(ZERO_DECIMAL, effective_mileage - known_mileage)
 
 
-def _sum_trip_distance(events: list[Event], start_at: datetime | None = None) -> int:
+def _sum_trip_distance(
+    events: list[Event], start_at: datetime | None = None
+) -> Decimal:
     if not events:
-        return 0
+        return ZERO_DECIMAL
 
-    initial_mileage = 0
+    initial_mileage = ZERO_DECIMAL
     if events[0].car is not None:
-        initial_mileage = _coalesce_int(events[0].car.current_mileage)
+        initial_mileage = Decimal(_coalesce_int(events[0].car.current_mileage))
 
     known_mileage = initial_mileage
-    total_distance = 0
+    total_distance = ZERO_DECIMAL
 
     for event in events:
         effective_mileage = _event_effective_mileage(event, known_mileage)
@@ -280,16 +301,18 @@ def _sum_trip_distance(events: list[Event], start_at: datetime | None = None) ->
     return total_distance
 
 
-def _current_total_mileage(events: list[Event], car: Car | None = None) -> int:
-    initial_mileage = _coalesce_int(car.current_mileage) if car is not None else 0
+def _current_total_mileage(events: list[Event], car: Car | None = None) -> Decimal:
+    initial_mileage = (
+        Decimal(_coalesce_int(car.current_mileage)) if car is not None else ZERO_DECIMAL
+    )
     if initial_mileage == 0 and events and events[0].car is not None:
-        initial_mileage = _coalesce_int(events[0].car.current_mileage)
+        initial_mileage = Decimal(_coalesce_int(events[0].car.current_mileage))
 
     return initial_mileage + _sum_trip_distance(events)
 
 
-def _current_trip_mileage(car: Car, events: list[Event]) -> int:
-    known_mileage = _coalesce_int(car.current_mileage)
+def _current_trip_mileage(car: Car, events: list[Event]) -> Decimal:
+    known_mileage = Decimal(_coalesce_int(car.current_mileage))
     for event in events:
         if event.type != "trip":
             continue
@@ -300,25 +323,27 @@ def _current_trip_mileage(car: Car, events: list[Event]) -> int:
     return known_mileage
 
 
-def _extract_trip_distance_km(text_value: str) -> int | None:
+def _extract_trip_distance_km(text_value: str) -> Decimal | None:
     match = re.search(
-        r"\b(\d+)\s*(?:км|км\.|километр|километра|километров)\b",
+        r"\b(\d+(?:[.,]\d{1,3})?)\s*(?:км|км\.|километр|километра|километров)\b",
         text_value.lower(),
     )
     if match is None:
         return None
-    return int(match.group(1))
+    return Decimal(match.group(1).replace(",", "."))
 
 
-def _event_mileage_from_payload(payload: EventCreate, previous_mileage: int) -> int:
+def _event_mileage_from_payload(
+    payload: EventCreate, previous_mileage: Decimal
+) -> Decimal:
     if payload.type == "trip" and payload.odometer_end is not None:
-        return payload.odometer_end
+        return Decimal(payload.odometer_end)
 
     event_mileage = payload.mileage
     if payload.type == "trip" and event_mileage is None:
         event_mileage = _extract_trip_distance_km(payload.description)
     if event_mileage is None:
-        event_mileage = 0
+        event_mileage = ZERO_DECIMAL
 
     if payload.type != "trip":
         return event_mileage
@@ -339,7 +364,7 @@ def _event_mileage_from_payload(payload: EventCreate, previous_mileage: int) -> 
 def build_stats_period(
     events: list[Event],
     start_at: datetime | None = None,
-    mileage: int | None = None,
+    mileage: Decimal | None = None,
     include_vehicle_record: bool = False,
 ) -> StatsPeriodResponse:
     period_events = [
@@ -354,21 +379,30 @@ def build_stats_period(
         else _sum_trip_distance(events, start_at=start_at)
     )
     fuel_expenses = sum(
-        event.amount
-        for event in relevant_events
-        if event.type == "fuel" and event.amount is not None and event.amount > 0
+        (
+            event.amount
+            for event in relevant_events
+            if event.type == "fuel" and event.amount is not None and event.amount > 0
+        ),
+        ZERO_DECIMAL,
     )
     fuel_liters = sum(
-        event.fuel_liters
-        for event in relevant_events
-        if event.type == "fuel"
-        and event.fuel_liters is not None
-        and event.fuel_liters > 0
+        (
+            event.fuel_liters
+            for event in relevant_events
+            if event.type == "fuel"
+            and event.fuel_liters is not None
+            and event.fuel_liters > 0
+        ),
+        ZERO_DECIMAL,
     )
     repair_expenses = sum(
-        event.amount
-        for event in relevant_events
-        if event.type == "repair" and event.amount is not None and event.amount > 0
+        (
+            event.amount
+            for event in relevant_events
+            if event.type == "repair" and event.amount is not None and event.amount > 0
+        ),
+        ZERO_DECIMAL,
     )
     total_expenses = fuel_expenses + repair_expenses
     vehicle_record_count = (
@@ -381,12 +415,12 @@ def build_stats_period(
         fuel_expenses=fuel_expenses,
         repair_expenses=repair_expenses,
         records_count=len(period_events) + vehicle_record_count,
-        avg_fuel_consumption=0,
-        avg_expense_consumption=0,
+        avg_fuel_consumption=ZERO_DECIMAL,
+        avg_expense_consumption=ZERO_DECIMAL,
         mileage_km=period_mileage,
         expenses_rub=total_expenses,
         fuel_liters=fuel_liters,
-        avg_fuel_consumption_l_per_100km=0,
+        avg_fuel_consumption_l_per_100km=ZERO_DECIMAL,
     )
 
 
@@ -427,7 +461,12 @@ STALE_RECORD_DAYS = 14
 MILEAGE_SINCE_FUEL_WARNING_KM = 500
 
 
-def _format_number(value: int | float) -> str:
+def _format_number(value: int | float | Decimal) -> str:
+    if isinstance(value, Decimal):
+        normalized = value.quantize(DECIMAL_SCALE).normalize()
+        if normalized == normalized.to_integral_value():
+            return f"{int(normalized):,}".replace(",", " ")
+        return format(normalized, "f").replace(".", ",")
     if isinstance(value, float) and value.is_integer():
         value = int(value)
     return f"{value:,}".replace(",", " ")
@@ -765,9 +804,9 @@ def _format_event_line(event: Event) -> str:
     return "Проблема"
 
 
-def _build_trip_distance_map(events: list[Event], car: Car) -> dict[int, int]:
-    known_mileage = _coalesce_int(car.current_mileage)
-    distances: dict[int, int] = {}
+def _build_trip_distance_map(events: list[Event], car: Car) -> dict[int, Decimal]:
+    known_mileage = Decimal(_coalesce_int(car.current_mileage))
+    distances: dict[int, Decimal] = {}
 
     for event in events:
         if event.type != "trip":
@@ -804,7 +843,7 @@ def _build_event_answer(
     lines = [title, ""]
     for index, event in enumerate(filtered, start=1):
         if event.type == "trip":
-            distance = trip_distances.get(event.id, _coalesce_int(event.mileage))
+            distance = trip_distances.get(event.id, _coalesce_decimal(event.mileage))
             line = f"Поездка: {_format_number(distance)} км"
         else:
             line = _format_event_line(event)
@@ -822,7 +861,8 @@ def _build_expense_answer(events: list[Event], message: str, now: datetime) -> s
         return "За выбранный период расходов не найдено."
 
     total_amount = sum(
-        event.amount for event in expense_events if event.amount is not None
+        (event.amount for event in expense_events if event.amount is not None),
+        ZERO_DECIMAL,
     )
     lines = [
         f"Расходы за {_period_title(period, last_n_days)}: {_format_number(total_amount)} ₽",
@@ -832,9 +872,12 @@ def _build_expense_answer(events: list[Event], message: str, now: datetime) -> s
 
     for event_type in EXPENSE_CATEGORY_ORDER:
         category_total = sum(
-            event.amount
-            for event in expense_events
-            if event.type == event_type and event.amount is not None
+            (
+                event.amount
+                for event in expense_events
+                if event.type == event_type and event.amount is not None
+            ),
+            ZERO_DECIMAL,
         )
         if category_total <= 0:
             continue
@@ -861,21 +904,30 @@ def _build_statistics_answer(
         event for event in events if start_at is None or event.created_at >= start_at
     ]
     total_expenses = sum(
-        event.amount
-        for event in period_events
-        if event.amount is not None and event.amount > 0
+        (
+            event.amount
+            for event in period_events
+            if event.amount is not None and event.amount > 0
+        ),
+        ZERO_DECIMAL,
     )
     fuel_liters = sum(
-        event.fuel_liters
-        for event in period_events
-        if event.type == "fuel"
-        and event.fuel_liters is not None
-        and event.fuel_liters > 0
+        (
+            event.fuel_liters
+            for event in period_events
+            if event.type == "fuel"
+            and event.fuel_liters is not None
+            and event.fuel_liters > 0
+        ),
+        ZERO_DECIMAL,
     )
     if period in (None, "all_time"):
         mileage = max(
-            [_current_total_mileage(events, car), _coalesce_int(car.current_mileage)]
-            + [_coalesce_int(event.mileage) for event in events]
+            [
+                _current_total_mileage(events, car),
+                Decimal(_coalesce_int(car.current_mileage)),
+            ]
+            + [_coalesce_decimal(event.mileage) for event in events]
         )
     else:
         mileage = _sum_trip_distance(events, start_at=start_at)
