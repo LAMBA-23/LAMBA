@@ -12,8 +12,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Backend recommendations endpoint with rule-based vehicle notifications for fuel
   price, repair cost, stale records, recent breakdowns, and fuel-level reminders
   (#315).
-- Android notification icon now opens rule-based vehicle recommendations from
-  the backend.
+- Android notification icon now opens a full-screen in-app notification inbox
+  with recommendation cards, loading/error/empty states, and a per-user unread
+  red-dot indicator.
 
 ### Changed
 

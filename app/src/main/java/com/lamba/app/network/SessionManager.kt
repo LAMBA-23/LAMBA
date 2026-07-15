@@ -9,6 +9,7 @@ object SessionManager {
     private const val KEY_USER_ID = "user_id"
     private const val KEY_USER_NAME = "user_name"
     private const val KEY_CHAT_REQUESTS_PREFIX = "chat_requests_"
+    private const val KEY_VIEWED_RECOMMENDATIONS_PREFIX = "viewed_recommendations_"
     private const val MISSING_USER_ID = -1
 
     fun saveUserId(context: Context, userId: Int) {
@@ -50,10 +51,41 @@ object SessionManager {
             remove(KEY_USER_NAME)
             if (userId != null) {
                 remove(chatRequestsKey(userId))
+                remove(viewedRecommendationsKey(userId))
                 chatSessionState.clearCurrentChatId(userId)
             }
             apply()
         }
+    }
+
+    fun hasUnreadRecommendations(
+        context: Context,
+        userId: Int,
+        recommendations: List<RecommendationItem>,
+    ): Boolean {
+        val viewedIds = getViewedRecommendationIds(context, userId)
+        return NotificationViewedState.hasUnread(
+            currentIds = recommendations.map { it.id },
+            viewedIds = viewedIds,
+        )
+    }
+
+    fun markRecommendationsViewed(
+        context: Context,
+        userId: Int,
+        recommendations: List<RecommendationItem>,
+    ) {
+        val currentIds = NotificationViewedState.normalizeIds(recommendations.map { it.id })
+        if (currentIds.isEmpty()) return
+
+        val viewedIds = getViewedRecommendationIds(context, userId) + currentIds
+        context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+            .edit()
+            .putString(
+                viewedRecommendationsKey(userId),
+                NotificationViewedState.serialize(viewedIds),
+            )
+            .apply()
     }
 
     fun addChatRequest(context: Context, message: String) {
@@ -99,6 +131,16 @@ object SessionManager {
     }
 
     private fun chatRequestsKey(userId: Int): String = "$KEY_CHAT_REQUESTS_PREFIX$userId"
+
+    private fun getViewedRecommendationIds(context: Context, userId: Int): Set<String> {
+        return NotificationViewedState.deserialize(
+            context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+                .getString(viewedRecommendationsKey(userId), null),
+        )
+    }
+
+    private fun viewedRecommendationsKey(userId: Int): String =
+        "$KEY_VIEWED_RECOMMENDATIONS_PREFIX$userId"
 
     private class SharedPreferencesKeyValueStore(
         context: Context,

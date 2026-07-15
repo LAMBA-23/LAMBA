@@ -75,12 +75,14 @@
                     app:tint="#101114" />
 
                 <View
+                    android:id="@+id/notificationDot"
                     android:layout_width="10dp"
                     android:layout_height="10dp"
                     android:layout_gravity="top|end"
                     android:layout_marginTop="6dp"
                     android:layout_marginEnd="7dp"
-                    android:background="@drawable/bg_lamba_notification_dot" />
+                    android:background="@drawable/bg_lamba_notification_dot"
+                    android:visibility="gone" />
             </FrameLayout>
         </LinearLayout>
 

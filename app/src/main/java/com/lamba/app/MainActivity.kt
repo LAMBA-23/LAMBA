@@ -27,6 +27,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var menuRequests: LinearLayout
     private lateinit var logoutPopup: TextView
     private lateinit var menuProfile: LinearLayout
+    private lateinit var notificationDot: View
     private var isLogoutPopupVisible = false
     private var vehicleName: String = "машина"
     private val localChatRepository by lazy { LocalChatService.getRepository(this) }
@@ -52,6 +53,7 @@ class MainActivity : AppCompatActivity() {
         val btnHomeSend = findViewById<ImageButton>(R.id.btnHomeSend)
         val btnMenu = findViewById<ImageButton>(R.id.btnMenu)
         val ivNotification = findViewById<ImageView>(R.id.ivNotification)
+        notificationDot = findViewById(R.id.notificationDot)
         drawerOverlay = findViewById(R.id.drawerOverlay)
         val drawerPanel = findViewById<LinearLayout>(R.id.drawerPanel)
         val drawerScrim = findViewById<View>(R.id.drawerScrim)
@@ -102,7 +104,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         ivNotification.setOnClickListener {
-            showRecommendations()
+            openNotifications()
         }
 
         drawerScrim.setOnClickListener {
@@ -147,6 +149,7 @@ class MainActivity : AppCompatActivity() {
         if (::menuRequests.isInitialized && ::drawerOverlay.isInitialized) {
             renderChatHistory(menuRequests, drawerOverlay)
         }
+        refreshNotificationBadge()
     }
 
     override fun onBackPressed() {
@@ -251,7 +254,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun showRecommendations() {
+    private fun openNotifications() {
         if (userId == -1) {
             AlertDialog.Builder(this)
                 .setTitle("Уведомления")
@@ -261,31 +264,30 @@ class MainActivity : AppCompatActivity() {
             return
         }
 
+        startActivity(Intent(this, NotificationsActivity::class.java))
+    }
+
+    private fun refreshNotificationBadge() {
+        if (userId == -1 || !::notificationDot.isInitialized) {
+            return
+        }
+
         lifecycleScope.launch {
             runCatching { RetrofitClient.apiService.getRecommendations(userId) }
                 .onSuccess { response ->
-                    val recommendations = response.body()?.recommendations.orEmpty()
-                    val message = if (response.isSuccessful && recommendations.isNotEmpty()) {
-                        recommendations.joinToString(separator = "\n\n") { item ->
-                            "${item.title}\n${item.message}"
-                        }
-                    } else if (response.isSuccessful) {
-                        "Сейчас нет новых рекомендаций."
-                    } else {
-                        "Не удалось загрузить уведомления."
+                    if (response.isSuccessful) {
+                        notificationDot.visibility =
+                            if (SessionManager.hasUnreadRecommendations(
+                                    this@MainActivity,
+                                    userId,
+                                    response.body()?.recommendations.orEmpty(),
+                                )
+                            ) {
+                                View.VISIBLE
+                            } else {
+                                View.GONE
+                            }
                     }
-                    AlertDialog.Builder(this@MainActivity)
-                        .setTitle("Уведомления")
-                        .setMessage(message)
-                        .setPositiveButton("ОК", null)
-                        .show()
-                }
-                .onFailure {
-                    AlertDialog.Builder(this@MainActivity)
-                        .setTitle("Уведомления")
-                        .setMessage("Не удалось загрузить уведомления.")
-                        .setPositiveButton("ОК", null)
-                        .show()
                 }
         }
     }
