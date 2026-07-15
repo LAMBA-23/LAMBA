@@ -3,6 +3,7 @@ package com.lamba.app.network
 import java.io.IOException
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
@@ -72,18 +73,81 @@ class ChatRepositoryTest {
 
     @Test
     fun clarificationIsShownWithoutSavingEvent() = runBlocking {
-        val question = "Was it fuel, repair, trip, or issue?"
+        val question = "Уточните тип события"
         val backend = FakeChatBackend(
             parseResponse = ChatParseResponse(
                 status = "clarification_needed",
                 clarificationQuestion = question,
-            )
+            ),
         )
+        val repo = ChatRepository(backend)
+        val result = repo.sendMessage("Загадочное сообщение")
 
-        val result = ChatRepository(backend).sendMessage("Spent 3000")
-
-        assertEquals(ChatSendResult.Clarification(question), result)
+        assertTrue(result is ChatSendResult.Clarification)
+        assertEquals(question, (result as ChatSendResult.Clarification).question)
         assertTrue(backend.savedEvents.isEmpty())
+    }
+
+    @Test
+    fun greetingRoutesToAssistantNotParser() = runBlocking {
+        val backend = FakeChatBackend(
+            parseResponse = ChatParseResponse(
+                status = "parsed",
+                parsedEvent = null,
+            ),
+        )
+        val repo = ChatRepository(backend)
+        val result = repo.sendMessage("привет")
+
+        assertTrue(result is ChatSendResult.Answer)
+        assertTrue(backend.askQuestionCalled)
+    }
+
+    @Test
+    fun thanksRoutesToAssistantNotParser() = runBlocking {
+        val backend = FakeChatBackend(
+            parseResponse = ChatParseResponse(
+                status = "parsed",
+                parsedEvent = null,
+            ),
+        )
+        val repo = ChatRepository(backend)
+        val result = repo.sendMessage("спасибо")
+
+        assertTrue(result is ChatSendResult.Answer)
+        assertTrue(backend.askQuestionCalled)
+    }
+
+    @Test
+    fun greetingWithEventRoutesToParser() = runBlocking {
+        val parsedEvent = ParsedEventPayload(
+            type = "fuel",
+            description = "Заправка на 40 литров",
+            amount = null,
+            fuelLiters = 40.0,
+            mileage = 125000,
+        )
+        val savedEvent = Event(
+            id = 1,
+            type = "fuel",
+            description = "Заправка на 40 литров",
+            amount = 0,
+            mileage = 125000,
+            createdAt = "2026-07-14T12:00:00",
+        )
+        val backend = FakeChatBackend(
+            parseResponse = ChatParseResponse(
+                status = "parsed",
+                parsedEvent = parsedEvent,
+            ),
+            savedEvent = savedEvent,
+        )
+        val repo = ChatRepository(backend)
+        val result = repo.sendMessage("привет, заправился на 40 литров")
+
+        assertTrue(result is ChatSendResult.Saved)
+        assertTrue(backend.parseMessageCalled)
+        assertFalse(backend.askQuestionCalled)
     }
 
     @Test
@@ -157,6 +221,21 @@ class ChatRepositoryTest {
         assertTrue(backend.savedEvents.isEmpty())
     }
 
+    @Test
+    fun questionPassesChatContextToBackend() = runBlocking {
+        val backend = FakeChatBackend()
+        val repository = ChatRepository(backend)
+        val chatContext = listOf(
+            ChatContextMessage(sender = "user", text = "Привет"),
+            ChatContextMessage(sender = "assistant", text = "Здравствуйте"),
+        )
+
+        val result = repository.sendMessage("Что дальше?", chatContext)
+
+        assertEquals(ChatSendResult.Answer("OK"), result)
+        assertEquals(chatContext, backend.lastChatContext)
+    }
+
     private class FakeChatBackend(
         private val parseResponse: ChatParseResponse? = null,
         private val savedEvent: Event? = null,
@@ -165,8 +244,12 @@ class ChatRepositoryTest {
     ) : ChatBackend {
 
         val savedEvents = mutableListOf<ParsedEventPayload>()
+        var lastChatContext: List<ChatContextMessage>? = null
+        var parseMessageCalled = false
+        var askQuestionCalled = false
 
         override suspend fun parseMessage(message: String): ChatParseResponse {
+            parseMessageCalled = true
             parseError?.let { throw it }
             return requireNotNull(parseResponse)
         }
@@ -177,7 +260,12 @@ class ChatRepositoryTest {
             return requireNotNull(savedEvent)
         }
 
-        override suspend fun askQuestion(message: String): String {
+        override suspend fun askQuestion(
+            message: String,
+            chatContext: List<ChatContextMessage>,
+        ): String {
+            askQuestionCalled = true
+            lastChatContext = chatContext
             return "OK"
         }
     }

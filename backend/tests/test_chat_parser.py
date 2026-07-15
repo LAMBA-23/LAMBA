@@ -164,3 +164,47 @@ def test_guardrails_parse_decimal_fuel_liters() -> None:
     )
     assert getattr(result, "fuel_liters", None) == 35.7
     assert result.needs_clarification is False
+
+
+def test_guardrails_greeting_returns_friendly_response() -> None:
+    result = _apply_guardrails(
+        "привет",
+        ParsedChatEvent(needs_clarification=True, clarification_question=""),
+    )
+    assert result.type is None
+    assert result.needs_clarification is False
+    assert (
+        "помощник" in result.clarification_question.lower()
+        or "привет" in result.clarification_question.lower()
+    )
+
+
+def test_guardrails_greeting_with_event_does_not_intercept() -> None:
+    result = _apply_guardrails(
+        "привет, заправился на 40 литров",
+        ParsedChatEvent(needs_clarification=True, clarification_question=""),
+    )
+    assert result.type == "fuel"
+    assert result.needs_clarification is False
+
+
+def test_guardrails_thanks_returns_friendly_response() -> None:
+    result = _apply_guardrails(
+        "спасибо",
+        ParsedChatEvent(needs_clarification=True, clarification_question=""),
+    )
+    assert result.type is None
+    assert result.needs_clarification is False
+    assert (
+        "помощь" in result.clarification_question.lower()
+        or "пожалуйста" in result.clarification_question.lower()
+    )
+
+
+def test_guardrails_thanks_with_event_does_not_intercept() -> None:
+    result = _apply_guardrails(
+        "спасибо, заменил масло за 8000",
+        ParsedChatEvent(needs_clarification=True, clarification_question=""),
+    )
+    assert result.needs_clarification is True
+    assert result.clarification_question == ""

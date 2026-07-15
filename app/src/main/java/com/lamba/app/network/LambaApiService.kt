@@ -33,6 +33,12 @@ interface LambaApiService {
         @Query("user_id") userId: Int,
     ): Response<ChatAskResponse>
 
+    @POST("chat/title")
+    suspend fun chatTitle(
+        @Body request: ChatTitleRequest,
+        @Query("user_id") userId: Int,
+    ): Response<ChatTitleResponse>
+
     @GET("events")
     suspend fun getEvents(@Query("user_id") userId: Int? = null): Response<List<Event>>
 

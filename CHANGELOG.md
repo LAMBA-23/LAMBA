@@ -7,6 +7,35 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Backend recommendations endpoint with rule-based vehicle notifications for fuel
+  price, repair cost, stale records, recent breakdowns, and fuel-level reminders
+  (#315).
+
+### Changed
+
+- AI chat assistant now responds to greetings and thanks with friendly, emoji-rich messages instead of asking for event details (#316).
+
+## [1.3.0] - 2026-07-12
+
+### Added
+
+- Password hashing and secure auth in backend (#265)
+- Local chat history persistence for last 5 dialogs (#277)
+- Application launcher icon (#242)
+- Android side drawer account block now opens an animated logout sheet with confirmation and local session cleanup (#271).
+
+### Changed
+
+- Backend login rate limiting and restricted CORS (#265)
+- Statistics UI layout adjusted for adaptive display (#278)
+- Session restore improved after app restart (#243)
+
+### Fixed
+
+- Frontend layout issues on statistics screen (#278)
+
 ## [1.2.0] - 2026-07-05
 
 ### Added

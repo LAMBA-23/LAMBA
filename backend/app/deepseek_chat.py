@@ -14,15 +14,31 @@ TIMEWEB_MODEL = os.getenv("TIMEWEB_MODEL", "deepseek-chat")
 REQUEST_TIMEOUT_SECONDS = float(os.getenv("TIMEWEB_TIMEOUT_SECONDS", "30"))
 
 SYSTEM_PROMPT = """\
-Ты — AI-ассистент для владельца автомобиля. Твоя задача — отвечать на вопросы \
-пользователя о его автомобиле, используя предоставленную информацию из истории автомобиля.
+Ты — AI-ассистент-помощник для владельца автомобиля. Твоя задача — отвечать на вопросы пользователя о его автомобиле, используя информацию из истории автомобиля.
 
 Правила:
 - Отвечай на русском языке.
-- Отвечай кратко и по делу.
 - Используй только факты из предоставленного контекста.
 - Если информации нет в контексте, скажи, что данных недостаточно.
 - Не выдумывай информацию, которой нет в истории автомобиля.
+
+Стиль общения:
+- Будь дружелюбным, тёплым и живым. Говори как помощник-друг, а не как робот.
+- Если пользователь здоровается — поздоровайся в ответ, добавь эмодзи и короткий вопрос типа «Чем могу помочь?»
+- Если пользователь благодарит — ответь что-то вроде «Рад помочь! 😊»
+- Формулируй ответы о данных автомобиля естественно и разговорно, без сухого перечисления.
+- Пример хорошего ответа на «на сколько была последняя заправка?»: «Последняя заправка была на 30 литров ⛽ mileage 125000 км. Нужно что-то ещё?»
+- Пример хорошего ответа на «привет»: «Привет! 👋 Как дела? Чем могу помочь сегодня?»
+"""
+
+TITLE_SYSTEM_PROMPT = """\
+Ты создаёшь короткий заголовок для диалога на русском языке.
+
+Правила:
+- Верни только заголовок без кавычек и без пояснений.
+- Заголовок должен содержать примерно 2-6 слов.
+- Заголовок должен быть информативным и естественным.
+- Максимальная длина заголовка — 50 символов.
 """
 
 MISSING_CONFIGURATION_ANSWER = (
@@ -31,7 +47,11 @@ MISSING_CONFIGURATION_ANSWER = (
 FALLBACK_ANSWER = "Не удалось получить ответ от AI-ассистента. Попробуйте позже."
 
 
-def ask_deepseek(message: str, vehicle_context: str | None = None) -> str:
+def ask_deepseek(
+    message: str,
+    vehicle_context: str | None = None,
+    chat_context: str | None = None,
+) -> str:
     api_key = os.getenv(TIMEWEB_API_KEY_ENV)
     agent_id = os.getenv(TIMEWEB_AGENT_ID_ENV)
     if not api_key or not agent_id:
@@ -44,6 +64,14 @@ def ask_deepseek(message: str, vehicle_context: str | None = None) -> str:
             {
                 "role": "system",
                 "content": f"Информация из истории автомобиля:\n{vehicle_context}",
+            }
+        )
+
+    if chat_context:
+        messages.append(
+            {
+                "role": "system",
+                "content": f"Контекст текущего диалога:\n{chat_context}",
             }
         )
 
@@ -64,6 +92,50 @@ def ask_deepseek(message: str, vehicle_context: str | None = None) -> str:
         )
     except ValueError:
         return FALLBACK_ANSWER
+
+
+def generate_chat_title(first_user_message: str, first_assistant_reply: str) -> str:
+    api_key = os.getenv(TIMEWEB_API_KEY_ENV)
+    agent_id = os.getenv(TIMEWEB_AGENT_ID_ENV)
+    if not api_key or not agent_id:
+        return _fallback_title(first_user_message)
+
+    payload = {
+        "model": TIMEWEB_MODEL,
+        "messages": [
+            {"role": "system", "content": TITLE_SYSTEM_PROMPT},
+            {
+                "role": "user",
+                "content": (
+                    f"Первое сообщение пользователя: {first_user_message}\n"
+                    f"Первый ответ ассистента: {first_assistant_reply}"
+                ),
+            },
+        ],
+        "temperature": 0.2,
+        "max_tokens": 64,
+    }
+
+    try:
+        title = _call_timeweb_agent_api(
+            api_key=api_key,
+            agent_id=agent_id,
+            payload=payload,
+        ).strip()
+    except ValueError:
+        return _fallback_title(first_user_message)
+
+    title = title.strip('"').strip("'").strip()
+    if not title:
+        return _fallback_title(first_user_message)
+    return title[:50]
+
+
+def _fallback_title(first_user_message: str) -> str:
+    normalized = " ".join(first_user_message.strip().split())
+    if not normalized:
+        return "Новый чат"
+    return normalized[:50]
 
 
 def _call_timeweb_agent_api(

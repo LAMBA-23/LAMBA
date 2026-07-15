@@ -36,6 +36,7 @@ Rules:
 - amount is only money.
 - mileage is odometer mileage, except for trip where mileage is traveled distance.
 - If the message is about condition/state/inspection without a malfunction, do not create an event.
+- If the message is a greeting (привет, здравствуй, добрый день, etc.), thanks (спасибо, благодарю), farewell (пока, до свидания), or a general question not related to adding a vehicle event, set type to null and needs_clarification to false. Do NOT ask what event the user wants to report.
 - If the message is ambiguous, set needs_clarification to true with a short Russian question.
 """.strip()
 
@@ -54,6 +55,12 @@ NON_TIMELINE_CONDITION_QUESTION = (
     "\u0430 \u043d\u0435 \u0441\u043e\u0431\u044b\u0442\u0438\u0435 \u0434\u043b\u044f \u0438\u0441\u0442\u043e\u0440\u0438\u0438. "
     "\u0417\u0430\u0434\u0430\u0439\u0442\u0435 \u0435\u0433\u043e \u0432 \u0447\u0430\u0442\u0435 \u0430\u0441\u0441\u0438\u0441\u0442\u0435\u043d\u0442\u0430."
 )
+FALLBACK_CLARIFICATION_QUESTION = (
+    "\u041d\u0435 \u0443\u0434\u0430\u043b\u043e\u0441\u044c \u0440\u0430\u0441\u043f\u043e\u0437\u043d\u0430\u0442\u044c \u0437\u0430\u043f\u0438\u0441\u044c. "
+    "\u041f\u043e\u0436\u0430\u043b\u0443\u0439\u0441\u0442\u0430, \u0443\u0442\u043e\u0447\u043d\u0438\u0442\u0435, \u0434\u0435\u0442\u0430\u043b\u0438 \u0441\u043e\u0431\u044b\u0442\u0438\u044f."
+)
+GREETING_RESPONSE = "\u041f\u0440\u0438\u0432\u0435\u0442! \u042f \u0432\u0430\u0448 \u0430\u0432\u0442\u043e\u043c\u043e\u0431\u0438\u043b\u044c\u043d\u044b\u0439 \u043f\u043e\u043c\u043e\u0449\u043d\u0438\u043a. \u0427\u0435\u043c \u043c\u043e\u0433\u0443 \u043f\u043e\u043c\u043e\u0447\u044c \u0441\u0435\u0433\u043e\u0434\u043d\u044f? \u042d\u043c\u043e\u0434\u0437\u0438 \u043f\u043e\u043c\u043e\u0433\u0443\u0442! \u0423\u0437\u043d\u0430\u044e\u0442\u0435 \u043e \u0432\u0430\u0448\u0435\u043c \u0430\u0432\u0442\u043e\u043c\u043e\u0431\u0438\u043b\u0435 \u0438 \u0438\u0441\u0442\u043e\u0440\u0438\u0438 \u0437\u0430\u043f\u0438\u0441\u0435\u0439."
+THANKS_RESPONSE = "\u041f\u043e\u0436\u0430\u043b\u0443\u0439\u0441\u0442\u0430! \u0420\u0430\u0434 \u043f\u043e\u043c\u043e\u0447\u044c! \u0415\u0441\u043b\u0438 \u0431\u0443\u0434\u0443\u0442 \u0432\u043e\u043f\u0440\u043e\u0441\u044b \u043f\u043e \u0430\u0432\u0442\u043e\u043c\u043e\u0431\u0438\u043b\u044e \u2014 \u043e\u0431\u0440\u0430\u0449\u0430\u0439\u0442\u0435\u0441\u044c! \u042d\u043c\u043e\u0434\u0437\u0438 \u043f\u043e\u043c\u043e\u0433\u0443\u0442! \u0423\u0437\u043d\u0430\u044e\u0442 \u0432\u0430\u0448 \u0430\u0432\u0442\u043e\u043c\u043e\u0431\u0438\u043b\u044c \u0438 \u0438\u0441\u0442\u043e\u0440\u0438\u044e \u0437\u0430\u043f\u0438\u0441\u0435\u0439."
 
 
 def _ru(*points: int) -> str:
@@ -100,74 +107,108 @@ def parse_chat_message(message: str) -> ParsedChatEvent:
 def _apply_guardrails(message: str, parsed_event: ParsedChatEvent) -> ParsedChatEvent:
     normalized_message = message.lower()
 
-    if _contains_multiple_distinct_events(normalized_message):
-        return ParsedChatEvent(
-            needs_clarification=True,
-            clarification_question=(
-                "\u0423\u0442\u043e\u0447\u043d\u0438\u0442\u0435, \u043f\u043e\u0436\u0430\u043b\u0443\u0439\u0441\u0442\u0430, "
-                "\u043e\u0434\u043d\u043e \u0441\u043e\u0431\u044b\u0442\u0438\u0435 \u0437\u0430 \u0441\u043e\u043e\u0431\u0449\u0435\u043d\u0438\u0435: "
-                "\u044d\u0442\u043e \u0431\u044b\u043b\u0430 \u0437\u0430\u043f\u0440\u0430\u0432\u043a\u0430, \u0440\u0435\u043c\u043e\u043d\u0442, \u043f\u043e\u0435\u0437\u0434\u043a\u0430 "
-                "\u0438\u043b\u0438 \u043f\u0440\u043e\u0431\u043b\u0435\u043c\u0430?"
-            ),
-        )
+    has_event_keywords = (
+        _contains_fuel_keywords(normalized_message)
+        or _contains_repair_keywords(normalized_message)
+        or _contains_trip_keywords(normalized_message)
+        or _contains_issue_keywords(normalized_message)
+    )
 
-    fuel_liters = _extract_fuel_liters(normalized_message)
-    if fuel_liters is not None and _looks_like_fuel_liters_message(normalized_message):
-        return ParsedChatEvent(
-            type="fuel",
-            description=_fuel_description(fuel_liters),
-            amount=_extract_money_amount(normalized_message),
-            fuel_liters=fuel_liters,
-            mileage=parsed_event.mileage,
-            needs_clarification=False,
-            clarification_question=None,
-        )
+    if has_event_keywords:
+        if _contains_multiple_distinct_events(normalized_message):
+            return ParsedChatEvent(
+                needs_clarification=True,
+                clarification_question=(
+                    "\u0423\u0442\u043e\u0447\u043d\u0438\u0442\u0435, \u043f\u043e\u0436\u0430\u043b\u0443\u0439\u0441\u0442\u0430, "
+                    "\u043e\u0434\u043d\u043e \u0441\u043e\u0431\u044b\u0442\u0438\u0435 \u0437\u0430 \u0441\u043e\u043e\u0431\u0449\u0435\u043d\u0438\u0435: "
+                    "\u044d\u0442\u043e \u0431\u044b\u043b\u0430 \u0437\u0430\u043f\u0440\u0430\u0432\u043a\u0430, \u0440\u0435\u043c\u043e\u043d\u0442, \u043f\u043e\u0435\u0437\u0434\u043a\u0430 "
+                    "\u0438\u043b\u0438 \u043f\u0440\u043e\u0431\u043b\u0435\u043c\u0430?"
+                ),
+            )
 
-    if _looks_like_issue_message(normalized_message):
-        return ParsedChatEvent(
-            type="issue",
-            description=message.strip(),
-            amount=None,
-            fuel_liters=parsed_event.fuel_liters,
-            mileage=parsed_event.mileage,
-            needs_clarification=False,
-            clarification_question=None,
-        )
+        fuel_liters = _extract_fuel_liters(normalized_message)
+        if fuel_liters is not None and _looks_like_fuel_liters_message(
+            normalized_message
+        ):
+            return ParsedChatEvent(
+                type="fuel",
+                description=_fuel_description(fuel_liters),
+                amount=_extract_money_amount(normalized_message),
+                fuel_liters=fuel_liters,
+                mileage=parsed_event.mileage,
+                needs_clarification=False,
+                clarification_question=None,
+            )
 
-    if _looks_like_condition_message(normalized_message):
-        return ParsedChatEvent(
-            needs_clarification=True,
-            clarification_question=NON_TIMELINE_CONDITION_QUESTION,
-        )
+        if _looks_like_issue_message(normalized_message):
+            return ParsedChatEvent(
+                type="issue",
+                description=message.strip(),
+                amount=None,
+                fuel_liters=parsed_event.fuel_liters,
+                mileage=parsed_event.mileage,
+                needs_clarification=False,
+                clarification_question=None,
+            )
 
-    trip_distance_km = _extract_trip_distance_km(normalized_message)
-    if trip_distance_km is not None:
-        return ParsedChatEvent(
-            type="trip",
-            description=_trip_description(trip_distance_km),
-            amount=None,
-            fuel_liters=None,
-            mileage=trip_distance_km,
-            needs_clarification=False,
-            clarification_question=None,
-        )
+        if _looks_like_condition_message(normalized_message):
+            return ParsedChatEvent(
+                needs_clarification=True,
+                clarification_question=NON_TIMELINE_CONDITION_QUESTION,
+            )
 
-    if _looks_like_trip_with_unclear_units(normalized_message):
-        distance_match = re.search(r"\b(\d+)\b", normalized_message)
-        distance_value = distance_match.group(1) if distance_match else None
-        clarification_question = (
-            f"\u0412\u044b \u0438\u043c\u0435\u0435\u0442\u0435 \u0432 \u0432\u0438\u0434\u0443 {distance_value} \u043a\u0438\u043b\u043e\u043c\u0435\u0442\u0440\u043e\u0432 \u0438\u043b\u0438 \u043c\u0438\u043b\u044c?"
-            if distance_value
-            else "\u0412\u044b \u0438\u043c\u0435\u0435\u0442\u0435 \u0432 \u0432\u0438\u0434\u0443 \u043a\u0438\u043b\u043e\u043c\u0435\u0442\u0440\u044b \u0438\u043b\u0438 \u043c\u0438\u043b\u0438?"
-        )
+        trip_distance_km = _extract_trip_distance_km(normalized_message)
+        if trip_distance_km is not None:
+            return ParsedChatEvent(
+                type="trip",
+                description=_trip_description(trip_distance_km),
+                amount=None,
+                fuel_liters=None,
+                mileage=trip_distance_km,
+                needs_clarification=False,
+                clarification_question=None,
+            )
+
+        if _looks_like_trip_with_unclear_units(normalized_message):
+            distance_match = re.search(r"\b(\d+)\b", normalized_message)
+            distance_value = distance_match.group(1) if distance_match else None
+            clarification_question = (
+                f"\u0412\u044b \u0438\u043c\u0435\u0435\u0442\u0435 \u0432 \u0432\u0438\u0434\u0443 {distance_value} \u043a\u0438\u043b\u043e\u043c\u0435\u0442\u0440\u043e\u0432 \u0438\u043b\u0438 \u043c\u0438\u043b\u044c?"
+                if distance_value
+                else "\u0412\u044b \u0438\u043c\u0435\u0435\u0442\u0435 \u0432 \u0432\u0438\u0434\u0443 \u043a\u0438\u043b\u043e\u043c\u0435\u0442\u0440\u044b \u0438\u043b\u0438 \u043c\u0438\u043b\u0438?"
+            )
+            return ParsedChatEvent(
+                type="trip",
+                description=message.strip(),
+                amount=None,
+                fuel_liters=None,
+                mileage=None,
+                needs_clarification=True,
+                clarification_question=clarification_question,
+            )
+
+        return parsed_event
+
+    if _is_greeting(normalized_message):
         return ParsedChatEvent(
-            type="trip",
-            description=message.strip(),
+            type=None,
+            description=None,
             amount=None,
             fuel_liters=None,
             mileage=None,
-            needs_clarification=True,
-            clarification_question=clarification_question,
+            needs_clarification=False,
+            clarification_question=GREETING_RESPONSE,
+        )
+
+    if _is_thanks(normalized_message):
+        return ParsedChatEvent(
+            type=None,
+            description=None,
+            amount=None,
+            fuel_liters=None,
+            mileage=None,
+            needs_clarification=False,
+            clarification_question=THANKS_RESPONSE,
         )
 
     return parsed_event
@@ -358,9 +399,16 @@ def _contains_trip_keywords(message: str) -> bool:
         for keyword in (
             _ru(0x43F, 0x440, 0x43E, 0x435, 0x445, 0x430, 0x43B),
             _ru(0x43F, 0x43E, 0x435, 0x437, 0x434),
+            _ru(0x43F, 0x43E, 0x435, 0x437, 0x434, 0x438, 0x43B),
+            _ru(0x43F, 0x43E, 0x435, 0x437, 0x434, 0x438, 0x43B, 0x430),
             _ru(0x435, 0x445, 0x430, 0x43B),
+            _ru(0x435, 0x445, 0x430, 0x43B, 0x430),
             _ru(0x434, 0x43E, 0x435, 0x445, 0x430, 0x43B),
+            _ru(0x434, 0x43E, 0x435, 0x445, 0x430, 0x43B, 0x430),
+            _ru(0x441, 0x44A, 0x435, 0x437, 0x434, 0x438, 0x43B),
+            _ru(0x441, 0x44A, 0x435, 0x437, 0x434, 0x438, 0x43B, 0x430),
             _ru(0x43C, 0x430, 0x440, 0x448, 0x440, 0x443, 0x442),
+            _ru(0x434, 0x43E, 0x440, 0x43E, 0x433),
             _ru(0x43F, 0x443, 0x442, 0x44C),
             _ru(0x43F, 0x443, 0x442),
         )
@@ -396,7 +444,7 @@ def _contains_condition_keywords(message: str) -> bool:
             _ru(0x43F, 0x440, 0x43E, 0x432, 0x435, 0x440, 0x44C)
             + " "
             + _ru(0x441, 0x43E, 0x441, 0x442, 0x43E, 0x44F, 0x43D, 0x438, 0x435),
-            _ru(0x43F, 0x440, 0x43E, 0x432, 0x435, 0x440, 0x438, 0x442, 0x44C)
+            _ru(0x43F, 0x440, 0x43E, 0x432, 0x435, 0x440, 0x438, 0x437, 0x446)
             + " "
             + _ru(0x441, 0x43E, 0x441, 0x442, 0x43E, 0x44F, 0x43D, 0x438, 0x435),
             _ru(0x43F, 0x440, 0x43E, 0x432, 0x435, 0x440, 0x438, 0x43B)
@@ -436,6 +484,28 @@ def _contains_condition_keywords(message: str) -> bool:
             + _ru(0x43E, 0x434, 0x43E, 0x43C, 0x435, 0x442, 0x440, 0x430),
         )
     )
+
+
+def _is_greeting(message: str) -> bool:
+    greetings = [
+        "привет",
+        "здравствуй",
+        "здравствуйте",
+        "добрый день",
+        "добрый вечер",
+        "доброе утро",
+        "хай",
+        "хей",
+        "йо",
+        "здорово",
+        "салют",
+    ]
+    return any(greeting in message for greeting in greetings)
+
+
+def _is_thanks(message: str) -> bool:
+    thanks = ["спасибо", "благодарю", "пасиб", "сенкс", "thanks"]
+    return any(thank in message for thank in thanks)
 
 
 def _call_timeweb_agent_api(

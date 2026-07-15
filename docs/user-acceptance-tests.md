@@ -173,11 +173,31 @@ This would allow users to create history records without using the chat.
   - Add photo attachments for history records.
   - Improve discoverability of manual record creation.
 
+### Week 6 Execution Result
+
+- **Execution status:** Completed
+- **Date:** 10 July 2026
+- **Executed by:** customer with guidance from the team representative
+- **Evidence:** private Week 6 meeting recording and sanitized transcript
+- **Result:** Needs changes
+- **Customer comments or observed issues:**
+  - Two events were added during the trial.
+  - The Statistics record count changed from 8 to 10, confirming that Statistics received the new data.
+  - The newly entered records did not load or display correctly in History.
+  - The team suspected compatibility problems with an older customer account, but this is not a confirmed root cause.
+  - The customer allowed the team to clear or adapt the account data if necessary.
+  - Zero-amount entries are intentionally no longer displayed.
+- **Traceability:** Product Backlog Items listed below.
+- **Resulting PBIs:**
+  - PBI: Fix newly created records not appearing correctly in History.
+  - PBI: Verify that manually created and chat-created records appear consistently in both History and Statistics.
+  - PBI: Verify migration, compatibility, or reset behavior for accounts created with older application versions.
+
 ## UAT-006: Ask the AI assistant about vehicle statistics
 
 - **Scenario ID:** UAT-006
 - **Status:** Active
-- **User goal:** A user can ask the AI assistant questions about vehicle statistics, expenses, and recent breakdown history and receive meaningful conversational answers.
+- **User goal:** A user can ask the AI assistant questions about vehicle statistics, expenses, supported periods, and recent breakdown history and receive meaningful conversational answers.
 - **Preconditions:**
   - The user is registered or logged in.
   - A vehicle profile exists.
@@ -188,9 +208,9 @@ This would allow users to create history records without using the chat.
 | Step | User action | Expected outcome |
 |---|---|---|
 | 1 | Open the AI assistant. | The chat screen is displayed. |
-| 2 | Ask a statistics-related question, for example, "Show my expenses". | The assistant understands the request and uses the selected vehicle's stored data. |
+| 2 | Ask a statistics-related question, for example, "Show my expenses this month". | The assistant understands the request and uses the selected vehicle's stored data. |
 | 3 | Review the expense summary. | The assistant returns the correct expense totals or a clear explanation if no expense data is available. |
-| 4 | Ask another statistics-related question, for example, "Show the latest data". | The assistant returns relevant statistics from the user's vehicle data. |
+| 4 | Ask another statistics-related question for a week, a month, or another supported period. | The assistant returns relevant period-based statistics from the user's vehicle data. |
 | 5 | Ask about recent breakdowns when breakdown data exists. | The assistant can summarize recent repair or breakdown history with useful dates or record details. |
 | 6 | Review the response format and tone. | The response is cleanly formatted, understandable, relevant, and natural in conversation. |
 | 7 | Continue using the application. | The user can continue the conversation or return to the main application flow. |
@@ -219,34 +239,54 @@ This would allow users to create history records without using the chat.
   - Support queries about recent breakdown history.
   - Expand AI context with additional relevant vehicle data.
 
-## UAT-007: Receive AI recommendations and notifications
+### Week 6 Execution Result
+
+- **Execution status:** Completed
+- **Date:** 10 July 2026
+- **Executed by:** customer with guidance from the team representative
+- **Evidence:** private Week 6 meeting recording and sanitized transcript
+- **Result:** Passed with follow-up item
+- **Customer comments or observed issues:**
+  - The customer reviewed a statistics-related AI answer and said it was good.
+  - Improved formatting and period-based analysis were accepted.
+  - The customer later requested more natural and conversational wording because the product concept is a conversation with the car.
+- **Traceability:** Product Backlog Item listed below.
+- **Resulting PBIs:**
+  - PBI: Improve the AI prompt so responses sound less dry and more natural and conversational.
+
+## UAT-007: Receive rule-based vehicle recommendations as notifications
 
 - **Scenario ID:** UAT-007
-- **Status:** Planned
-- **User goal:** A user can receive useful AI recommendations and see relevant reminders or notifications about the vehicle.
+- **Status:** Active
+- **User goal:** A user can receive useful rule-based vehicle recommendations as notifications.
 - **Preconditions:**
   - The user is registered or logged in.
   - A vehicle profile exists.
-  - Vehicle history or context data is available when recommendations depend on it.
-  - The assistant or notification area is available.
+  - Vehicle history or context data is available when recommendations depend on it, such as mileage for an oil-change reminder.
+  - The notification area is available.
 
 | Step | User action | Expected outcome |
 |---|---|---|
-| 1 | Open the assistant or relevant notification area. | The app displays the available recommendations, reminders, or notification entry point. |
-| 2 | Review the displayed recommendation or reminder. | The recommendation is understandable, relevant to the vehicle context, and useful to the user. |
+| 1 | Open the relevant notification area. | The app displays available recommendations, reminders, or a notification entry point. |
+| 2 | Review the displayed recommendation or reminder. | The recommendation is understandable, relevant to the vehicle context, and useful to the user. Simple rule-based recommendations are acceptable. |
 | 3 | Open or select a recommendation or notification. | The app shows the related detail, explanation, or next action. |
-| 4 | Return to the main app flow. | The user can return without losing the current vehicle context. |
+| 4 | Open the AI assistant chat. | Recommendations do not appear as unsolicited proactive AI chat messages. |
+| 5 | Return to the main app flow. | The user can return without losing the current vehicle context. |
 
 ### Week 6 Execution Result
 
-- **Execution status:** To be completed after the Week 6 customer interview.
-- **Date:** To be completed after the Week 6 customer interview.
-- **Executed by:** To be completed after the Week 6 customer interview.
-- **Evidence:** To be added in the private Moodle submission if applicable.
-- **Result:** To be completed after execution.
-- **Customer comments or observed issues:** To be completed after the Week 6 customer interview.
-- **Traceability:** To be linked to relevant GitHub issues or PBIs after implementation.
-- **Resulting PBIs/issues:** To be completed after execution.
+- **Execution status:** Not executed - implementation was incomplete
+- **Date:** 10 July 2026
+- **Executed by:** Not executed
+- **Evidence:** private Week 6 meeting recording and sanitized transcript
+- **Result:** Not executed / Needs implementation
+- **Customer comments or observed issues:**
+  - Recommendations in the chat would be excessive.
+  - Rule-based recommendations shown as notifications are sufficient.
+- **Traceability:** Product Backlog Items listed below.
+- **Resulting PBIs:**
+  - PBI: Implement rule-based vehicle recommendations using notifications.
+  - PBI: Display recommendations in notifications instead of proactive chat messages.
 
 ### Week 7 Execution Result
 
@@ -259,35 +299,38 @@ This would allow users to create history records without using the chat.
 - **Traceability:** To be linked to relevant GitHub issues or PBIs after implementation.
 - **Resulting PBIs/issues:** To be completed after execution.
 
-## UAT-008: Keep recent chat history
+## UAT-008: Keep the five most recent chats locally
 
 - **Scenario ID:** UAT-008
-- **Status:** Planned
-- **User goal:** A user can leave the chat and later return to see recent conversation context.
+- **Status:** Active
+- **User goal:** A user can open one of the five most recent locally stored chats and continue the conversation, and local chat history is cleared after logout.
 - **Preconditions:**
   - The user is registered or logged in.
   - A vehicle profile exists.
   - The chat feature is available.
-  - Chat history persistence is implemented or limited history behavior is defined.
+  - Local chat history storage is implemented on the device.
 
 | Step | User action | Expected outcome |
 |---|---|---|
 | 1 | Open the chat. | The chat screen opens for the active vehicle context. |
-| 2 | Send several messages. | The messages appear in the conversation with assistant responses when available. |
-| 3 | Leave the chat or close and reopen the app if supported. | The app allows the user to exit the chat without an error. |
-| 4 | Return to the chat. | Recent messages, for example the last 5, are still visible. |
-| 5 | Review older history behavior if only limited history is stored. | The app handles older history clearly, such as by showing only the retained recent messages or a clear empty state. |
+| 2 | Create or continue several separate chats until more than five chats exist locally. | The app stores only the five most recent chats on the device. |
+| 3 | Leave the chat and open the local chat history. | The five most recent chats are available locally, and older chats outside the local limit are not shown. |
+| 4 | Open one of the locally stored chats and send another message. | The previous conversation is shown and can be continued. |
+| 5 | Log out and then check local chat history after returning to the application. | Locally stored chat history is cleared after logout. |
 
 ### Week 6 Execution Result
 
-- **Execution status:** To be completed after the Week 6 customer interview.
-- **Date:** To be completed after the Week 6 customer interview.
-- **Executed by:** To be completed after the Week 6 customer interview.
-- **Evidence:** To be added in the private Moodle submission if applicable.
-- **Result:** To be completed after execution.
-- **Customer comments or observed issues:** To be completed after the Week 6 customer interview.
-- **Traceability:** To be linked to relevant GitHub issues or PBIs after implementation.
-- **Resulting PBIs/issues:** To be completed after execution.
+- **Execution status:** Completed
+- **Date:** 10 July 2026
+- **Executed by:** customer with guidance from the team representative
+- **Evidence:** private Week 6 meeting recording and sanitized transcript
+- **Result:** Passed
+- **Customer comments or observed issues:**
+  - The customer could see the chat history.
+  - The customer opened an existing chat and continued the conversation.
+  - No new functional issue was identified.
+- **Traceability:** Product Backlog Item coverage for local chat history behavior.
+- **Resulting PBIs:** No new PBIs were created.
 
 ### Week 7 Execution Result
 
@@ -300,35 +343,42 @@ This would allow users to create history records without using the chat.
 - **Traceability:** To be linked to relevant GitHub issues or PBIs after implementation.
 - **Resulting PBIs/issues:** To be completed after execution.
 
-## UAT-009: Add fuel record with decimal liters
+## UAT-009: Decimal fuel and monetary values
 
 - **Scenario ID:** UAT-009
-- **Status:** Planned
-- **User goal:** A user can enter a non-integer fuel amount when adding a fuel record.
+- **Status:** Active
+- **User goal:** A user can enter decimal fuel volume and decimal monetary values when adding vehicle records.
 - **Preconditions:**
   - The user is registered or logged in.
   - A vehicle profile exists.
   - The manual record form is available.
-  - Fuel records are supported by the manual record form.
+  - Fuel and monetary values are supported by the manual record form.
 
 | Step | User action | Expected outcome |
 |---|---|---|
 | 1 | Open the manual record form. | The form opens and allows the user to choose a record type. |
 | 2 | Select the fuel record type. | Fuel-specific fields are displayed. |
 | 3 | Enter a decimal fuel amount, for example 42.7 liters, with other required values. | The form accepts the valid decimal value and keeps it visible without rounding to an integer. |
-| 4 | Save the record. | The record is saved successfully. |
-| 5 | Open History and Statistics. | History displays the fuel record correctly and Statistics uses the decimal value correctly. |
+| 4 | Enter a decimal monetary amount, for example 2549.90 rubles. | The form accepts the valid decimal monetary value and keeps it visible without rounding. |
+| 5 | Save the record. | The record is saved successfully. |
+| 6 | Open History and Statistics. | History displays the decimal values correctly and Statistics uses the decimal values correctly. |
 
 ### Week 6 Execution Result
 
-- **Execution status:** To be completed after the Week 6 customer interview.
-- **Date:** To be completed after the Week 6 customer interview.
-- **Executed by:** To be completed after the Week 6 customer interview.
-- **Evidence:** To be added in the private Moodle submission if applicable.
-- **Result:** To be completed after execution.
-- **Customer comments or observed issues:** To be completed after the Week 6 customer interview.
-- **Traceability:** To be linked to relevant GitHub issues or PBIs after implementation.
-- **Resulting PBIs/issues:** To be completed after execution.
+- **Execution status:** Completed
+- **Date:** 10 July 2026
+- **Executed by:** customer with guidance from the team representative
+- **Evidence:** private Week 6 meeting recording and sanitized transcript
+- **Result:** Needs changes
+- **Customer comments or observed issues:**
+  - A fractional fuel value could be entered but was not saved.
+  - Fractional fuel values are a must-have.
+  - The customer additionally required monetary values to support kopecks because fuel prices and expenses are not normally whole numbers.
+- **Traceability:** Product Backlog Items listed below.
+- **Resulting PBIs:**
+  - PBI: Fix persistence and display of fractional fuel liters.
+  - PBI: Support decimal monetary amounts (rubles and kopecks).
+  - PBI: Add regression tests for decimal input, serialization, persistence, History display, and Statistics calculations.
 
 ### Week 7 Execution Result
 
@@ -344,7 +394,7 @@ This would allow users to create history records without using the chat.
 ## UAT-010: Record a trip using start and end odometer values
 
 - **Scenario ID:** UAT-010
-- **Status:** Planned
+- **Status:** Active
 - **User goal:** A user can record a trip by entering start and end odometer values instead of manually calculating distance.
 - **Preconditions:**
   - The user is registered or logged in.
@@ -363,14 +413,17 @@ This would allow users to create history records without using the chat.
 
 ### Week 6 Execution Result
 
-- **Execution status:** To be completed after the Week 6 customer interview.
-- **Date:** To be completed after the Week 6 customer interview.
-- **Executed by:** To be completed after the Week 6 customer interview.
-- **Evidence:** To be added in the private Moodle submission if applicable.
-- **Result:** To be completed after execution.
-- **Customer comments or observed issues:** To be completed after the Week 6 customer interview.
-- **Traceability:** To be linked to relevant GitHub issues or PBIs after implementation.
-- **Resulting PBIs/issues:** To be completed after execution.
+- **Execution status:** Not executed - implementation was incomplete
+- **Date:** 10 July 2026
+- **Executed by:** Not executed
+- **Evidence:** private Week 6 meeting recording and sanitized transcript
+- **Result:** Not executed / Needs implementation
+- **Customer comments or observed issues:**
+  - Odometer-based trip entry was still incomplete.
+  - The customer confirmed it should be completed before handover.
+- **Traceability:** Product Backlog Item listed below.
+- **Resulting PBIs:**
+  - PBI: Complete trip recording using start and end odometer values.
 
 ### Week 7 Execution Result
 
@@ -383,11 +436,11 @@ This would allow users to create history records without using the chat.
 - **Traceability:** To be linked to relevant GitHub issues or PBIs after implementation.
 - **Resulting PBIs/issues:** To be completed after execution.
 
-## UAT-011: Add Repair/Breakdown record with photo attachment
+## UAT-011: Repair/Breakdown record with photo attachment
 
 - **Scenario ID:** UAT-011
-- **Status:** Planned
-- **User goal:** A user can create a repair or breakdown record and attach photos as evidence.
+- **Status:** Active
+- **User goal:** A user can create a Repair/Breakdown record with repair details, decimal repair expense when applicable, and a photo attachment, then see it in History.
 - **Preconditions:**
   - The user is registered or logged in.
   - A vehicle profile exists.
@@ -399,21 +452,29 @@ This would allow users to create history records without using the chat.
 |---|---|---|
 | 1 | Open the manual record form. | The form opens and allows the user to choose a record type. |
 | 2 | Select Repair/Breakdown. | The form displays fields relevant to repair or breakdown information. |
-| 3 | Enter description, mileage, amount, or other required fields. | The form accepts valid input and validates required fields. |
-| 4 | Attach one or more photos if supported. | The selected photo attachments are shown before saving. |
+| 3 | Enter repair details, mileage, decimal repair expense when applicable, or other required fields. | The form accepts valid input and validates required fields. |
+| 4 | Attach one or more photos. | The selected photo attachments are shown before saving. |
 | 5 | Save the record. | The record is saved successfully. |
 | 6 | Open History and the record details. | The record appears with the Repair/Breakdown label and the attached photo is visible or accessible from details. |
 
 ### Week 6 Execution Result
 
-- **Execution status:** To be completed after the Week 6 customer interview.
-- **Date:** To be completed after the Week 6 customer interview.
-- **Executed by:** To be completed after the Week 6 customer interview.
-- **Evidence:** To be added in the private Moodle submission if applicable.
-- **Result:** To be completed after execution.
-- **Customer comments or observed issues:** To be completed after the Week 6 customer interview.
-- **Traceability:** To be linked to relevant GitHub issues or PBIs after implementation.
-- **Resulting PBIs/issues:** To be completed after execution.
+- **Execution status:** Partially attempted
+- **Date:** 10 July 2026
+- **Executed by:** customer with guidance from the team representative
+- **Evidence:** private Week 6 meeting recording and sanitized transcript
+- **Result:** Needs changes
+- **Customer comments or observed issues:**
+  - Repair and Breakdown entry was not working correctly.
+  - The customer attempted to test a repair expense, but the full scenario was not completed.
+  - Photo attachment support was incomplete.
+  - Zero-amount entries are intentionally hidden.
+- **Traceability:** Product Backlog Items listed below.
+- **Resulting PBIs:**
+  - PBI: Fix Repair/Breakdown record creation and display.
+  - PBI: Complete photo upload, persistence, and display.
+  - PBI: Verify decimal repair expenses.
+  - PBI: Re-execute the complete scenario during Week 7.
 
 ### Week 7 Execution Result
 
@@ -429,75 +490,36 @@ This would allow users to create history records without using the chat.
 ## UAT-012: Stay logged in after closing the app and log out manually
 
 - **Scenario ID:** UAT-012
-- **Status:** Planned
-- **User goal:** A user remains logged in after closing the app and can manually log out when needed.
+- **Status:** Active
+- **User goal:** A user remains logged in after closing the app, can manually log out when needed, and has local chat history cleared after logout.
 - **Preconditions:**
   - The app is installed or available in the test environment.
   - The user has a valid account.
   - Session persistence is implemented.
-  - The Profile screen and Log out action are available.
+  - A Log out action is available.
 
 | Step | User action | Expected outcome |
 |---|---|---|
 | 1 | Log in with valid credentials. | The app opens the authenticated main flow. |
 | 2 | Close and reopen the app. | The app opens without asking the user to log in again. |
-| 3 | Open Profile. | The Profile screen opens for the current user. |
-| 4 | Tap Log out. | The app ends the session and returns to the login or welcome screen. |
+| 3 | Use the available Log out action. | The app ends the session and returns to the login or welcome screen. |
+| 4 | Confirm local chat history after logout. | Locally stored chat history is cleared. |
 | 5 | Try to access protected screens after logout. | Protected screens are not accessible until the user logs in again. |
 
 ### Week 6 Execution Result
 
-- **Execution status:** To be completed after the Week 6 customer interview.
-- **Date:** To be completed after the Week 6 customer interview.
-- **Executed by:** To be completed after the Week 6 customer interview.
-- **Evidence:** To be added in the private Moodle submission if applicable.
-- **Result:** To be completed after execution.
-- **Customer comments or observed issues:** To be completed after the Week 6 customer interview.
-- **Traceability:** To be linked to relevant GitHub issues or PBIs after implementation.
-- **Resulting PBIs/issues:** To be completed after execution.
-
-### Week 7 Execution Result
-
-- **Execution status:** To be completed after the Week 7 transition confirmation.
-- **Date:** To be completed after the Week 7 transition confirmation.
-- **Executed by:** To be completed after the Week 7 transition confirmation.
-- **Evidence:** To be added in the private Moodle submission if applicable.
-- **Result:** To be completed after execution.
-- **Customer comments or observed issues:** To be completed after the Week 7 transition confirmation.
-- **Traceability:** To be linked to relevant GitHub issues or PBIs after implementation.
-- **Resulting PBIs/issues:** To be completed after execution.
-
-## UAT-013: Manage profile information
-
-- **Scenario ID:** UAT-013
-- **Status:** Planned
-- **User goal:** A user can open the Profile screen, view account and vehicle information, update available data, and manage account actions.
-- **Preconditions:**
-  - The user is registered or logged in.
-  - A vehicle profile exists.
-  - The Profile screen is available from bottom navigation.
-  - Editable profile or vehicle fields are defined when update behavior is tested.
-
-| Step | User action | Expected outcome |
-|---|---|---|
-| 1 | Open Profile from bottom navigation. | The Profile screen opens instead of the add-vehicle screen. |
-| 2 | Review account information. | The user can view account information such as name and email. |
-| 3 | Review active vehicle information. | The user can view the active vehicle information. |
-| 4 | Edit supported profile or vehicle fields. | The app allows changes only for supported editable fields. |
-| 5 | Save changes. | The updated information is saved successfully. |
-| 6 | Leave and return to Profile. | The updated information remains visible. |
-| 7 | Review account actions. | Logout is available from Profile if session persistence is implemented. |
-
-### Week 6 Execution Result
-
-- **Execution status:** To be completed after the Week 6 customer interview.
-- **Date:** To be completed after the Week 6 customer interview.
-- **Executed by:** To be completed after the Week 6 customer interview.
-- **Evidence:** To be added in the private Moodle submission if applicable.
-- **Result:** To be completed after execution.
-- **Customer comments or observed issues:** To be completed after the Week 6 customer interview.
-- **Traceability:** To be linked to relevant GitHub issues or PBIs after implementation.
-- **Resulting PBIs/issues:** To be completed after execution.
+- **Execution status:** Completed
+- **Date:** 10 July 2026
+- **Executed by:** customer with guidance from the team representative
+- **Evidence:** private Week 6 meeting recording and sanitized transcript
+- **Result:** Passed
+- **Customer comments or observed issues:**
+  - Session persistence was successfully demonstrated.
+  - Closing and reopening the application did not require another login.
+  - Manual logout works.
+  - Logout clears locally stored chat history.
+- **Traceability:** Product Backlog Item coverage for session persistence and logout behavior.
+- **Resulting PBIs:** No new PBIs were created.
 
 ### Week 7 Execution Result
 
@@ -525,16 +547,44 @@ This would allow users to create history records without using the chat.
 
 ## Week 6 UAT Summary
 
-- **Scenarios executed:** To be completed after the Week 6 customer interview.
-- **Passed scenarios:** To be completed after the Week 6 customer interview.
-- **Failed / needs changes:** To be completed after the Week 6 customer interview.
-- **Most important feedback points:** To be completed after the Week 6 customer interview.
-- **Resulting PBIs or issues:** To be completed after execution.
-- **Notes about scenarios not executed yet:** To be completed after the Week 6 customer interview.
+- **Scenarios executed:** UAT-005, UAT-006, UAT-008, UAT-009, UAT-011, UAT-012. UAT-007 and UAT-010 were not executed as functional tests.
+- **Passed:**
+  - UAT-008
+  - UAT-012
+- **Passed with follow-up item:**
+  - UAT-006
+- **Needs changes:**
+  - UAT-005
+  - UAT-009
+  - UAT-011
+- **Not executed because implementation was incomplete:**
+  - UAT-007
+  - UAT-010
+- **Most important feedback points:**
+  - Recommendations should become simple rule-based notifications instead of proactive AI chat messages.
+  - Fractional fuel values are mandatory.
+  - Monetary values must support rubles and kopecks.
+  - Newly created records must appear consistently in both History and Statistics.
+  - Compatibility or migration of older customer accounts must be verified.
+  - Odometer-based trips must be completed.
+  - Repair/Breakdown functionality and photo attachments must be completed.
+  - AI responses should become more natural and conversational.
+  - The customer estimated overall product readiness at approximately 80%.
+- **Resulting Product Backlog Items (PBIs):**
+  - PBI: Fix fractional fuel-value persistence and display.
+  - PBI: Support decimal monetary amounts (rubles and kopecks).
+  - PBI: Fix History display and synchronization for newly created records.
+  - PBI: Verify compatibility or migration of older customer accounts.
+  - PBI: Complete odometer-based trip recording.
+  - PBI: Complete Repair/Breakdown functionality.
+  - PBI: Complete photo attachment support.
+  - PBI: Implement rule-based recommendation notifications.
+  - PBI: Improve the AI prompt to produce more natural conversational responses.
 
 ## Week 7 UAT Summary
 
 - **Scenarios executed:** To be completed after the Week 7 transition confirmation.
+- **Planned re-test list:** UAT-005, UAT-006, UAT-007, UAT-008, UAT-009, UAT-010, UAT-011, UAT-012.
 - **Passed scenarios:** To be completed after the Week 7 transition confirmation.
 - **Failed / needs changes:** To be completed after the Week 7 transition confirmation.
 - **Most important feedback points:** To be completed after the Week 7 transition confirmation.

@@ -30,3 +30,6 @@ jobs:
 
       - name: Run Android unit tests
         run: ./gradlew :app:testDebugUnitTest --no-daemon
+
+      - name: Run Android debug build
+        run: ./gradlew :app:assembleDebug --no-daemon

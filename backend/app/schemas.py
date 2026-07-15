@@ -225,8 +225,24 @@ class StatsResponse(BaseModel):
     all_time: StatsPeriodResponse
 
 
+RecommendationSeverity = Literal["info", "warning"]
+
+
+class RecommendationItem(BaseModel):
+    id: str
+    severity: RecommendationSeverity
+    title: str
+    message: str
+    source: str
+
+
+class RecommendationsResponse(BaseModel):
+    recommendations: list[RecommendationItem]
+
+
 class ChatAskRequest(BaseModel):
     message: str = Field(min_length=1)
+    chat_context: list["ChatContextMessage"] | None = None
 
     @field_validator("message")
     @classmethod
@@ -239,3 +255,33 @@ class ChatAskRequest(BaseModel):
 
 class ChatAskResponse(BaseModel):
     answer: str
+
+
+class ChatContextMessage(BaseModel):
+    sender: Literal["user", "assistant", "system"]
+    text: str = Field(min_length=1)
+
+    @field_validator("text")
+    @classmethod
+    def text_not_blank(cls, v: str) -> str:
+        trimmed = v.strip()
+        if not trimmed:
+            raise ValueError("text must not be empty or blank")
+        return trimmed
+
+
+class ChatTitleRequest(BaseModel):
+    first_user_message: str = Field(min_length=1)
+    first_assistant_reply: str = Field(min_length=1)
+
+    @field_validator("first_user_message", "first_assistant_reply")
+    @classmethod
+    def title_fields_not_blank(cls, v: str) -> str:
+        trimmed = v.strip()
+        if not trimmed:
+            raise ValueError("title fields must not be empty or blank")
+        return trimmed
+
+
+class ChatTitleResponse(BaseModel):
+    title: str

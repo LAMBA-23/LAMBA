@@ -137,9 +137,24 @@ enum class StatsPeriodKey {
 }
 
 data class ChatAskRequest(
-    @SerializedName("message") val message: String
+    @SerializedName("message") val message: String,
+    @SerializedName("chat_context") val chatContext: List<ChatContextMessage> = emptyList(),
 )
 
 data class ChatAskResponse(
     @SerializedName("answer") val answer: String
+)
+
+data class ChatContextMessage(
+    @SerializedName("sender") val sender: String,
+    @SerializedName("text") val text: String,
+)
+
+data class ChatTitleRequest(
+    @SerializedName("first_user_message") val firstUserMessage: String,
+    @SerializedName("first_assistant_reply") val firstAssistantReply: String,
+)
+
+data class ChatTitleResponse(
+    @SerializedName("title") val title: String,
 )

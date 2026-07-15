@@ -5,6 +5,7 @@ import android.graphics.Color
 import android.graphics.Typeface
 import android.graphics.drawable.ColorDrawable
 import android.graphics.drawable.GradientDrawable
+import android.net.Uri
 import android.os.Bundle
 import android.text.InputType
 import android.text.method.DigitsKeyListener
@@ -20,6 +21,7 @@ import android.widget.LinearLayout
 import android.widget.ProgressBar
 import android.widget.ScrollView
 import android.widget.TextView
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
@@ -39,6 +41,15 @@ class HistoryActivity : AppCompatActivity() {
     private val backendEvents = mutableListOf<Event>()
     private val historyRecordsByEventId = mutableMapOf<Int?, HistoryRecordUiModel>()
     private var currentVehicleMileage = 0
+    private var activeIssuePhotoPreview: ImageView? = null
+    private var activeIssuePhotoButton: Button? = null
+
+    private val issuePhotoPicker = registerForActivityResult(ActivityResultContracts.GetContent()) { uri ->
+        if (uri != null) {
+            activeIssuePhotoPreview?.let { showPhotoPreview(it, uri) }
+            activeIssuePhotoButton?.text = "Заменить фото"
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -132,7 +143,7 @@ class HistoryActivity : AppCompatActivity() {
                 iconRes = record.iconRes,
                 details = formatBackendDate(event.createdAt),
                 keyValue = record.keyValue,
-                onClick = if (event.type.lowercase() == "issue") null else { { showRecordDetailsSheet(event) } },
+                onClick = { showRecordDetailsSheet(event) },
             )
         }
     }
@@ -245,6 +256,13 @@ class HistoryActivity : AppCompatActivity() {
         formContent.addView(createFormHeader(type.formTitle, dialog))
         fields.forEach { field ->
             formContent.addView(createFieldView(field, editingRecord?.values?.get(field.key)))
+        }
+        if (type == HistoryRecordType.BREAKDOWN) {
+            formContent.addView(createIssuePhotoPickerView())
+            dialog.setOnDismissListener {
+                activeIssuePhotoPreview = null
+                activeIssuePhotoButton = null
+            }
         }
         formContent.addView(errorView)
         formContent.addView(Button(this).apply {
@@ -370,6 +388,11 @@ class HistoryActivity : AppCompatActivity() {
                 FormField("date", "Дата"),
                 FormField("cost", "Стоимость, ₽", numeric = true),
                 FormField("description", "Описание (необязательно)", required = false, singleLine = false),
+            )
+            HistoryRecordType.BREAKDOWN -> listOf(
+                FormField("name", "Название поломки"),
+                FormField("description", "Описание", singleLine = false),
+                FormField("date", "Дата"),
             )
             HistoryRecordType.TRIP -> listOf(
                 FormField("date", "Дата"),
@@ -506,6 +529,60 @@ class HistoryActivity : AppCompatActivity() {
         }
     }
 
+    private fun createIssuePhotoPickerView(): LinearLayout {
+        return LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            setPadding(0, 16.dp, 0, 0)
+
+            addView(TextView(this@HistoryActivity).apply {
+                text = "Фото поломки"
+                setTextColor(Color.parseColor("#101114"))
+                textSize = 17f
+                typeface = Typeface.DEFAULT_BOLD
+                includeFontPadding = false
+            })
+
+            addView(TextView(this@HistoryActivity).apply {
+                text = "Необязательно. Можно добавить одно фото."
+                setTextColor(Color.parseColor("#77777E"))
+                textSize = 14f
+                setPadding(0, 6.dp, 0, 0)
+            })
+
+            addView(Button(this@HistoryActivity).apply {
+                layoutParams = LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.MATCH_PARENT,
+                    54.dp,
+                ).apply {
+                    topMargin = 12.dp
+                }
+                background = ContextCompat.getDrawable(this@HistoryActivity, R.drawable.bg_button_white_outline)
+                text = "Выбрать фото"
+                setTextColor(Color.parseColor("#960018"))
+                textSize = 16f
+                typeface = Typeface.DEFAULT_BOLD
+                isAllCaps = false
+                activeIssuePhotoButton = this
+                setOnClickListener {
+                    issuePhotoPicker.launch("image/*")
+                }
+            })
+
+            addView(ImageView(this@HistoryActivity).apply {
+                layoutParams = LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.MATCH_PARENT,
+                    180.dp,
+                ).apply {
+                    topMargin = 12.dp
+                }
+                background = roundedBackground("#FFF7F8", 18.dp.toFloat())
+                scaleType = ImageView.ScaleType.CENTER_CROP
+                visibility = View.GONE
+                activeIssuePhotoPreview = this
+            })
+        }
+    }
+
     private fun createActionButton(textValue: String, filled: Boolean, onClick: () -> Unit): Button {
         return Button(this).apply {
             layoutParams = LinearLayout.LayoutParams(
@@ -614,7 +691,11 @@ class HistoryActivity : AppCompatActivity() {
         val values: Map<String, String>,
     ) {
         val title: String
-            get() = type.title
+            get() = if (type == HistoryRecordType.BREAKDOWN) {
+                values["name"].orEmpty().ifBlank { type.title }
+            } else {
+                type.title
+            }
 
         val iconRes: Int
             get() = type.iconRes
@@ -627,6 +708,7 @@ class HistoryActivity : AppCompatActivity() {
                 HistoryRecordType.FUEL -> "${formatPlainNumberValue(values["litres"].orEmpty())} л"
                 HistoryRecordType.MAINTENANCE,
                 HistoryRecordType.REPAIR -> formatMoneyValue(values["cost"].orEmpty())
+                HistoryRecordType.BREAKDOWN -> ""
                 HistoryRecordType.TRIP -> "${formatPlainNumberValue(values["mileage"].orEmpty())} км"
             }
 
@@ -648,6 +730,11 @@ class HistoryActivity : AppCompatActivity() {
                     "Дата" to values["date"].orEmpty(),
                     "Стоимость" to formatMoneyValue(values["cost"].orEmpty()),
                 ).withOptionalDescription()
+                HistoryRecordType.BREAKDOWN -> listOf(
+                    "Название поломки" to values["name"].orEmpty(),
+                    "Дата" to values["date"].orEmpty(),
+                    "Описание" to values["description"].orEmpty(),
+                )
                 HistoryRecordType.TRIP -> listOf(
                     "Дата" to values["date"].orEmpty(),
                 )
@@ -724,16 +811,7 @@ class HistoryActivity : AppCompatActivity() {
 
     private fun Event.toUiModel(): HistoryRecordUiModel {
         return when (type.lowercase()) {
-            "fuel", "repair", "trip" -> HistoryRecordUiModel.from(HistoryRecordEventMapper.fromEvent(this))
-            "issue" -> HistoryRecordUiModel(
-                type = HistoryRecordType.REPAIR,
-                values = mapOf(
-                    "name" to description,
-                    "date" to formatBackendDate(createdAt),
-                    "cost" to amount.toString(),
-                    "description" to "",
-                ),
-            )
+            "fuel", "repair", "trip", "issue" -> HistoryRecordUiModel.from(HistoryRecordEventMapper.fromEvent(this))
             else -> HistoryRecordUiModel(
                 type = HistoryRecordType.REPAIR,
                 values = mapOf(
@@ -785,6 +863,14 @@ class HistoryActivity : AppCompatActivity() {
                 errorView.visibility = View.VISIBLE
             }
         }
+    }
+
+    private fun showPhotoPreview(imageView: ImageView, uri: Uri): Boolean {
+        return runCatching {
+            imageView.setImageURI(uri)
+            imageView.visibility = View.VISIBLE
+            true
+        }.getOrDefault(false)
     }
 
     private fun deleteRecord(event: Event) {
