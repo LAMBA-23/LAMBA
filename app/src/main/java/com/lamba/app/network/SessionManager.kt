@@ -63,10 +63,18 @@ object SessionManager {
         userId: Int,
         recommendations: List<RecommendationItem>,
     ): Boolean {
+        val currentIds = recommendations.map { it.id }
         val viewedIds = getViewedRecommendationIds(context, userId)
-        return NotificationViewedState.hasUnread(
-            currentIds = recommendations.map { it.id },
+        val activeViewedIds = NotificationViewedState.retainActiveViewedIds(
+            currentIds = currentIds,
             viewedIds = viewedIds,
+        )
+        if (activeViewedIds != viewedIds) {
+            saveViewedRecommendationIds(context, userId, activeViewedIds)
+        }
+        return NotificationViewedState.hasUnread(
+            currentIds = currentIds,
+            viewedIds = activeViewedIds,
         )
     }
 
@@ -78,7 +86,14 @@ object SessionManager {
         val currentIds = NotificationViewedState.normalizeIds(recommendations.map { it.id })
         if (currentIds.isEmpty()) return
 
-        val viewedIds = getViewedRecommendationIds(context, userId) + currentIds
+        saveViewedRecommendationIds(context, userId, currentIds)
+    }
+
+    private fun saveViewedRecommendationIds(
+        context: Context,
+        userId: Int,
+        viewedIds: Set<String>,
+    ) {
         context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
             .edit()
             .putString(

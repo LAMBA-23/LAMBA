@@ -640,6 +640,13 @@ GET /recommendations?user_id=2
 
 Rules:
 
+- Recommendation `id` values contain a stable rule prefix and, when source
+  events exist, an occurrence signature separated by `:`. The ID remains stable
+  while the same source events keep a rule active and changes when new source
+  events create a new occurrence.
+- User-facing recommendation titles and messages are returned in Russian;
+  calculated days, prices, expenses, and mileage remain part of the message.
+
 - Empty history returns an informational recommendation to add the first vehicle
   record.
 - No records for 14 or more days returns an informational history-update
@@ -657,10 +664,10 @@ Response:
 {
   "recommendations": [
     {
-      "id": "high_fuel_price",
+      "id": "high_fuel_price:42-41-40",
       "severity": "warning",
-      "title": "Fuel price looks high",
-      "message": "Average fuel price in the latest refuels is 100 RUB/L. Compare stations or check if the entered amount and liters are correct.",
+      "title": "Высокая стоимость топлива",
+      "message": "Средняя цена последних заправок — 100 ₽/л. Сравните цены на АЗС или проверьте введённые сумму и объём топлива.",
       "source": "sum(last_3_fuel.amount) / sum(last_3_fuel.fuel_liters) > 80"
     }
   ]
