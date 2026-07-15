@@ -97,7 +97,8 @@ class HistoryRecordEventMapperTest {
             HistoryRecordType.TRIP,
             mapOf(
                 "date" to "2026-07-06",
-                "mileage" to "120,345",
+                "odometerStart" to "125000",
+                "odometerEnd" to "125120",
                 "description" to "Дом - аэропорт",
             ),
         )
@@ -105,8 +106,10 @@ class HistoryRecordEventMapperTest {
         assertEquals("trip", request.type)
         assertEquals(null, request.amount)
         assertEquals(null, request.fuelLiters)
-        assertEquals(120.345, request.mileage ?: 0.0, 0.0)
-        assertEquals("Поездка 2026-07-06: Дом - аэропорт, 120,345 км", request.description)
+        assertEquals(null, request.mileage)
+        assertEquals(125000, request.odometerStart)
+        assertEquals(125120, request.odometerEnd)
+        assertEquals("Поездка 2026-07-06: Дом - аэропорт, 125000-125120, 120 км", request.description)
     }
 
     @Test
@@ -154,6 +157,33 @@ class HistoryRecordEventMapperTest {
             "Поломка 2026-07-06: Горит Check Engine. Индикатор появился после запуска",
             request.description,
         )
+    }
+
+    @Test
+    fun breakdownPhotoUriIsSavedAndReadBackFromDescription() {
+        val photoUri = "content://media/external/images/media/10"
+        val request = HistoryRecordEventMapper.toEventRequest(
+            HistoryRecordType.BREAKDOWN,
+            mapOf(
+                "date" to "2026-07-06",
+                "name" to "Горит Check Engine",
+                "description" to "Индикатор",
+                "photoUri" to photoUri,
+            ),
+        )
+        val formData = HistoryRecordEventMapper.fromEvent(
+            Event(
+                id = 6,
+                type = "issue",
+                description = request.description,
+                amount = 0.0,
+                mileage = 0.0,
+                createdAt = "2026-07-06T10:00:00",
+            ),
+        )
+
+        assertEquals(photoUri, formData.values["photoUri"])
+        assertEquals("Индикатор", formData.values["description"])
     }
 
     @Test

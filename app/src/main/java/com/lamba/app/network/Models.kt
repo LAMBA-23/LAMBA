@@ -66,7 +66,9 @@ data class EventCreateRequest(
     @SerializedName("description") val description: String,
     @SerializedName("amount") val amount: Double? = null,
     @SerializedName("fuel_liters") val fuelLiters: Double? = null,
-    @SerializedName("mileage") val mileage: Double? = null
+    @SerializedName("mileage") val mileage: Double? = null,
+    @SerializedName("odometer_start") val odometerStart: Int? = null,
+    @SerializedName("odometer_end") val odometerEnd: Int? = null,
 )
 
 data class Event(
@@ -76,6 +78,9 @@ data class Event(
     @SerializedName("amount") val amount: Double,
     @SerializedName("fuel_liters") val fuelLiters: Double = 0.0,
     @SerializedName("mileage") val mileage: Double,
+    @SerializedName("odometer_start") val odometerStart: Int? = null,
+    @SerializedName("odometer_end") val odometerEnd: Int? = null,
+    @SerializedName("trip_distance") val tripDistance: Double? = null,
     @SerializedName("created_at") val createdAt: String? = null
 ) {
     companion object {
@@ -150,4 +155,16 @@ data class ChatTitleRequest(
 
 data class ChatTitleResponse(
     @SerializedName("title") val title: String,
+)
+
+data class RecommendationItem(
+    @SerializedName("id") val id: String,
+    @SerializedName("severity") val severity: String,
+    @SerializedName("title") val title: String,
+    @SerializedName("message") val message: String,
+    @SerializedName("source") val source: String,
+)
+
+data class RecommendationsResponse(
+    @SerializedName("recommendations") val recommendations: List<RecommendationItem> = emptyList(),
 )

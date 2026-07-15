@@ -7,6 +7,7 @@ import android.view.View
 import android.view.inputmethod.EditorInfo
 import android.widget.EditText
 import android.widget.ImageButton
+import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
@@ -50,6 +51,7 @@ class MainActivity : AppCompatActivity() {
         val etHomeMessage = findViewById<EditText>(R.id.etHomeMessage)
         val btnHomeSend = findViewById<ImageButton>(R.id.btnHomeSend)
         val btnMenu = findViewById<ImageButton>(R.id.btnMenu)
+        val ivNotification = findViewById<ImageView>(R.id.ivNotification)
         drawerOverlay = findViewById(R.id.drawerOverlay)
         val drawerPanel = findViewById<LinearLayout>(R.id.drawerPanel)
         val drawerScrim = findViewById<View>(R.id.drawerScrim)
@@ -97,6 +99,10 @@ class MainActivity : AppCompatActivity() {
         btnMenu.setOnClickListener {
             dismissLogoutPopup(immediate = true)
             drawerOverlay.visibility = View.VISIBLE
+        }
+
+        ivNotification.setOnClickListener {
+            showRecommendations()
         }
 
         drawerScrim.setOnClickListener {
@@ -242,6 +248,45 @@ class MainActivity : AppCompatActivity() {
                     tvCarInfo.text = "Добавьте автомобиль, чтобы начать"
                 }
             }
+        }
+    }
+
+    private fun showRecommendations() {
+        if (userId == -1) {
+            AlertDialog.Builder(this)
+                .setTitle("Уведомления")
+                .setMessage("Не удалось определить пользователя.")
+                .setPositiveButton("ОК", null)
+                .show()
+            return
+        }
+
+        lifecycleScope.launch {
+            runCatching { RetrofitClient.apiService.getRecommendations(userId) }
+                .onSuccess { response ->
+                    val recommendations = response.body()?.recommendations.orEmpty()
+                    val message = if (response.isSuccessful && recommendations.isNotEmpty()) {
+                        recommendations.joinToString(separator = "\n\n") { item ->
+                            "${item.title}\n${item.message}"
+                        }
+                    } else if (response.isSuccessful) {
+                        "Сейчас нет новых рекомендаций."
+                    } else {
+                        "Не удалось загрузить уведомления."
+                    }
+                    AlertDialog.Builder(this@MainActivity)
+                        .setTitle("Уведомления")
+                        .setMessage(message)
+                        .setPositiveButton("ОК", null)
+                        .show()
+                }
+                .onFailure {
+                    AlertDialog.Builder(this@MainActivity)
+                        .setTitle("Уведомления")
+                        .setMessage("Не удалось загрузить уведомления.")
+                        .setPositiveButton("ОК", null)
+                        .show()
+                }
         }
     }
 

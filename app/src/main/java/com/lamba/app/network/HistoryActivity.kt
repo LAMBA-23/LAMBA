@@ -1,6 +1,7 @@
 package com.lamba.app.network
 
 import android.app.AlertDialog
+import android.content.Intent
 import android.graphics.Color
 import android.graphics.Typeface
 import android.graphics.drawable.ColorDrawable
@@ -43,9 +44,14 @@ class HistoryActivity : AppCompatActivity() {
     private var currentVehicleMileage = 0.0
     private var activeIssuePhotoPreview: ImageView? = null
     private var activeIssuePhotoButton: Button? = null
+    private var activeIssuePhotoUri: String? = null
 
-    private val issuePhotoPicker = registerForActivityResult(ActivityResultContracts.GetContent()) { uri ->
+    private val issuePhotoPicker = registerForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
         if (uri != null) {
+            runCatching {
+                contentResolver.takePersistableUriPermission(uri, Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            }
+            activeIssuePhotoUri = uri.toString()
             activeIssuePhotoPreview?.let { showPhotoPreview(it, uri) }
             activeIssuePhotoButton?.text = "Заменить фото"
         }
@@ -240,6 +246,11 @@ class HistoryActivity : AppCompatActivity() {
     private fun showRecordFormSheet(type: HistoryRecordType, event: Event? = null) {
         val dialog = BottomSheetDialog(this)
         val editingRecord = event?.let { historyRecordsByEventId[it.id] ?: it.toUiModel() }
+        activeIssuePhotoUri = if (type == HistoryRecordType.BREAKDOWN) {
+            editingRecord?.values?.get("photoUri")?.takeIf { it.isNotBlank() }
+        } else {
+            null
+        }
         val formContent = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
             setPadding(24.dp, 18.dp, 24.dp, 24.dp)
@@ -258,10 +269,11 @@ class HistoryActivity : AppCompatActivity() {
             formContent.addView(createFieldView(field, editingRecord?.values?.get(field.key)))
         }
         if (type == HistoryRecordType.BREAKDOWN) {
-            formContent.addView(createIssuePhotoPickerView())
+            formContent.addView(createIssuePhotoPickerView(activeIssuePhotoUri))
             dialog.setOnDismissListener {
                 activeIssuePhotoPreview = null
                 activeIssuePhotoButton = null
+                activeIssuePhotoUri = null
             }
         }
         formContent.addView(errorView)
@@ -283,6 +295,9 @@ class HistoryActivity : AppCompatActivity() {
                     hideKeyboard()
                     val values = fields.associate { field ->
                         field.key to field.input.text.toString().trim()
+                    }.toMutableMap()
+                    if (type == HistoryRecordType.BREAKDOWN) {
+                        values["photoUri"] = activeIssuePhotoUri.orEmpty()
                     }
                     saveRecord(type, values, event?.id, errorView, dialog)
                 }
@@ -353,7 +368,9 @@ class HistoryActivity : AppCompatActivity() {
                 textSize = 16f
                 setPadding(18.dp, if (field.singleLine) 0 else 14.dp, 18.dp, 0)
                 if (field.numeric) {
-                    keyListener = DigitsKeyListener.getInstance("0123456789.,")
+                    keyListener = DigitsKeyListener.getInstance(
+                        if (field.key.startsWith("odometer")) "0123456789" else "0123456789.,",
+                    )
                 }
                 setText(value ?: if (field.key == "date") todayForInput() else "")
                 field.input = this
@@ -396,7 +413,8 @@ class HistoryActivity : AppCompatActivity() {
             )
             HistoryRecordType.TRIP -> listOf(
                 FormField("date", "Дата"),
-                FormField("mileage", "Километраж, км", numeric = true),
+                FormField("odometerStart", "Начало поездки, км", numeric = true),
+                FormField("odometerEnd", "Конец поездки, км", numeric = true),
                 FormField("description", "Маршрут / описание (необязательно)", required = false, singleLine = false),
             )
         }
@@ -416,12 +434,27 @@ class HistoryActivity : AppCompatActivity() {
                     field.error.visibility = View.VISIBLE
                     isValid = false
                 }
-                field.numeric && parsePositiveNumber(value) == null -> {
+                field.numeric && !field.key.startsWith("odometer") && parsePositiveNumber(value) == null -> {
                     field.error.text = "Введите положительное число"
                     field.error.visibility = View.VISIBLE
                     isValid = false
                 }
+                field.key.startsWith("odometer") && !Regex("""\d+""").matches(value) -> {
+                    field.error.text = "Введите целый километраж"
+                    field.error.visibility = View.VISIBLE
+                    isValid = false
+                }
             }
+        }
+
+        val odometerStart = fields.find { it.key == "odometerStart" }?.input?.text?.toString()?.toIntOrNull()
+        val odometerEnd = fields.find { it.key == "odometerEnd" }?.input?.text?.toString()?.toIntOrNull()
+        if (odometerStart != null && odometerEnd != null && odometerEnd < odometerStart) {
+            fields.find { it.key == "odometerEnd" }?.error?.apply {
+                text = "Конец поездки не может быть меньше начала"
+                visibility = View.VISIBLE
+            }
+            isValid = false
         }
 
         if (!isValid) {
@@ -452,6 +485,11 @@ class HistoryActivity : AppCompatActivity() {
         record.detailRows.forEach { row ->
             container.addView(createDetailRow(row.first, row.second))
         }
+        if (record.type == HistoryRecordType.BREAKDOWN) {
+            record.values["photoUri"]?.takeIf { it.isNotBlank() }?.let { photoUri ->
+                container.addView(createStoredPhotoView(photoUri))
+            }
+        }
 
         container.addView(createActionButton("Редактировать", filled = false) {
             dialog.dismiss()
@@ -471,12 +509,17 @@ class HistoryActivity : AppCompatActivity() {
         var knownMileage = currentVehicleMileage
         return events.associate { event ->
             val record = if (event.type.lowercase() == "trip") {
-                val effectiveMileage = if (event.mileage <= knownMileage) {
-                    knownMileage + event.mileage
-                } else {
+                val tripMileage = event.tripDistance ?: if (event.mileage <= knownMileage) {
                     event.mileage
+                } else {
+                    maxOf(0.0, event.mileage - knownMileage)
                 }
-                val tripMileage = maxOf(0.0, effectiveMileage - knownMileage)
+                val effectiveMileage = event.odometerEnd?.toDouble()
+                    ?: if (event.mileage <= knownMileage) {
+                        knownMileage + event.mileage
+                    } else {
+                        event.mileage
+                    }
                 knownMileage = maxOf(knownMileage, effectiveMileage)
                 HistoryRecordUiModel.from(
                     HistoryRecordEventMapper.fromEvent(
@@ -511,7 +554,7 @@ class HistoryActivity : AppCompatActivity() {
         }
     }
 
-    private fun createIssuePhotoPickerView(): LinearLayout {
+    private fun createIssuePhotoPickerView(initialPhotoUri: String?): LinearLayout {
         return LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
             setPadding(0, 16.dp, 0, 0)
@@ -545,8 +588,11 @@ class HistoryActivity : AppCompatActivity() {
                 typeface = Typeface.DEFAULT_BOLD
                 isAllCaps = false
                 activeIssuePhotoButton = this
+                if (!initialPhotoUri.isNullOrBlank()) {
+                    text = "Заменить фото"
+                }
                 setOnClickListener {
-                    issuePhotoPicker.launch("image/*")
+                    issuePhotoPicker.launch(arrayOf("image/*"))
                 }
             })
 
@@ -561,7 +607,24 @@ class HistoryActivity : AppCompatActivity() {
                 scaleType = ImageView.ScaleType.CENTER_CROP
                 visibility = View.GONE
                 activeIssuePhotoPreview = this
+                if (!initialPhotoUri.isNullOrBlank()) {
+                    showPhotoPreview(this, Uri.parse(initialPhotoUri))
+                }
             })
+        }
+    }
+
+    private fun createStoredPhotoView(photoUri: String): ImageView {
+        return ImageView(this).apply {
+            layoutParams = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                200.dp,
+            ).apply {
+                topMargin = 16.dp
+            }
+            background = roundedBackground("#FFF7F8", 18.dp.toFloat())
+            scaleType = ImageView.ScaleType.CENTER_CROP
+            showPhotoPreview(this, Uri.parse(photoUri))
         }
     }
 
@@ -709,7 +772,9 @@ class HistoryActivity : AppCompatActivity() {
                 )
                 HistoryRecordType.TRIP -> listOf(
                     "Дата" to values["date"].orEmpty(),
-                    "Километраж, км" to "${formatPlainNumberValue(values["mileage"].orEmpty())} км",
+                    "Начало поездки" to values["odometerStart"].orEmpty().ifBlank { "Не указано" },
+                    "Конец поездки" to values["odometerEnd"].orEmpty().ifBlank { "Не указано" },
+                    "Расстояние" to "${formatPlainNumberValue(values["mileage"].orEmpty())} км",
                 ).withOptionalDescription(label = "Маршрут / описание")
             }
 
