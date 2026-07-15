@@ -24,6 +24,7 @@ import com.lamba.app.network.ChatFailureStage
 import com.lamba.app.network.ChatRepository
 import com.lamba.app.network.ChatSendResult
 import com.lamba.app.network.ChatTitleRequest
+import com.lamba.app.network.DecimalNumberUtils
 import com.lamba.app.network.Event
 import com.lamba.app.network.RetrofitChatBackend
 import com.lamba.app.network.RetrofitClient
@@ -402,10 +403,10 @@ class ChatActivity : AppCompatActivity() {
             "$eventType: ${event.description}",
         )
         if (event.amount > 0) {
-            lines.add("Сумма: ${event.amount} ₽")
+            lines.add("Сумма: ${DecimalNumberUtils.formatMoney(event.amount)}")
         }
         if (event.type == "trip" || event.mileage > 0) {
-            lines.add("Пробег: ${event.mileage} км")
+            lines.add("Пробег: ${DecimalNumberUtils.formatKilometers(event.mileage)}")
         }
         return lines.joinToString(separator = "\n")
     }

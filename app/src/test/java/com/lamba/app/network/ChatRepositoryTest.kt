@@ -14,15 +14,15 @@ class ChatRepositoryTest {
         val parsedEvent = ParsedEventPayload(
             type = "fuel",
             description = "Fuel refill",
-            amount = 2500,
-            mileage = 125300,
+            amount = 2500.5,
+            mileage = 125300.0,
         )
         val savedEvent = Event(
             id = 42,
             type = "fuel",
             description = "Fuel refill",
-            amount = 2500,
-            mileage = 125300,
+            amount = 2500.5,
+            mileage = 125300.0,
             createdAt = "2026-06-21T12:00:00",
         )
         val backend = FakeChatBackend(
@@ -44,17 +44,17 @@ class ChatRepositoryTest {
         val parsedEvent = ParsedEventPayload(
             type = "fuel",
             description = "Заправка на 40 литров",
-            amount = 2500,
-            fuelLiters = 40.0,
+            amount = 2500.25,
+            fuelLiters = 40.5,
             mileage = null,
         )
         val savedEvent = Event(
             id = 44,
             type = "fuel",
             description = "Заправка на 40 литров",
-            amount = 2500,
-            fuelLiters = 40.0,
-            mileage = 0,
+            amount = 2500.25,
+            fuelLiters = 40.5,
+            mileage = 0.0,
             createdAt = "2026-06-21T12:00:00",
         )
         val backend = FakeChatBackend(
@@ -125,14 +125,14 @@ class ChatRepositoryTest {
             description = "Заправка на 40 литров",
             amount = null,
             fuelLiters = 40.0,
-            mileage = 125000,
+            mileage = 125000.0,
         )
         val savedEvent = Event(
             id = 1,
             type = "fuel",
             description = "Заправка на 40 литров",
-            amount = 0,
-            mileage = 125000,
+            amount = 0.0,
+            mileage = 125000.0,
             createdAt = "2026-07-14T12:00:00",
         )
         val backend = FakeChatBackend(
@@ -171,7 +171,7 @@ class ChatRepositoryTest {
                 parsedEvent = ParsedEventPayload(
                     type = "repair",
                     description = "Oil change",
-                    amount = 8000,
+                    amount = 8000.5,
                 ),
             ),
             saveError = IOException("backend unavailable"),
@@ -206,7 +206,7 @@ class ChatRepositoryTest {
         val parsedEvent = ParsedEventPayload(
             type = "condition",
             description = "Technical condition is good",
-            mileage = 125500,
+            mileage = 125500.0,
         )
         val backend = FakeChatBackend(
             parseResponse = ChatParseResponse(

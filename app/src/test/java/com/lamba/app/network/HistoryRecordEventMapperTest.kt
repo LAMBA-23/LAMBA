@@ -1,6 +1,7 @@
 package com.lamba.app.network
 
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertThrows
 import org.junit.Test
 
 class HistoryRecordEventMapperTest {
@@ -18,7 +19,7 @@ class HistoryRecordEventMapperTest {
         )
 
         assertEquals("fuel", request.type)
-        assertEquals(2500, request.amount)
+        assertEquals(2500.0, request.amount ?: 0.0, 0.0)
         assertEquals(40.0, request.fuelLiters ?: 0.0, 0.0)
         assertEquals(null, request.mileage)
         assertEquals(
@@ -34,35 +35,35 @@ class HistoryRecordEventMapperTest {
             mapOf(
                 "date" to "2026-07-06",
                 "fuelType" to "AI-95",
-                "litres" to "35.7",
-                "cost" to "2500",
+                "litres" to "35,75",
+                "cost" to "2500.5",
             ),
         )
 
         assertEquals("fuel", request.type)
-        assertEquals(2500, request.amount)
-        assertEquals(35.7, request.fuelLiters ?: 0.0, 0.0)
+        assertEquals(2500.5, request.amount ?: 0.0, 0.0)
+        assertEquals(35.75, request.fuelLiters ?: 0.0, 0.0)
         assertEquals(null, request.mileage)
         assertEquals(
-            "Заправка 2026-07-06: AI-95, 35.7 л, 2500 ₽",
+            "Заправка 2026-07-06: AI-95, 35,75 л, 2500,5 ₽",
             request.description,
         )
     }
 
     @Test
-    fun repairFormValuesMapToRepairEventRequest() {
+    fun repairFormValuesMapDecimalCostToRepairEventRequest() {
         val request = HistoryRecordEventMapper.toEventRequest(
             HistoryRecordType.REPAIR,
             mapOf(
                 "date" to "2026-07-06",
                 "name" to "Замена масла",
-                "cost" to "7000",
+                "cost" to "7000,125",
                 "description" to "Фильтр и масло",
             ),
         )
 
         assertEquals("repair", request.type)
-        assertEquals(7000, request.amount)
+        assertEquals(7000.125, request.amount ?: 0.0, 0.0)
         assertEquals(null, request.fuelLiters)
         assertEquals(null, request.mileage)
         assertEquals(
@@ -72,19 +73,19 @@ class HistoryRecordEventMapperTest {
     }
 
     @Test
-    fun maintenanceFormValuesMapToRepairEventRequest() {
+    fun maintenanceFormValuesMapDecimalCostToRepairEventRequest() {
         val request = HistoryRecordEventMapper.toEventRequest(
             HistoryRecordType.MAINTENANCE,
             mapOf(
                 "date" to "2026-07-06",
                 "name" to "ТО-2",
-                "cost" to "12000",
+                "cost" to "12000.25",
                 "description" to "",
             ),
         )
 
         assertEquals("repair", request.type)
-        assertEquals(12000, request.amount)
+        assertEquals(12000.25, request.amount ?: 0.0, 0.0)
         assertEquals(null, request.fuelLiters)
         assertEquals(null, request.mileage)
         assertEquals("ТО 2026-07-06: ТО-2", request.description)
@@ -112,21 +113,49 @@ class HistoryRecordEventMapperTest {
     }
 
     @Test
-    fun legacyTripMileageFormValuesMapToTripEventRequest() {
+    fun tripFormValuesMapDecimalDistanceToTripEventRequest() {
         val request = HistoryRecordEventMapper.toEventRequest(
             HistoryRecordType.TRIP,
             mapOf(
                 "date" to "2026-07-06",
-                "mileage" to "120",
+                "mileage" to "120,345",
                 "description" to "Дом - аэропорт",
             ),
         )
 
         assertEquals("trip", request.type)
-        assertEquals(120, request.mileage)
+        assertEquals(null, request.amount)
+        assertEquals(null, request.fuelLiters)
+        assertEquals(120.345, request.mileage ?: 0.0, 0.0)
         assertEquals(null, request.odometerStart)
         assertEquals(null, request.odometerEnd)
-        assertEquals("Поездка 2026-07-06: Дом - аэропорт, 120 км", request.description)
+        assertEquals("Поездка 2026-07-06: Дом - аэропорт, 120,345 км", request.description)
+    }
+
+    @Test
+    fun malformedDecimalValuesAreRejected() {
+        assertThrows(IllegalArgumentException::class.java) {
+            HistoryRecordEventMapper.toEventRequest(
+                HistoryRecordType.FUEL,
+                mapOf(
+                    "date" to "2026-07-06",
+                    "fuelType" to "AI-95",
+                    "litres" to "12.3456",
+                    "cost" to "2500",
+                ),
+            )
+        }
+        assertThrows(IllegalArgumentException::class.java) {
+            HistoryRecordEventMapper.toEventRequest(
+                HistoryRecordType.REPAIR,
+                mapOf(
+                    "date" to "2026-07-06",
+                    "name" to "Замена масла",
+                    "cost" to "12,5.3",
+                    "description" to "",
+                ),
+            )
+        }
     }
 
     @Test
@@ -136,8 +165,8 @@ class HistoryRecordEventMapperTest {
                 id = 1,
                 type = "trip",
                 description = "Поездка 2026-07-06: Дом - аэропорт",
-                amount = 0,
-                mileage = 120120,
+                amount = 0.0,
+                mileage = 120120.0,
                 odometerStart = 120000,
                 odometerEnd = 120150,
                 tripDistance = 130,
@@ -158,8 +187,8 @@ class HistoryRecordEventMapperTest {
                 id = 1,
                 type = "trip",
                 description = "Поездка 2026-07-06: Дом - аэропорт",
-                amount = 0,
-                mileage = 120120,
+                amount = 0.0,
+                mileage = 120120.0,
                 odometerStart = 120000,
                 odometerEnd = 120120,
                 tripDistance = null,
@@ -176,11 +205,11 @@ class HistoryRecordEventMapperTest {
                 id = 1,
                 type = "trip",
                 description = "Поездка 2026-07-06: Дом - аэропорт, 120 км",
-                amount = 0,
-                mileage = 120120,
+                amount = 0.0,
+                mileage = 120120.0,
                 tripDistance = null,
             ),
-            tripMileageOverride = 120,
+            tripMileageOverride = 120.0,
         )
 
         assertEquals("120", data.values["mileage"])
@@ -217,8 +246,8 @@ class HistoryRecordEventMapperTest {
                 id = 5,
                 type = "issue",
                 description = "Поломка 2026-07-06: Горит Check Engine. Индикатор появился после запуска",
-                amount = 0,
-                mileage = 0,
+                amount = 0.0,
+                mileage = 0.0,
                 createdAt = "2026-07-06T10:00:00",
             ),
         )

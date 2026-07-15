@@ -40,7 +40,7 @@ class HistoryActivity : AppCompatActivity() {
 
     private val backendEvents = mutableListOf<Event>()
     private val historyRecordsByEventId = mutableMapOf<Int?, HistoryRecordUiModel>()
-    private var currentVehicleMileage = 0
+    private var currentVehicleMileage = 0.0
     private var activeIssuePhotoPreview: ImageView? = null
     private var activeIssuePhotoButton: Button? = null
 
@@ -90,7 +90,7 @@ class HistoryActivity : AppCompatActivity() {
                 vehicleResponse to eventsResponse
             }
                 .onSuccess { (vehicleResponse, eventsResponse) ->
-                    currentVehicleMileage = vehicleResponse.body()?.currentMileage ?: 0
+                    currentVehicleMileage = vehicleResponse.body()?.currentMileage?.toDouble() ?: 0.0
                     if (eventsResponse.isSuccessful) {
                         backendEvents.clear()
                         backendEvents.addAll(eventsResponse.body().orEmpty())
@@ -352,7 +352,7 @@ class HistoryActivity : AppCompatActivity() {
                 setHintTextColor(Color.parseColor("#9B9BA3"))
                 textSize = 16f
                 setPadding(18.dp, if (field.singleLine) 0 else 14.dp, 18.dp, 0)
-                if (field.key == "litres") {
+                if (field.numeric) {
                     keyListener = DigitsKeyListener.getInstance("0123456789.,")
                 }
                 setText(value ?: if (field.key == "date") todayForInput() else "")
@@ -482,9 +482,9 @@ class HistoryActivity : AppCompatActivity() {
         var knownMileage = currentVehicleMileage
         return events.associate { event ->
             val record = if (event.type.lowercase() == "trip") {
-                val modernTripDistance = event.tripDistance ?: event.calculatedTripDistance()
+                val modernTripDistance = event.tripDistance?.toDouble() ?: event.calculatedTripDistance()
                 val tripMileageOverride = if (modernTripDistance != null) {
-                    event.odometerEnd?.let { knownMileage = maxOf(knownMileage, it) }
+                    event.odometerEnd?.let { knownMileage = maxOf(knownMileage, it.toDouble()) }
                     modernTripDistance
                 } else {
                     val effectiveMileage = if (event.mileage <= knownMileage) {
@@ -492,7 +492,7 @@ class HistoryActivity : AppCompatActivity() {
                     } else {
                         event.mileage
                     }
-                    val legacyTripMileage = maxOf(0, effectiveMileage - knownMileage)
+                    val legacyTripMileage = maxOf(0.0, effectiveMileage - knownMileage)
                     knownMileage = maxOf(knownMileage, effectiveMileage)
                     legacyTripMileage
                 }
@@ -643,26 +643,22 @@ class HistoryActivity : AppCompatActivity() {
 
     private fun formatMoney(value: String): String {
         val number = parsePositiveNumber(value) ?: return value
-        return "%,d".format(Locale.US, number.toLong()).replace(',', ' ') + " ₽"
+        return DecimalNumberUtils.formatMoney(number)
     }
 
     private fun formatPlainNumber(value: String): String {
         val number = parsePositiveNumber(value) ?: return value
-        return if (number % 1.0 == 0.0) {
-            number.toLong().toString()
-        } else {
-            value.trim().replace('.', ',')
-        }
+        return DecimalNumberUtils.formatDecimal(number)
     }
 
-    private fun Event.calculatedTripDistance(): Int? {
+    private fun Event.calculatedTripDistance(): Double? {
         val start = odometerStart ?: return null
         val end = odometerEnd ?: return null
-        return (end - start).takeIf { it >= 0 }
+        return (end - start).takeIf { it >= 0 }?.toDouble()
     }
 
     private fun parsePositiveNumber(value: String): Double? {
-        return value.replace(" ", "").replace(',', '.').toDoubleOrNull()?.takeIf { it > 0.0 }
+        return DecimalNumberUtils.parsePositiveDecimal(value)
     }
 
     private fun roundedBackground(color: String, radius: Float): GradientDrawable {
@@ -766,20 +762,16 @@ class HistoryActivity : AppCompatActivity() {
 
         private fun formatMoneyValue(value: String): String {
             val number = parsePositiveNumberValue(value) ?: return value
-            return "%,d".format(Locale.US, number.toLong()).replace(',', ' ') + " ₽"
+            return DecimalNumberUtils.formatMoney(number)
         }
 
         private fun formatPlainNumberValue(value: String): String {
             val number = parsePositiveNumberValue(value) ?: return value
-            return if (number % 1.0 == 0.0) {
-                number.toLong().toString()
-            } else {
-                value.trim().replace('.', ',')
-            }
+            return DecimalNumberUtils.formatDecimal(number)
         }
 
         private fun parsePositiveNumberValue(value: String): Double? {
-            return value.replace(" ", "").replace(',', '.').toDoubleOrNull()?.takeIf { it > 0.0 }
+            return DecimalNumberUtils.parsePositiveDecimal(value)
         }
 
         companion object {
@@ -817,7 +809,7 @@ class HistoryActivity : AppCompatActivity() {
                 values = mapOf(
                     "name" to description,
                     "date" to formatBackendDate(createdAt),
-                    "cost" to amount.toString(),
+                    "cost" to DecimalNumberUtils.formatDecimal(amount),
                     "description" to "",
                 ),
             )

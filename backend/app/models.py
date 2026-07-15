@@ -1,6 +1,7 @@
 from datetime import datetime
+from decimal import Decimal
 
-from sqlalchemy import Float, ForeignKey, Integer, String
+from sqlalchemy import ForeignKey, Integer, Numeric, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from .database import Base
@@ -47,9 +48,11 @@ class Event(Base):
     car_id: Mapped[int] = mapped_column(ForeignKey("cars.id"), nullable=False)
     type: Mapped[str] = mapped_column(String(32), nullable=False)
     description: Mapped[str] = mapped_column(String(500), nullable=False)
-    amount: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
-    fuel_liters: Mapped[float] = mapped_column(Float, default=0, nullable=False)
-    mileage: Mapped[int] = mapped_column(Integer, nullable=False)
+    amount: Mapped[Decimal] = mapped_column(Numeric(12, 3), default=0, nullable=False)
+    fuel_liters: Mapped[Decimal] = mapped_column(
+        Numeric(12, 3), default=0, nullable=False
+    )
+    mileage: Mapped[Decimal] = mapped_column(Numeric(12, 3), nullable=False)
     odometer_start: Mapped[int | None] = mapped_column(Integer, nullable=True)
     odometer_end: Mapped[int | None] = mapped_column(Integer, nullable=True)
     created_at: Mapped[datetime] = mapped_column(
@@ -59,11 +62,11 @@ class Event(Base):
     car: Mapped[Car] = relationship(back_populates="events")
 
     @property
-    def trip_distance(self) -> int | None:
+    def trip_distance(self) -> Decimal | None:
         if (
             self.type == "trip"
             and self.odometer_start is not None
             and self.odometer_end is not None
         ):
-            return max(0, self.odometer_end - self.odometer_start)
+            return max(Decimal("0"), Decimal(self.odometer_end - self.odometer_start))
         return None
