@@ -69,6 +69,9 @@ interface LambaApiService {
 
     @GET("stats")
     suspend fun getStats(@Query("user_id") userId: Int? = null): Response<Stats>
+
+    @GET("recommendations")
+    suspend fun getRecommendations(@Query("user_id") userId: Int): Response<RecommendationsResponse>
 }
 
 object RetrofitClient {

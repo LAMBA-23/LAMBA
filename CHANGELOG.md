@@ -12,10 +12,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Backend recommendations endpoint with rule-based vehicle notifications for fuel
   price, repair cost, stale records, recent breakdowns, and fuel-level reminders
   (#315).
+- Android notification icon now opens rule-based vehicle recommendations from
+  the backend.
 
 ### Changed
 
 - AI chat assistant now responds to greetings and thanks with friendly, emoji-rich messages instead of asking for event details (#316).
+- Android manual trip records now use start and end odometer values instead of
+  a single mileage field.
+
+### Fixed
+
+- Android trip history displays traveled distance instead of treating the saved
+  trip odometer value as the trip distance.
+- Breakdown photo selections are kept with the saved history record and shown
+  again from record details/editing.
 
 ## [1.3.0] - 2026-07-12
 

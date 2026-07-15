@@ -158,3 +158,15 @@ data class ChatTitleRequest(
 data class ChatTitleResponse(
     @SerializedName("title") val title: String,
 )
+
+data class RecommendationItem(
+    @SerializedName("id") val id: String,
+    @SerializedName("severity") val severity: String,
+    @SerializedName("title") val title: String,
+    @SerializedName("message") val message: String,
+    @SerializedName("source") val source: String,
+)
+
+data class RecommendationsResponse(
+    @SerializedName("recommendations") val recommendations: List<RecommendationItem> = emptyList(),
+)

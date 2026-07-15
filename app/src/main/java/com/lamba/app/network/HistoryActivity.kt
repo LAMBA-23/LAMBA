@@ -1,6 +1,7 @@
 package com.lamba.app.network
 
 import android.app.AlertDialog
+import android.content.Intent
 import android.graphics.Color
 import android.graphics.Typeface
 import android.graphics.drawable.ColorDrawable
@@ -41,11 +42,16 @@ class HistoryActivity : AppCompatActivity() {
     private val backendEvents = mutableListOf<Event>()
     private val historyRecordsByEventId = mutableMapOf<Int?, HistoryRecordUiModel>()
     private var currentVehicleMileage = 0.0
+    private var activeIssuePhotoUri: String? = null
     private var activeIssuePhotoPreview: ImageView? = null
     private var activeIssuePhotoButton: Button? = null
 
-    private val issuePhotoPicker = registerForActivityResult(ActivityResultContracts.GetContent()) { uri ->
+    private val issuePhotoPicker = registerForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
         if (uri != null) {
+            runCatching {
+                contentResolver.takePersistableUriPermission(uri, Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            }
+            activeIssuePhotoUri = uri.toString()
             activeIssuePhotoPreview?.let { showPhotoPreview(it, uri) }
             activeIssuePhotoButton?.text = "Заменить фото"
         }
@@ -240,6 +246,12 @@ class HistoryActivity : AppCompatActivity() {
     private fun showRecordFormSheet(type: HistoryRecordType, event: Event? = null) {
         val dialog = BottomSheetDialog(this)
         val editingRecord = event?.let { historyRecordsByEventId[it.id] ?: it.toUiModel() }
+        val initialIssuePhotoUri = if (type == HistoryRecordType.BREAKDOWN) {
+            editingRecord?.values?.get("photoUri").orEmpty()
+        } else {
+            ""
+        }
+        activeIssuePhotoUri = initialIssuePhotoUri.ifBlank { null }
         val formContent = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
             setPadding(24.dp, 18.dp, 24.dp, 24.dp)
@@ -258,8 +270,9 @@ class HistoryActivity : AppCompatActivity() {
             formContent.addView(createFieldView(field, editingRecord?.values?.get(field.key)))
         }
         if (type == HistoryRecordType.BREAKDOWN) {
-            formContent.addView(createIssuePhotoPickerView())
+            formContent.addView(createIssuePhotoPickerView(initialIssuePhotoUri))
             dialog.setOnDismissListener {
+                activeIssuePhotoUri = null
                 activeIssuePhotoPreview = null
                 activeIssuePhotoButton = null
             }
@@ -283,6 +296,9 @@ class HistoryActivity : AppCompatActivity() {
                     hideKeyboard()
                     val values = fields.associate { field ->
                         field.key to field.input.text.toString().trim()
+                    }.toMutableMap()
+                    if (type == HistoryRecordType.BREAKDOWN) {
+                        values["photoUri"] = activeIssuePhotoUri.orEmpty()
                     }
                     saveRecord(type, values, event?.id, errorView, dialog)
                 }
@@ -422,6 +438,11 @@ class HistoryActivity : AppCompatActivity() {
                     field.error.visibility = View.VISIBLE
                     isValid = false
                 }
+                field.key in setOf("odometerStart", "odometerEnd") && !Regex("""\d+""").matches(value) -> {
+                    field.error.text = "Введите пробег целым числом"
+                    field.error.visibility = View.VISIBLE
+                    isValid = false
+                }
             }
         }
 
@@ -462,6 +483,11 @@ class HistoryActivity : AppCompatActivity() {
 
         record.detailRows.forEach { row ->
             container.addView(createDetailRow(row.first, row.second))
+        }
+        if (record.type == HistoryRecordType.BREAKDOWN) {
+            record.values["photoUri"].orEmpty().takeIf { it.isNotBlank() }?.let { photoUri ->
+                container.addView(createStoredPhotoView(photoUri))
+            }
         }
 
         container.addView(createActionButton("Редактировать", filled = false) {
@@ -529,7 +555,7 @@ class HistoryActivity : AppCompatActivity() {
         }
     }
 
-    private fun createIssuePhotoPickerView(): LinearLayout {
+    private fun createIssuePhotoPickerView(initialPhotoUri: String): LinearLayout {
         return LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
             setPadding(0, 16.dp, 0, 0)
@@ -557,14 +583,14 @@ class HistoryActivity : AppCompatActivity() {
                     topMargin = 12.dp
                 }
                 background = ContextCompat.getDrawable(this@HistoryActivity, R.drawable.bg_button_white_outline)
-                text = "Выбрать фото"
+                text = if (initialPhotoUri.isBlank()) "Выбрать фото" else "Заменить фото"
                 setTextColor(Color.parseColor("#960018"))
                 textSize = 16f
                 typeface = Typeface.DEFAULT_BOLD
                 isAllCaps = false
                 activeIssuePhotoButton = this
                 setOnClickListener {
-                    issuePhotoPicker.launch("image/*")
+                    issuePhotoPicker.launch(arrayOf("image/*"))
                 }
             })
 
@@ -579,7 +605,24 @@ class HistoryActivity : AppCompatActivity() {
                 scaleType = ImageView.ScaleType.CENTER_CROP
                 visibility = View.GONE
                 activeIssuePhotoPreview = this
+                if (initialPhotoUri.isNotBlank()) {
+                    showPhotoPreview(this, Uri.parse(initialPhotoUri))
+                }
             })
+        }
+    }
+
+    private fun createStoredPhotoView(photoUri: String): ImageView {
+        return ImageView(this).apply {
+            layoutParams = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                180.dp,
+            ).apply {
+                topMargin = 18.dp
+            }
+            background = roundedBackground("#FFF7F8", 18.dp.toFloat())
+            scaleType = ImageView.ScaleType.CENTER_CROP
+            showPhotoPreview(this, Uri.parse(photoUri))
         }
     }
 
@@ -830,7 +873,13 @@ class HistoryActivity : AppCompatActivity() {
             return
         }
 
-        val request = HistoryRecordEventMapper.toEventRequest(type, values)
+        val request = runCatching {
+            HistoryRecordEventMapper.toEventRequest(type, values)
+        }.getOrElse {
+            errorView.text = "Проверьте поля и попробуйте еще раз"
+            errorView.visibility = View.VISIBLE
+            return
+        }
         errorView.visibility = View.GONE
 
         lifecycleScope.launch {

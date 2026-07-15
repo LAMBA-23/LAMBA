@@ -20,6 +20,8 @@ data class HistoryRecordFormData(
 )
 
 object HistoryRecordEventMapper {
+    private const val PHOTO_MARKER = "\nPhoto: "
+
     fun toEventRequest(
         type: HistoryRecordType,
         values: Map<String, String>,
@@ -79,6 +81,7 @@ object HistoryRecordEventMapper {
                 val name = values["name"].orEmpty()
                 val description = values["description"].orEmpty()
                 val date = values["date"].orEmpty()
+                val photoUri = values["photoUri"].orEmpty()
                 EventCreateRequest(
                     type = "issue",
                     description = buildRepairDescription(
@@ -86,6 +89,7 @@ object HistoryRecordEventMapper {
                         date = date,
                         name = name,
                         description = description,
+                        photoUri = photoUri,
                     ),
                     amount = null,
                     fuelLiters = null,
@@ -96,17 +100,12 @@ object HistoryRecordEventMapper {
             HistoryRecordType.TRIP -> {
                 val date = values["date"].orEmpty()
                 val tripDescription = values["description"].orEmpty()
-                val odometerStart = values["odometerStart"].toOptionalIntValue()
-                val odometerEnd = values["odometerEnd"].toOptionalIntValue()
-                val legacyMileage = values["mileage"].toOptionalDecimalValue().takeIf {
-                    odometerStart == null && odometerEnd == null
+                val odometerStart = values["odometerStart"].toOdometerValue()
+                val odometerEnd = values["odometerEnd"].toOdometerValue()
+                if (odometerEnd < odometerStart) {
+                    throw IllegalArgumentException("Invalid odometer range")
                 }
-                val formattedMileage = legacyMileage?.let(DecimalNumberUtils::formatDecimal)
-                val details = when {
-                    formattedMileage != null && tripDescription.isBlank() -> "$formattedMileage км"
-                    formattedMileage != null -> "$tripDescription, $formattedMileage км"
-                    else -> tripDescription
-                }
+                val details = tripDescription
                 val description = if (details.isBlank()) {
                     "Поездка $date"
                 } else {
@@ -117,7 +116,7 @@ object HistoryRecordEventMapper {
                     description = description,
                     amount = null,
                     fuelLiters = null,
-                    mileage = legacyMileage,
+                    mileage = null,
                     odometerStart = odometerStart,
                     odometerEnd = odometerEnd,
                 )
@@ -155,7 +154,9 @@ object HistoryRecordEventMapper {
                     "description" to parsed["description"].orEmpty(),
                 )
                 event.odometerStart?.let { values["odometerStart"] = it.toString() }
+                    ?: parsed["odometerStart"]?.takeIf { it.isNotBlank() }?.let { values["odometerStart"] = it }
                 event.odometerEnd?.let { values["odometerEnd"] = it.toString() }
+                    ?: parsed["odometerEnd"]?.takeIf { it.isNotBlank() }?.let { values["odometerEnd"] = it }
                 HistoryRecordFormData(
                     type = HistoryRecordType.TRIP,
                     values = values,
@@ -176,13 +177,14 @@ object HistoryRecordEventMapper {
             }
 
             event.type == "issue" -> {
-                val parsed = parseRepairDescription(event.description, "Поломка")
+                val parsed = parseRepairDescription(stripPhotoUri(event.description), "Поломка")
                 HistoryRecordFormData(
                     type = HistoryRecordType.BREAKDOWN,
                     values = mapOf(
                         "name" to parsed["name"].orIfBlank(event.description),
                         "date" to parsed["date"].orIfBlank(formatEventDate(event.createdAt)),
                         "description" to parsed["description"].orEmpty(),
+                        "photoUri" to extractPhotoUri(event.description).orEmpty(),
                     ),
                 )
             }
@@ -207,12 +209,14 @@ object HistoryRecordEventMapper {
         date: String,
         name: String,
         description: String,
+        photoUri: String = "",
     ): String {
-        return if (description.isBlank()) {
+        val text = if (description.isBlank()) {
             "$prefix $date: $name"
         } else {
             "$prefix $date: $name. $description"
         }
+        return if (photoUri.isBlank()) text else text + PHOTO_MARKER + photoUri
     }
 
     private fun parseFuelDescription(description: String): Map<String, String> {
@@ -251,9 +255,20 @@ object HistoryRecordEventMapper {
         val details = withoutPrefix.substring(separatorIndex + 2)
         val suffix = Regex(""", (\d+(?:[.,]\d{1,3})?) км$""").find(details)
         if (suffix != null) {
+            val detailsWithoutDistance = details.removeSuffix(suffix.value)
+            val odometerMatch = Regex("""(?:^|, )(\d+)-(\d+)$""").find(detailsWithoutDistance)
+            val routeDescription = if (odometerMatch == null) {
+                detailsWithoutDistance
+            } else {
+                detailsWithoutDistance
+                    .removeSuffix(odometerMatch.value)
+                    .removeSuffix(", ")
+            }
             return mapOf(
                 "date" to date,
-                "description" to details.removeSuffix(suffix.value),
+                "description" to routeDescription,
+                "odometerStart" to (odometerMatch?.groupValues?.getOrNull(1) ?: ""),
+                "odometerEnd" to (odometerMatch?.groupValues?.getOrNull(2) ?: ""),
             )
         }
         return mapOf("date" to date, "description" to details)
@@ -284,6 +299,23 @@ object HistoryRecordEventMapper {
     private fun String?.toDecimalValue(): Double {
         return DecimalNumberUtils.parsePositiveDecimal(this.orEmpty())
             ?: throw IllegalArgumentException("Invalid decimal value")
+    }
+
+    private fun String?.toOdometerValue(): Int {
+        val value = this.orEmpty().trim()
+        if (!Regex("""\d+""").matches(value)) {
+            throw IllegalArgumentException("Invalid odometer value")
+        }
+        return value.toInt()
+    }
+
+    fun extractPhotoUri(description: String): String? {
+        return description.substringAfter(PHOTO_MARKER, missingDelimiterValue = "")
+            .ifBlank { null }
+    }
+
+    private fun stripPhotoUri(description: String): String {
+        return description.substringBefore(PHOTO_MARKER)
     }
 
     private fun String?.orIfBlank(fallback: String): String {

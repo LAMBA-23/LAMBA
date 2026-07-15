@@ -113,23 +113,18 @@ class HistoryRecordEventMapperTest {
     }
 
     @Test
-    fun tripFormValuesMapDecimalDistanceToTripEventRequest() {
-        val request = HistoryRecordEventMapper.toEventRequest(
-            HistoryRecordType.TRIP,
-            mapOf(
-                "date" to "2026-07-06",
-                "mileage" to "120,345",
-                "description" to "Дом - аэропорт",
-            ),
-        )
-
-        assertEquals("trip", request.type)
-        assertEquals(null, request.amount)
-        assertEquals(null, request.fuelLiters)
-        assertEquals(120.345, request.mileage ?: 0.0, 0.0)
-        assertEquals(null, request.odometerStart)
-        assertEquals(null, request.odometerEnd)
-        assertEquals("Поездка 2026-07-06: Дом - аэропорт, 120,345 км", request.description)
+    fun tripOdometerDecimalValuesAreRejected() {
+        assertThrows(IllegalArgumentException::class.java) {
+            HistoryRecordEventMapper.toEventRequest(
+                HistoryRecordType.TRIP,
+                mapOf(
+                    "date" to "2026-07-06",
+                    "odometerStart" to "120000,5",
+                    "odometerEnd" to "120120",
+                    "description" to "Дом - аэропорт",
+                ),
+            )
+        }
     }
 
     @Test
@@ -237,6 +232,33 @@ class HistoryRecordEventMapperTest {
             "Поломка 2026-07-06: Горит Check Engine. Индикатор появился после запуска",
             request.description,
         )
+    }
+
+    @Test
+    fun breakdownPhotoUriIsSavedAndReadBackFromDescription() {
+        val request = HistoryRecordEventMapper.toEventRequest(
+            HistoryRecordType.BREAKDOWN,
+            mapOf(
+                "date" to "2026-07-06",
+                "name" to "Горит Check Engine",
+                "description" to "Индикатор появился после запуска",
+                "photoUri" to "content://photo/issue-1",
+            ),
+        )
+
+        val formData = HistoryRecordEventMapper.fromEvent(
+            Event(
+                id = 5,
+                type = "issue",
+                description = request.description,
+                amount = 0.0,
+                mileage = 0.0,
+                createdAt = "2026-07-06T10:00:00",
+            ),
+        )
+
+        assertEquals("content://photo/issue-1", formData.values["photoUri"])
+        assertEquals("Индикатор появился после запуска", formData.values["description"])
     }
 
     @Test
