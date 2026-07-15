@@ -76,7 +76,7 @@ class RegisterActivity : AppCompatActivity() {
                         progressBar.visibility = View.GONE
                         if (response.isSuccessful && body?.success == true && body.userId != null) {
                             SessionManager.saveUserId(this@RegisterActivity, body.userId)
-                            SessionManager.saveUserName(this@RegisterActivity, body.name ?: body.username ?: name)
+                            SessionManager.saveUserName(this@RegisterActivity, email)
                             openVehicleSetup(body.userId)
                         } else {
                             btnSubmit.isEnabled = true

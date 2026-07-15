@@ -120,6 +120,7 @@ Response:
   "model": "M4",
   "production_year": 2020,
   "current_mileage": 125000,
+  "can_edit_mileage": true,
   "created_at": "2026-06-13T12:00:00"
 }
 ```
@@ -149,6 +150,7 @@ Success response (201):
   "model": "Camry",
   "production_year": 2023,
   "current_mileage": 10000,
+  "can_edit_mileage": true,
   "created_at": "2026-06-20T12:00:00"
 }
 ```
@@ -194,9 +196,66 @@ Response:
   "model": "M4",
   "production_year": 2020,
   "current_mileage": 125000,
+  "can_edit_mileage": true,
   "created_at": "2026-06-13T12:00:00"
 }
 ```
+
+## POST /auth/change-password
+
+Changes a user's password. The current password is verified by the backend; the
+client clears its local session after a successful response.
+
+Query parameters:
+
+- `user_id` (int, required) — the user ID.
+
+Request:
+
+```json
+{
+  "current_password": "password123",
+  "new_password": "new-password123",
+  "new_password_confirmation": "new-password123"
+}
+```
+
+`new_password` must contain 8–128 characters and match
+`new_password_confirmation`. The new password may equal the current password.
+
+Success response: `204 No Content`.
+
+Incorrect current password response: `400 Bad Request` with a neutral error
+message. Invalid new-password input returns `422 Unprocessable Entity`.
+
+`can_edit_mileage` is `false` after the vehicle has at least one fuel, repair,
+trip, or issue record.
+
+## PUT /vehicle
+
+Updates the vehicle profile for a user.
+
+Query parameters:
+
+- `user_id` (int, required) — the user ID.
+
+Request:
+
+```json
+{
+  "brand": "Toyota",
+  "model": "Camry",
+  "production_year": 2023,
+  "current_mileage": 10000
+}
+```
+
+The response is the vehicle object returned by `GET /vehicle`.
+
+- `409 Conflict` is returned when `current_mileage` differs after any history
+  record exists. Brand, model, and production year can still be updated while
+  the current mileage is unchanged.
+- `422 Unprocessable Entity` is returned for invalid vehicle field values.
 
 Error response (404):
 

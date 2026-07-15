@@ -31,6 +31,7 @@ from .rate_limit import FixedWindowRateLimiter
 from .schemas import (
     CarCreate,
     CarResponse,
+    CarUpdate,
     ChatAskRequest,
     ChatAskResponse,
     ChatContextMessage,
@@ -38,6 +39,7 @@ from .schemas import (
     ChatParseResponse,
     ChatTitleRequest,
     ChatTitleResponse,
+    ChangePasswordRequest,
     EventCreate,
     EventResponse,
     LoginRequest,
@@ -1137,6 +1139,21 @@ def register(
     return RegisterResponse(success=True, user_id=user.id)
 
 
+@app.post("/auth/change-password", status_code=status.HTTP_204_NO_CONTENT)
+def change_password(
+    payload: ChangePasswordRequest,
+    user_id: int = Query(...),
+    db: Session = Depends(get_db),
+) -> Response:
+    user = get_user(db, user_id)
+    if not verify_password(payload.current_password, user.password):
+        raise HTTPException(status_code=400, detail="Unable to change password")
+
+    user.password = hash_password(payload.new_password)
+    db.commit()
+    return Response(status_code=status.HTTP_204_NO_CONTENT)
+
+
 @app.get("/vehicle", response_model=CarResponse)
 def get_vehicle(user_id: int = Query(...), db: Session = Depends(get_db)) -> Car:
     return get_car_for_user_id(db, user_id)
@@ -1166,6 +1183,25 @@ def create_vehicle(payload: CarCreate, db: Session = Depends(get_db)) -> Car:
         current_mileage=payload.current_mileage,
     )
     db.add(car)
+    db.commit()
+    db.refresh(car)
+    return car
+
+
+@app.put("/vehicle", response_model=CarResponse)
+def update_vehicle(
+    payload: CarUpdate,
+    user_id: int = Query(...),
+    db: Session = Depends(get_db),
+) -> Car:
+    car = get_car_for_user_id(db, user_id)
+    if payload.current_mileage != car.current_mileage and not car.can_edit_mileage:
+        raise HTTPException(status_code=409, detail="Vehicle mileage cannot be changed")
+
+    car.brand = payload.brand
+    car.model = payload.model
+    car.production_year = payload.production_year
+    car.current_mileage = payload.current_mileage
     db.commit()
     db.refresh(car)
     return car

@@ -27,6 +27,18 @@ interface LambaApiService {
     @POST("vehicle")
     suspend fun createVehicle(@Body vehicle: VehicleRequest): Response<Vehicle>
 
+    @PUT("vehicle")
+    suspend fun updateVehicle(
+        @Body vehicle: VehicleUpdateRequest,
+        @Query("user_id") userId: Int,
+    ): Response<Vehicle>
+
+    @POST("auth/change-password")
+    suspend fun changePassword(
+        @Body request: ChangePasswordRequest,
+        @Query("user_id") userId: Int,
+    ): Response<Unit>
+
     @POST("chat/parse-event")
     suspend fun parseChatEvent(@Body request: ChatParseRequest): Response<ChatParseResponse>
 

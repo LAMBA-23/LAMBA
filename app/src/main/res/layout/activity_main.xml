@@ -507,29 +507,7 @@
                 android:layout_height="0dp"
                 android:layout_weight="1" />
 
-            <FrameLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content">
-
-                <TextView
-                    android:id="@+id/logoutPopup"
-                    android:layout_width="match_parent"
-                    android:layout_height="56dp"
-                    android:layout_gravity="bottom"
-                    android:layout_marginBottom="98dp"
-                    android:background="@drawable/bg_lamba_bot_bubble"
-                    android:clickable="true"
-                    android:focusable="true"
-                    android:gravity="center_vertical"
-                    android:paddingStart="24dp"
-                    android:paddingEnd="24dp"
-                    android:text="Выйти"
-                    android:textColor="#101114"
-                    android:textSize="19sp"
-                    android:textStyle="bold"
-                    android:visibility="gone" />
-
-                <LinearLayout
+            <LinearLayout
                     android:id="@+id/menuProfile"
                     android:layout_width="match_parent"
                     android:layout_height="86dp"
@@ -569,8 +547,7 @@
                         android:rotation="180"
                         android:src="@drawable/ic_lamba_arrow_back"
                         app:tint="#77777E" />
-                </LinearLayout>
-            </FrameLayout>
+            </LinearLayout>
         </LinearLayout>
     </FrameLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

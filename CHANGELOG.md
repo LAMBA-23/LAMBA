@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Dedicated Android profile screen with read-only username, vehicle settings,
+  password change, and logout (#329).
+- Backend vehicle-update and password-change endpoints with history-based
+  mileage protection (#329).
 - Backend recommendations endpoint with rule-based vehicle notifications for fuel
   price, repair cost, stale records, recent breakdowns, and fuel-level reminders
   (#315).
@@ -36,7 +40,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Password hashing and secure auth in backend (#265)
 - Local chat history persistence for last 5 dialogs (#277)
 - Application launcher icon (#242)
-- Android side drawer account block now opens an animated logout sheet with confirmation and local session cleanup (#271).
+- Android side drawer account block opens the profile screen; logout remains
+  available there with local session cleanup (#329).
 
 ### Changed
 

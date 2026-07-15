@@ -17,4 +17,5 @@ When adding a new user story after migration, assign the next unused stable ID a
 | US-11 | Attach repair receipts | Could Have | [#54](https://github.com/LAMBA-23/LAMBA/issues/54) | Active | To Do | - |
 | US-13 | Manage multiple vehicles | Won't Have | [#55](https://github.com/LAMBA-23/LAMBA/issues/55) | Active | To Do | - |
 | US-14 | Transfer vehicle history to a new owner | Won't Have | [#57](https://github.com/LAMBA-23/LAMBA/issues/57) | Active | To Do | - |
+| US-15 | Manage account and vehicle settings | Should Have | [#329](https://github.com/LAMBA-23/LAMBA/issues/329) | Active | In Progress | Sprint 5 |
 | US-12 | OBD-II integration | - | [#59](https://github.com/LAMBA-23/LAMBA/issues/59) | Removed | - | - |

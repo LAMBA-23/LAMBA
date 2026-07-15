@@ -25,10 +25,8 @@ class MainActivity : AppCompatActivity() {
     private var userId: Int = -1
     private lateinit var drawerOverlay: View
     private lateinit var menuRequests: LinearLayout
-    private lateinit var logoutPopup: TextView
     private lateinit var menuProfile: LinearLayout
     private lateinit var notificationDot: View
-    private var isLogoutPopupVisible = false
     private var vehicleName: String = "машина"
     private val localChatRepository by lazy { LocalChatService.getRepository(this) }
 
@@ -55,13 +53,11 @@ class MainActivity : AppCompatActivity() {
         val ivNotification = findViewById<ImageView>(R.id.ivNotification)
         notificationDot = findViewById(R.id.notificationDot)
         drawerOverlay = findViewById(R.id.drawerOverlay)
-        val drawerPanel = findViewById<LinearLayout>(R.id.drawerPanel)
         val drawerScrim = findViewById<View>(R.id.drawerScrim)
         val btnDrawerClose = findViewById<ImageButton>(R.id.btnDrawerClose)
         val menuHistory = findViewById<LinearLayout>(R.id.menuHistory)
         val menuStats = findViewById<LinearLayout>(R.id.menuStats)
         menuRequests = findViewById(R.id.menuRequests)
-        logoutPopup = findViewById(R.id.logoutPopup)
         menuProfile = findViewById(R.id.menuProfile)
 
         tvProfileName.text = SessionManager.getUserName(this) ?: "Пользователь"
@@ -99,7 +95,6 @@ class MainActivity : AppCompatActivity() {
         }
 
         btnMenu.setOnClickListener {
-            dismissLogoutPopup(immediate = true)
             drawerOverlay.visibility = View.VISIBLE
         }
 
@@ -108,37 +103,26 @@ class MainActivity : AppCompatActivity() {
         }
 
         drawerScrim.setOnClickListener {
-            dismissLogoutPopup(immediate = true)
             drawerOverlay.visibility = View.GONE
         }
 
-        drawerPanel.setOnClickListener {
-            dismissLogoutPopup()
-        }
-
         btnDrawerClose.setOnClickListener {
-            dismissLogoutPopup(immediate = true)
             drawerOverlay.visibility = View.GONE
         }
 
         menuHistory.setOnClickListener {
-            dismissLogoutPopup(immediate = true)
             drawerOverlay.visibility = View.GONE
             startActivity(Intent(this, com.lamba.app.network.HistoryActivity::class.java))
         }
 
         menuStats.setOnClickListener {
-            dismissLogoutPopup(immediate = true)
             drawerOverlay.visibility = View.GONE
             startActivity(Intent(this, com.lamba.app.network.StatisticsActivity::class.java))
         }
 
         menuProfile.setOnClickListener {
-            toggleLogoutPopup()
-        }
-
-        logoutPopup.setOnClickListener {
-            showLogoutDialog()
+            drawerOverlay.visibility = View.GONE
+            startActivity(Intent(this, ProfileActivity::class.java))
         }
 
         loadVehicleData(tvHeader, tvCarName, tvCarInfo)
@@ -153,10 +137,6 @@ class MainActivity : AppCompatActivity() {
     }
 
     override fun onBackPressed() {
-        if (isLogoutPopupVisible) {
-            dismissLogoutPopup()
-            return
-        }
         moveTaskToBack(true)
     }
 
@@ -193,7 +173,6 @@ class MainActivity : AppCompatActivity() {
                     ellipsize = android.text.TextUtils.TruncateAt.END
                     setPadding(0, 12.dp, 0, 12.dp)
                     setOnClickListener {
-                        dismissLogoutPopup(immediate = true)
                         drawerOverlay.visibility = View.GONE
                         SessionManager.setCurrentChatId(this@MainActivity, chat.chat.id)
                         openChat(chat.chat.id)
@@ -290,76 +269,6 @@ class MainActivity : AppCompatActivity() {
                     }
                 }
         }
-    }
-
-    private fun showLogoutDialog() {
-        dismissLogoutPopup(immediate = true)
-        AlertDialog.Builder(this)
-            .setTitle("Выйти из аккаунта?")
-            .setMessage("Мы удалим локальные данные этого аккаунта с устройства.")
-            .setNegativeButton("Отмена", null)
-            .setPositiveButton("Выйти") { _, _ ->
-                lifecycleScope.launch {
-                    SessionManager.getUserId(this@MainActivity)?.let { currentUserId ->
-                        localChatRepository.clearUserChats(currentUserId)
-                    }
-                    SessionManager.clearSession(this@MainActivity)
-                    val intent = Intent(this@MainActivity, WelcomeActivity::class.java).apply {
-                        flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-                    }
-                    startActivity(intent)
-                    finish()
-                }
-            }
-            .show()
-    }
-
-    private fun toggleLogoutPopup() {
-        if (isLogoutPopupVisible) {
-            dismissLogoutPopup()
-        } else {
-            showLogoutPopup()
-        }
-    }
-
-    private fun showLogoutPopup() {
-        logoutPopup.animate().cancel()
-        isLogoutPopupVisible = true
-        logoutPopup.alpha = 0f
-        logoutPopup.translationY = 12.dp.toFloat()
-        logoutPopup.visibility = View.VISIBLE
-        logoutPopup.animate()
-            .alpha(1f)
-            .translationY(0f)
-            .setDuration(180L)
-            .start()
-    }
-
-    private fun dismissLogoutPopup(immediate: Boolean = false) {
-        if (!isLogoutPopupVisible && logoutPopup.visibility != View.VISIBLE) {
-            return
-        }
-
-        logoutPopup.animate().cancel()
-        isLogoutPopupVisible = false
-
-        if (immediate) {
-            logoutPopup.visibility = View.GONE
-            logoutPopup.alpha = 1f
-            logoutPopup.translationY = 0f
-            return
-        }
-
-        logoutPopup.animate()
-            .alpha(0f)
-            .translationY(12.dp.toFloat())
-            .setDuration(160L)
-            .withEndAction {
-                logoutPopup.visibility = View.GONE
-                logoutPopup.alpha = 1f
-                logoutPopup.translationY = 0f
-            }
-            .start()
     }
 
     private val Int.dp: Int

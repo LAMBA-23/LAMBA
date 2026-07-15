@@ -106,8 +106,7 @@ class RegisterResponse(BaseModel):
     user_id: int
 
 
-class CarCreate(BaseModel):
-    user_id: int
+class CarUpdate(BaseModel):
     brand: str
     model: str
     production_year: int
@@ -142,6 +141,10 @@ class CarCreate(BaseModel):
         return v
 
 
+class CarCreate(CarUpdate):
+    user_id: int
+
+
 class CarResponse(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
@@ -150,7 +153,20 @@ class CarResponse(BaseModel):
     model: str
     production_year: int
     current_mileage: int
+    can_edit_mileage: bool
     created_at: datetime
+
+
+class ChangePasswordRequest(BaseModel):
+    current_password: str
+    new_password: str = Field(min_length=8, max_length=128)
+    new_password_confirmation: str
+
+    @model_validator(mode="after")
+    def new_passwords_match(self) -> "ChangePasswordRequest":
+        if self.new_password != self.new_password_confirmation:
+            raise ValueError("new password confirmation must match")
+        return self
 
 
 class EventCreate(BaseModel):

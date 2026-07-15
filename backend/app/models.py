@@ -40,6 +40,10 @@ class Car(Base):
     user: Mapped[User] = relationship(back_populates="car")
     events: Mapped[list["Event"]] = relationship(back_populates="car")
 
+    @property
+    def can_edit_mileage(self) -> bool:
+        return not self.events
+
 
 class Event(Base):
     __tablename__ = "events"
