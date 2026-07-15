@@ -81,7 +81,6 @@ object HistoryRecordEventMapper {
                 val name = values["name"].orEmpty()
                 val description = values["description"].orEmpty()
                 val date = values["date"].orEmpty()
-                val photoUri = values["photoUri"].orEmpty()
                 EventCreateRequest(
                     type = "issue",
                     description = buildRepairDescription(
@@ -89,7 +88,6 @@ object HistoryRecordEventMapper {
                         date = date,
                         name = name,
                         description = description,
-                        photoUri = photoUri,
                     ),
                     amount = null,
                     fuelLiters = null,
@@ -185,6 +183,7 @@ object HistoryRecordEventMapper {
                         "date" to parsed["date"].orIfBlank(formatEventDate(event.createdAt)),
                         "description" to parsed["description"].orEmpty(),
                         "photoUri" to extractPhotoUri(event.description).orEmpty(),
+                        "photoUrl" to event.photoUrl.orEmpty(),
                     ),
                 )
             }
@@ -209,14 +208,12 @@ object HistoryRecordEventMapper {
         date: String,
         name: String,
         description: String,
-        photoUri: String = "",
     ): String {
-        val text = if (description.isBlank()) {
+        return if (description.isBlank()) {
             "$prefix $date: $name"
         } else {
             "$prefix $date: $name. $description"
         }
-        return if (photoUri.isBlank()) text else text + PHOTO_MARKER + photoUri
     }
 
     private fun parseFuelDescription(description: String): Map<String, String> {

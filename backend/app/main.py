@@ -2,11 +2,24 @@ from __future__ import annotations
 
 import os
 import re
+import uuid
 from datetime import datetime, timedelta, timezone
 from decimal import Decimal, InvalidOperation
+from pathlib import Path
 
-from fastapi import Depends, FastAPI, HTTPException, Query, Request, Response, status
+from fastapi import (
+    Depends,
+    FastAPI,
+    File,
+    HTTPException,
+    Query,
+    Request,
+    Response,
+    UploadFile,
+    status,
+)
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 from sqlalchemy import inspect, select, text
 from sqlalchemy.orm import Session
 
@@ -55,6 +68,16 @@ CORS_ALLOWED_ORIGINS = [
     for origin in os.getenv("CORS_ALLOWED_ORIGINS", "").split(",")
     if origin.strip()
 ]
+BACKEND_DIR = Path(__file__).resolve().parents[1]
+EVENT_PHOTO_DIR = Path(
+    os.getenv("EVENT_PHOTO_DIR", str(BACKEND_DIR / "uploads" / "event_photos"))
+)
+EVENT_PHOTO_MAX_BYTES = 5 * 1024 * 1024
+EVENT_PHOTO_MIME_EXTENSIONS = {
+    "image/jpeg": ".jpg",
+    "image/png": ".png",
+    "image/webp": ".webp",
+}
 
 app = FastAPI(title="LAMBA Backend", version="0.1.0")
 rate_limiter = FixedWindowRateLimiter()
@@ -65,6 +88,12 @@ app.add_middleware(
     allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],
+)
+EVENT_PHOTO_DIR.mkdir(parents=True, exist_ok=True)
+app.mount(
+    "/uploads/event_photos",
+    StaticFiles(directory=str(EVENT_PHOTO_DIR)),
+    name="event_photos",
 )
 
 
@@ -131,6 +160,14 @@ def get_car_for_user_id(db: Session, user_id: int) -> Car:
     return get_or_create_user_car(db, user)
 
 
+def get_event_for_user(db: Session, event_id: int, user_id: int) -> Event:
+    car = get_car_for_user_id(db, user_id)
+    event = db.scalar(select(Event).where(Event.id == event_id, Event.car_id == car.id))
+    if event is None:
+        raise HTTPException(status_code=404, detail="Event not found")
+    return event
+
+
 def _client_identifier(request: Request) -> str:
     forwarded_for = request.headers.get("x-forwarded-for")
     if forwarded_for:
@@ -180,6 +217,58 @@ def _coalesce_decimal(value: object) -> Decimal:
     return _to_decimal(value)
 
 
+def _safe_photo_extension(filename: str | None, mime_type: str) -> str:
+    fallback = EVENT_PHOTO_MIME_EXTENSIONS[mime_type]
+    suffix = Path(filename or "").suffix.lower()
+    if suffix in {".jpg", ".jpeg"} and mime_type == "image/jpeg":
+        return suffix
+    if suffix in {".png", ".webp"} and EVENT_PHOTO_MIME_EXTENSIONS[mime_type] == suffix:
+        return suffix
+    return fallback
+
+
+def _detect_image_mime(content: bytes) -> str | None:
+    if content.startswith(b"\xff\xd8\xff"):
+        return "image/jpeg"
+    if content.startswith(b"\x89PNG\r\n\x1a\n"):
+        return "image/png"
+    if len(content) >= 12 and content[:4] == b"RIFF" and content[8:12] == b"WEBP":
+        return "image/webp"
+    return None
+
+
+async def _read_valid_photo(file: UploadFile) -> tuple[bytes, str]:
+    mime_type = (file.content_type or "").split(";")[0].strip().lower()
+    if mime_type not in EVENT_PHOTO_MIME_EXTENSIONS:
+        raise HTTPException(status_code=415, detail="Unsupported image MIME type")
+
+    content = await file.read(EVENT_PHOTO_MAX_BYTES + 1)
+    if not content:
+        raise HTTPException(status_code=400, detail="Image file is empty")
+    if len(content) > EVENT_PHOTO_MAX_BYTES:
+        raise HTTPException(status_code=413, detail="Image file is too large")
+    detected_mime_type = _detect_image_mime(content)
+    if detected_mime_type != mime_type:
+        raise HTTPException(status_code=400, detail="Invalid image content")
+    return content, mime_type
+
+
+def _delete_event_photo_file(event: Event) -> None:
+    if not event.photo_path:
+        return
+    photo_file = EVENT_PHOTO_DIR / Path(event.photo_path).name
+    if photo_file.is_file():
+        photo_file.unlink(missing_ok=True)
+
+
+def _clear_event_photo(event: Event) -> None:
+    _delete_event_photo_file(event)
+    event.photo_path = None
+    event.photo_original_name = None
+    event.photo_mime_type = None
+    event.photo_size = None
+
+
 def ensure_event_schema() -> None:
     inspector = inspect(engine)
     event_columns = {
@@ -214,6 +303,20 @@ def ensure_event_schema() -> None:
             connection.execute(
                 text("ALTER TABLE events ADD COLUMN odometer_end INTEGER")
             )
+        if "photo_path" not in event_columns:
+            connection.execute(
+                text("ALTER TABLE events ADD COLUMN photo_path VARCHAR(255)")
+            )
+        if "photo_original_name" not in event_columns:
+            connection.execute(
+                text("ALTER TABLE events ADD COLUMN photo_original_name VARCHAR(255)")
+            )
+        if "photo_mime_type" not in event_columns:
+            connection.execute(
+                text("ALTER TABLE events ADD COLUMN photo_mime_type VARCHAR(64)")
+            )
+        if "photo_size" not in event_columns:
+            connection.execute(text("ALTER TABLE events ADD COLUMN photo_size INTEGER"))
         connection.execute(
             text("UPDATE events SET type = 'issue' WHERE type = 'condition'")
         )
@@ -1328,6 +1431,56 @@ def update_event(
     return event
 
 
+@app.post("/events/{event_id}/photo", response_model=EventResponse)
+async def upload_event_photo(
+    event_id: int,
+    file: UploadFile = File(...),
+    user_id: int = Query(...),
+    db: Session = Depends(get_db),
+) -> Event:
+    event = get_event_for_user(db, event_id, user_id)
+    if event.type != "issue":
+        raise HTTPException(
+            status_code=400, detail="Photos are supported only for issue events"
+        )
+
+    content, mime_type = await _read_valid_photo(file)
+    extension = _safe_photo_extension(file.filename, mime_type)
+    filename = f"{uuid.uuid4().hex}{extension}"
+    destination = EVENT_PHOTO_DIR / filename
+    destination.write_bytes(content)
+
+    previous_photo_path = event.photo_path
+    event.photo_path = filename
+    event.photo_original_name = Path(file.filename or filename).name
+    event.photo_mime_type = mime_type
+    event.photo_size = len(content)
+    db.commit()
+    db.refresh(event)
+
+    if previous_photo_path and previous_photo_path != filename:
+        previous_file = EVENT_PHOTO_DIR / Path(previous_photo_path).name
+        if previous_file.is_file():
+            previous_file.unlink(missing_ok=True)
+    return event
+
+
+@app.delete(
+    "/events/{event_id}/photo",
+    status_code=status.HTTP_204_NO_CONTENT,
+    response_model=None,
+    response_class=Response,
+)
+def delete_event_photo(
+    event_id: int,
+    user_id: int = Query(...),
+    db: Session = Depends(get_db),
+) -> None:
+    event = get_event_for_user(db, event_id, user_id)
+    _clear_event_photo(event)
+    db.commit()
+
+
 @app.delete(
     "/events/{event_id}",
     status_code=status.HTTP_204_NO_CONTENT,
@@ -1339,11 +1492,8 @@ def delete_event(
     user_id: int = Query(...),
     db: Session = Depends(get_db),
 ) -> None:
-    car = get_car_for_user_id(db, user_id)
-    event = db.scalar(select(Event).where(Event.id == event_id, Event.car_id == car.id))
-    if event is None:
-        raise HTTPException(status_code=404, detail="Event not found")
-
+    event = get_event_for_user(db, event_id, user_id)
+    _delete_event_photo_file(event)
     db.delete(event)
     db.commit()
 

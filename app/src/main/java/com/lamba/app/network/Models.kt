@@ -83,6 +83,9 @@ data class Event(
     @SerializedName("odometer_start") val odometerStart: Int? = null,
     @SerializedName("odometer_end") val odometerEnd: Int? = null,
     @SerializedName("trip_distance") val tripDistance: Int? = null,
+    @SerializedName("photo_url") val photoUrl: String? = null,
+    @SerializedName("photo_mime_type") val photoMimeType: String? = null,
+    @SerializedName("photo_size") val photoSize: Int? = null,
     @SerializedName("created_at") val createdAt: String? = null
 ) {
     companion object {

@@ -26,6 +26,7 @@ __pycache__/
 *.pyc
 test.db
 backend/tests/*.db
+backend/uploads/
 app/build/
 .gradle/
 build/

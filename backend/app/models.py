@@ -55,6 +55,10 @@ class Event(Base):
     mileage: Mapped[Decimal] = mapped_column(Numeric(12, 3), nullable=False)
     odometer_start: Mapped[int | None] = mapped_column(Integer, nullable=True)
     odometer_end: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    photo_path: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    photo_original_name: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    photo_mime_type: Mapped[str | None] = mapped_column(String(64), nullable=True)
+    photo_size: Mapped[int | None] = mapped_column(Integer, nullable=True)
     created_at: Mapped[datetime] = mapped_column(
         default=datetime.utcnow, nullable=False
     )
@@ -70,3 +74,9 @@ class Event(Base):
         ):
             return max(Decimal("0"), Decimal(self.odometer_end - self.odometer_start))
         return None
+
+    @property
+    def photo_url(self) -> str | None:
+        if not self.photo_path:
+            return None
+        return f"/uploads/event_photos/{self.photo_path}"
