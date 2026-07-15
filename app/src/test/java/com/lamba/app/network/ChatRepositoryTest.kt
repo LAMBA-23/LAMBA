@@ -125,14 +125,14 @@ class ChatRepositoryTest {
             description = "Заправка на 40 литров",
             amount = null,
             fuelLiters = 40.0,
-            mileage = 125000,
+            mileage = 125000.0,
         )
         val savedEvent = Event(
             id = 1,
             type = "fuel",
             description = "Заправка на 40 литров",
-            amount = 0,
-            mileage = 125000,
+            amount = 0.0,
+            mileage = 125000.0,
             createdAt = "2026-07-14T12:00:00",
         )
         val backend = FakeChatBackend(

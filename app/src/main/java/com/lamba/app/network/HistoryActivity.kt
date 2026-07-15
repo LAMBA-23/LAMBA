@@ -396,7 +396,8 @@ class HistoryActivity : AppCompatActivity() {
             )
             HistoryRecordType.TRIP -> listOf(
                 FormField("date", "Дата"),
-                FormField("mileage", "Километраж, км", numeric = true),
+                FormField("odometerStart", "Пробег в начале", numeric = true),
+                FormField("odometerEnd", "Пробег в конце", numeric = true),
                 FormField("description", "Маршрут / описание (необязательно)", required = false, singleLine = false),
             )
         }
@@ -422,6 +423,16 @@ class HistoryActivity : AppCompatActivity() {
                     isValid = false
                 }
             }
+        }
+
+        val odometerStart = fields.find { it.key == "odometerStart" }
+        val odometerEnd = fields.find { it.key == "odometerEnd" }
+        val startValue = odometerStart?.input?.text?.toString()?.trim()?.let(::parsePositiveNumber)
+        val endValue = odometerEnd?.input?.text?.toString()?.trim()?.let(::parsePositiveNumber)
+        if (startValue != null && endValue != null && endValue < startValue) {
+            odometerEnd.error.text = "Пробег в конце не может быть меньше начального"
+            odometerEnd.error.visibility = View.VISIBLE
+            isValid = false
         }
 
         if (!isValid) {
@@ -471,17 +482,24 @@ class HistoryActivity : AppCompatActivity() {
         var knownMileage = currentVehicleMileage
         return events.associate { event ->
             val record = if (event.type.lowercase() == "trip") {
-                val effectiveMileage = if (event.mileage <= knownMileage) {
-                    knownMileage + event.mileage
+                val modernTripDistance = event.tripDistance?.toDouble() ?: event.calculatedTripDistance()
+                val tripMileageOverride = if (modernTripDistance != null) {
+                    event.odometerEnd?.let { knownMileage = maxOf(knownMileage, it.toDouble()) }
+                    modernTripDistance
                 } else {
-                    event.mileage
+                    val effectiveMileage = if (event.mileage <= knownMileage) {
+                        knownMileage + event.mileage
+                    } else {
+                        event.mileage
+                    }
+                    val legacyTripMileage = maxOf(0.0, effectiveMileage - knownMileage)
+                    knownMileage = maxOf(knownMileage, effectiveMileage)
+                    legacyTripMileage
                 }
-                val tripMileage = maxOf(0.0, effectiveMileage - knownMileage)
-                knownMileage = maxOf(knownMileage, effectiveMileage)
                 HistoryRecordUiModel.from(
                     HistoryRecordEventMapper.fromEvent(
                         event,
-                        tripMileageOverride = tripMileage,
+                        tripMileageOverride = tripMileageOverride,
                     ),
                 )
             } else {
@@ -633,6 +651,12 @@ class HistoryActivity : AppCompatActivity() {
         return DecimalNumberUtils.formatDecimal(number)
     }
 
+    private fun Event.calculatedTripDistance(): Double? {
+        val start = odometerStart ?: return null
+        val end = odometerEnd ?: return null
+        return (end - start).takeIf { it >= 0 }?.toDouble()
+    }
+
     private fun parsePositiveNumber(value: String): Double? {
         return DecimalNumberUtils.parsePositiveDecimal(value)
     }
@@ -709,9 +733,25 @@ class HistoryActivity : AppCompatActivity() {
                 )
                 HistoryRecordType.TRIP -> listOf(
                     "Дата" to values["date"].orEmpty(),
-                    "Километраж, км" to "${formatPlainNumberValue(values["mileage"].orEmpty())} км",
-                ).withOptionalDescription(label = "Маршрут / описание")
+                )
+                    .withOptionalValue("Пробег в начале", values["odometerStart"], suffix = " км")
+                    .withOptionalValue("Пробег в конце", values["odometerEnd"], suffix = " км")
+                    .plus("Дистанция" to "${formatPlainNumberValue(values["mileage"].orEmpty())} км")
+                    .withOptionalDescription(label = "Маршрут / описание")
             }
+
+        private fun List<Pair<String, String>>.withOptionalValue(
+            label: String,
+            value: String?,
+            suffix: String = "",
+        ): List<Pair<String, String>> {
+            val formattedValue = value.orEmpty()
+            return if (formattedValue.isBlank()) {
+                this
+            } else {
+                this + (label to "${formatPlainNumberValue(formattedValue)}$suffix")
+            }
+        }
 
         private fun List<Pair<String, String>>.withOptionalDescription(
             label: String = "Описание",

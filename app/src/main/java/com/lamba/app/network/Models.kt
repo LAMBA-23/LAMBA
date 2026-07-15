@@ -52,7 +52,9 @@ data class ParsedEventPayload(
     @SerializedName("description") val description: String,
     @SerializedName("amount") val amount: Double? = null,
     @SerializedName("fuel_liters") val fuelLiters: Double? = null,
-    @SerializedName("mileage") val mileage: Double? = null
+    @SerializedName("mileage") val mileage: Double? = null,
+    @SerializedName("odometer_start") val odometerStart: Int? = null,
+    @SerializedName("odometer_end") val odometerEnd: Int? = null
 )
 
 data class ChatParseResponse(
@@ -66,7 +68,9 @@ data class EventCreateRequest(
     @SerializedName("description") val description: String,
     @SerializedName("amount") val amount: Double? = null,
     @SerializedName("fuel_liters") val fuelLiters: Double? = null,
-    @SerializedName("mileage") val mileage: Double? = null
+    @SerializedName("mileage") val mileage: Double? = null,
+    @SerializedName("odometer_start") val odometerStart: Int? = null,
+    @SerializedName("odometer_end") val odometerEnd: Int? = null
 )
 
 data class Event(
@@ -76,6 +80,9 @@ data class Event(
     @SerializedName("amount") val amount: Double,
     @SerializedName("fuel_liters") val fuelLiters: Double = 0.0,
     @SerializedName("mileage") val mileage: Double,
+    @SerializedName("odometer_start") val odometerStart: Int? = null,
+    @SerializedName("odometer_end") val odometerEnd: Int? = null,
+    @SerializedName("trip_distance") val tripDistance: Int? = null,
     @SerializedName("created_at") val createdAt: String? = null
 ) {
     companion object {

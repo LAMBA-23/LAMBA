@@ -96,19 +96,30 @@ object HistoryRecordEventMapper {
             HistoryRecordType.TRIP -> {
                 val date = values["date"].orEmpty()
                 val tripDescription = values["description"].orEmpty()
-                val mileage = values["mileage"].toDecimalValue()
-                val formattedMileage = DecimalNumberUtils.formatDecimal(mileage)
-                val details = if (tripDescription.isBlank()) {
-                    "$formattedMileage км"
+                val odometerStart = values["odometerStart"].toOptionalIntValue()
+                val odometerEnd = values["odometerEnd"].toOptionalIntValue()
+                val legacyMileage = values["mileage"].toOptionalDecimalValue().takeIf {
+                    odometerStart == null && odometerEnd == null
+                }
+                val formattedMileage = legacyMileage?.let(DecimalNumberUtils::formatDecimal)
+                val details = when {
+                    formattedMileage != null && tripDescription.isBlank() -> "$formattedMileage км"
+                    formattedMileage != null -> "$tripDescription, $formattedMileage км"
+                    else -> tripDescription
+                }
+                val description = if (details.isBlank()) {
+                    "Поездка $date"
                 } else {
-                    "$tripDescription, $formattedMileage км"
+                    "Поездка $date: $details"
                 }
                 EventCreateRequest(
                     type = "trip",
-                    description = "Поездка $date: $details",
+                    description = description,
                     amount = null,
                     fuelLiters = null,
-                    mileage = mileage,
+                    mileage = legacyMileage,
+                    odometerStart = odometerStart,
+                    odometerEnd = odometerEnd,
                 )
             }
         }
@@ -134,13 +145,20 @@ object HistoryRecordEventMapper {
 
             event.type == "trip" -> {
                 val parsed = parseTripDescription(event.description)
+                val tripDistance = event.tripDistance?.toDouble()
+                    ?: calculateTripDistance(event.odometerStart, event.odometerEnd)
+                    ?: tripMileageOverride
+                    ?: event.mileage
+                val values = mutableMapOf(
+                    "date" to parsed["date"].orIfBlank(formatEventDate(event.createdAt)),
+                    "mileage" to DecimalNumberUtils.formatDecimal(tripDistance),
+                    "description" to parsed["description"].orEmpty(),
+                )
+                event.odometerStart?.let { values["odometerStart"] = it.toString() }
+                event.odometerEnd?.let { values["odometerEnd"] = it.toString() }
                 HistoryRecordFormData(
                     type = HistoryRecordType.TRIP,
-                    values = mapOf(
-                        "date" to parsed["date"].orIfBlank(formatEventDate(event.createdAt)),
-                        "mileage" to DecimalNumberUtils.formatDecimal(tripMileageOverride ?: event.mileage),
-                        "description" to parsed["description"].orEmpty(),
-                    ),
+                    values = values,
                 )
             }
 
@@ -227,7 +245,7 @@ object HistoryRecordEventMapper {
         val withoutPrefix = description.removePrefix(prefix)
         val separatorIndex = withoutPrefix.indexOf(": ")
         if (separatorIndex <= 0) {
-            return emptyMap()
+            return mapOf("date" to withoutPrefix.trim(), "description" to "")
         }
         val date = withoutPrefix.substring(0, separatorIndex)
         val details = withoutPrefix.substring(separatorIndex + 2)
@@ -238,7 +256,29 @@ object HistoryRecordEventMapper {
                 "description" to details.removeSuffix(suffix.value),
             )
         }
-        return mapOf("date" to date, "description" to "")
+        return mapOf("date" to date, "description" to details)
+    }
+
+    private fun String?.toOptionalIntValue(): Int? {
+        val decimal = toOptionalDecimalValue() ?: return null
+        return decimal.toInt()
+    }
+
+    private fun String?.toOptionalDecimalValue(): Double? {
+        val value = this.orEmpty().trim()
+        return if (value.isBlank()) {
+            null
+        } else {
+            DecimalNumberUtils.parsePositiveDecimal(value)
+                ?: throw IllegalArgumentException("Invalid decimal value")
+        }
+    }
+
+    private fun calculateTripDistance(odometerStart: Int?, odometerEnd: Int?): Double? {
+        if (odometerStart == null || odometerEnd == null) {
+            return null
+        }
+        return (odometerEnd - odometerStart).takeIf { it >= 0 }?.toDouble()
     }
 
     private fun String?.toDecimalValue(): Double {
