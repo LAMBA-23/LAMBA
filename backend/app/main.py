@@ -304,7 +304,9 @@ def ensure_event_schema() -> None:
                 text("ALTER TABLE events ADD COLUMN odometer_end INTEGER")
             )
         if "photo_path" not in event_columns:
-            connection.execute(text("ALTER TABLE events ADD COLUMN photo_path VARCHAR(255)"))
+            connection.execute(
+                text("ALTER TABLE events ADD COLUMN photo_path VARCHAR(255)")
+            )
         if "photo_original_name" not in event_columns:
             connection.execute(
                 text("ALTER TABLE events ADD COLUMN photo_original_name VARCHAR(255)")
@@ -1438,7 +1440,9 @@ async def upload_event_photo(
 ) -> Event:
     event = get_event_for_user(db, event_id, user_id)
     if event.type != "issue":
-        raise HTTPException(status_code=400, detail="Photos are supported only for issue events")
+        raise HTTPException(
+            status_code=400, detail="Photos are supported only for issue events"
+        )
 
     content, mime_type = await _read_valid_photo(file)
     extension = _safe_photo_extension(file.filename, mime_type)
