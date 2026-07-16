@@ -10,8 +10,25 @@ data class Message(val text: String, val isFromUser: Boolean)
 
 class ChatAdapter(private val messages: List<Message>) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
-    private val TYPE_USER = 1
-    private val TYPE_CAR = 2
+    companion object {
+        private const val TYPE_USER = 1
+        private const val TYPE_CAR = 2
+
+        fun stripMarkdown(text: String): String {
+            return text
+                .replace(Regex("\\*\\*(.+?)\\*\\*"), "$1")
+                .replace(Regex("\\*(.+?)\\*"), "$1")
+                .replace(Regex("__(.+?)__"), "$1")
+                .replace(Regex("_(.+?)_"), "$1")
+                .replace(Regex("~~(.+?)~~"), "$1")
+                .replace(Regex("`(.+?)`"), "$1")
+                .replace(Regex("```[\\s\\S]*?```"), "")
+                .replace(Regex("^#{1,6}\\s+", RegexOption.MULTILINE), "")
+                .replace(Regex("^[-*+]\\s+", RegexOption.MULTILINE), "")
+                .replace(Regex("^\\d+\\.\\s+", RegexOption.MULTILINE), "")
+                .trim()
+        }
+    }
 
     override fun getItemViewType(position: Int): Int {
         return if (messages[position].isFromUser) TYPE_USER else TYPE_CAR
@@ -42,6 +59,6 @@ class ChatAdapter(private val messages: List<Message>) : RecyclerView.Adapter<Re
 
     class CarViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val txt: TextView = view.findViewById(R.id.tvMessageText)
-        fun bind(m: Message) { txt.text = m.text }
+        fun bind(m: Message) { txt.text = stripMarkdown(m.text) }
     }
 }
