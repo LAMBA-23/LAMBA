@@ -121,4 +121,10 @@ object RetrofitClient {
             BASE_URL.trimEnd('/') + "/" + url.trimStart('/')
         }
     }
+
+    fun isBackendUrlReference(url: String): Boolean {
+        return url.startsWith("http://") ||
+            url.startsWith("https://") ||
+            url.startsWith("/")
+    }
 }
