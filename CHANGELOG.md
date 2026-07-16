@@ -45,6 +45,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- History timeline events now load newest-first so newly created records appear
+  at the top (#345).
 - Android trip history displays traveled distance instead of treating the saved
   trip odometer value as the trip distance.
 - Breakdown photo selections are kept with the saved history record and shown
