@@ -706,6 +706,7 @@ class HistoryActivity : AppCompatActivity() {
                 topMargin = 18.dp
             }
             background = roundedBackground("#FFF7F8", 18.dp.toFloat())
+            clipToOutline = true
             adjustViewBounds = true
             scaleType = ImageView.ScaleType.FIT_CENTER
             showPhotoPreview(this, photoReference)
