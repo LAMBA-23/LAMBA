@@ -167,7 +167,7 @@ This would allow users to create history records without using the chat.
 - **Resulting PBIs/issues:**
   - Support decimal fuel values.
   - Synchronize manually created records with the Statistics screen.
-  - Redirect AI-generated records to a pre-filled confirmation form before saving.
+  - Redirect assistant-created records to a pre-filled confirmation form before saving.
   - Add trip start/end odometer recording.
   - Rename Repair to Repair/Breakdown.
   - Add photo attachments for history records.
@@ -531,6 +531,27 @@ This would allow users to create history records without using the chat.
 - **Customer comments or observed issues:** To be completed after the Week 7 transition confirmation.
 - **Traceability:** To be linked to relevant GitHub issues or PBIs after implementation.
 - **Resulting PBIs/issues:** To be completed after execution.
+
+## UAT-013: Manage account and vehicle settings
+
+- **Scenario ID:** UAT-013
+- **Status:** Active
+- **User goal:** A logged-in vehicle owner can view account data, update allowed vehicle data, change a password, and log out from one profile screen.
+- **Preconditions:**
+  - The user is logged in and has a vehicle.
+
+| Step | Action | Expected result |
+|---|---|---|
+| 1 | Open the side menu and select the user account block. | The Profile screen opens and displays the username without allowing edits. |
+| 2 | Update the vehicle brand, model, and production year, then save. | The app displays the saved vehicle data. |
+| 3 | Before adding history, change the mileage and save. | The new initial mileage is saved. |
+| 4 | Add any fuel, repair, trip, or breakdown record, then reopen Profile. | Mileage is read-only; brand, model, and year remain editable. |
+| 5 | Enter an incorrect current password and submit matching valid new passwords. | The password remains unchanged and the app shows a neutral error. |
+| 6 | Enter the correct current password and matching new passwords of 8–128 characters. | The password changes, local session data is cleared, and Login opens. |
+| 7 | Log in again, open Profile, select logout, and confirm. | Local session and chats are cleared and the Welcome screen opens. |
+
+- **Traceability:** US-15, GitHub Issue #329.
+- **Resulting PBIs/issues:** No new PBIs or issues were created.
 
 ## Week 4 UAT Summary
 

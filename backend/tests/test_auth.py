@@ -76,6 +76,113 @@ class TestLogin:
         assert data["success"] is False
 
 
+class TestChangePassword:
+    def test_change_password_rejects_incorrect_current_password(
+        self, client, db_session
+    ):
+        user_id = client.post(
+            "/auth/register",
+            json={"username": "change-password-wrong", "password": "password123"},
+        ).json()["user_id"]
+
+        response = client.post(
+            f"/auth/change-password?user_id={user_id}",
+            json={
+                "current_password": "incorrect-password",
+                "new_password": "new-password123",
+                "new_password_confirmation": "new-password123",
+            },
+        )
+
+        assert response.status_code == 400
+        assert (
+            client.post(
+                "/auth/login",
+                json={"username": "change-password-wrong", "password": "password123"},
+            ).json()["success"]
+            is True
+        )
+
+    def test_change_password_hashes_and_accepts_new_password(self, client, db_session):
+        user_id = client.post(
+            "/auth/register",
+            json={"username": "change-password-success", "password": "password123"},
+        ).json()["user_id"]
+
+        response = client.post(
+            f"/auth/change-password?user_id={user_id}",
+            json={
+                "current_password": "password123",
+                "new_password": "new-password123",
+                "new_password_confirmation": "new-password123",
+            },
+        )
+
+        assert response.status_code == 204
+        assert (
+            client.post(
+                "/auth/login",
+                json={"username": "change-password-success", "password": "password123"},
+                headers={"X-Forwarded-For": "203.0.113.99"},
+            ).json()["success"]
+            is False
+        )
+        assert (
+            client.post(
+                "/auth/login",
+                json={
+                    "username": "change-password-success",
+                    "password": "new-password123",
+                },
+                headers={"X-Forwarded-For": "203.0.113.99"},
+            ).json()["success"]
+            is True
+        )
+
+    def test_change_password_accepts_same_password(self, client):
+        user_id = client.post(
+            "/auth/register",
+            json={"username": "change-password-same", "password": "password123"},
+        ).json()["user_id"]
+
+        response = client.post(
+            f"/auth/change-password?user_id={user_id}",
+            json={
+                "current_password": "password123",
+                "new_password": "password123",
+                "new_password_confirmation": "password123",
+            },
+        )
+
+        assert response.status_code == 204
+
+    def test_change_password_validates_length_and_confirmation(self, client):
+        user_id = client.post(
+            "/auth/register",
+            json={"username": "change-password-validation", "password": "password123"},
+        ).json()["user_id"]
+
+        short_password_response = client.post(
+            f"/auth/change-password?user_id={user_id}",
+            json={
+                "current_password": "password123",
+                "new_password": "short",
+                "new_password_confirmation": "short",
+            },
+        )
+        mismatch_response = client.post(
+            f"/auth/change-password?user_id={user_id}",
+            json={
+                "current_password": "password123",
+                "new_password": "new-password123",
+                "new_password_confirmation": "different-password123",
+            },
+        )
+
+        assert short_password_response.status_code == 422
+        assert mismatch_response.status_code == 422
+
+
 class TestHealth:
     def test_health_check(self, client):
         response = client.get("/health")

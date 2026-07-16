@@ -35,7 +35,7 @@
                 android:layout_height="32dp"
                 android:contentDescription="Назад"
                 android:src="@drawable/ic_lamba_arrow_back"
-                app:tint="#101114" />
+                app:tint="@color/theme_icon_primary" />
         </LinearLayout>
 
         <LinearLayout
@@ -50,8 +50,9 @@
                 android:layout_height="wrap_content"
                 android:fontFamily="sans"
                 android:includeFontPadding="false"
+                android:forceDarkAllowed="false"
                 android:text="LAMBA"
-                android:textColor="#101114"
+                android:textColor="@color/theme_brand_title"
                 android:textSize="31sp"
                 android:textStyle="bold|italic" />
 
@@ -99,7 +100,7 @@
                 android:layout_gravity="center"
                 android:contentDescription="Уведомления"
                 android:src="@drawable/ic_lamba_notifications"
-                app:tint="#101114" />
+                app:tint="@color/theme_icon_primary" />
 
             <View
                 android:layout_width="10dp"

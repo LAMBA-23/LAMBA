@@ -66,7 +66,7 @@
                     android:contentDescription="Назад"
                     android:padding="10dp"
                     android:src="@drawable/ic_lamba_arrow_back"
-                    app:tint="#960018" />
+                    app:tint="@color/theme_navigation_icon" />
 
                 <LinearLayout
                     android:layout_width="0dp"

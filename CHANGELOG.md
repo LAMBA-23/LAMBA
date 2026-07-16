@@ -9,6 +9,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Android dark theme switch in the profile screen; the selected appearance is
+  saved locally and restored when the app opens.
+- Dedicated Android profile screen with read-only username, vehicle settings,
+  password change, and logout (#329).
+- Backend vehicle-update and password-change endpoints with history-based
+  mileage protection (#329).
 - Authorized event-photo retrieval, normalized originals, thumbnails, and a
   configurable local/S3-compatible backend storage adapter (#332).
 - Backend recommendations endpoint with rule-based vehicle notifications for fuel
@@ -44,7 +50,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Password hashing and secure auth in backend (#265)
 - Local chat history persistence for last 5 dialogs (#277)
 - Application launcher icon (#242)
-- Android side drawer account block now opens an animated logout sheet with confirmation and local session cleanup (#271).
+- Android side drawer account block opens the profile screen; logout remains
+  available there with local session cleanup (#329).
 
 ### Changed
 

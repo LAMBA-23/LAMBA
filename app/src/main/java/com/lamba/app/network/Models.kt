@@ -32,6 +32,7 @@ data class Vehicle(
     @SerializedName("model") val model: String,
     @SerializedName("production_year") val productionYear: Int,
     @SerializedName("current_mileage") val currentMileage: Int,
+    @SerializedName("can_edit_mileage") val canEditMileage: Boolean = false,
     @SerializedName("created_at") val createdAt: String? = null
 )
 
@@ -41,6 +42,19 @@ data class VehicleRequest(
     @SerializedName("model") val model: String,
     @SerializedName("production_year") val productionYear: Int,
     @SerializedName("current_mileage") val currentMileage: Int
+)
+
+data class VehicleUpdateRequest(
+    @SerializedName("brand") val brand: String,
+    @SerializedName("model") val model: String,
+    @SerializedName("production_year") val productionYear: Int,
+    @SerializedName("current_mileage") val currentMileage: Int,
+)
+
+data class ChangePasswordRequest(
+    @SerializedName("current_password") val currentPassword: String,
+    @SerializedName("new_password") val newPassword: String,
+    @SerializedName("new_password_confirmation") val newPasswordConfirmation: String,
 )
 
 data class ChatParseRequest(

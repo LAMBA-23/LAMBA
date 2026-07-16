@@ -3,6 +3,7 @@ import os
 import sys
 from pathlib import Path
 
+import pytest
 from fastapi.testclient import TestClient
 
 
@@ -198,3 +199,78 @@ class TestGetVehicle:
         data = response.json()
         assert data["brand"] == "Toyota"
         assert data["model"] == "Camry"
+
+
+class TestUpdateVehicle:
+    def test_update_vehicle_changes_all_fields_without_history(self) -> None:
+        user_id = _register_user("update-without-history")
+
+        response = client.put(
+            f"/vehicle?user_id={user_id}",
+            json={
+                "brand": "Honda",
+                "model": "Civic",
+                "production_year": 2022,
+                "current_mileage": 25000,
+            },
+        )
+
+        assert response.status_code == 200
+        data = response.json()
+        assert data["brand"] == "Honda"
+        assert data["model"] == "Civic"
+        assert data["production_year"] == 2022
+        assert data["current_mileage"] == 25000
+        assert data["can_edit_mileage"] is True
+
+    @pytest.mark.parametrize("event_type", ["fuel", "repair", "trip", "issue"])
+    def test_update_vehicle_rejects_mileage_change_after_history_event(
+        self, event_type: str
+    ) -> None:
+        user_id = _register_user(f"update-with-{event_type}-history")
+        client.post(
+            "/events",
+            params={"user_id": user_id},
+            json={"type": event_type, "description": "History event", "mileage": 10000},
+        )
+
+        response = client.put(
+            f"/vehicle?user_id={user_id}",
+            json={
+                "brand": "Honda",
+                "model": "Civic",
+                "production_year": 2022,
+                "current_mileage": 25000,
+            },
+        )
+
+        assert response.status_code == 409
+
+        vehicle_response = client.get(f"/vehicle?user_id={user_id}")
+        assert vehicle_response.status_code == 200
+        assert vehicle_response.json()["can_edit_mileage"] is False
+
+    def test_update_vehicle_keeps_mileage_and_updates_other_fields_after_history(
+        self,
+    ) -> None:
+        user_id = _register_user("update-fields-with-history")
+        client.post(
+            "/events",
+            params={"user_id": user_id},
+            json={"type": "issue", "description": "Issue", "mileage": 0},
+        )
+        original_vehicle = client.get(f"/vehicle?user_id={user_id}").json()
+
+        response = client.put(
+            f"/vehicle?user_id={user_id}",
+            json={
+                "brand": "Honda",
+                "model": "Civic",
+                "production_year": 2022,
+                "current_mileage": original_vehicle["current_mileage"],
+            },
+        )
+
+        assert response.status_code == 200
+        assert response.json()["brand"] == "Honda"
+        assert response.json()["current_mileage"] == original_vehicle["current_mileage"]

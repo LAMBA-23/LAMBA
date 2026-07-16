@@ -21,7 +21,7 @@
             android:src="@drawable/ic_lamba_arrow_back"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:tint="#101114" />
+            app:tint="@color/theme_icon_primary" />
 
         <View
             android:id="@+id/topDivider"
