@@ -71,6 +71,41 @@ class ProfileActivity : AppCompatActivity() {
             finish()
         }
 
+        val btnChatStyle = findViewById<AppCompatButton>(R.id.btnChatStyle)
+        val styleLabels = mapOf(
+            SessionManager.STYLE_FRIENDLY to "Дружелюбный",
+            SessionManager.STYLE_SELFISH to "Эгоистичный",
+            SessionManager.STYLE_PRAGMATIC to "Прагматичный",
+        )
+        val styleKeys = listOf(
+            SessionManager.STYLE_FRIENDLY,
+            SessionManager.STYLE_SELFISH,
+            SessionManager.STYLE_PRAGMATIC,
+        )
+
+        fun updateStyleButton() {
+            val currentStyle = SessionManager.getChatStyle(this)
+            btnChatStyle.text = styleLabels[currentStyle] ?: styleLabels[SessionManager.DEFAULT_STYLE]
+        }
+
+        updateStyleButton()
+
+        btnChatStyle.setOnClickListener {
+            val currentStyle = SessionManager.getChatStyle(this)
+            val checkedIndex = styleKeys.indexOf(currentStyle).coerceAtLeast(0)
+            val displayItems = styleKeys.map { styleLabels[it] ?: it }.toTypedArray()
+
+            AlertDialog.Builder(this)
+                .setTitle("Выберите стиль общения")
+                .setSingleChoiceItems(displayItems, checkedIndex) { dialog, which ->
+                    SessionManager.saveChatStyle(this, styleKeys[which])
+                    updateStyleButton()
+                    dialog.dismiss()
+                }
+                .setNegativeButton("Отмена", null)
+                .show()
+        }
+
         fun renderVehicle(current: Vehicle) {
             vehicle = current
             etBrand.setText(current.brand)

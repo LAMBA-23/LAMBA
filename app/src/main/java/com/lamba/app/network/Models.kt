@@ -156,6 +156,7 @@ enum class StatsPeriodKey {
 data class ChatAskRequest(
     @SerializedName("message") val message: String,
     @SerializedName("chat_context") val chatContext: List<ChatContextMessage> = emptyList(),
+    @SerializedName("style") val style: String? = null,
 )
 
 data class ChatAskResponse(

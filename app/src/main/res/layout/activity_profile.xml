@@ -134,6 +134,23 @@
         <TextView
             style="@style/LambaFormLabel"
             android:layout_marginTop="30dp"
+            android:text="Стиль общения" />
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/btnChatStyle"
+            android:layout_width="match_parent"
+            android:layout_height="58dp"
+            android:layout_marginTop="12dp"
+            android:background="@drawable/bg_lamba_send_button"
+            android:text="Дружелюбный"
+            android:textAllCaps="false"
+            android:textColor="#FFFFFF"
+            android:textSize="16sp"
+            android:textStyle="bold" />
+
+        <TextView
+            style="@style/LambaFormLabel"
+            android:layout_marginTop="30dp"
             android:text="Автомобиль" />
 
         <TextView
