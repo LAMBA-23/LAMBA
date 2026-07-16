@@ -592,6 +592,83 @@ Validation error response:
 }
 ```
 
+Event responses include these optional photo fields for backward compatibility:
+
+- `photo_url` - owner-checked API URL for the normalized original;
+- `photo_thumbnail_url` - owner-checked API URL for the generated thumbnail;
+- `photo_mime_type` - stored JPEG, PNG, or WebP media type;
+- `photo_size` - normalized original size in bytes;
+- `photo_width` and `photo_height` - normalized original dimensions.
+
+All photo fields are `null` when an event has no photo. One photo is supported
+for an `issue` event. `repair`, `fuel`, and `trip` events reject photo uploads.
+
+## POST /events/{event_id}/photo
+
+Uploads or replaces the photo for an `issue` event owned by the selected user.
+
+```text
+POST /events/42/photo?user_id=2
+Content-Type: multipart/form-data
+file=<image>
+```
+
+Rules:
+
+- The multipart field name is `file`.
+- JPEG, PNG, and WebP input is accepted up to 5 MB.
+- Declared MIME type must match a decodable image.
+- Width and height must each be at most 8,000 pixels and the image must contain
+  at most 40 million pixels.
+- The backend applies EXIF orientation, strips embedded metadata, re-encodes the
+  original, and creates a thumbnail whose longest side is at most 512 pixels.
+- A successful replacement removes the previous original and thumbnail only
+  after the new metadata is committed.
+
+The response is the updated event. Common errors are `400` for corrupt or
+invalid image content, `404` for a missing/non-owned event, `413` for a file
+larger than 5 MB, `415` for an unsupported MIME type, and `503` when photo
+storage is unavailable.
+
+## GET /events/{event_id}/photo
+
+Returns normalized original image bytes after verifying event ownership.
+
+```text
+GET /events/42/photo?user_id=2
+```
+
+The response uses the stored image `Content-Type`, `Cache-Control: private`, and
+`X-Content-Type-Options: nosniff`. Missing photos and non-owned events return
+`404`. Storage object paths and bucket URLs are never returned.
+
+## GET /events/{event_id}/photo/thumbnail
+
+Returns the owner-checked thumbnail with the same response headers and error
+rules as the original photo endpoint.
+
+```text
+GET /events/42/photo/thumbnail?user_id=2
+```
+
+## DELETE /events/{event_id}/photo
+
+Clears photo metadata while keeping the event, then removes its original and
+thumbnail objects. Successful deletion returns `204 No Content`.
+
+```text
+DELETE /events/42/photo?user_id=2
+```
+
+Deleting the event through `DELETE /events/{event_id}` also attempts immediate
+cleanup of both photo objects. A transient object-cleanup failure is logged and
+does not restore already deleted database data.
+
+Photo storage defaults to the persistent local Docker volume. Setting
+`PHOTO_STORAGE_BACKEND=s3` selects the private S3-compatible adapter configured
+with `PHOTO_S3_BUCKET`, `PHOTO_S3_ENDPOINT`, `PHOTO_S3_REGION`,
+`PHOTO_S3_PREFIX`, and the standard AWS credential environment variables.
+
 ## GET /stats
 
 Returns statistics for a user's car.
@@ -699,6 +776,13 @@ GET /recommendations?user_id=2
 
 Rules:
 
+- Recommendation `id` values contain a stable rule prefix and, when source
+  events exist, an occurrence signature separated by `:`. The ID remains stable
+  while the same source events keep a rule active and changes when new source
+  events create a new occurrence.
+- User-facing recommendation titles and messages are returned in Russian;
+  calculated days, prices, expenses, and mileage remain part of the message.
+
 - Empty history returns an informational recommendation to add the first vehicle
   record.
 - No records for 14 or more days returns an informational history-update
@@ -716,10 +800,10 @@ Response:
 {
   "recommendations": [
     {
-      "id": "high_fuel_price",
+      "id": "high_fuel_price:42-41-40",
       "severity": "warning",
-      "title": "Fuel price looks high",
-      "message": "Average fuel price in the latest refuels is 100 RUB/L. Compare stations or check if the entered amount and liters are correct.",
+      "title": "Высокая стоимость топлива",
+      "message": "Средняя цена последних заправок — 100 ₽/л. Сравните цены на АЗС или проверьте введённые сумму и объём топлива.",
       "source": "sum(last_3_fuel.amount) / sum(last_3_fuel.fuel_liters) > 80"
     }
   ]

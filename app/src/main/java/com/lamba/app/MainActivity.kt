@@ -1,24 +1,42 @@
 package com.lamba.app
 
 import android.app.AlertDialog
+import android.app.Dialog
 import android.content.Intent
+import android.content.res.Configuration
+import android.graphics.Color
+import android.graphics.Typeface
+import android.graphics.drawable.ColorDrawable
+import android.graphics.drawable.GradientDrawable
 import android.os.Bundle
+import android.text.InputType
+import android.text.method.DigitsKeyListener
+import android.view.Gravity
 import android.view.View
+import android.view.Window
 import android.view.inputmethod.EditorInfo
+import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
 import com.lamba.app.chat.LocalChatService
+import com.lamba.app.network.ActiveTrip
+import com.lamba.app.network.OdometerInputResult
 import com.lamba.app.network.RetrofitClient
 import com.lamba.app.network.SessionManager
+import com.lamba.app.network.TripFlowLogic
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 class MainActivity : AppCompatActivity() {
 
@@ -27,6 +45,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var menuRequests: LinearLayout
     private lateinit var menuProfile: LinearLayout
     private lateinit var notificationDot: View
+    private lateinit var tvTripAction: TextView
     private var vehicleName: String = "машина"
     private val localChatRepository by lazy { LocalChatService.getRepository(this) }
 
@@ -44,6 +63,8 @@ class MainActivity : AppCompatActivity() {
         val btnExpenses = findViewById<View>(R.id.btnExpenses)
         val btnService = findViewById<View>(R.id.btnService)
         val btnAddRecord = findViewById<View>(R.id.btnAddRecord)
+        val btnTripAction = findViewById<View>(R.id.btnTripAction)
+        tvTripAction = findViewById(R.id.tvTripAction)
         val etHomeMessage = findViewById<EditText>(R.id.etHomeMessage)
         val btnHomeSend = findViewById<ImageButton>(R.id.btnHomeSend)
         val btnMenu = findViewById<ImageButton>(R.id.btnMenu)
@@ -74,6 +95,10 @@ class MainActivity : AppCompatActivity() {
 
         btnAddRecord.setOnClickListener {
             openChatWithMessage("Добавить запись")
+        }
+
+        btnTripAction.setOnClickListener {
+            handleTripAction()
         }
 
         btnHomeSend.setOnClickListener {
@@ -122,6 +147,7 @@ class MainActivity : AppCompatActivity() {
             startActivity(Intent(this, ProfileActivity::class.java))
         }
 
+        refreshTripAction()
     }
 
     override fun onResume() {
@@ -135,6 +161,9 @@ class MainActivity : AppCompatActivity() {
             findViewById(R.id.tvCarName),
             findViewById(R.id.tvCarInfo),
         )
+        if (::tvTripAction.isInitialized) {
+            refreshTripAction()
+        }
     }
 
     override fun onBackPressed() {
@@ -269,6 +298,294 @@ class MainActivity : AppCompatActivity() {
                             }
                     }
                 }
+        }
+    }
+
+    private fun handleTripAction() {
+        val activeTrip = SessionManager.getActiveTrip(this)
+        if (activeTrip == null) {
+            showStartTripDialog()
+        } else {
+            showFinishTripDialog(activeTrip)
+        }
+    }
+
+    private fun showStartTripDialog() {
+        showTripOdometerDialog(
+            title = TripFlowLogic.START_ACTION_LABEL,
+            buttonText = TripFlowLogic.START_ACTION_LABEL,
+            validate = TripFlowLogic::validateStartOdometer,
+            onValid = { odometerStart, dialog, _, _ ->
+                SessionManager.saveActiveTrip(this, odometerStart)
+                refreshTripAction()
+                dialog.dismiss()
+            },
+        )
+    }
+
+    private fun showFinishTripDialog(activeTrip: ActiveTrip) {
+        showTripOdometerDialog(
+            title = TripFlowLogic.FINISH_ACTION_LABEL,
+            buttonText = TripFlowLogic.FINISH_ACTION_LABEL,
+            validate = { value -> TripFlowLogic.validateFinishOdometer(value, activeTrip.odometerStart) },
+            onValid = { odometerEnd, dialog, errorView, actionButton ->
+                saveCompletedTrip(activeTrip, odometerEnd, dialog, errorView, actionButton)
+            },
+        )
+    }
+
+    private fun showTripOdometerDialog(
+        title: String,
+        buttonText: String,
+        validate: (String) -> OdometerInputResult,
+        onValid: (Int, Dialog, TextView, Button) -> Unit,
+    ) {
+        val dialog = Dialog(this)
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
+        val container = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            setPadding(24.dp, 20.dp, 24.dp, 24.dp)
+            background = roundedBackground("#FFFFFF", 24.dp.toFloat())
+        }
+        val errorView = TextView(this).apply {
+            setTextColor(Color.parseColor("#D32F2F"))
+            textSize = 14f
+            visibility = View.GONE
+            setPadding(4.dp, 8.dp, 4.dp, 0)
+        }
+        val input = EditText(this).apply {
+            layoutParams = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                58.dp,
+            ).apply {
+                topMargin = 18.dp
+            }
+            background = ContextCompat.getDrawable(this@MainActivity, R.drawable.bg_input_field)
+            gravity = Gravity.CENTER_VERTICAL
+            hint = "Текущий пробег, км"
+            inputType = InputType.TYPE_CLASS_NUMBER
+            keyListener = DigitsKeyListener.getInstance("0123456789")
+            setSingleLine(true)
+            setTextColor(Color.parseColor("#101114"))
+            setHintTextColor(Color.parseColor("#9B9BA3"))
+            textSize = 16f
+            setPadding(18.dp, 0, 18.dp, 0)
+        }
+        val actionButton = Button(this).apply {
+            layoutParams = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                56.dp,
+            ).apply {
+                topMargin = 18.dp
+            }
+            background = ContextCompat.getDrawable(this@MainActivity, R.drawable.bg_button_red)
+            text = buttonText
+            setTextColor(Color.WHITE)
+            textSize = 17f
+            typeface = Typeface.DEFAULT_BOLD
+            isAllCaps = false
+        }
+
+        container.addView(createTripDialogHeader(title, dialog))
+        container.addView(input)
+        container.addView(errorView)
+        container.addView(actionButton)
+
+        actionButton.setOnClickListener {
+            errorView.visibility = View.GONE
+            when (val result = validate(input.text.toString())) {
+                is OdometerInputResult.Valid -> onValid(result.value, dialog, errorView, actionButton)
+                is OdometerInputResult.Invalid -> {
+                    errorView.text = result.message
+                    errorView.visibility = View.VISIBLE
+                }
+            }
+        }
+
+        dialog.setContentView(container)
+        dialog.show()
+        dialog.window?.let { window ->
+            window.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+            window.setLayout(
+                (resources.displayMetrics.widthPixels * 0.88f).toInt(),
+                LinearLayout.LayoutParams.WRAP_CONTENT,
+            )
+        }
+    }
+
+    private fun createTripDialogHeader(title: String, dialog: Dialog): LinearLayout {
+        return LinearLayout(this).apply {
+            gravity = Gravity.CENTER_VERTICAL
+            orientation = LinearLayout.HORIZONTAL
+
+            addView(TextView(this@MainActivity).apply {
+                layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
+                text = title
+                setTextColor(Color.parseColor("#101114"))
+                textSize = 24f
+                typeface = Typeface.DEFAULT_BOLD
+                includeFontPadding = false
+            })
+
+            addView(ImageButton(this@MainActivity).apply {
+                layoutParams = LinearLayout.LayoutParams(48.dp, 48.dp)
+                background = ContextCompat.getDrawable(this@MainActivity, R.drawable.bg_history_back)
+                contentDescription = "Закрыть"
+                setImageResource(R.drawable.ic_lamba_close)
+                setColorFilter(Color.parseColor("#960018"))
+                setPadding(12.dp, 12.dp, 12.dp, 12.dp)
+                setOnClickListener { dialog.dismiss() }
+            })
+        }
+    }
+
+    private fun saveCompletedTrip(
+        activeTrip: ActiveTrip,
+        odometerEnd: Int,
+        dialog: Dialog,
+        errorView: TextView,
+        actionButton: Button,
+    ) {
+        val userId = SessionManager.getUserId(this)
+        if (userId == null) {
+            errorView.text = "Не удалось определить пользователя"
+            errorView.visibility = View.VISIBLE
+            return
+        }
+
+        val request = runCatching {
+            TripFlowLogic.createTripRequest(
+                odometerStart = activeTrip.odometerStart,
+                odometerEnd = odometerEnd,
+                date = todayForInput(),
+            )
+        }.getOrElse {
+            errorView.text = "Проверьте пробег и попробуйте еще раз"
+            errorView.visibility = View.VISIBLE
+            return
+        }
+
+        actionButton.isEnabled = false
+        errorView.visibility = View.GONE
+
+        lifecycleScope.launch {
+            runCatching { RetrofitClient.apiService.createEvent(request, userId) }
+                .onSuccess { response ->
+                    if (response.isSuccessful) {
+                        SessionManager.clearActiveTrip(this@MainActivity)
+                        refreshTripAction()
+                        dialog.dismiss()
+                        showTripSavedDialog()
+                    } else {
+                        showTripSaveError(errorView, actionButton)
+                    }
+                }
+                .onFailure {
+                    showTripSaveError(errorView, actionButton)
+                }
+        }
+    }
+
+    private fun showTripSaveError(errorView: TextView, actionButton: Button) {
+        actionButton.isEnabled = true
+        errorView.text = "Не удалось сохранить поездку. Проверьте подключение и попробуйте еще раз"
+        errorView.visibility = View.VISIBLE
+    }
+
+    private fun showTripSavedDialog() {
+        val dialog = Dialog(this)
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
+        val nightMode = isNightMode()
+        val surfaceColor = if (nightMode) "#1F1F23" else "#FFFFFF"
+        val primaryTextColor = if (nightMode) "#F7F7F8" else "#101114"
+        val secondaryTextColor = if (nightMode) "#C9C9CE" else "#77777E"
+        val iconBackgroundColor = if (nightMode) "#2B151B" else "#FFEBEE"
+        val container = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            gravity = Gravity.CENTER_HORIZONTAL
+            setPadding(24.dp, 24.dp, 24.dp, 22.dp)
+            background = roundedBackground(surfaceColor, 24.dp.toFloat())
+        }
+
+        container.addView(ImageView(this).apply {
+            layoutParams = LinearLayout.LayoutParams(56.dp, 56.dp)
+            background = roundedBackground(iconBackgroundColor, 18.dp.toFloat())
+            setImageResource(R.drawable.ic_lamba_check)
+            setPadding(14.dp, 14.dp, 14.dp, 14.dp)
+        })
+
+        container.addView(TextView(this).apply {
+            layoutParams = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT,
+            ).apply {
+                topMargin = 16.dp
+            }
+            gravity = Gravity.CENTER
+            text = "Поездка сохранена"
+            setTextColor(Color.parseColor(primaryTextColor))
+            textSize = 24f
+            typeface = Typeface.DEFAULT_BOLD
+            includeFontPadding = false
+        })
+
+        container.addView(TextView(this).apply {
+            layoutParams = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT,
+            ).apply {
+                topMargin = 8.dp
+            }
+            gravity = Gravity.CENTER
+            text = "Данные поездки добавлены в историю"
+            setTextColor(Color.parseColor(secondaryTextColor))
+            textSize = 16f
+        })
+
+        container.addView(Button(this).apply {
+            layoutParams = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                54.dp,
+            ).apply {
+                topMargin = 22.dp
+            }
+            background = ContextCompat.getDrawable(this@MainActivity, R.drawable.bg_button_red)
+            text = "ОК"
+            setTextColor(Color.WHITE)
+            textSize = 16f
+            typeface = Typeface.DEFAULT_BOLD
+            isAllCaps = false
+            setOnClickListener { dialog.dismiss() }
+        })
+
+        dialog.setContentView(container)
+        dialog.show()
+        dialog.window?.let { window ->
+            window.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+            window.setLayout(
+                (resources.displayMetrics.widthPixels * 0.86f).toInt(),
+                LinearLayout.LayoutParams.WRAP_CONTENT,
+            )
+        }
+    }
+
+    private fun isNightMode(): Boolean {
+        return (resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK) ==
+            Configuration.UI_MODE_NIGHT_YES
+    }
+
+    private fun refreshTripAction() {
+        tvTripAction.text = TripFlowLogic.actionLabel(SessionManager.getActiveTrip(this))
+    }
+
+    private fun todayForInput(): String {
+        return SimpleDateFormat("dd.MM.yyyy", Locale("ru")).format(Date())
+    }
+
+    private fun roundedBackground(color: String, radius: Float): GradientDrawable {
+        return GradientDrawable().apply {
+            setColor(Color.parseColor(color))
+            cornerRadius = radius
         }
     }
 

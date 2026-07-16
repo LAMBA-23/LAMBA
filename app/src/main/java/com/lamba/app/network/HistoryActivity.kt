@@ -205,12 +205,14 @@ class HistoryActivity : AppCompatActivity() {
             setPadding(0, 8.dp, 0, 12.dp)
         })
 
-        HistoryRecordType.values().forEach { type ->
-            container.addView(createRecordTypeOption(type) {
-                dialog.dismiss()
-                showRecordFormSheet(type)
-            })
-        }
+        HistoryRecordType.values()
+            .filterNot { it == HistoryRecordType.TRIP }
+            .forEach { type ->
+                container.addView(createRecordTypeOption(type) {
+                    dialog.dismiss()
+                    showRecordFormSheet(type)
+                })
+            }
 
         dialog.setContentView(container)
         dialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))

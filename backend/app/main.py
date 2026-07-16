@@ -3,6 +3,7 @@ from __future__ import annotations
 import os
 import re
 import uuid
+import logging
 from datetime import datetime, timedelta, timezone
 from decimal import Decimal, InvalidOperation
 from pathlib import Path
@@ -19,7 +20,6 @@ from fastapi import (
     status,
 )
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.staticfiles import StaticFiles
 from sqlalchemy import inspect, select, text
 from sqlalchemy.orm import Session
 
@@ -27,6 +27,12 @@ from .chat_parser import parse_chat_message
 from .database import Base, engine, get_db
 from .deepseek_chat import ask_deepseek, generate_chat_title
 from .models import Car, Event, User
+from .photo_processing import (
+    SUPPORTED_MIME_FORMATS,
+    InvalidPhotoError,
+    process_photo,
+)
+from .photo_storage import PhotoStorage, create_photo_storage
 from .rate_limit import FixedWindowRateLimiter
 from .schemas import (
     CarCreate,
@@ -70,19 +76,15 @@ CORS_ALLOWED_ORIGINS = [
     for origin in os.getenv("CORS_ALLOWED_ORIGINS", "").split(",")
     if origin.strip()
 ]
-BACKEND_DIR = Path(__file__).resolve().parents[1]
-EVENT_PHOTO_DIR = Path(
-    os.getenv("EVENT_PHOTO_DIR", str(BACKEND_DIR / "uploads" / "event_photos"))
-)
 EVENT_PHOTO_MAX_BYTES = 5 * 1024 * 1024
 EVENT_PHOTO_MIME_EXTENSIONS = {
-    "image/jpeg": ".jpg",
-    "image/png": ".png",
-    "image/webp": ".webp",
+    mime_type: values[1] for mime_type, values in SUPPORTED_MIME_FORMATS.items()
 }
 
 app = FastAPI(title="LAMBA Backend", version="0.1.0")
 rate_limiter = FixedWindowRateLimiter()
+logger = logging.getLogger(__name__)
+photo_storage = create_photo_storage()
 
 app.add_middleware(
     CORSMiddleware,
@@ -91,12 +93,6 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-EVENT_PHOTO_DIR.mkdir(parents=True, exist_ok=True)
-app.mount(
-    "/uploads/event_photos",
-    StaticFiles(directory=str(EVENT_PHOTO_DIR)),
-    name="event_photos",
-)
 
 
 def remove_demo_account(db: Session) -> None:
@@ -104,14 +100,17 @@ def remove_demo_account(db: Session) -> None:
     if user is None:
         return
 
+    photo_keys: list[str] = []
     car = db.scalar(select(Car).where(Car.user_id == user.id))
     if car is not None:
         for event in db.scalars(select(Event).where(Event.car_id == car.id)):
+            photo_keys.extend(_photo_keys(event))
             db.delete(event)
         db.delete(car)
 
     db.delete(user)
     db.commit()
+    _delete_photo_keys(tuple(photo_keys))
 
 
 def upgrade_legacy_passwords(db: Session) -> None:
@@ -219,26 +218,6 @@ def _coalesce_decimal(value: object) -> Decimal:
     return _to_decimal(value)
 
 
-def _safe_photo_extension(filename: str | None, mime_type: str) -> str:
-    fallback = EVENT_PHOTO_MIME_EXTENSIONS[mime_type]
-    suffix = Path(filename or "").suffix.lower()
-    if suffix in {".jpg", ".jpeg"} and mime_type == "image/jpeg":
-        return suffix
-    if suffix in {".png", ".webp"} and EVENT_PHOTO_MIME_EXTENSIONS[mime_type] == suffix:
-        return suffix
-    return fallback
-
-
-def _detect_image_mime(content: bytes) -> str | None:
-    if content.startswith(b"\xff\xd8\xff"):
-        return "image/jpeg"
-    if content.startswith(b"\x89PNG\r\n\x1a\n"):
-        return "image/png"
-    if len(content) >= 12 and content[:4] == b"RIFF" and content[8:12] == b"WEBP":
-        return "image/webp"
-    return None
-
-
 async def _read_valid_photo(file: UploadFile) -> tuple[bytes, str]:
     mime_type = (file.content_type or "").split(";")[0].strip().lower()
     if mime_type not in EVENT_PHOTO_MIME_EXTENSIONS:
@@ -249,26 +228,47 @@ async def _read_valid_photo(file: UploadFile) -> tuple[bytes, str]:
         raise HTTPException(status_code=400, detail="Image file is empty")
     if len(content) > EVENT_PHOTO_MAX_BYTES:
         raise HTTPException(status_code=413, detail="Image file is too large")
-    detected_mime_type = _detect_image_mime(content)
-    if detected_mime_type != mime_type:
-        raise HTTPException(status_code=400, detail="Invalid image content")
     return content, mime_type
 
 
-def _delete_event_photo_file(event: Event) -> None:
-    if not event.photo_path:
-        return
-    photo_file = EVENT_PHOTO_DIR / Path(event.photo_path).name
-    if photo_file.is_file():
-        photo_file.unlink(missing_ok=True)
+def _photo_keys(event: Event) -> tuple[str, ...]:
+    return tuple(key for key in (event.photo_path, event.photo_thumbnail_path) if key)
+
+
+def _delete_photo_keys(
+    keys: tuple[str, ...], storage: PhotoStorage | None = None
+) -> None:
+    selected_storage = storage or photo_storage
+    for key in keys:
+        try:
+            selected_storage.delete(key)
+        except Exception:
+            logger.exception("Could not delete photo object %s", key)
 
 
 def _clear_event_photo(event: Event) -> None:
-    _delete_event_photo_file(event)
     event.photo_path = None
+    event.photo_thumbnail_path = None
     event.photo_original_name = None
     event.photo_mime_type = None
     event.photo_size = None
+    event.photo_width = None
+    event.photo_height = None
+
+
+def _read_stored_photo(key: str, storage: PhotoStorage | None = None) -> bytes:
+    selected_storage = storage or photo_storage
+    try:
+        return selected_storage.read(key)
+    except FileNotFoundError as exc:
+        raise HTTPException(status_code=404, detail="Photo file not found") from exc
+    except HTTPException:
+        raise
+    except Exception as exc:
+        logger.exception("Could not read photo object %s", key)
+        raise HTTPException(
+            status_code=503, detail="Photo storage is temporarily unavailable"
+        ) from exc
 
 
 def ensure_event_schema() -> None:
@@ -309,6 +309,10 @@ def ensure_event_schema() -> None:
             connection.execute(
                 text("ALTER TABLE events ADD COLUMN photo_path VARCHAR(255)")
             )
+        if "photo_thumbnail_path" not in event_columns:
+            connection.execute(
+                text("ALTER TABLE events ADD COLUMN photo_thumbnail_path VARCHAR(255)")
+            )
         if "photo_original_name" not in event_columns:
             connection.execute(
                 text("ALTER TABLE events ADD COLUMN photo_original_name VARCHAR(255)")
@@ -319,6 +323,14 @@ def ensure_event_schema() -> None:
             )
         if "photo_size" not in event_columns:
             connection.execute(text("ALTER TABLE events ADD COLUMN photo_size INTEGER"))
+        if "photo_width" not in event_columns:
+            connection.execute(
+                text("ALTER TABLE events ADD COLUMN photo_width INTEGER")
+            )
+        if "photo_height" not in event_columns:
+            connection.execute(
+                text("ALTER TABLE events ADD COLUMN photo_height INTEGER")
+            )
         connection.execute(
             text("UPDATE events SET type = 'issue' WHERE type = 'condition'")
         )
@@ -577,6 +589,25 @@ def _format_number(value: int | float | Decimal) -> str:
     return f"{value:,}".replace(",", " ")
 
 
+def _recommendation_occurrence_id(rule_id: str, *event_ids: int | None) -> str:
+    signature = "-".join(
+        str(event_id) for event_id in event_ids if event_id is not None
+    )
+    return f"{rule_id}:{signature}" if signature else rule_id
+
+
+def _format_days_ru(days: int) -> str:
+    if 11 <= days % 100 <= 14:
+        suffix = "дней"
+    elif days % 10 == 1:
+        suffix = "день"
+    elif 2 <= days % 10 <= 4:
+        suffix = "дня"
+    else:
+        suffix = "дней"
+    return f"{days} {suffix}"
+
+
 def _build_recommendations(
     events: list[Event], now: datetime, car: Car
 ) -> list[RecommendationItem]:
@@ -586,10 +617,10 @@ def _build_recommendations(
             RecommendationItem(
                 id="no_events",
                 severity="info",
-                title="Add first vehicle record",
+                title="Добавьте первую запись",
                 message=(
-                    "No events are saved yet. Add fuel, trip, repair, or breakdown "
-                    "records to unlock rule-based maintenance recommendations."
+                    "В истории пока нет событий. Добавьте заправку, поездку, ремонт "
+                    "или поломку, чтобы получать рекомендации по автомобилю."
                 ),
                 source="events_count == 0",
             )
@@ -600,12 +631,13 @@ def _build_recommendations(
     if days_since_latest >= STALE_RECORD_DAYS:
         recommendations.append(
             RecommendationItem(
-                id="stale_records",
+                id=_recommendation_occurrence_id("stale_records", latest_event.id),
                 severity="info",
-                title="Update vehicle history",
+                title="Обновите историю автомобиля",
                 message=(
-                    f"No new records for {days_since_latest} days. Add recent "
-                    "fuel, trip, or service data so statistics stay reliable."
+                    f"Последняя запись была {_format_days_ru(days_since_latest)} назад. "
+                    "Добавьте "
+                    "свежие данные о заправке, поездке или обслуживании."
                 ),
                 source=f"days_since_latest_event >= {STALE_RECORD_DAYS}",
             )
@@ -630,13 +662,16 @@ def _build_recommendations(
         if average_price > FUEL_PRICE_WARNING_RUB_PER_LITER:
             recommendations.append(
                 RecommendationItem(
-                    id="high_fuel_price",
+                    id=_recommendation_occurrence_id(
+                        "high_fuel_price",
+                        *(event.id for event in recent_fuel_events),
+                    ),
                     severity="warning",
-                    title="Fuel price looks high",
+                    title="Высокая стоимость топлива",
                     message=(
-                        "Average fuel price in the latest refuels is "
-                        f"{_format_number(average_price)} RUB/L. Compare stations "
-                        "or check if the entered amount and liters are correct."
+                        "Средняя цена последних заправок — "
+                        f"{_format_number(average_price)} ₽/л. Сравните цены на АЗС "
+                        "или проверьте введённые сумму и объём топлива."
                     ),
                     source=(
                         "sum(last_3_fuel.amount) / sum(last_3_fuel.fuel_liters) "
@@ -646,23 +681,27 @@ def _build_recommendations(
             )
 
     month_start = now - timedelta(days=30)
-    monthly_repair_expenses = sum(
-        event.amount
+    recent_repair_events = [
+        event
         for event in events
         if event.type == "repair"
         and event.amount is not None
         and event.created_at >= month_start
-    )
+    ]
+    monthly_repair_expenses = sum(event.amount for event in recent_repair_events)
     if monthly_repair_expenses > REPAIR_MONTH_WARNING_RUB:
         recommendations.append(
             RecommendationItem(
-                id="high_monthly_repair_cost",
+                id=_recommendation_occurrence_id(
+                    "high_monthly_repair_cost",
+                    *(event.id for event in recent_repair_events),
+                ),
                 severity="warning",
-                title="Repair expenses increased",
+                title="Расходы на ремонт выросли",
                 message=(
-                    "Repair expenses in the last 30 days are "
-                    f"{_format_number(monthly_repair_expenses)} RUB. Review repeated "
-                    "service work and plan a diagnostic check if needed."
+                    "За последние 30 дней на ремонт потрачено "
+                    f"{_format_number(monthly_repair_expenses)} ₽. Проверьте повторные "
+                    "работы и при необходимости запланируйте диагностику."
                 ),
                 source=f"repair_expenses_30d > {REPAIR_MONTH_WARNING_RUB}",
             )
@@ -679,12 +718,12 @@ def _build_recommendations(
     if recent_issue is not None:
         recommendations.append(
             RecommendationItem(
-                id="recent_breakdown",
+                id=_recommendation_occurrence_id("recent_breakdown", recent_issue.id),
                 severity="warning",
-                title="Follow up on recent breakdown",
+                title="Проверьте недавнюю поломку",
                 message=(
-                    "A breakdown/problem was recorded in the last 30 days. Check "
-                    "whether it was diagnosed or repaired before longer trips."
+                    "За последние 30 дней была записана поломка. Перед дальней "
+                    "поездкой убедитесь, что проблема проверена или устранена."
                 ),
                 source="latest_issue.created_at >= now - 30 days",
             )
@@ -708,13 +747,15 @@ def _build_recommendations(
         if mileage_since_fuel >= MILEAGE_SINCE_FUEL_WARNING_KM:
             recommendations.append(
                 RecommendationItem(
-                    id="long_distance_since_fuel",
+                    id=_recommendation_occurrence_id(
+                        "long_distance_since_fuel", latest_fuel.id
+                    ),
                     severity="info",
-                    title="Check fuel level",
+                    title="Проверьте уровень топлива",
                     message=(
-                        f"About {_format_number(mileage_since_fuel)} km were recorded "
-                        "since the latest fuel event. Check fuel level before the "
-                        "next trip."
+                        f"После последней заправки записано около "
+                        f"{_format_number(mileage_since_fuel)} км. Проверьте уровень "
+                        "топлива перед следующей поездкой."
                     ),
                     source=(
                         "current_mileage - latest_fuel.mileage "
@@ -1454,6 +1495,9 @@ def update_event(
 
     event_mileage = _event_mileage_from_payload(payload, previous_mileage)
 
+    photo_keys_to_delete = (
+        _photo_keys(event) if event.type == "issue" and payload.type != "issue" else ()
+    )
     event.type = payload.type
     event.description = payload.description
     event.amount = payload.amount if payload.amount is not None else 0
@@ -1461,9 +1505,12 @@ def update_event(
     event.mileage = event_mileage
     event.odometer_start = payload.odometer_start
     event.odometer_end = payload.odometer_end
+    if photo_keys_to_delete:
+        _clear_event_photo(event)
 
     db.commit()
     db.refresh(event)
+    _delete_photo_keys(photo_keys_to_delete)
     return event
 
 
@@ -1480,25 +1527,85 @@ async def upload_event_photo(
             status_code=400, detail="Photos are supported only for issue events"
         )
 
-    content, mime_type = await _read_valid_photo(file)
-    extension = _safe_photo_extension(file.filename, mime_type)
-    filename = f"{uuid.uuid4().hex}{extension}"
-    destination = EVENT_PHOTO_DIR / filename
-    destination.write_bytes(content)
+    content, declared_mime_type = await _read_valid_photo(file)
+    try:
+        processed = process_photo(content, declared_mime_type)
+    except InvalidPhotoError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
 
-    previous_photo_path = event.photo_path
+    identifier = uuid.uuid4().hex
+    filename = f"{identifier}{processed.extension}"
+    thumbnail_filename = f"{identifier}-thumb{processed.extension}"
+    new_keys = (filename, thumbnail_filename)
+    try:
+        photo_storage.save(filename, processed.content, processed.mime_type)
+        photo_storage.save(thumbnail_filename, processed.thumbnail, processed.mime_type)
+    except Exception as exc:
+        _delete_photo_keys(new_keys)
+        logger.exception("Could not store photo for event %s", event_id)
+        raise HTTPException(
+            status_code=503, detail="Photo storage is temporarily unavailable"
+        ) from exc
+
+    previous_keys = _photo_keys(event)
     event.photo_path = filename
+    event.photo_thumbnail_path = thumbnail_filename
     event.photo_original_name = Path(file.filename or filename).name
-    event.photo_mime_type = mime_type
-    event.photo_size = len(content)
-    db.commit()
-    db.refresh(event)
+    event.photo_mime_type = processed.mime_type
+    event.photo_size = len(processed.content)
+    event.photo_width = processed.width
+    event.photo_height = processed.height
+    try:
+        db.commit()
+    except Exception as exc:
+        db.rollback()
+        _delete_photo_keys(new_keys)
+        logger.exception("Could not save photo metadata for event %s", event_id)
+        raise HTTPException(
+            status_code=500, detail="Could not save photo metadata"
+        ) from exc
 
-    if previous_photo_path and previous_photo_path != filename:
-        previous_file = EVENT_PHOTO_DIR / Path(previous_photo_path).name
-        if previous_file.is_file():
-            previous_file.unlink(missing_ok=True)
+    _delete_photo_keys(previous_keys)
+    db.refresh(event)
     return event
+
+
+@app.get("/events/{event_id}/photo", response_class=Response)
+def get_event_photo(
+    event_id: int,
+    user_id: int = Query(...),
+    db: Session = Depends(get_db),
+) -> Response:
+    event = get_event_for_user(db, event_id, user_id)
+    if not event.photo_path or not event.photo_mime_type:
+        raise HTTPException(status_code=404, detail="Event photo not found")
+    return Response(
+        content=_read_stored_photo(event.photo_path),
+        media_type=event.photo_mime_type,
+        headers={
+            "Cache-Control": "private, max-age=3600",
+            "X-Content-Type-Options": "nosniff",
+        },
+    )
+
+
+@app.get("/events/{event_id}/photo/thumbnail", response_class=Response)
+def get_event_photo_thumbnail(
+    event_id: int,
+    user_id: int = Query(...),
+    db: Session = Depends(get_db),
+) -> Response:
+    event = get_event_for_user(db, event_id, user_id)
+    if not event.photo_thumbnail_path or not event.photo_mime_type:
+        raise HTTPException(status_code=404, detail="Event photo thumbnail not found")
+    return Response(
+        content=_read_stored_photo(event.photo_thumbnail_path),
+        media_type=event.photo_mime_type,
+        headers={
+            "Cache-Control": "private, max-age=3600",
+            "X-Content-Type-Options": "nosniff",
+        },
+    )
 
 
 @app.delete(
@@ -1513,8 +1620,10 @@ def delete_event_photo(
     db: Session = Depends(get_db),
 ) -> None:
     event = get_event_for_user(db, event_id, user_id)
+    photo_keys = _photo_keys(event)
     _clear_event_photo(event)
     db.commit()
+    _delete_photo_keys(photo_keys)
 
 
 @app.delete(
@@ -1529,9 +1638,10 @@ def delete_event(
     db: Session = Depends(get_db),
 ) -> None:
     event = get_event_for_user(db, event_id, user_id)
-    _delete_event_photo_file(event)
+    photo_keys = _photo_keys(event)
     db.delete(event)
     db.commit()
+    _delete_photo_keys(photo_keys)
 
 
 @app.get("/stats", response_model=StatsResponse)

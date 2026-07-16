@@ -23,7 +23,8 @@ Main internal components:
 - Backend API layer: FastAPI routes for authentication, vehicle profile, events, statistics, and chat.
 - Backend security layer: password hashing, fixed-window rate limiting, and CORS origin configuration.
 - Backend validation layer: Pydantic schemas for request and response validation.
-- Backend service layer: vehicle-history behavior, statistics calculation, chat parsing, and AI answers.
+- Backend service layer: vehicle-history behavior, statistics calculation, chat parsing, AI answers, and safe photo normalization/thumbnail generation.
+- Backend photo storage adapter: private local-volume or S3-compatible object access behind the same owner-checked API.
 - Backend persistence layer: SQLAlchemy models and database sessions.
 
 External systems and platforms:
@@ -31,6 +32,7 @@ External systems and platforms:
 - End user using the Android application.
 - Room database on the Android device for the last five local chat dialogs per user.
 - PostgreSQL database used by the backend.
+- Persistent `backend_uploads` volume for the default local photo adapter, or a private S3-compatible bucket selected by runtime configuration.
 - Timeweb Cloud AI agent API, compatible with chat-completions style requests.
 
 The frontend and backend are cohesive at the architectural level: Android owns user interaction, client state, and local recent-dialog persistence, while the backend owns validation, business rules, durable vehicle-history persistence, security controls, and external AI integration. Coupling between the two sides is intentionally limited to the REST/JSON API contract. Android does not access PostgreSQL or the AI provider directly, which keeps secrets and server-side persistence concerns out of the mobile client.
@@ -43,6 +45,7 @@ Maintainability implications:
 - Room entities and DAOs keep short local chat-history persistence separate from backend vehicle-history persistence.
 - SQLAlchemy models centralize persistent entities, making data ownership easier to reason about.
 - AI integration is isolated in chat-specific modules, which limits the blast radius of external-service changes.
+- Photo decoding and storage are isolated from route orchestration, so local and S3-compatible storage use the same API and database metadata.
 - Password hashing, login/chat rate limiting, and restrictive default CORS behavior reduce Sprint 4 security risk, while the current `user_id` query parameter approach still constrains future security hardening because it is not token-based authorization.
 - The layered view makes future refactoring paths clear: route handlers can be split into dedicated service modules when the MVP grows.
 
@@ -93,7 +96,7 @@ This sequence helps reason about integration boundaries and quality concerns:
 
 Source: [deployment-view/deployment-diagram.puml](deployment-view/deployment-diagram.puml)
 
-The deployment view shows the current MVP v3 runtime shape and keeps it separate from the development and CI path. The Android app runs on a user device or emulator and stores recent chat dialogs in a local Room database. The backend runs as a FastAPI service in a Docker container on a Docker Compose host, and PostgreSQL runs as a separate container with the `postgres_data` volume for server-side vehicle history. The backend communicates with the Timeweb Cloud AI agent over HTTPS when AI credentials are configured.
+The deployment view shows the current MVP v3 runtime shape and keeps it separate from the development and CI path. The Android app runs on a user device or emulator and stores recent chat dialogs in a local Room database. The backend runs as a FastAPI service in a Docker container, PostgreSQL uses the `postgres_data` volume for server-side vehicle history, and the default photo adapter uses the separate `backend_uploads` volume. A private S3-compatible bucket can replace local photo storage through runtime configuration without changing Android routes. The backend communicates with the Timeweb Cloud AI agent over HTTPS when AI credentials are configured.
 
 The selected deployment model was chosen because it is simple, reproducible, and appropriate for the current MVP:
 
@@ -101,6 +104,7 @@ The selected deployment model was chosen because it is simple, reproducible, and
 - Room stores recent chat dialogs locally on the Android device and is cleared for the user during logout.
 - PostgreSQL is isolated as stateful infrastructure instead of being embedded in application code.
 - Environment variables configure database, AI integration, CORS origins, and rate-limit values on the backend without committing secrets or exposing them to the Android client.
+- Event photos are returned through owner-checked backend routes; local paths and private S3 object URLs are not exposed to Android.
 - GitHub Actions verifies backend CI, Android unit tests, Android debug assembly, and Markdown links as a separate development path, not as part of the customer runtime path.
 
 How the deployment supports the product:
@@ -120,6 +124,7 @@ Deployment constraints and operational considerations:
 - Public deployments must use sanitized demo data and must not expose private credentials.
 - The Android base URL must match the deployed or local backend address for the app to reach the API.
 - PostgreSQL availability is a hard dependency for backend startup in the current Compose setup.
+- Photo storage defaults to the persistent `backend_uploads` volume; S3 mode additionally requires a private bucket, endpoint/region configuration, and credentials supplied outside the repository.
 - The current deployed backend URL for maintained documentation is `http://186.246.27.211:8000`.
 - Automatic deployment from CI is not part of the current repository setup; deployment remains a manual Docker Compose based operation.
 

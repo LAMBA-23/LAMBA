@@ -15,18 +15,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   password change, and logout (#329).
 - Backend vehicle-update and password-change endpoints with history-based
   mileage protection (#329).
+- Authorized event-photo retrieval, normalized originals, thumbnails, and a
+  configurable local/S3-compatible backend storage adapter (#332).
 - Backend recommendations endpoint with rule-based vehicle notifications for fuel
   price, repair cost, stale records, recent breakdowns, and fuel-level reminders
   (#315).
 - Android notification icon now opens a full-screen in-app notification inbox
   with recommendation cards, loading/error/empty states, and a per-user unread
   red-dot indicator.
+- Android main screen now supports starting and finishing trips with odometer
+  values before saving the completed trip to History (#331).
 
 ### Changed
 
+- Breakdown photos are validated by decoded image content, stripped of embedded
+  metadata, orientation-corrected, and replaced with failure-safe cleanup (#332).
 - AI chat assistant now responds to greetings and thanks with friendly, emoji-rich messages instead of asking for event details (#316).
 - Android manual trip records now use start and end odometer values instead of
   a single mileage field.
+- Vehicle recommendations now keep dynamic values in Russian backend messages
+  and use occurrence-aware IDs so repeated issues become unread again (#328).
 
 ### Fixed
 

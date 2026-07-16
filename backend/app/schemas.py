@@ -237,8 +237,11 @@ class EventResponse(BaseModel):
     odometer_end: int | None = None
     trip_distance: Decimal | None = None
     photo_url: str | None = None
+    photo_thumbnail_url: str | None = None
     photo_mime_type: str | None = None
     photo_size: int | None = None
+    photo_width: int | None = None
+    photo_height: int | None = None
     created_at: datetime
 
     @field_serializer("amount", "fuel_liters", "mileage", "trip_distance")

@@ -69,9 +69,11 @@ node "Docker Compose host\n(local or deployed server)" as Host #ECFDF5 {
   }
 
   storage "postgres_data\nvolume" as Volume
+  storage "backend_uploads\nphoto volume" as PhotoVolume
 }
 
 cloud "Timeweb Cloud\nAI Agent API" as Ai
+cloud "Private S3-compatible\nphoto bucket (optional)" as PhotoBucket
 
 node "Development / CI boundary" as DevCi #F8FAFC {
   cloud "GitHub" as GitHub {
@@ -88,6 +90,8 @@ Reviewer -right-> Backend : optional API docs\n/docs on port 8000
 
 Backend -down-> Db : SQLAlchemy /\nDATABASE_URL
 Db -down-> Volume : persistent data
+Backend -down-> PhotoVolume : local photo mode
+Backend -right-> PhotoBucket : S3 photo mode\nHTTPS object API
 Backend -right-> Ai : HTTPS AI request
 Ai -left-> Backend : AI response
 
@@ -104,6 +108,9 @@ TIMEWEB_TIMEOUT_SECONDS
 CORS_ALLOWED_ORIGINS
 LOGIN_RATE_LIMIT
 CHAT_RATE_LIMIT
+PHOTO_STORAGE_BACKEND
+EVENT_PHOTO_DIR
+PHOTO_S3_* / AWS credentials
 end note
 
 note bottom of Host
@@ -130,6 +137,7 @@ note bottom
   Android app communicates with the backend over HTTP/JSON.
   Backend and PostgreSQL are started together by Docker Compose.
   PostgreSQL state is stored in postgres_data volume.
+  Local photo state is stored in backend_uploads; private S3 is an optional adapter.
   AI provider is external and accessed only by the backend.
   Secrets, AI credentials, CORS origins, and rate-limit settings are backend runtime configuration, not Android client data.
 end note

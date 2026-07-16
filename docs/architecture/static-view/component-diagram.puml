@@ -64,23 +64,28 @@ package "FastAPI backend" #ECFDF5 {
   component "Security layer\n\npassword hashing\nfixed-window rate limiter\nCORS config" as BackendSecurity
   component "Validation layer\n\nPydantic schemas" as BackendValidation
   component "Service layer\n\nvehicle history\nstatistics\nchat parsing\nAI answers" as BackendServices
+  component "Photo service\n\nPillow validation\nmetadata stripping\nthumbnail generation\nstorage adapter" as PhotoService
   component "Persistence layer\n\nSQLAlchemy models\ndatabase sessions" as BackendPersistence
 
   BackendApi -down-> BackendSecurity : authenticates / limits / filters origins
   BackendSecurity -down-> BackendValidation : passes accepted requests
   BackendValidation -down-> BackendServices : delegates
   BackendServices -down-> BackendPersistence : reads/writes
+  BackendApi -down-> PhotoService : owner-checked photo operations
+  PhotoService -down-> BackendPersistence : stores metadata
 }
 
 package "Data and external services" #F8FAFC {
   cloud "External AI service\nTimeweb Cloud\nAI Agent API" as ExternalAi
   database "PostgreSQL\nusers\ncars\nevents" as Postgres
+  storage "Private photo storage\nlocal volume or\nS3-compatible bucket" as PhotoObjects
 }
 
 User -right-> AndroidPresentation : uses
 AndroidNetwork -right-> BackendApi : HTTPS REST / JSON
 BackendPersistence -right-> Postgres : SQLAlchemy ORM / SQL
 BackendServices -right-> ExternalAi : HTTPS AI request
+PhotoService -right-> PhotoObjects : private object access
 
 legend bottom
   <b>Legend</b>
@@ -97,6 +102,7 @@ note bottom
   Android communicates only with the backend REST API.
   Android stores only local chat-dialog history in Room.
   The backend owns business logic, persistence, and AI integration.
+  Photo bytes remain behind owner-checked backend routes.
   Android never accesses PostgreSQL or the AI provider directly.
   Backend secrets, password hashes, rate limits, and CORS settings stay server-side.
 end note
