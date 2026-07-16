@@ -9,6 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Vehicle-data export to an Excel `.xlsx` file from the Android profile screen,
+  including vehicle details, event history, backend statistics, and charts (#339).
+
 - Voice input in chat: microphone recording, Mistral transcription with conservative
   transcript cleanup, editable result insertion, and backend-only rotating Mistral API
   keys for quota/rate-limit failures (#53).

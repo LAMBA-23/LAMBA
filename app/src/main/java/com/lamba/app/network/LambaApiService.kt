@@ -1,6 +1,7 @@
 package com.lamba.app.network
 
 import okhttp3.MultipartBody
+import okhttp3.ResponseBody
 import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
@@ -13,6 +14,7 @@ import retrofit2.http.PUT
 import retrofit2.http.Path
 import retrofit2.http.POST
 import retrofit2.http.Query
+import retrofit2.http.Streaming
 
 interface LambaApiService {
     @POST("auth/login")
@@ -108,6 +110,10 @@ interface LambaApiService {
 
     @GET("recommendations")
     suspend fun getRecommendations(@Query("user_id") userId: Int): Response<RecommendationsResponse>
+
+    @Streaming
+    @GET("data/export.xlsx")
+    suspend fun exportVehicleData(@Query("user_id") userId: Int): Response<ResponseBody>
 }
 
 object RetrofitClient {

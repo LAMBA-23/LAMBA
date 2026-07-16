@@ -708,6 +708,41 @@ Photo storage defaults to the persistent local Docker volume. Setting
 with `PHOTO_S3_BUCKET`, `PHOTO_S3_ENDPOINT`, `PHOTO_S3_REGION`,
 `PHOTO_S3_PREFIX`, and the standard AWS credential environment variables.
 
+## GET /data/export.xlsx
+
+Exports the selected user's vehicle data as one Excel workbook. The endpoint uses
+the existing owner-scoped vehicle, event, and statistics data; it does not import
+data or expose storage paths, internal IDs, credentials, or password data.
+
+Query parameters:
+
+- `user_id` (int, required) — the ID of the user whose vehicle data is exported.
+
+Example:
+
+```text
+GET /data/export.xlsx?user_id=2
+```
+
+Successful response (`200`):
+
+- `Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet`
+- `Content-Disposition: attachment; filename="LAMBA_<brand>_<model>_<YYYY-MM-DD>.xlsx"`
+- an in-memory XLSX response streamed to the client.
+
+The attachment filename is filesystem-safe. The workbook contains these
+Russian-language sheets:
+
+- `Автомобиль`: brand, model, production year, current mileage, and profile
+  creation date.
+- `История событий`: chronological owner-only events with translated event
+  types and `Да`/`Нет` photo presence. The sheet remains valid with headers when
+  the history is empty.
+- `Статистика`: existing backend statistics for week, month, and all time,
+  plus Russian-language expense and mileage charts.
+
+An unknown user returns `404`. Data owned by other users is never included.
+
 ## GET /stats
 
 Returns statistics for a user's car.
