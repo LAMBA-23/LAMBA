@@ -376,10 +376,10 @@
             android:id="@+id/inputFrame"
             android:layout_width="0dp"
             android:layout_height="56dp"
-            android:layout_marginEnd="12dp"
+            android:layout_marginEnd="8dp"
             android:background="@drawable/bg_lamba_chat_input"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@id/sendButtonFrame"
+            app:layout_constraintEnd_toStartOf="@id/micButtonFrame"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent">
 
@@ -397,6 +397,26 @@
                 android:textColor="#101114"
                 android:textColorHint="#9B9BA3"
                 android:textSize="16sp" />
+        </FrameLayout>
+
+        <FrameLayout
+            android:id="@+id/micButtonFrame"
+            android:layout_width="48dp"
+            android:layout_height="56dp"
+            android:layout_marginEnd="8dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/sendButtonFrame"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <ImageButton
+                android:id="@+id/btnChatMic"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:layout_gravity="center"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="Голосовой ввод"
+                android:padding="10dp"
+                android:src="@drawable/ic_lamba_mic" />
         </FrameLayout>
 
         <FrameLayout

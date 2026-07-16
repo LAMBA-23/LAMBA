@@ -390,6 +390,45 @@ Parsed response:
 }
 ```
 
+## POST /chat/transcribe
+
+Transcribes one recorded chat message and returns editable text. The audio is processed
+in memory and is not stored. Android records the audio locally and sends it as multipart
+form data; the result is inserted into the chat field and is not sent automatically.
+
+Query parameters:
+
+| Name | Type | Required | Description |
+|---|---|---|---|
+| `user_id` | integer | Yes | Existing LAMBA user ID, following the chat endpoint convention. |
+
+Multipart form fields:
+
+| Name | Type | Required | Description |
+|---|---|---|---|
+| `audio` | file | Yes | A non-empty recorded audio file. |
+
+Successful response (`200`):
+
+```json
+{
+  "text": "Заправился на 30 литров."
+}
+```
+
+The backend uses automatic language recognition. It removes hesitation sounds and
+accidental repetitions, and conservatively improves punctuation and obvious recognition
+errors while preserving facts, numbers, names, and the language of the transcript. If
+cleanup is unavailable after transcription, the raw transcript is returned.
+
+Errors include `400` for a missing or empty audio file, `404` for an unknown user, and
+`413` when the file exceeds the configured upload limit (5 MiB by default), `429` after
+10 transcription requests from one client IP in 60 seconds by default, and `503` when
+all configured Mistral keys are rate-limited or out of quota. The backend environment
+variables `CHAT_TRANSCRIPTION_MAX_BYTES`, `CHAT_TRANSCRIPTION_RATE_LIMIT`, and
+`CHAT_TRANSCRIPTION_RATE_LIMIT_WINDOW_SECONDS` configure those defaults. In every error
+case, the Android text input remains available.
+
 ## POST /chat/ask
 
 Answers a free-form user question about the vehicle history.
