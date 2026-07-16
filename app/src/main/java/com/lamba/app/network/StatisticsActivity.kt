@@ -1,6 +1,7 @@
 package com.lamba.app.network
 
 import android.os.Bundle
+import android.os.Build
 import android.graphics.Color
 import android.graphics.Typeface
 import android.graphics.drawable.ColorDrawable
@@ -64,6 +65,8 @@ class StatisticsActivity : AppCompatActivity() {
         tvPeriodCheck = findViewById(R.id.tvPeriodCheck)
 
         setupPeriodSelector()
+        keepBrandColorInDarkTheme(tvPeriodChip)
+        keepBrandColorInDarkTheme(tvPeriodCheck)
         renderStats(Stats())
     }
 
@@ -144,6 +147,7 @@ class StatisticsActivity : AppCompatActivity() {
                 textSize = 16f
                 typeface = Typeface.DEFAULT_BOLD.takeIf { isSelected } ?: Typeface.DEFAULT
                 includeFontPadding = false
+                keepBrandColorInDarkTheme(this)
             })
 
             addView(TextView(this@StatisticsActivity).apply {
@@ -156,6 +160,7 @@ class StatisticsActivity : AppCompatActivity() {
                 textSize = 16f
                 typeface = Typeface.DEFAULT_BOLD
                 includeFontPadding = false
+                keepBrandColorInDarkTheme(this)
             })
 
             setOnClickListener {
@@ -287,6 +292,12 @@ class StatisticsActivity : AppCompatActivity() {
                 intArrayOf(),
                 roundedBackground(normalColor, 14.dp.toFloat()),
             )
+        }
+    }
+
+    private fun keepBrandColorInDarkTheme(view: TextView) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            view.setForceDarkAllowed(false)
         }
     }
 

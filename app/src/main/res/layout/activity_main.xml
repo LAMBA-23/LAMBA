@@ -72,7 +72,7 @@
                     android:layout_gravity="center"
                     android:contentDescription="Уведомления"
                     android:src="@drawable/ic_lamba_notifications"
-                    app:tint="#101114" />
+                    app:tint="@color/theme_icon_primary" />
 
                 <View
                     android:id="@+id/notificationDot"
@@ -134,7 +134,8 @@
                 android:adjustViewBounds="true"
                 android:contentDescription="Автомобиль"
                 android:scaleType="fitCenter"
-                android:src="@drawable/lamba_car_cropped" />
+                android:src="@drawable/lamba_car_cropped"
+                android:tint="@color/theme_icon_primary" />
 
             <LinearLayout
                 android:layout_width="wrap_content"
@@ -403,6 +404,7 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:fontFamily="sans"
+                    android:forceDarkAllowed="false"
                     android:includeFontPadding="false"
                     android:text="LAMBA"
                     android:textColor="#960018"

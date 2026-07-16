@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Android dark theme switch in the profile screen; the selected appearance is
+  saved locally and restored when the app opens.
 - Dedicated Android profile screen with read-only username, vehicle settings,
   password change, and logout (#329).
 - Backend vehicle-update and password-change endpoints with history-based

@@ -19,7 +19,7 @@
         android:src="@drawable/abc_ic_ab_back_material"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:tint="#000000" />
+        app:tint="@color/theme_icon_primary" />
 
     <ScrollView
         android:id="@+id/historyScroll"

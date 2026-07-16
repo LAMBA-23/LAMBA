@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#FDFDFD"
@@ -14,15 +15,36 @@
         android:paddingEnd="34dp"
         android:paddingBottom="32dp">
 
-        <ImageView
-            android:id="@+id/btnProfileBack"
-            android:layout_width="52dp"
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="52dp"
-            android:contentDescription="Назад"
-            android:padding="10dp"
-            android:src="@drawable/ic_lamba_arrow_back"
-            android:tint="#101114"
-            android:translationX="-10dp" />
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <ImageView
+                android:id="@+id/btnProfileBack"
+                android:layout_width="52dp"
+                android:layout_height="52dp"
+                android:contentDescription="Назад"
+                android:padding="10dp"
+                android:src="@drawable/ic_lamba_arrow_back"
+                android:tint="@color/theme_icon_primary"
+                android:translationX="-10dp" />
+
+            <Space
+                android:layout_width="0dp"
+                android:layout_height="1dp"
+                android:layout_weight="1" />
+
+            <androidx.appcompat.widget.SwitchCompat
+                android:id="@+id/switchTheme"
+                android:layout_width="52dp"
+                android:layout_height="36dp"
+                android:contentDescription="Тёмная тема"
+                android:showText="false"
+                app:thumbTint="@color/theme_switch_thumb"
+                app:trackTint="@color/theme_switch_track" />
+        </LinearLayout>
 
         <TextView
             android:layout_width="wrap_content"
