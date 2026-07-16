@@ -1025,10 +1025,7 @@ class HistoryActivity : AppCompatActivity() {
     }
 
     private fun showPhotoPreview(imageView: ImageView, photoReference: String): Boolean {
-        if (photoReference.startsWith("http://") ||
-            photoReference.startsWith("https://") ||
-            photoReference.startsWith("/uploads/")
-        ) {
+        if (RetrofitClient.isBackendUrlReference(photoReference)) {
             lifecycleScope.launch {
                 val bitmap = withContext(Dispatchers.IO) {
                     runCatching {
