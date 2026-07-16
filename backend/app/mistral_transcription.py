@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import os
-from io import BytesIO
 from typing import Any
 
 from mistralai import Mistral
@@ -83,14 +82,16 @@ def _cleanup_transcript(keys: list[str], start_index: int, transcript: str) -> s
 def _transcribe_with_key(
     key: str, audio: bytes, filename: str, content_type: str | None
 ) -> str:
-    file = BytesIO(audio)
-    file.name = filename or "audio"
+    file_dict = {
+        "file_name": filename or "audio",
+        "content": audio,
+    }
     if content_type:
-        file.content_type = content_type
+        file_dict["content_type"] = content_type
     try:
         response = Mistral(api_key=key).audio.transcriptions.complete(
             model=MISTRAL_TRANSCRIPTION_MODEL,
-            file=file,
+            file=file_dict,
         )
     except Exception as exc:
         raise _as_mistral_request_error(exc) from exc
