@@ -555,7 +555,12 @@ class HistoryActivity : AppCompatActivity() {
             confirmDeleteRecord(event)
         })
 
-        dialog.setContentView(container)
+        val scrollView = ScrollView(this).apply {
+            isFillViewport = false
+            addView(container)
+        }
+
+        dialog.setContentView(scrollView)
         dialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
         dialog.show()
     }
@@ -696,12 +701,13 @@ class HistoryActivity : AppCompatActivity() {
         return ImageView(this).apply {
             layoutParams = LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,
-                180.dp,
+                LinearLayout.LayoutParams.WRAP_CONTENT,
             ).apply {
                 topMargin = 18.dp
             }
             background = roundedBackground("#FFF7F8", 18.dp.toFloat())
-            scaleType = ImageView.ScaleType.CENTER_CROP
+            adjustViewBounds = true
+            scaleType = ImageView.ScaleType.FIT_CENTER
             showPhotoPreview(this, photoReference)
         }
     }
