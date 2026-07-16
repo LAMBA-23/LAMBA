@@ -3,4 +3,11 @@
     <color name="theme_icon_primary">#101114</color>
     <color name="theme_navigation_icon">#960018</color>
     <color name="theme_brand_title">#101114</color>
+    <color name="theme_text_primary">#101114</color>
+    <color name="theme_text_secondary">#77777E</color>
+    <color name="theme_surface">#FDFDFD</color>
+    <color name="theme_surface_secondary">#F6F6F7</color>
+    <color name="theme_bubble_bg">#FFF7F8</color>
+    <color name="theme_divider">#E7E7EA</color>
+    <color name="theme_accent">#960018</color>
 </resources>

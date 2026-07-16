@@ -370,6 +370,10 @@ class ChatAskResponse(BaseModel):
     answer: str
 
 
+class ChatTranscriptionResponse(BaseModel):
+    text: str
+
+
 class ChatContextMessage(BaseModel):
     sender: Literal["user", "assistant", "system"]
     text: str = Field(min_length=1)

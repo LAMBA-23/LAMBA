@@ -190,25 +190,39 @@ class HistoryActivity : AppCompatActivity() {
 
     private fun showRecordTypeSheet() {
         val dialog = BottomSheetDialog(this)
+        val isDark = (resources.configuration.uiMode and android.content.res.Configuration.UI_MODE_NIGHT_MASK) == android.content.res.Configuration.UI_MODE_NIGHT_YES
+        val surfaceColor = if (isDark) "#1C1C1E" else "#FFFFFF"
+        val textColor = if (isDark) "#F7F7F8" else "#101114"
+        val optionBg = if (isDark) "#2C2C2E" else "#FFF7F8"
+
         val container = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
-            setPadding(24.dp, 18.dp, 24.dp, 28.dp)
-            background = roundedBackground("#FFFFFF", 28.dp.toFloat())
+            setPadding(24.dp, 8.dp, 24.dp, 28.dp)
+            background = roundedBackground(surfaceColor, 28.dp.toFloat())
         }
+
+        container.addView(View(this).apply {
+            layoutParams = LinearLayout.LayoutParams(36.dp, 4.dp).apply {
+                gravity = Gravity.CENTER_HORIZONTAL
+                topMargin = 10.dp
+                bottomMargin = 18.dp
+            }
+            background = ContextCompat.getDrawable(this@HistoryActivity, R.drawable.bg_bottom_sheet_handle)
+        })
 
         container.addView(TextView(this).apply {
             text = "Добавить запись"
-            setTextColor(Color.parseColor("#101114"))
+            setTextColor(Color.parseColor(textColor))
             textSize = 28f
             typeface = Typeface.DEFAULT_BOLD
             includeFontPadding = false
-            setPadding(0, 8.dp, 0, 12.dp)
+            setPadding(0, 0, 0, 12.dp)
         })
 
         HistoryRecordType.values()
             .filterNot { it == HistoryRecordType.TRIP }
             .forEach { type ->
-                container.addView(createRecordTypeOption(type) {
+                container.addView(createRecordTypeOption(type, optionBg, textColor) {
                     dialog.dismiss()
                     showRecordFormSheet(type)
                 })
@@ -219,7 +233,7 @@ class HistoryActivity : AppCompatActivity() {
         dialog.show()
     }
 
-    private fun createRecordTypeOption(type: HistoryRecordType, onClick: () -> Unit): LinearLayout {
+    private fun createRecordTypeOption(type: HistoryRecordType, bg: String, textC: String, onClick: () -> Unit): LinearLayout {
         return LinearLayout(this).apply {
             layoutParams = LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,
@@ -227,7 +241,7 @@ class HistoryActivity : AppCompatActivity() {
             ).apply {
                 topMargin = 10.dp
             }
-            background = roundedBackground("#FFF7F8", 18.dp.toFloat())
+            background = roundedBackground(bg, 18.dp.toFloat())
             clickableForeground()
             gravity = Gravity.CENTER_VERTICAL
             orientation = LinearLayout.HORIZONTAL
@@ -247,7 +261,7 @@ class HistoryActivity : AppCompatActivity() {
                     marginStart = 16.dp
                 }
                 text = type.title
-                setTextColor(Color.parseColor("#101114"))
+                setTextColor(Color.parseColor(textC))
                 textSize = 18f
                 typeface = Typeface.DEFAULT_BOLD
             })
@@ -256,6 +270,10 @@ class HistoryActivity : AppCompatActivity() {
 
     private fun showRecordFormSheet(type: HistoryRecordType, event: Event? = null) {
         val dialog = BottomSheetDialog(this)
+        val isDark = (resources.configuration.uiMode and android.content.res.Configuration.UI_MODE_NIGHT_MASK) == android.content.res.Configuration.UI_MODE_NIGHT_YES
+        val surfaceColor = if (isDark) "#1C1C1E" else "#FFFFFF"
+        val textColor = if (isDark) "#F7F7F8" else "#101114"
+
         val editingRecord = event?.let { historyRecordsByEventId[it.id] ?: it.toUiModel() }
         val initialIssuePhotoUri = if (type == HistoryRecordType.BREAKDOWN) {
             editingRecord?.values?.get("photoUrl").orEmpty()
@@ -267,9 +285,19 @@ class HistoryActivity : AppCompatActivity() {
         activeIssuePhotoRemoved = false
         val formContent = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
-            setPadding(24.dp, 18.dp, 24.dp, 24.dp)
-            background = roundedBackground("#FFFFFF", 28.dp.toFloat())
+            setPadding(24.dp, 8.dp, 24.dp, 24.dp)
+            background = roundedBackground(surfaceColor, 28.dp.toFloat())
         }
+
+        formContent.addView(View(this).apply {
+            layoutParams = LinearLayout.LayoutParams(36.dp, 4.dp).apply {
+                gravity = Gravity.CENTER_HORIZONTAL
+                topMargin = 10.dp
+                bottomMargin = 10.dp
+            }
+            background = ContextCompat.getDrawable(this@HistoryActivity, R.drawable.bg_bottom_sheet_handle)
+        })
+
         val fields = buildFields(type)
         val errorView = TextView(this).apply {
             setTextColor(Color.parseColor("#D32F2F"))
@@ -278,12 +306,12 @@ class HistoryActivity : AppCompatActivity() {
             setPadding(4.dp, 12.dp, 4.dp, 0)
         }
 
-        formContent.addView(createFormHeader(type.formTitle, dialog))
+        formContent.addView(createFormHeader(type.formTitle, textColor, dialog))
         fields.forEach { field ->
             formContent.addView(createFieldView(field, editingRecord?.values?.get(field.key)))
         }
         if (type == HistoryRecordType.BREAKDOWN) {
-            formContent.addView(createIssuePhotoPickerView(initialIssuePhotoUri))
+            formContent.addView(createIssuePhotoPickerView(initialIssuePhotoUri, textColor))
             dialog.setOnDismissListener {
                 activeIssuePhotoUri = null
                 activeIssuePhotoPreview = null
@@ -327,7 +355,7 @@ class HistoryActivity : AppCompatActivity() {
         dialog.show()
     }
 
-    private fun createFormHeader(title: String, dialog: BottomSheetDialog): LinearLayout {
+    private fun createFormHeader(title: String, textColor: String, dialog: BottomSheetDialog): LinearLayout {
         return LinearLayout(this).apply {
             layoutParams = LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,
@@ -353,7 +381,7 @@ class HistoryActivity : AppCompatActivity() {
                     marginStart = 14.dp
                 }
                 text = title
-                setTextColor(Color.parseColor("#101114"))
+                setTextColor(Color.parseColor(textColor))
                 textSize = 26f
                 typeface = Typeface.DEFAULT_BOLD
                 includeFontPadding = false
@@ -479,22 +507,36 @@ class HistoryActivity : AppCompatActivity() {
     private fun showRecordDetailsSheet(event: Event) {
         val record = historyRecordsByEventId[event.id] ?: event.toUiModel()
         val dialog = BottomSheetDialog(this)
+        val isDark = (resources.configuration.uiMode and android.content.res.Configuration.UI_MODE_NIGHT_MASK) == android.content.res.Configuration.UI_MODE_NIGHT_YES
+        val surfaceColor = if (isDark) "#1C1C1E" else "#FFFFFF"
+        val textColor = if (isDark) "#F7F7F8" else "#101114"
+        val secondaryTextColor = if (isDark) "#C9C9CE" else "#77777E"
+
         val container = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
-            setPadding(24.dp, 22.dp, 24.dp, 28.dp)
-            background = roundedBackground("#FFFFFF", 28.dp.toFloat())
+            setPadding(24.dp, 8.dp, 24.dp, 28.dp)
+            background = roundedBackground(surfaceColor, 28.dp.toFloat())
         }
+
+        container.addView(View(this).apply {
+            layoutParams = LinearLayout.LayoutParams(36.dp, 4.dp).apply {
+                gravity = Gravity.CENTER_HORIZONTAL
+                topMargin = 10.dp
+                bottomMargin = 18.dp
+            }
+            background = ContextCompat.getDrawable(this@HistoryActivity, R.drawable.bg_bottom_sheet_handle)
+        })
 
         container.addView(TextView(this).apply {
             text = record.type.title
-            setTextColor(Color.parseColor("#101114"))
+            setTextColor(Color.parseColor(textColor))
             textSize = 28f
             typeface = Typeface.DEFAULT_BOLD
             includeFontPadding = false
         })
 
         record.detailRows.forEach { row ->
-            container.addView(createDetailRow(row.first, row.second))
+            container.addView(createDetailRow(row.first, row.second, textColor, secondaryTextColor))
         }
         if (record.type == HistoryRecordType.BREAKDOWN) {
             record.values["photoUrl"].orEmpty()
@@ -549,19 +591,19 @@ class HistoryActivity : AppCompatActivity() {
         }
     }
 
-    private fun createDetailRow(label: String, value: String): LinearLayout {
+    private fun createDetailRow(label: String, value: String, textColor: String, secondaryTextColor: String): LinearLayout {
         return LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
             setPadding(0, 18.dp, 0, 0)
 
             addView(TextView(this@HistoryActivity).apply {
                 text = label
-                setTextColor(Color.parseColor("#77777E"))
+                setTextColor(Color.parseColor(secondaryTextColor))
                 textSize = 14f
             })
             addView(TextView(this@HistoryActivity).apply {
                 text = value
-                setTextColor(Color.parseColor("#101114"))
+                setTextColor(Color.parseColor(textColor))
                 textSize = 18f
                 typeface = Typeface.DEFAULT_BOLD
                 setPadding(0, 4.dp, 0, 0)
@@ -569,14 +611,14 @@ class HistoryActivity : AppCompatActivity() {
         }
     }
 
-    private fun createIssuePhotoPickerView(initialPhotoUri: String): LinearLayout {
+    private fun createIssuePhotoPickerView(initialPhotoUri: String, textColor: String): LinearLayout {
         return LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
             setPadding(0, 16.dp, 0, 0)
 
             addView(TextView(this@HistoryActivity).apply {
                 text = "Фото поломки"
-                setTextColor(Color.parseColor("#101114"))
+                setTextColor(Color.parseColor(textColor))
                 textSize = 17f
                 typeface = Typeface.DEFAULT_BOLD
                 includeFontPadding = false

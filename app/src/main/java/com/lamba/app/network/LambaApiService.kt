@@ -54,6 +54,13 @@ interface LambaApiService {
         @Query("user_id") userId: Int,
     ): Response<ChatTitleResponse>
 
+    @Multipart
+    @POST("chat/transcribe")
+    suspend fun transcribeChatAudio(
+        @Part audio: MultipartBody.Part,
+        @Query("user_id") userId: Int,
+    ): Response<ChatTranscriptionResponse>
+
     @GET("events")
     suspend fun getEvents(@Query("user_id") userId: Int? = null): Response<List<Event>>
 

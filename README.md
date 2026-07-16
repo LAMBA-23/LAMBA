@@ -69,6 +69,23 @@ TIMEWEB_API_KEY
 TIMEWEB_AGENT_ID
 ```
 
+For optional voice input, configure one or more Mistral keys only for the backend.
+Keys are comma-separated; when Mistral reports a quota or rate limit, the backend
+tries the next key. Do not put these keys in the Android application or commit them.
+
+```text
+MISTRAL_API_KEYS
+MISTRAL_TRANSCRIPTION_MODEL
+MISTRAL_CLEANUP_MODEL
+CHAT_TRANSCRIPTION_MAX_BYTES
+CHAT_TRANSCRIPTION_RATE_LIMIT
+CHAT_TRANSCRIPTION_RATE_LIMIT_WINDOW_SECONDS
+```
+
+By default, a voice upload is limited to 5 MiB and each client IP can submit 10
+transcriptions per 60-second window. These limits can be changed only through
+the backend environment variables above.
+
 Do not commit API keys, credentials, or `.env` files to the repository.
 
 Event photos use the persistent Docker volume by default. The default backend

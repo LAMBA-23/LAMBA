@@ -553,6 +553,30 @@ This would allow users to create history records without using the chat.
 - **Traceability:** US-15, GitHub Issue #329.
 - **Resulting PBIs/issues:** No new PBIs or issues were created.
 
+## UAT-014: Dictate an editable chat message
+
+- **Scenario ID:** UAT-014
+- **Status:** Active
+- **User goal:** A logged-in user can dictate a chat message, review the recognised text,
+  and still type or edit it before sending.
+- **Preconditions:**
+  - The user is logged in and has opened the chat screen.
+  - The device has a working microphone and network access to the backend.
+  - A backend Mistral key is configured; no key is present in the Android application.
+- **Steps:**
+  1. Tap the microphone icon next to the chat input and grant microphone access when prompted.
+  2. Speak a short message containing a hesitation sound or repeated word.
+  3. Tap the microphone icon again to stop recording.
+  4. Confirm the recognised, cleaned text appears in the input field and has not been sent.
+  5. Edit the text if desired, then send it with the usual send button.
+  6. Repeat after denying microphone access or with the transcription service unavailable.
+- **Expected result:**
+  - The transcript preserves the message facts while removing obvious hesitation sounds,
+    repetitions, and punctuation mistakes.
+  - The message is sent only after the user taps the existing send button.
+  - Permission and service errors are shown clearly, and manual text input remains usable.
+- **Traceability:** US-10, GitHub Issue #53.
+
 ## Week 4 UAT Summary
 
 - **Scenarios executed:** 4 (UAT-001, UAT-002, UAT-003, UAT-004)

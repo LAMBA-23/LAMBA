@@ -162,6 +162,10 @@ data class ChatAskResponse(
     @SerializedName("answer") val answer: String
 )
 
+data class ChatTranscriptionResponse(
+    @SerializedName("text") val text: String,
+)
+
 data class ChatContextMessage(
     @SerializedName("sender") val sender: String,
     @SerializedName("text") val text: String,

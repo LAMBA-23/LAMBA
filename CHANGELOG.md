@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Voice input in chat: microphone recording, Mistral transcription with conservative
+  transcript cleanup, editable result insertion, and backend-only rotating Mistral API
+  keys for quota/rate-limit failures (#53).
+
 - Android dark theme switch in the profile screen; the selected appearance is
   saved locally and restored when the app opens.
 - Dedicated Android profile screen with read-only username, vehicle settings,

@@ -85,10 +85,14 @@ class StatisticsActivity : AppCompatActivity() {
     }
 
     private fun showPeriodDropdown(anchor: View) {
+        val isDark = (resources.configuration.uiMode and android.content.res.Configuration.UI_MODE_NIGHT_MASK) == android.content.res.Configuration.UI_MODE_NIGHT_YES
+        val bgColor = if (isDark) "#1C1C1E" else "#FFFFFF"
+        val textColor = if (isDark) "#F7F7F8" else "#101114"
+
         val container = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
             setPadding(8.dp, 8.dp, 8.dp, 8.dp)
-            background = roundedBackground("#FFFFFF", 18.dp.toFloat())
+            background = roundedBackground(bgColor, 18.dp.toFloat())
             elevation = 12.dp.toFloat()
         }
         val popup = PopupWindow(
@@ -103,7 +107,7 @@ class StatisticsActivity : AppCompatActivity() {
         }
 
         listOf(PERIOD_WEEK, PERIOD_MONTH, PERIOD_ALL_TIME).forEachIndexed { index, period ->
-            container.addView(createPeriodDropdownItem(period, popup))
+            container.addView(createPeriodDropdownItem(period, textColor, popup))
             if (index < 2) {
                 container.addView(View(this).apply {
                     layoutParams = LinearLayout.LayoutParams(
@@ -126,14 +130,16 @@ class StatisticsActivity : AppCompatActivity() {
             .start()
     }
 
-    private fun createPeriodDropdownItem(period: String, popup: PopupWindow): LinearLayout {
+    private fun createPeriodDropdownItem(period: String, textColor: String, popup: PopupWindow): LinearLayout {
         val isSelected = period == selectedPeriod
+        val isDark = (resources.configuration.uiMode and android.content.res.Configuration.UI_MODE_NIGHT_MASK) == android.content.res.Configuration.UI_MODE_NIGHT_YES
+
         return LinearLayout(this).apply {
             layoutParams = LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,
                 46.dp,
             )
-            background = periodItemBackground(isSelected)
+            background = periodItemBackground(isSelected, isDark)
             isClickable = true
             isFocusable = true
             gravity = Gravity.CENTER_VERTICAL
@@ -143,7 +149,7 @@ class StatisticsActivity : AppCompatActivity() {
             addView(TextView(this@StatisticsActivity).apply {
                 layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
                 text = period
-                setTextColor(Color.parseColor(if (isSelected) "#960018" else "#101114"))
+                setTextColor(Color.parseColor(if (isSelected) "#960018" else textColor))
                 textSize = 16f
                 typeface = Typeface.DEFAULT_BOLD.takeIf { isSelected } ?: Typeface.DEFAULT
                 includeFontPadding = false
@@ -281,12 +287,17 @@ class StatisticsActivity : AppCompatActivity() {
         }
     }
 
-    private fun periodItemBackground(isSelected: Boolean): StateListDrawable {
-        val normalColor = if (isSelected) "#FFFFF6F8" else "#00FFFFFF"
+    private fun periodItemBackground(isSelected: Boolean, isDark: Boolean): StateListDrawable {
+        val normalColor = if (isSelected) {
+            if (isDark) "#3A1C22" else "#FFFFF6F8"
+        } else {
+            "#00FFFFFF"
+        }
+        val pressedColor = if (isDark) "#4A242A" else "#FFFFEBEF"
         return StateListDrawable().apply {
             addState(
                 intArrayOf(android.R.attr.state_pressed),
-                roundedBackground("#FFFFEBEF", 14.dp.toFloat()),
+                roundedBackground(pressedColor, 14.dp.toFloat()),
             )
             addState(
                 intArrayOf(),

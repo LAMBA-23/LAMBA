@@ -6,13 +6,13 @@ import android.graphics.Color
 import android.os.Bundle
 import android.view.View
 import android.widget.EditText
+import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.AppCompatButton
-import androidx.appcompat.widget.SwitchCompat
 import androidx.lifecycle.lifecycleScope
 import com.lamba.app.chat.LocalChatService
 import com.lamba.app.network.ChangePasswordRequest
@@ -52,18 +52,23 @@ class ProfileActivity : AppCompatActivity() {
         val progressBar = findViewById<ProgressBar>(R.id.profileProgressBar)
         val btnSaveVehicle = findViewById<AppCompatButton>(R.id.btnSaveProfileVehicle)
         val btnChangePassword = findViewById<AppCompatButton>(R.id.btnChangePassword)
-        val switchTheme = findViewById<SwitchCompat>(R.id.switchTheme)
+        val btnThemeToggle = findViewById<ImageButton>(R.id.btnProfileThemeToggle)
 
         etUsername.setText(SessionManager.getUserName(this) ?: "")
         findViewById<ImageView>(R.id.btnProfileBack).setOnClickListener { finish() }
-        switchTheme.isChecked = ThemeManager.current(this).isEnabled
-        switchTheme.setOnCheckedChangeListener { _, isChecked ->
-            if (ThemeManager.current(this).isEnabled != isChecked) {
-                ThemeManager.save(this, isChecked)
-                startActivity(Intent(this, ProfileActivity::class.java))
-                overridePendingTransition(0, 0)
-                finish()
-            }
+
+        if (ThemeManager.current(this).isEnabled) {
+            btnThemeToggle.setImageResource(R.drawable.ic_lamba_moon)
+        } else {
+            btnThemeToggle.setImageResource(R.drawable.ic_lamba_sun)
+        }
+
+        btnThemeToggle.setOnClickListener {
+            val currentlyEnabled = ThemeManager.current(this).isEnabled
+            ThemeManager.save(this, !currentlyEnabled)
+            startActivity(Intent(this, ProfileActivity::class.java))
+            overridePendingTransition(0, 0)
+            finish()
         }
 
         fun renderVehicle(current: Vehicle) {

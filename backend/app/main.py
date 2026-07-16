@@ -26,6 +26,12 @@ from sqlalchemy.orm import Session
 from .chat_parser import parse_chat_message
 from .database import Base, engine, get_db
 from .deepseek_chat import ask_deepseek, generate_chat_title
+from .mistral_transcription import (
+    ALL_KEYS_EXHAUSTED_ERROR,
+    MistralRequestError,
+    TranscriptionKeysExhausted,
+    transcribe_audio,
+)
 from .models import Car, Event, User
 from .photo_processing import (
     SUPPORTED_MIME_FORMATS,
@@ -43,6 +49,7 @@ from .schemas import (
     ChatContextMessage,
     ChatParseRequest,
     ChatParseResponse,
+    ChatTranscriptionResponse,
     ChatTitleRequest,
     ChatTitleResponse,
     ChangePasswordRequest,
@@ -71,6 +78,14 @@ LOGIN_RATE_LIMIT_WINDOW_SECONDS = int(
 )
 CHAT_RATE_LIMIT = int(os.getenv("CHAT_RATE_LIMIT", "20"))
 CHAT_RATE_LIMIT_WINDOW_SECONDS = int(os.getenv("CHAT_RATE_LIMIT_WINDOW_SECONDS", "60"))
+# Voice uploads are capped at 5 MiB to bound memory use before provider submission.
+CHAT_TRANSCRIPTION_MAX_BYTES = int(
+    os.getenv("CHAT_TRANSCRIPTION_MAX_BYTES", str(5 * 1024 * 1024))
+)
+CHAT_TRANSCRIPTION_RATE_LIMIT = int(os.getenv("CHAT_TRANSCRIPTION_RATE_LIMIT", "10"))
+CHAT_TRANSCRIPTION_RATE_LIMIT_WINDOW_SECONDS = int(
+    os.getenv("CHAT_TRANSCRIPTION_RATE_LIMIT_WINDOW_SECONDS", "60")
+)
 CORS_ALLOWED_ORIGINS = [
     origin.strip()
     for origin in os.getenv("CORS_ALLOWED_ORIGINS", "").split(",")
@@ -82,6 +97,7 @@ EVENT_PHOTO_MIME_EXTENSIONS = {
 }
 
 app = FastAPI(title="LAMBA Backend", version="0.1.0")
+app.state.transcribe_audio = transcribe_audio
 rate_limiter = FixedWindowRateLimiter()
 logger = logging.getLogger(__name__)
 photo_storage = create_photo_storage()
@@ -190,6 +206,26 @@ def enforce_rate_limit(
     if rate_limiter.allow(key, limit=limit, window_seconds=window_seconds):
         return
     raise HTTPException(status_code=429, detail=detail)
+
+
+def _transcription_limit_detail(max_bytes: int) -> str:
+    mebibyte = 1024 * 1024
+    if max_bytes % mebibyte == 0:
+        return f"Audio file exceeds the configured {max_bytes // mebibyte} MB limit"
+    return f"Audio file exceeds the configured {max_bytes}-byte limit"
+
+
+async def _read_audio_with_limit(audio: UploadFile, max_bytes: int) -> bytes:
+    chunks: list[bytes] = []
+    total_bytes = 0
+    while chunk := await audio.read(64 * 1024):
+        total_bytes += len(chunk)
+        if total_bytes > max_bytes:
+            raise HTTPException(
+                status_code=413, detail=_transcription_limit_detail(max_bytes)
+            )
+        chunks.append(chunk)
+    return b"".join(chunks)
 
 
 STATISTICS_EVENT_TYPES = {"fuel", "repair", "trip"}
@@ -1401,6 +1437,39 @@ def chat_ask(
     except Exception:
         answer = "Не удалось получить ответ от AI-ассистента. Попробуйте позже."
     return ChatAskResponse(answer=answer)
+
+
+@app.post("/chat/transcribe", response_model=ChatTranscriptionResponse)
+async def chat_transcribe(
+    request: Request,
+    audio: UploadFile | None = File(None),
+    user_id: int = Query(...),
+    db: Session = Depends(get_db),
+) -> ChatTranscriptionResponse:
+    enforce_rate_limit(
+        request,
+        scope="chat-transcription",
+        limit=CHAT_TRANSCRIPTION_RATE_LIMIT,
+        window_seconds=CHAT_TRANSCRIPTION_RATE_LIMIT_WINDOW_SECONDS,
+        detail="Too many transcription requests",
+    )
+    get_user(db, user_id)
+    if audio is None:
+        raise HTTPException(status_code=400, detail="Audio file is required")
+    audio_bytes = await _read_audio_with_limit(audio, CHAT_TRANSCRIPTION_MAX_BYTES)
+    if not audio_bytes:
+        raise HTTPException(status_code=400, detail="Audio file must not be empty")
+    try:
+        text = request.app.state.transcribe_audio(
+            audio_bytes, audio.filename or "audio", audio.content_type
+        )
+    except TranscriptionKeysExhausted as exc:
+        raise HTTPException(status_code=503, detail=ALL_KEYS_EXHAUSTED_ERROR) from exc
+    except MistralRequestError as exc:
+        raise HTTPException(
+            status_code=502, detail="Audio transcription is unavailable"
+        ) from exc
+    return ChatTranscriptionResponse(text=text)
 
 
 @app.post("/chat/title", response_model=ChatTitleResponse)
