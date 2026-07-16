@@ -56,9 +56,12 @@ class Event(Base):
     odometer_start: Mapped[int | None] = mapped_column(Integer, nullable=True)
     odometer_end: Mapped[int | None] = mapped_column(Integer, nullable=True)
     photo_path: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    photo_thumbnail_path: Mapped[str | None] = mapped_column(String(255), nullable=True)
     photo_original_name: Mapped[str | None] = mapped_column(String(255), nullable=True)
     photo_mime_type: Mapped[str | None] = mapped_column(String(64), nullable=True)
     photo_size: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    photo_width: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    photo_height: Mapped[int | None] = mapped_column(Integer, nullable=True)
     created_at: Mapped[datetime] = mapped_column(
         default=datetime.utcnow, nullable=False
     )
@@ -79,4 +82,10 @@ class Event(Base):
     def photo_url(self) -> str | None:
         if not self.photo_path:
             return None
-        return f"/uploads/event_photos/{self.photo_path}"
+        return f"/events/{self.id}/photo?user_id={self.car.user_id}"
+
+    @property
+    def photo_thumbnail_url(self) -> str | None:
+        if not self.photo_thumbnail_path:
+            return None
+        return f"/events/{self.id}/photo/thumbnail?user_id={self.car.user_id}"

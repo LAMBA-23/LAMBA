@@ -20,19 +20,22 @@ This document is the maintained testing status artifact for the repository. It k
 
 | Critical module | Why critical | Required line coverage | Latest verified line coverage | Evidence |
 |---|---|---:|---:|---|
-| `backend/app/main.py` | Core API routes and orchestration for authentication, vehicle management, event tracking, assistant answers, and statistics workflows. | 30% | 89% | Local coverage gate on 2026-07-12 and backend CI workflow |
-| `backend/app/chat_parser.py` | Converts user chat messages into structured product events for a main user workflow. | 30% | 68% | Local coverage gate on 2026-07-12 and backend CI workflow |
-| `backend/app/database.py` | Database session and engine configuration underpin all persistent backend behavior. | 30% | 100% | Local coverage gate on 2026-07-12 and backend CI workflow |
+| `backend/app/main.py` | Core API routes and orchestration for authentication, vehicle management, event tracking, assistant answers, statistics, and owner-checked photo workflows. | 30% | 87% | Python 3.12 Docker coverage gate on 2026-07-15 and backend CI workflow |
+| `backend/app/chat_parser.py` | Converts user chat messages into structured product events for a main user workflow. | 30% | 73% | Python 3.12 Docker coverage gate on 2026-07-15 and backend CI workflow |
+| `backend/app/database.py` | Database session and engine configuration underpin all persistent backend behavior. | 30% | 100% | Python 3.12 Docker coverage gate on 2026-07-15 and backend CI workflow |
+| `backend/app/photo_processing.py` | Decodes, validates, normalizes, strips metadata, and creates thumbnails for untrusted uploads. | 30% | 92% | Python 3.12 Docker coverage gate on 2026-07-15 and targeted photo tests |
+| `backend/app/photo_storage.py` | Keeps local and S3-compatible object operations behind one tested adapter boundary. | 30% | 88% | Python 3.12 Docker coverage gate on 2026-07-15 and targeted storage tests |
 
 ## Automated Test Status
 
 | Test type | Scope | Command or CI check | Latest documented evidence | Evidence |
 |---|---|---|---|---|
-| Backend regression suite | Backend business logic, API behavior, and persistence flows in `backend/tests` | `python -m coverage run -m pytest tests` from `backend/`; Backend CI equivalent | Passed locally on 2026-07-12: 104 tests passed | `backend/tests` and `.github/workflows/backend-ci.yml` |
+| Backend regression suite | Backend business logic, API behavior, and persistence flows in `backend/tests` | `python -m coverage run -m pytest tests` from `backend/`; Backend CI equivalent | Passed locally on 2026-07-15: 143 tests passed | `backend/tests` and `.github/workflows/backend-ci.yml` |
+| Backend event-photo suite | Owner-checked upload/retrieval, image normalization, thumbnail generation, replacement/deletion compensation, local storage, and S3 adapter behavior | `python -m pytest tests/test_event_photos.py tests/test_photo_storage.py -q` from `backend/`; included in the full backend suite | Passed locally on 2026-07-15: 23 tests passed | `backend/tests/test_event_photos.py`; `backend/tests/test_photo_storage.py` |
 | Backend targeted Sprint 4 suite | Security and assistant regression around authentication, CORS, rate limiting, and chat answers | `python -m pytest tests/test_auth.py tests/test_cors.py tests/test_rate_limiting.py tests/test_chat_ask.py -q` from `backend/`; included in the full backend suite | Included in the 2026-07-12 full backend suite; `backend/tests/test_rate_limiting.py::test_chat_ask_allows_requests_after_rate_limit_window` now verifies chat rate-limit recovery without a real 60-second wait | `backend/tests/test_auth.py`; `backend/tests/test_cors.py`; `backend/tests/test_rate_limiting.py`; `backend/tests/test_chat_ask.py` |
 | Backend unit tests | Isolated parser, AI adapter, statistics helper, and model behavior covered by backend pytest files | Included in `docker compose run --rm backend pytest tests -q` and the `Backend CI` pytest step | Active | `backend/tests/test_chat_parse.py`; `backend/tests/test_chat_parser.py`; `backend/tests/test_chat_parser_deepseek.py`; `backend/tests/test_deepseek_chat.py`; `backend/tests/test_stats.py` |
 | Backend integration tests | FastAPI routes with test persistence through `TestClient` for authentication, vehicle, event, assistant, statistics, CORS, rate limiting, and QRT flows | Included in `docker compose run --rm backend pytest tests -q` and the `Backend CI` pytest step | Active | `backend/tests/test_auth.py`; `backend/tests/test_vehicle.py`; `backend/tests/test_events.py`; `backend/tests/test_chat_ask.py`; `backend/tests/test_cors.py`; `backend/tests/test_rate_limiting.py`; `backend/tests/test_quality_requirements.py` |
-| Coverage gate | Full backend suite plus critical-module coverage threshold | `python -m coverage run -m pytest tests`; `python -m coverage report --include="app/*" --fail-under=30` from `backend/`; Backend CI equivalent | Passed locally on 2026-07-12 with total `app/*` coverage of 88% | Local coverage output and `.github/workflows/backend-ci.yml` |
+| Coverage gate | Full backend suite plus critical-module coverage threshold | `python -m coverage run -m pytest tests`; `python -m coverage report --include="app/*" --fail-under=30` from `backend/`; Backend CI equivalent | Passed locally on 2026-07-15 with total `app/*` coverage of 88%; photo processing 92% and photo storage 88% | Local coverage output and `.github/workflows/backend-ci.yml` |
 | Automated QRTs in CI | Backend quality checks automated in CI: pytest suite, coverage gate, linting, formatting, dependency health | GitHub Actions `Backend CI` workflow | Active in CI on pull requests and `main`; QRT-007 and QRT-008 are included because Backend CI runs the full backend pytest suite | `.github/workflows/backend-ci.yml`; `docs/quality-requirement-tests.md` |
 | Android unit tests | Android repository, mapping, model, session-restore, and local chat history behavior covered by JVM unit tests | `.\gradlew.bat :app:testDebugUnitTest --no-daemon` locally; GitHub Actions `Android CI` workflow | Passed locally on 2026-07-10 during #282 verification | `.github/workflows/android-ci.yml`; `app/src/test/java/com/lamba/app/network/ChatRepositoryTest.kt`; `app/src/test/java/com/lamba/app/network/HistoryRecordEventMapperTest.kt`; `app/src/test/java/com/lamba/app/network/StatsModelTest.kt`; `app/src/test/java/com/lamba/app/SessionRestoreNavigatorTest.kt`; `app/src/test/java/com/lamba/app/chat/LocalChatHistoryRepositoryTest.kt`; `app/src/test/java/com/lamba/app/chat/LocalChatTitleTest.kt` |
 | Android assembly check | Build verification for debug APK packaging | `.\gradlew.bat :app:assembleDebug --no-daemon` locally; GitHub Actions `Android CI` workflow | Passed locally on 2026-07-10 during #282 verification after a sequential rerun; the first parallel local run conflicted on KAPT cache deletion | `.github/workflows/android-ci.yml` |
@@ -144,20 +147,18 @@ cd backend
 ..\venv\Scripts\python.exe -m pip check
 ```
 
-Latest local backend evidence on 2026-07-12:
+Latest backend evidence on 2026-07-15, reproduced in the clean Python 3.12
+Docker image used by the repository configuration:
 
 - Ruff lint: `All checks passed!`
-- Ruff format check: `24 files already formatted`
-- Backend tests: `104 passed, 310 warnings in 36.93s`
-- Coverage report for `app/*`: 88% total coverage, with critical modules at `main.py` 89%, `chat_parser.py` 68%, and `database.py` 100%
-- Coverage XML: written to `backend/coverage.xml` during verification, then left out of the repository as generated local evidence
+- Ruff format check: `29 files already formatted`
+- Backend tests: `143 passed` in the clean Python 3.12 container
+- Coverage report for `app/*`: 88% total coverage, including `main.py` 87%, `photo_processing.py` 92%, `photo_storage.py` 88%, `chat_parser.py` 73%, and `database.py` 100%
 - Dependency health: `No broken requirements found.`
 
 Evidence limitations:
 
-- The local run used the repository `venv` on Windows with Python 3.13.14, while Backend CI uses Python 3.12.
 - The pytest run emitted FastAPI and SQLAlchemy deprecation warnings.
-- The pytest cleanup emitted one warning that a temporary SQLite test database could not be removed immediately and would be retried later.
 
 Android:
 
