@@ -11,6 +11,8 @@ import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.ProgressBar
 import android.widget.TextView
+import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.AppCompatButton
 import androidx.lifecycle.lifecycleScope
@@ -21,6 +23,8 @@ import com.lamba.app.network.SessionManager
 import com.lamba.app.network.Vehicle
 import com.lamba.app.network.VehicleUpdateRequest
 import kotlinx.coroutines.launch
+import java.io.InputStream
+import java.io.OutputStream
 
 class ProfileActivity : AppCompatActivity() {
     private val localChatRepository by lazy { LocalChatService.getRepository(this) }
@@ -51,6 +55,7 @@ class ProfileActivity : AppCompatActivity() {
         val passwordFormContainer = findViewById<LinearLayout>(R.id.passwordFormContainer)
         val progressBar = findViewById<ProgressBar>(R.id.profileProgressBar)
         val btnSaveVehicle = findViewById<AppCompatButton>(R.id.btnSaveProfileVehicle)
+        val btnExport = findViewById<AppCompatButton>(R.id.btnExportProfileData)
         val btnChangePassword = findViewById<AppCompatButton>(R.id.btnChangePassword)
         val btnThemeToggle = findViewById<ImageButton>(R.id.btnProfileThemeToggle)
 
@@ -89,6 +94,49 @@ class ProfileActivity : AppCompatActivity() {
             progressBar.visibility = if (busy) View.VISIBLE else View.GONE
             btnSaveVehicle.isEnabled = !busy && vehicle != null
             btnChangePassword.isEnabled = !busy
+            btnExport.isEnabled = !busy
+        }
+
+        val createExportDocument = registerForActivityResult(
+            ActivityResultContracts.CreateDocument(
+                "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            ),
+        ) { uri ->
+            if (uri == null) {
+                return@registerForActivityResult
+            }
+
+            tvVehicleError.visibility = View.GONE
+            setBusy(true)
+            lifecycleScope.launch {
+                val saved = runCatching {
+                    val response = RetrofitClient.apiService.exportVehicleData(userId)
+                    if (!response.isSuccessful) {
+                        return@runCatching false
+                    }
+                    response.body()?.use { body ->
+                        contentResolver.openOutputStream(uri)?.use { output ->
+                            ProfileExportWriter.copy(body.byteStream(), output)
+                            true
+                        }
+                    } ?: false
+                }.getOrDefault(false)
+                setBusy(false)
+                if (saved) {
+                    Toast.makeText(
+                        this@ProfileActivity,
+                        "Данные экспортированы",
+                        Toast.LENGTH_SHORT,
+                    ).show()
+                } else {
+                    tvVehicleError.text = "Не удалось экспортировать данные. Попробуйте снова."
+                    tvVehicleError.visibility = View.VISIBLE
+                }
+            }
+        }
+
+        btnExport.setOnClickListener {
+            createExportDocument.launch("LAMBA_export.xlsx")
         }
 
         fun loadVehicle() {
@@ -200,5 +248,11 @@ class ProfileActivity : AppCompatActivity() {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
         })
         finish()
+    }
+}
+
+internal object ProfileExportWriter {
+    fun copy(input: InputStream, output: OutputStream) {
+        input.copyTo(output)
     }
 }

@@ -20,12 +20,14 @@ from fastapi import (
     status,
 )
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import StreamingResponse
 from sqlalchemy import inspect, select, text
 from sqlalchemy.orm import Session
 
 from .chat_parser import parse_chat_message
 from .database import Base, engine, get_db
 from .deepseek_chat import ask_deepseek, generate_chat_title
+from .excel_export import XLSX_MIME_TYPE, build_export_filename, build_workbook
 from .mistral_transcription import (
     ALL_KEYS_EXHAUSTED_ERROR,
     MistralRequestError,
@@ -1727,6 +1729,28 @@ def get_stats(
         )
     )
     return build_stats_response(events, now, car)
+
+
+@app.get("/data/export.xlsx", response_class=StreamingResponse)
+def export_vehicle_data(
+    user_id: int = Query(...), db: Session = Depends(get_db)
+) -> StreamingResponse:
+    car = get_car_for_user_id(db, user_id)
+    events = list(
+        db.scalars(
+            select(Event)
+            .where(Event.car_id == car.id)
+            .order_by(Event.created_at, Event.id)
+        )
+    )
+    now = datetime.now(timezone.utc).replace(tzinfo=None)
+    workbook = build_workbook(car, events, build_stats_response(events, now, car))
+    filename = build_export_filename(car, now)
+    return StreamingResponse(
+        workbook,
+        media_type=XLSX_MIME_TYPE,
+        headers={"Content-Disposition": f'attachment; filename="{filename}"'},
+    )
 
 
 @app.get("/recommendations", response_model=RecommendationsResponse)

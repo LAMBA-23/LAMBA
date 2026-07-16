@@ -30,7 +30,9 @@ This document is the maintained testing status artifact for the repository. It k
 
 | Test type | Scope | Command or CI check | Latest documented evidence | Evidence |
 |---|---|---|---|---|
-| Backend regression suite | Backend business logic, API behavior, and persistence flows in `backend/tests` | `python -m coverage run -m pytest tests` from `backend/`; Backend CI equivalent | Passed locally on 2026-07-15: 143 tests passed | `backend/tests` and `.github/workflows/backend-ci.yml` |
+| Vehicle-data Excel export | Owner-scoped XLSX response, Russian workbook structure, event translation, statistics, charts, empty history, and exclusion of other users' or technical data | `docker compose run --rm backend pytest tests/test_data_export.py -q` | Passed locally on 2026-07-16: 3 tests passed | `backend/tests/test_data_export.py` |
+| Android Excel export writer | Stream-copy behavior used when saving the backend XLSX response to the user-selected Android document URI | `./gradlew :app:testDebugUnitTest --tests com.lamba.app.ProfileExportWriterTest` | Passed locally on 2026-07-16 | `app/src/test/java/com/lamba/app/ProfileExportWriterTest.kt` |
+| Backend regression suite | Backend business logic, API behavior, and persistence flows in `backend/tests` | `python -m coverage run -m pytest tests` from `backend/`; Backend CI equivalent | Passed locally on 2026-07-16: 171 tests passed | `backend/tests` and `.github/workflows/backend-ci.yml` |
 | Backend event-photo suite | Owner-checked upload/retrieval, image normalization, thumbnail generation, replacement/deletion compensation, local storage, and S3 adapter behavior | `python -m pytest tests/test_event_photos.py tests/test_photo_storage.py -q` from `backend/`; included in the full backend suite | Passed locally on 2026-07-15: 23 tests passed | `backend/tests/test_event_photos.py`; `backend/tests/test_photo_storage.py` |
 | Backend targeted Sprint 4 suite | Security and assistant regression around authentication, CORS, rate limiting, and chat answers | `python -m pytest tests/test_auth.py tests/test_cors.py tests/test_rate_limiting.py tests/test_chat_ask.py -q` from `backend/`; included in the full backend suite | Included in the 2026-07-12 full backend suite; `backend/tests/test_rate_limiting.py::test_chat_ask_allows_requests_after_rate_limit_window` now verifies chat rate-limit recovery without a real 60-second wait | `backend/tests/test_auth.py`; `backend/tests/test_cors.py`; `backend/tests/test_rate_limiting.py`; `backend/tests/test_chat_ask.py` |
 | Backend unit tests | Isolated parser, AI adapter, statistics helper, and model behavior covered by backend pytest files | Included in `docker compose run --rm backend pytest tests -q` and the `Backend CI` pytest step | Active | `backend/tests/test_chat_parse.py`; `backend/tests/test_chat_parser.py`; `backend/tests/test_chat_parser_deepseek.py`; `backend/tests/test_deepseek_chat.py`; `backend/tests/test_stats.py` |
@@ -157,6 +159,15 @@ Docker image used by the repository configuration:
 - Backend tests: `143 passed` in the clean Python 3.12 container
 - Coverage report for `app/*`: 88% total coverage, including `main.py` 87%, `photo_processing.py` 92%, `photo_storage.py` 88%, `chat_parser.py` 73%, and `database.py` 100%
 - Dependency health: `No broken requirements found.`
+
+Excel export follow-up evidence on 2026-07-16:
+
+- Backend image build completed successfully with `openpyxl==3.1.5`.
+- Ruff lint and format checks passed, and `backend/tests/test_data_export.py`
+  passed with 3 tests.
+- The complete backend suite passed with 171 tests.
+- Android JVM tests and debug APK assembly passed after adding the profile export
+  stream writer and Storage Access Framework integration.
 
 Evidence limitations:
 
