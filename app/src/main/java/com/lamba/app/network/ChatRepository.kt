@@ -32,8 +32,6 @@ class RetrofitChatBackend(
                 amount = event.amount,
                 fuelLiters = event.fuelLiters,
                 mileage = event.mileage,
-                odometerStart = event.odometerStart,
-                odometerEnd = event.odometerEnd,
             ),
             userId,
         )
@@ -84,10 +82,15 @@ class ChatRepository(
             lower.startsWith("хай") ||
             lower.startsWith("хей") ||
             lower.startsWith("йо") ||
+            lower.startsWith("дарова") ||
+            lower.startsWith("здорово") ||
+            lower.startsWith("салют") ||
             lower.startsWith("спасибо") ||
             lower.startsWith("благодарю") ||
             lower.startsWith("пока") ||
-            lower.startsWith("до свидания")
+            lower.startsWith("до свидания") ||
+            lower.startsWith("как сам") ||
+            lower.startsWith("как дела")
         val hasEventKeywords = lower.contains("заправ") ||
             lower.contains("топлив") ||
             lower.contains("бензин") ||
@@ -133,7 +136,11 @@ class ChatRepository(
             lower.contains("истори") ||
             lower.contains("статистик") ||
             lower.contains("расход") ||
-            lower.contains("пробег")
+            lower.contains("пробег") ||
+            lower.contains("добавить запись") ||
+            lower.contains("последние расходы") ||
+            lower.contains("новая запись") ||
+            lower.contains("записать")
     }
 
     private suspend fun handleQuestion(
