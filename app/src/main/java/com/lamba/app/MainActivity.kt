@@ -39,9 +39,6 @@ class MainActivity : AppCompatActivity() {
             userId = SessionManager.getUserId(this) ?: -1
         }
 
-        val tvHeader = findViewById<TextView>(R.id.tvHeader)
-        val tvCarName = findViewById<TextView>(R.id.tvCarName)
-        val tvCarInfo = findViewById<TextView>(R.id.tvCarInfo)
         val tvProfileName = findViewById<TextView>(R.id.tvProfileName)
         val btnTalkToCar = findViewById<View>(R.id.btnTalkToCar)
         val btnExpenses = findViewById<View>(R.id.btnExpenses)
@@ -125,7 +122,6 @@ class MainActivity : AppCompatActivity() {
             startActivity(Intent(this, ProfileActivity::class.java))
         }
 
-        loadVehicleData(tvHeader, tvCarName, tvCarInfo)
     }
 
     override fun onResume() {
@@ -134,6 +130,11 @@ class MainActivity : AppCompatActivity() {
             renderChatHistory(menuRequests, drawerOverlay)
         }
         refreshNotificationBadge()
+        loadVehicleData(
+            findViewById(R.id.tvHeader),
+            findViewById(R.id.tvCarName),
+            findViewById(R.id.tvCarInfo),
+        )
     }
 
     override fun onBackPressed() {

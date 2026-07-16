@@ -21,7 +21,8 @@
             android:contentDescription="Назад"
             android:padding="10dp"
             android:src="@drawable/ic_lamba_arrow_back"
-            android:tint="#101114" />
+            android:tint="#101114"
+            android:translationX="-10dp" />
 
         <TextView
             android:layout_width="wrap_content"
@@ -37,58 +38,143 @@
             android:layout_marginTop="28dp"
             android:text="Аккаунт" />
 
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:text="Username"
+            android:textColor="#77777E"
+            android:textSize="16sp" />
+
         <EditText
             android:id="@+id/etProfileUsername"
             style="@style/LambaFormInput"
+            android:layout_width="match_parent"
             android:enabled="false"
             android:inputType="text"
             android:textColor="#77777E" />
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/btnChangePassword"
+            android:layout_width="match_parent"
+            android:layout_height="58dp"
+            android:layout_marginTop="18dp"
+            android:background="@drawable/bg_lamba_send_button"
+            android:text="Изменить пароль"
+            android:textAllCaps="false"
+            android:textColor="#FFFFFF"
+            android:textSize="18sp"
+            android:textStyle="bold" />
+
+        <LinearLayout
+            android:id="@+id/passwordFormContainer"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:visibility="gone">
+
+            <EditText
+                android:id="@+id/etCurrentPassword"
+                style="@style/LambaFormInput"
+                android:layout_width="match_parent"
+                android:layout_marginTop="18dp"
+                android:hint="Текущий пароль"
+                android:inputType="textPassword" />
+
+            <EditText
+                android:id="@+id/etNewPassword"
+                style="@style/LambaFormInput"
+                android:layout_width="match_parent"
+                android:layout_marginTop="14dp"
+                android:hint="Новый пароль"
+                android:inputType="textPassword" />
+
+            <EditText
+                android:id="@+id/etNewPasswordConfirmation"
+                style="@style/LambaFormInput"
+                android:layout_width="match_parent"
+                android:layout_marginTop="14dp"
+                android:hint="Повторите новый пароль"
+                android:inputType="textPassword" />
+
+            <TextView
+                android:id="@+id/tvPasswordError"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:textColor="#960018"
+                android:textSize="16sp"
+                android:visibility="gone" />
+        </LinearLayout>
 
         <TextView
             style="@style/LambaFormLabel"
             android:layout_marginTop="30dp"
             android:text="Автомобиль" />
 
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:text="Марка"
+            android:textColor="#77777E"
+            android:textSize="16sp" />
+
         <EditText
             android:id="@+id/etProfileBrand"
             style="@style/LambaFormInput"
+            android:layout_width="match_parent"
             android:hint="Марка"
             android:inputType="text"
             android:maxLength="64" />
 
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="14dp"
+            android:text="Модель"
+            android:textColor="#77777E"
+            android:textSize="16sp" />
+
         <EditText
             android:id="@+id/etProfileModel"
             style="@style/LambaFormInput"
-            android:layout_marginTop="14dp"
+            android:layout_width="match_parent"
             android:hint="Модель"
             android:inputType="text"
             android:maxLength="64" />
 
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="14dp"
+            android:text="Год выпуска"
+            android:textColor="#77777E"
+            android:textSize="16sp" />
+
         <EditText
             android:id="@+id/etProfileYear"
             style="@style/LambaFormInput"
-            android:layout_marginTop="14dp"
+            android:layout_width="match_parent"
             android:hint="Год выпуска"
             android:inputType="number"
             android:maxLength="4" />
 
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="14dp"
+            android:text="Текущий пробег, км"
+            android:textColor="#77777E"
+            android:textSize="16sp" />
+
         <EditText
             android:id="@+id/etProfileMileage"
             style="@style/LambaFormInput"
-            android:layout_marginTop="14dp"
-            android:hint="Текущий пробег (км)"
+            android:layout_width="match_parent"
+            android:hint="Текущий пробег, км"
             android:inputType="number"
             android:maxLength="10" />
-
-        <TextView
-            android:id="@+id/tvMileageLocked"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:text="Пробег нельзя изменить после добавления записи в историю."
-            android:textColor="#77777E"
-            android:textSize="14sp"
-            android:visibility="gone" />
 
         <TextView
             android:id="@+id/tvVehicleError"
@@ -111,61 +197,15 @@
             android:textSize="18sp"
             android:textStyle="bold" />
 
-        <TextView
-            style="@style/LambaFormLabel"
-            android:layout_marginTop="34dp"
-            android:text="Смена пароля" />
-
-        <EditText
-            android:id="@+id/etCurrentPassword"
-            style="@style/LambaFormInput"
-            android:hint="Текущий пароль"
-            android:inputType="textPassword" />
-
-        <EditText
-            android:id="@+id/etNewPassword"
-            style="@style/LambaFormInput"
-            android:layout_marginTop="14dp"
-            android:hint="Новый пароль"
-            android:inputType="textPassword" />
-
-        <EditText
-            android:id="@+id/etNewPasswordConfirmation"
-            style="@style/LambaFormInput"
-            android:layout_marginTop="14dp"
-            android:hint="Повторите новый пароль"
-            android:inputType="textPassword" />
-
-        <TextView
-            android:id="@+id/tvPasswordError"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:textColor="#960018"
-            android:textSize="16sp"
-            android:visibility="gone" />
-
-        <androidx.appcompat.widget.AppCompatButton
-            android:id="@+id/btnChangePassword"
-            android:layout_width="match_parent"
-            android:layout_height="58dp"
-            android:layout_marginTop="18dp"
-            android:background="@drawable/bg_lamba_send_button"
-            android:text="Изменить пароль"
-            android:textAllCaps="false"
-            android:textColor="#FFFFFF"
-            android:textSize="18sp"
-            android:textStyle="bold" />
-
         <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/btnProfileLogout"
             android:layout_width="match_parent"
             android:layout_height="58dp"
             android:layout_marginTop="30dp"
-            android:background="@drawable/bg_lamba_bot_bubble"
+            android:background="@drawable/bg_lamba_send_button"
             android:text="Выйти"
             android:textAllCaps="false"
-            android:textColor="#960018"
+            android:textColor="#FFFFFF"
             android:textSize="18sp"
             android:textStyle="bold" />
 

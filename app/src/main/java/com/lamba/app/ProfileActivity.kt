@@ -2,10 +2,12 @@ package com.lamba.app
 
 import android.app.AlertDialog
 import android.content.Intent
+import android.graphics.Color
 import android.os.Bundle
 import android.view.View
 import android.widget.EditText
 import android.widget.ImageView
+import android.widget.LinearLayout
 import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
@@ -23,6 +25,7 @@ class ProfileActivity : AppCompatActivity() {
     private val localChatRepository by lazy { LocalChatService.getRepository(this) }
     private var vehicle: Vehicle? = null
     private var isSaving = false
+    private var isPasswordFormVisible = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -44,7 +47,7 @@ class ProfileActivity : AppCompatActivity() {
         val etNewPasswordConfirmation = findViewById<EditText>(R.id.etNewPasswordConfirmation)
         val tvVehicleError = findViewById<TextView>(R.id.tvVehicleError)
         val tvPasswordError = findViewById<TextView>(R.id.tvPasswordError)
-        val tvMileageLocked = findViewById<TextView>(R.id.tvMileageLocked)
+        val passwordFormContainer = findViewById<LinearLayout>(R.id.passwordFormContainer)
         val progressBar = findViewById<ProgressBar>(R.id.profileProgressBar)
         val btnSaveVehicle = findViewById<AppCompatButton>(R.id.btnSaveProfileVehicle)
         val btnChangePassword = findViewById<AppCompatButton>(R.id.btnChangePassword)
@@ -59,7 +62,10 @@ class ProfileActivity : AppCompatActivity() {
             etYear.setText(current.productionYear.toString())
             etMileage.setText(current.currentMileage.toString())
             etMileage.isEnabled = current.canEditMileage
-            tvMileageLocked.visibility = if (current.canEditMileage) View.GONE else View.VISIBLE
+            etMileage.setTextColor(
+                Color.parseColor(if (current.canEditMileage) "#101114" else "#77777E"),
+            )
+            btnSaveVehicle.isEnabled = !isSaving
         }
 
         fun setBusy(busy: Boolean) {
@@ -116,6 +122,13 @@ class ProfileActivity : AppCompatActivity() {
         }
 
         btnChangePassword.setOnClickListener {
+            if (!isPasswordFormVisible) {
+                isPasswordFormVisible = true
+                passwordFormContainer.visibility = View.VISIBLE
+                btnChangePassword.text = "Сохранить пароль"
+                return@setOnClickListener
+            }
+
             val currentPassword = etCurrentPassword.text.toString()
             val newPassword = etNewPassword.text.toString()
             val confirmation = etNewPasswordConfirmation.text.toString()

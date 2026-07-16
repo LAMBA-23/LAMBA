@@ -85,7 +85,7 @@ class ChatActivity : AppCompatActivity() {
         adapter = ChatAdapter(messageList)
         rvChatMessages.layoutManager = LinearLayoutManager(this)
         rvChatMessages.adapter = adapter
-        loadVehicleNameIfNeeded()
+        loadVehicleName()
 
         setupSuggestion(R.id.suggestStatus, "Проверить состояние автомобиля", R.drawable.ic_lamba_timeline)
         setupSuggestion(R.id.suggestExpenses, "Показать последние расходы", R.drawable.ic_lamba_wallet)
@@ -185,8 +185,7 @@ class ChatActivity : AppCompatActivity() {
         layout.setOnClickListener { sendMessage(title) }
     }
 
-    private fun loadVehicleNameIfNeeded() {
-        if (vehicleName != "машина") return
+    private fun loadVehicleName() {
         val userId = SessionManager.getUserId(this) ?: return
 
         lifecycleScope.launch {
