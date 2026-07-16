@@ -45,6 +45,7 @@ object SessionManager {
         val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
         val userId = getUserId(context)
         val chatSessionState = ChatSessionState(SharedPreferencesKeyValueStore(context))
+        val activeTripState = ActiveTripState(SharedPreferencesKeyValueStore(context))
 
         with(prefs.edit()) {
             remove(KEY_USER_ID)
@@ -53,6 +54,7 @@ object SessionManager {
                 remove(chatRequestsKey(userId))
                 remove(viewedRecommendationsKey(userId))
                 chatSessionState.clearCurrentChatId(userId)
+                activeTripState.clear(userId)
             }
             apply()
         }
@@ -128,6 +130,21 @@ object SessionManager {
     fun clearCurrentChatId(context: Context) {
         val userId = getUserId(context) ?: return
         ChatSessionState(SharedPreferencesKeyValueStore(context)).clearCurrentChatId(userId)
+    }
+
+    fun saveActiveTrip(context: Context, odometerStart: Int) {
+        val userId = getUserId(context) ?: return
+        ActiveTripState(SharedPreferencesKeyValueStore(context)).save(userId, ActiveTrip(odometerStart))
+    }
+
+    fun getActiveTrip(context: Context): ActiveTrip? {
+        val userId = getUserId(context) ?: return null
+        return ActiveTripState(SharedPreferencesKeyValueStore(context)).get(userId)
+    }
+
+    fun clearActiveTrip(context: Context) {
+        val userId = getUserId(context) ?: return
+        ActiveTripState(SharedPreferencesKeyValueStore(context)).clear(userId)
     }
 
     private fun chatRequestsKey(userId: Int): String = "$KEY_CHAT_REQUESTS_PREFIX$userId"
