@@ -17,6 +17,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Android notification icon now opens a full-screen in-app notification inbox
   with recommendation cards, loading/error/empty states, and a per-user unread
   red-dot indicator.
+- Android main screen now supports starting and finishing trips with odometer
+  values before saving the completed trip to History (#331).
 
 ### Changed
 
