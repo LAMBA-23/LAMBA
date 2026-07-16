@@ -104,10 +104,21 @@ def parse_chat_message(message: str) -> ParsedChatEvent:
         )
 
 
+def _contains_any_event_keywords(message: str) -> bool:
+    return (
+        _contains_fuel_keywords(message)
+        or _contains_repair_keywords(message)
+        or _contains_trip_keywords(message)
+        or _contains_issue_keywords(message)
+    )
+
+
 def _apply_guardrails(message: str, parsed_event: ParsedChatEvent) -> ParsedChatEvent:
     normalized_message = message.lower()
 
-    if _is_greeting(normalized_message):
+    if _is_greeting(normalized_message) and not _contains_any_event_keywords(
+        normalized_message
+    ):
         return ParsedChatEvent(
             type=None,
             description=None,
@@ -118,7 +129,9 @@ def _apply_guardrails(message: str, parsed_event: ParsedChatEvent) -> ParsedChat
             clarification_question=GREETING_RESPONSE,
         )
 
-    if _is_thanks(normalized_message):
+    if _is_thanks(normalized_message) and not _contains_any_event_keywords(
+        normalized_message
+    ):
         return ParsedChatEvent(
             type=None,
             description=None,
@@ -202,22 +215,27 @@ def _apply_guardrails(message: str, parsed_event: ParsedChatEvent) -> ParsedChat
     return parsed_event
 
 
+def _format_decimal_ru(value: float | int) -> str:
+    raw = f"{value:g}"
+    return raw.replace(".", ",")
+
+
 def _fuel_description(fuel_liters: float) -> str:
     return (
         _ru(0x417, 0x430, 0x43F, 0x440, 0x430, 0x432, 0x43A, 0x430)
         + " "
         + _ru(0x43D, 0x430)
-        + f" {fuel_liters:g} "
+        + f" {_format_decimal_ru(fuel_liters)} "
         + _ru(0x43B, 0x438, 0x442, 0x440, 0x43E, 0x432)
     )
 
 
-def _trip_description(distance_km: int) -> str:
+def _trip_description(distance_km: float | int) -> str:
     return (
         _ru(0x41F, 0x43E, 0x435, 0x437, 0x434, 0x43A, 0x430)
         + " "
         + _ru(0x43D, 0x430)
-        + f" {distance_km} "
+        + f" {_format_decimal_ru(distance_km)} "
         + _ru(0x43A, 0x438, 0x43B, 0x43E, 0x43C, 0x435, 0x442, 0x440, 0x43E, 0x432)
     )
 
@@ -237,7 +255,7 @@ def _extract_fuel_liters(message: str) -> float | None:
     return float(match.group(1).replace(",", ".")) if match else None
 
 
-def _extract_money_amount(message: str) -> int | None:
+def _extract_money_amount(message: str) -> float | int | None:
     units = "|".join(
         re.escape(unit)
         for unit in (
@@ -249,8 +267,15 @@ def _extract_money_amount(message: str) -> int | None:
             _ru(0x440, 0x443, 0x431, 0x43B, 0x44C),
         )
     )
-    match = re.search(rf"\b(\d+)\s*(?:{units})\b", message)
-    return int(match.group(1)) if match else None
+    match = re.search(rf"\b(\d+(?:[.,]\d+)?)\s*(?:{units})\b", message)
+    if not match:
+        return None
+    raw = match.group(1).replace(",", ".")
+    try:
+        value = float(raw)
+        return int(value) if value == int(value) else value
+    except ValueError:
+        return None
 
 
 def _extract_trip_distance_km(message: str) -> int | None:
@@ -289,8 +314,15 @@ def _extract_trip_distance_km(message: str) -> int | None:
             _ru(0x43A, 0x438, 0x43B, 0x43E, 0x43C, 0x435, 0x442, 0x440, 0x43E, 0x432),
         )
     )
-    match = re.search(rf"\b(\d+)\s*(?:{units})\b", message)
-    return int(match.group(1)) if match else None
+    match = re.search(rf"\b(\d+(?:[.,]\d+)?)\s*(?:{units})\b", message)
+    if not match:
+        return None
+    raw = match.group(1).replace(",", ".")
+    try:
+        value = float(raw)
+        return int(value) if value == int(value) else value
+    except ValueError:
+        return None
 
 
 def _looks_like_fuel_liters_message(message: str) -> bool:
