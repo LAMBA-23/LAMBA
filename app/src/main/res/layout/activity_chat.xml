@@ -20,23 +20,15 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
-        <LinearLayout
+        <ImageButton
             android:id="@+id/navBackToCar"
-            android:layout_width="52dp"
-            android:layout_height="52dp"
-            android:clickable="true"
-            android:focusable="true"
-            android:foreground="?attr/selectableItemBackgroundBorderless"
-            android:gravity="center"
-            android:orientation="vertical">
-
-            <ImageView
-                android:layout_width="32dp"
-                android:layout_height="32dp"
-                android:contentDescription="Назад"
-                android:src="@drawable/ic_lamba_arrow_back"
-                app:tint="@color/theme_icon_primary" />
-        </LinearLayout>
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="Назад"
+            android:padding="10dp"
+            android:src="@drawable/ic_lamba_arrow_back"
+            app:tint="@color/theme_navigation_icon" />
 
         <LinearLayout
             android:layout_width="0dp"
@@ -71,7 +63,7 @@
                     android:ellipsize="end"
                     android:maxLines="1"
                     android:text="машина"
-                    android:textColor="#101114"
+                    android:textColor="@color/theme_text_primary"
                     android:textSize="17sp" />
 
                 <View
@@ -85,38 +77,17 @@
                     android:layout_height="wrap_content"
                     android:layout_marginStart="6dp"
                     android:text="на связи"
-                    android:textColor="#77777E"
+                    android:textColor="@color/theme_text_secondary"
                     android:textSize="15sp" />
             </LinearLayout>
         </LinearLayout>
-
-        <FrameLayout
-            android:layout_width="48dp"
-            android:layout_height="48dp">
-
-            <ImageView
-                android:layout_width="31dp"
-                android:layout_height="31dp"
-                android:layout_gravity="center"
-                android:contentDescription="Уведомления"
-                android:src="@drawable/ic_lamba_notifications"
-                app:tint="@color/theme_icon_primary" />
-
-            <View
-                android:layout_width="10dp"
-                android:layout_height="10dp"
-                android:layout_gravity="top|end"
-                android:layout_marginTop="6dp"
-                android:layout_marginEnd="7dp"
-                android:background="@drawable/bg_lamba_notification_dot" />
-        </FrameLayout>
     </LinearLayout>
 
     <View
         android:id="@+id/chatDivider"
         android:layout_width="0dp"
         android:layout_height="1dp"
-        android:background="#E7E7EA"
+        android:background="@color/theme_divider"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/chatHeader" />
@@ -125,7 +96,7 @@
         android:id="@+id/chatContent"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:background="#F6F6F7"
+        android:background="@color/theme_surface_secondary"
         android:orientation="vertical"
         android:paddingStart="30dp"
         android:paddingTop="18dp"
@@ -185,7 +156,7 @@
                     android:layout_marginEnd="12dp"
                     android:ellipsize="end"
                     android:maxLines="1"
-                    android:textColor="#101114"
+                    android:textColor="@color/theme_text_primary"
                     android:textSize="16sp"
                     android:textStyle="bold"
                     app:layout_constraintBottom_toBottomOf="parent"
@@ -203,7 +174,7 @@
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
-                    app:tint="#960018" />
+                    app:tint="@color/theme_accent" />
             </androidx.constraintlayout.widget.ConstraintLayout>
 
             <androidx.constraintlayout.widget.ConstraintLayout
@@ -236,7 +207,7 @@
                     android:layout_marginEnd="12dp"
                     android:ellipsize="end"
                     android:maxLines="1"
-                    android:textColor="#101114"
+                    android:textColor="@color/theme_text_primary"
                     android:textSize="16sp"
                     android:textStyle="bold"
                     app:layout_constraintBottom_toBottomOf="parent"
@@ -254,7 +225,7 @@
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
-                    app:tint="#960018" />
+                    app:tint="@color/theme_accent" />
             </androidx.constraintlayout.widget.ConstraintLayout>
 
             <androidx.constraintlayout.widget.ConstraintLayout
@@ -287,7 +258,7 @@
                     android:layout_marginEnd="12dp"
                     android:ellipsize="end"
                     android:maxLines="1"
-                    android:textColor="#101114"
+                    android:textColor="@color/theme_text_primary"
                     android:textSize="16sp"
                     android:textStyle="bold"
                     app:layout_constraintBottom_toBottomOf="parent"
@@ -305,7 +276,7 @@
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
-                    app:tint="#960018" />
+                    app:tint="@color/theme_accent" />
             </androidx.constraintlayout.widget.ConstraintLayout>
 
             <androidx.constraintlayout.widget.ConstraintLayout
@@ -337,7 +308,7 @@
                     android:layout_marginEnd="12dp"
                     android:ellipsize="end"
                     android:maxLines="1"
-                    android:textColor="#101114"
+                    android:textColor="@color/theme_text_primary"
                     android:textSize="16sp"
                     android:textStyle="bold"
                     app:layout_constraintBottom_toBottomOf="parent"
@@ -355,7 +326,7 @@
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
-                    app:tint="#960018" />
+                    app:tint="@color/theme_accent" />
             </androidx.constraintlayout.widget.ConstraintLayout>
 
         </LinearLayout>
@@ -365,7 +336,7 @@
         android:id="@+id/layoutChatInput"
         android:layout_width="0dp"
         android:layout_height="80dp"
-        android:background="#FDFDFD"
+        android:background="@color/theme_surface"
         android:paddingStart="24dp"
         android:paddingEnd="24dp"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -394,7 +365,7 @@
                 android:maxLines="3"
                 android:paddingStart="18dp"
                 android:paddingEnd="18dp"
-                android:textColor="#101114"
+                android:textColor="@color/theme_text_primary"
                 android:textColorHint="#9B9BA3"
                 android:textSize="16sp" />
         </FrameLayout>
@@ -417,6 +388,15 @@
                 android:contentDescription="Голосовой ввод"
                 android:padding="10dp"
                 android:src="@drawable/ic_lamba_mic" />
+
+            <ProgressBar
+                android:id="@+id/progressChatMic"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_gravity="center"
+                android:indeterminate="true"
+                android:indeterminateTint="#960018"
+                android:visibility="gone" />
         </FrameLayout>
 
         <FrameLayout
@@ -434,7 +414,7 @@
                 android:background="@drawable/bg_lamba_send_button"
                 android:contentDescription="Отправить"
                 android:padding="13dp"
-                android:src="@drawable/ic_lamba_send_pedal"
+                android:src="@drawable/ic_lamba_send"
                 app:tint="#FFFFFF" />
 
             <ProgressBar

@@ -23,6 +23,7 @@ import com.lamba.app.chat.ChatSender
 import com.lamba.app.chat.LocalChatService
 import com.lamba.app.chat.LocalChatWithMessages
 import com.lamba.app.chat.VoiceRecordingAction
+import com.lamba.app.chat.VoiceRecordingPhase
 import com.lamba.app.chat.VoiceRecordingState
 import com.lamba.app.network.ChatBackendException
 import com.lamba.app.network.ChatContextMessage
@@ -37,10 +38,14 @@ import com.lamba.app.network.RetrofitClient
 import com.lamba.app.network.SessionManager
 import java.time.Instant
 import java.io.File
+import android.content.res.ColorStateList
+import android.graphics.Color
+import android.view.animation.AlphaAnimation
+import android.view.animation.Animation
 import kotlinx.coroutines.launch
-import okhttp3.MediaType.Companion.toMediaType
+import okhttp3.MediaType
 import okhttp3.MultipartBody
-import okhttp3.RequestBody.Companion.asRequestBody
+import okhttp3.RequestBody
 
 class ChatActivity : AppCompatActivity() {
 
@@ -59,6 +64,7 @@ class ChatActivity : AppCompatActivity() {
     private lateinit var btnChatSend: ImageButton
     private lateinit var btnChatMic: ImageButton
     private lateinit var progressChatSend: ProgressBar
+    private lateinit var progressChatMic: ProgressBar
     private lateinit var tvChatStatus: TextView
     private lateinit var tvChatTitle: TextView
     private var isSending = false
@@ -69,6 +75,7 @@ class ChatActivity : AppCompatActivity() {
     private val voiceRecordingState = VoiceRecordingState()
     private var mediaRecorder: MediaRecorder? = null
     private var voiceRecordingFile: File? = null
+    private var micBlinkAnimation: Animation? = null
     private val localChatRepository by lazy { LocalChatService.getRepository(this) }
 
     private val chatRepository by lazy {
@@ -92,9 +99,10 @@ class ChatActivity : AppCompatActivity() {
         btnChatSend = findViewById(R.id.btnChatSend)
         btnChatMic = findViewById(R.id.btnChatMic)
         progressChatSend = findViewById(R.id.progressChatSend)
+        progressChatMic = findViewById(R.id.progressChatMic)
         tvChatStatus = findViewById(R.id.tvChatStatus)
         tvChatTitle = findViewById(R.id.tvChatTitle)
-        val navBackToCar = findViewById<LinearLayout>(R.id.navBackToCar)
+        val navBackToCar = findViewById<ImageButton>(R.id.navBackToCar)
 
         tvChatStatus.text = vehicleName
 
@@ -298,6 +306,7 @@ class ChatActivity : AppCompatActivity() {
     }
 
     private fun onMicrophoneClicked() {
+        if (isSending) return
         when (voiceRecordingState.onMicrophoneTap(hasRecordAudioPermission())) {
             VoiceRecordingAction.REQUEST_PERMISSION ->
                 requestPermissions(arrayOf(Manifest.permission.RECORD_AUDIO), REQUEST_RECORD_AUDIO)
@@ -306,6 +315,7 @@ class ChatActivity : AppCompatActivity() {
             VoiceRecordingAction.STOP_AND_TRANSCRIBE -> stopRecordingAndTranscribe()
             VoiceRecordingAction.NONE -> Unit
         }
+        updateVoiceRecordingUI()
     }
 
     private fun hasRecordAudioPermission(): Boolean {
@@ -329,6 +339,7 @@ class ChatActivity : AppCompatActivity() {
             releaseRecorder()
             outputFile.delete()
             voiceRecordingState.onTranscriptionFinished()
+            updateVoiceRecordingUI()
             Toast.makeText(this, "Не удалось начать запись голоса.", Toast.LENGTH_SHORT).show()
         }
     }
@@ -341,6 +352,7 @@ class ChatActivity : AppCompatActivity() {
             audioFile?.delete()
             voiceRecordingFile = null
             voiceRecordingState.onTranscriptionFinished()
+            updateVoiceRecordingUI()
             Toast.makeText(this, "Не удалось записать голосовое сообщение.", Toast.LENGTH_SHORT).show()
             return
         } finally {
@@ -364,13 +376,12 @@ class ChatActivity : AppCompatActivity() {
             return
         }
 
-        btnChatMic.isEnabled = false
         lifecycleScope.launch {
             try {
                 val audio = MultipartBody.Part.createFormData(
                     "audio",
                     audioFile.name,
-                    audioFile.asRequestBody("audio/mp4".toMediaType()),
+                    RequestBody.create(MediaType.parse("audio/mp4"), audioFile),
                 )
                 val response = RetrofitClient.apiService.transcribeChatAudio(audio, userId)
                 val text = response.body()?.text?.trim()
@@ -401,7 +412,45 @@ class ChatActivity : AppCompatActivity() {
         audioFile?.delete()
         if (voiceRecordingFile == audioFile) voiceRecordingFile = null
         voiceRecordingState.onTranscriptionFinished()
-        btnChatMic.isEnabled = true
+        updateVoiceRecordingUI()
+    }
+
+    private fun updateVoiceRecordingUI() {
+        val phase = voiceRecordingState.phase
+        val isRecording = phase == VoiceRecordingPhase.RECORDING
+        val isTranscribing = phase == VoiceRecordingPhase.TRANSCRIBING
+
+        // 1. Состояние кнопки микрофона и индикатора загрузки
+        btnChatMic.visibility = if (isTranscribing) View.INVISIBLE else View.VISIBLE
+        progressChatMic.visibility = if (isTranscribing) View.VISIBLE else View.GONE
+        btnChatMic.isEnabled = !isSending && !isTranscribing
+
+        if (isRecording) {
+            btnChatMic.imageTintList = ColorStateList.valueOf(Color.parseColor("#D32F2F"))
+            if (micBlinkAnimation == null) {
+                micBlinkAnimation = AlphaAnimation(1f, 0.4f).apply {
+                    duration = 600
+                    repeatMode = Animation.REVERSE
+                    repeatCount = Animation.INFINITE
+                }
+                btnChatMic.startAnimation(micBlinkAnimation)
+            }
+        } else {
+            btnChatMic.imageTintList = null // Возвращаем исходный цвет
+            btnChatMic.clearAnimation()
+            micBlinkAnimation = null
+        }
+
+        // 2. Состояние поля ввода
+        etChatBackMessage.isEnabled = !isRecording && !isTranscribing && !isSending
+        etChatBackMessage.hint = when {
+            isRecording -> "Слушаю..."
+            isTranscribing -> "Распознаю голос..."
+            else -> "Расскажи машине, что произошло..."
+        }
+
+        // 3. Состояние кнопки отправки
+        btnChatSend.isEnabled = !isRecording && !isTranscribing && !isSending
     }
 
     private fun releaseRecorder() {
@@ -537,6 +586,7 @@ class ChatActivity : AppCompatActivity() {
         etChatBackMessage.isEnabled = !isSending
         btnChatSend.visibility = if (isSending) View.INVISIBLE else View.VISIBLE
         progressChatSend.visibility = if (isSending) View.VISIBLE else View.GONE
+        updateVoiceRecordingUI()
     }
 
     private fun formatSavedEvent(event: Event): String {

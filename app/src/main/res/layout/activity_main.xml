@@ -54,7 +54,7 @@
                 android:contentDescription="Меню"
                 android:padding="9dp"
                 android:src="@drawable/ic_lamba_menu"
-                app:tint="#960018" />
+                app:tint="@color/theme_accent" />
 
             <Space
                 android:layout_width="0dp"
@@ -97,8 +97,8 @@
             android:ellipsize="end"
             android:gravity="center"
             android:maxLines="2"
-            android:text="Привет! Я твоя машина."
-            android:textColor="#101114"
+            android:text="Привет! Я машина."
+            android:textColor="@color/theme_text_primary"
             android:textSize="24sp"
             android:textStyle="bold" />
 
@@ -109,7 +109,7 @@
             android:gravity="center"
             android:maxLines="2"
             android:text="Всегда на связи. Чем могу помочь?"
-            android:textColor="#77777E"
+            android:textColor="@color/theme_text_secondary"
             android:textSize="19sp" />
 
         <FrameLayout
@@ -151,7 +151,7 @@
                     android:layout_height="wrap_content"
                     android:includeFontPadding="false"
                     android:text="Автомобиль"
-                    android:textColor="#101114"
+                    android:textColor="@color/theme_text_primary"
                     android:textSize="18sp"
                     android:textStyle="bold"
                     android:visibility="gone" />
@@ -161,7 +161,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text=""
-                    android:textColor="#77777E"
+                    android:textColor="@color/theme_text_secondary"
                     android:textSize="14sp"
                     android:visibility="gone" />
             </LinearLayout>
@@ -235,7 +235,7 @@
                     android:layout_marginStart="14dp"
                     android:layout_marginEnd="16dp"
                     android:text="Проверить состояние"
-                    android:textColor="#101114"
+                    android:textColor="@color/theme_text_primary"
                     android:textSize="15sp"
                     android:textStyle="bold"
                     app:layout_constraintBottom_toBottomOf="parent"
@@ -270,7 +270,7 @@
                     android:layout_marginStart="14dp"
                     android:layout_marginEnd="16dp"
                     android:text="Последние расходы"
-                    android:textColor="#101114"
+                    android:textColor="@color/theme_text_primary"
                     android:textSize="15sp"
                     android:textStyle="bold"
                     app:layout_constraintBottom_toBottomOf="parent"
@@ -305,7 +305,7 @@
                     android:layout_marginStart="14dp"
                     android:layout_marginEnd="16dp"
                     android:text="Последнее ТО"
-                    android:textColor="#101114"
+                    android:textColor="@color/theme_text_primary"
                     android:textSize="15sp"
                     android:textStyle="bold"
                     app:layout_constraintBottom_toBottomOf="parent"
@@ -339,7 +339,7 @@
                     android:layout_marginStart="14dp"
                     android:layout_marginEnd="16dp"
                     android:text="Добавить запись"
-                    android:textColor="#101114"
+                    android:textColor="@color/theme_text_primary"
                     android:textSize="15sp"
                     android:textStyle="bold"
                     app:layout_constraintBottom_toBottomOf="parent"
@@ -360,10 +360,10 @@
                 android:id="@+id/homeInputFrame"
                 android:layout_width="0dp"
                 android:layout_height="58dp"
-                android:layout_marginEnd="12dp"
+                android:layout_marginEnd="8dp"
                 android:background="@drawable/bg_lamba_chat_input"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toStartOf="@id/btnHomeSend"
+                app:layout_constraintEnd_toStartOf="@id/homeMicButtonFrame"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent">
 
@@ -372,15 +372,44 @@
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:background="@android:color/transparent"
-                    android:hint="Расскажи машине, что произошло..."
+                    android:hint="Сообщение"
                     android:imeOptions="actionSend"
                     android:inputType="textCapSentences|textMultiLine"
                     android:maxLines="3"
                     android:paddingStart="18dp"
                     android:paddingEnd="18dp"
-                    android:textColor="#101114"
+                    android:textColor="@color/theme_text_primary"
                     android:textColorHint="#9B9BA3"
                     android:textSize="17sp" />
+            </FrameLayout>
+
+            <FrameLayout
+                android:id="@+id/homeMicButtonFrame"
+                android:layout_width="48dp"
+                android:layout_height="58dp"
+                android:layout_marginEnd="8dp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toStartOf="@id/btnHomeSend"
+                app:layout_constraintTop_toTopOf="parent">
+
+                <ImageButton
+                    android:id="@+id/btnHomeMic"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:layout_gravity="center"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:contentDescription="Голосовой ввод"
+                    android:padding="10dp"
+                    android:src="@drawable/ic_lamba_mic" />
+
+                <ProgressBar
+                    android:id="@+id/progressHomeMic"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:layout_gravity="center"
+                    android:indeterminate="true"
+                    android:indeterminateTint="#960018"
+                    android:visibility="gone" />
             </FrameLayout>
 
             <ImageButton
@@ -390,7 +419,7 @@
                 android:background="@drawable/bg_lamba_send_button"
                 android:contentDescription="Отправить"
                 android:padding="13dp"
-                android:src="@drawable/ic_lamba_send_pedal"
+                android:src="@drawable/ic_lamba_send"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
@@ -443,7 +472,7 @@
                     android:forceDarkAllowed="false"
                     android:includeFontPadding="false"
                     android:text="LAMBA"
-                    android:textColor="#960018"
+                    android:textColor="@color/theme_accent"
                     android:textSize="33sp"
                     android:textStyle="bold|italic" />
 
@@ -455,7 +484,7 @@
                     android:contentDescription="Закрыть"
                     android:padding="11dp"
                     android:src="@drawable/ic_lamba_close"
-                    app:tint="#101114" />
+                    app:tint="@color/theme_text_primary" />
             </LinearLayout>
 
             <Space
@@ -469,7 +498,7 @@
                 <ImageView
                     style="@style/LambaDrawerIcon"
                     android:src="@drawable/ic_lamba_history"
-                    app:tint="#960018" />
+                    app:tint="@color/theme_accent" />
 
                 <TextView
                     style="@style/LambaDrawerText"
@@ -479,7 +508,7 @@
                     style="@style/LambaDrawerArrow"
                     android:rotation="180"
                     android:src="@drawable/ic_lamba_arrow_back"
-                    app:tint="#77777E" />
+                    app:tint="@color/theme_text_primary" />
             </LinearLayout>
 
             <LinearLayout
@@ -489,7 +518,7 @@
                 <ImageView
                     style="@style/LambaDrawerIcon"
                     android:src="@drawable/ic_lamba_stats"
-                    app:tint="#960018" />
+                    app:tint="@color/theme_accent" />
 
                 <TextView
                     style="@style/LambaDrawerText"
@@ -499,7 +528,7 @@
                     style="@style/LambaDrawerArrow"
                     android:rotation="180"
                     android:src="@drawable/ic_lamba_arrow_back"
-                    app:tint="#77777E" />
+                    app:tint="@color/theme_text_primary" />
             </LinearLayout>
 
             <View
@@ -507,7 +536,7 @@
                 android:layout_height="1dp"
                 android:layout_marginTop="4dp"
                 android:layout_marginBottom="18dp"
-                android:background="#E7E7EA" />
+                android:background="@color/theme_divider" />
 
             <LinearLayout
                 android:id="@+id/menuRequestsHeader"
@@ -523,7 +552,7 @@
                     android:ellipsize="end"
                     android:maxLines="1"
                     android:text="История запросов"
-                    android:textColor="#101114"
+                    android:textColor="@color/theme_text_primary"
                     android:textSize="19sp"
                     android:textStyle="bold" />
 
@@ -531,7 +560,7 @@
                     android:layout_width="30dp"
                     android:layout_height="30dp"
                     android:src="@drawable/ic_lamba_chevron_down"
-                    app:tint="#101114" />
+                    app:tint="@color/theme_text_primary" />
             </LinearLayout>
 
             <LinearLayout
@@ -545,26 +574,26 @@
                 android:layout_height="0dp"
                 android:layout_weight="1" />
 
-            <LinearLayout
-                    android:id="@+id/menuProfile"
-                    android:layout_width="match_parent"
-                    android:layout_height="86dp"
-                    android:layout_gravity="bottom"
-                    android:background="@drawable/bg_lamba_bot_bubble"
-                    android:clickable="true"
-                    android:focusable="true"
-                    android:gravity="center_vertical"
-                    android:orientation="horizontal"
-                    android:paddingStart="18dp"
-                    android:paddingEnd="14dp">
+                    <LinearLayout
+                            android:id="@+id/menuProfile"
+                            android:layout_width="match_parent"
+                            android:layout_height="86dp"
+                            android:layout_gravity="bottom"
+                            android:background="@drawable/bg_lamba_bot_bubble"
+                            android:clickable="true"
+                            android:focusable="true"
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal"
+                            android:paddingStart="0dp"
+                            android:paddingEnd="14dp">
 
-                    <ImageView
-                        android:layout_width="56dp"
-                        android:layout_height="56dp"
-                        android:background="@drawable/bg_icon_red_light"
-                        android:padding="13dp"
-                        android:src="@drawable/ic_lamba_person"
-                        app:tint="#960018" />
+                            <ImageView
+                                android:layout_width="56dp"
+                                android:layout_height="56dp"
+                                android:background="@drawable/bg_icon_red_light"
+                                android:padding="13dp"
+                                android:src="@drawable/ic_lamba_person"
+                                app:tint="#960018" />
 
                     <TextView
                         android:id="@+id/tvProfileName"
@@ -575,7 +604,7 @@
                         android:ellipsize="end"
                         android:maxLines="1"
                         android:text=""
-                        android:textColor="#101114"
+                        android:textColor="@color/theme_text_primary"
                         android:textSize="19sp"
                         android:textStyle="bold" />
 
@@ -584,7 +613,7 @@
                         android:layout_height="30dp"
                         android:rotation="180"
                         android:src="@drawable/ic_lamba_arrow_back"
-                        app:tint="#77777E" />
+                        app:tint="@color/theme_text_primary" />
             </LinearLayout>
         </LinearLayout>
     </FrameLayout>

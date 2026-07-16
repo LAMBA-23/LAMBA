@@ -2,29 +2,40 @@ package com.lamba.app
 
 import android.app.AlertDialog
 import android.app.Dialog
+import android.Manifest
+import android.content.pm.PackageManager
 import android.content.Intent
+import android.content.res.ColorStateList
 import android.content.res.Configuration
 import android.graphics.Color
 import android.graphics.Typeface
 import android.graphics.drawable.ColorDrawable
 import android.graphics.drawable.GradientDrawable
+import android.media.MediaRecorder
 import android.os.Bundle
 import android.text.InputType
 import android.text.method.DigitsKeyListener
 import android.view.Gravity
 import android.view.View
 import android.view.Window
+import android.view.animation.AlphaAnimation
+import android.view.animation.Animation
 import android.view.inputmethod.EditorInfo
 import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.LinearLayout
+import android.widget.ProgressBar
 import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
 import com.lamba.app.chat.LocalChatService
+import com.lamba.app.chat.VoiceRecordingAction
+import com.lamba.app.chat.VoiceRecordingPhase
+import com.lamba.app.chat.VoiceRecordingState
 import com.lamba.app.network.ActiveTrip
 import com.lamba.app.network.OdometerInputResult
 import com.lamba.app.network.RetrofitClient
@@ -34,6 +45,10 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import okhttp3.MediaType
+import okhttp3.MultipartBody
+import okhttp3.RequestBody
+import java.io.File
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -47,7 +62,19 @@ class MainActivity : AppCompatActivity() {
     private lateinit var notificationDot: View
     private lateinit var tvTripAction: TextView
     private var vehicleName: String = "машина"
+    private val voiceRecordingState = VoiceRecordingState()
+    private var mediaRecorder: MediaRecorder? = null
+    private var voiceRecordingFile: File? = null
+    private var micBlinkAnimation: Animation? = null
+    private lateinit var etHomeMessage: EditText
+    private lateinit var btnHomeMic: ImageButton
+    private lateinit var btnHomeSend: ImageButton
+    private lateinit var progressHomeMic: ProgressBar
     private val localChatRepository by lazy { LocalChatService.getRepository(this) }
+
+    companion object {
+        private const val REQUEST_RECORD_AUDIO = 1001
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -65,8 +92,10 @@ class MainActivity : AppCompatActivity() {
         val btnAddRecord = findViewById<View>(R.id.btnAddRecord)
         val btnTripAction = findViewById<View>(R.id.btnTripAction)
         tvTripAction = findViewById(R.id.tvTripAction)
-        val etHomeMessage = findViewById<EditText>(R.id.etHomeMessage)
-        val btnHomeSend = findViewById<ImageButton>(R.id.btnHomeSend)
+        etHomeMessage = findViewById(R.id.etHomeMessage)
+        btnHomeMic = findViewById(R.id.btnHomeMic)
+        btnHomeSend = findViewById(R.id.btnHomeSend)
+        progressHomeMic = findViewById(R.id.progressHomeMic)
         val btnMenu = findViewById<ImageButton>(R.id.btnMenu)
         val ivNotification = findViewById<ImageView>(R.id.ivNotification)
         notificationDot = findViewById(R.id.notificationDot)
@@ -101,6 +130,8 @@ class MainActivity : AppCompatActivity() {
             handleTripAction()
         }
 
+        btnHomeMic.setOnClickListener { onMicrophoneClicked() }
+
         btnHomeSend.setOnClickListener {
             val text = etHomeMessage.text.toString().trim().ifBlank { "Привет" }
             etHomeMessage.text.clear()
@@ -117,7 +148,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         btnMenu.setOnClickListener {
-            drawerOverlay.visibility = View.VISIBLE
+            openDrawer()
         }
 
         ivNotification.setOnClickListener {
@@ -129,25 +160,46 @@ class MainActivity : AppCompatActivity() {
         }
 
         btnDrawerClose.setOnClickListener {
-            drawerOverlay.visibility = View.GONE
+            closeDrawer()
         }
 
         menuHistory.setOnClickListener {
-            drawerOverlay.visibility = View.GONE
+            closeDrawer()
             startActivity(Intent(this, com.lamba.app.network.HistoryActivity::class.java))
         }
 
         menuStats.setOnClickListener {
-            drawerOverlay.visibility = View.GONE
+            closeDrawer()
             startActivity(Intent(this, com.lamba.app.network.StatisticsActivity::class.java))
         }
 
         menuProfile.setOnClickListener {
-            drawerOverlay.visibility = View.GONE
+            closeDrawer()
             startActivity(Intent(this, ProfileActivity::class.java))
         }
 
         refreshTripAction()
+    }
+
+    private fun openDrawer() {
+        drawerOverlay.visibility = View.VISIBLE
+        val panel = findViewById<View>(R.id.drawerPanel)
+        panel.startAnimation(android.view.animation.AnimationUtils.loadAnimation(this, R.anim.slide_in_left))
+        drawerOverlay.findViewById<View>(R.id.drawerScrim).startAnimation(android.view.animation.AnimationUtils.loadAnimation(this, R.anim.fade_in))
+    }
+
+    private fun closeDrawer() {
+        val panel = findViewById<View>(R.id.drawerPanel)
+        val anim = android.view.animation.AnimationUtils.loadAnimation(this, R.anim.slide_out_left)
+        anim.setAnimationListener(object : android.view.animation.Animation.AnimationListener {
+            override fun onAnimationStart(animation: android.view.animation.Animation?) {}
+            override fun onAnimationEnd(animation: android.view.animation.Animation?) {
+                drawerOverlay.visibility = View.GONE
+            }
+            override fun onAnimationRepeat(animation: android.view.animation.Animation?) {}
+        })
+        panel.startAnimation(anim)
+        drawerOverlay.findViewById<View>(R.id.drawerScrim).startAnimation(android.view.animation.AnimationUtils.loadAnimation(this, R.anim.fade_out))
     }
 
     override fun onResume() {
@@ -203,7 +255,7 @@ class MainActivity : AppCompatActivity() {
                     ellipsize = android.text.TextUtils.TruncateAt.END
                     setPadding(0, 12.dp, 0, 12.dp)
                     setOnClickListener {
-                        drawerOverlay.visibility = View.GONE
+                        closeDrawer()
                         SessionManager.setCurrentChatId(this@MainActivity, chat.chat.id)
                         openChat(chat.chat.id)
                     }
@@ -237,7 +289,7 @@ class MainActivity : AppCompatActivity() {
                     if (response.isSuccessful && response.body() != null) {
                         val vehicle = response.body()!!
                         vehicleName = "${vehicle.brand} ${vehicle.model}".trim()
-                        tvHeader.text = "Привет! Я твоя $vehicleName."
+                        tvHeader.text = "Привет! Я $vehicleName."
                         tvCarName.text = vehicleName
                         tvCarInfo.text = "${vehicle.currentMileage} км • ${vehicle.productionYear}"
                     } else if (response.code() == 404) {
@@ -572,6 +624,174 @@ class MainActivity : AppCompatActivity() {
     private fun isNightMode(): Boolean {
         return (resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK) ==
             Configuration.UI_MODE_NIGHT_YES
+    }
+
+    private fun onMicrophoneClicked() {
+        when (voiceRecordingState.onMicrophoneTap(hasRecordAudioPermission())) {
+            VoiceRecordingAction.REQUEST_PERMISSION ->
+                requestPermissions(arrayOf(Manifest.permission.RECORD_AUDIO), REQUEST_RECORD_AUDIO)
+
+            VoiceRecordingAction.START_RECORDING -> startVoiceRecording()
+            VoiceRecordingAction.STOP_AND_TRANSCRIBE -> stopRecordingAndTranscribe()
+            VoiceRecordingAction.NONE -> Unit
+        }
+        updateVoiceRecordingUI()
+    }
+
+    private fun hasRecordAudioPermission(): Boolean {
+        return ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO) ==
+            PackageManager.PERMISSION_GRANTED
+    }
+
+    private fun startVoiceRecording() {
+        val outputFile = File(cacheDir, "voice_home_${System.currentTimeMillis()}.m4a")
+        try {
+            mediaRecorder = MediaRecorder().apply {
+                setAudioSource(MediaRecorder.AudioSource.MIC)
+                setOutputFormat(MediaRecorder.OutputFormat.MPEG_4)
+                setAudioEncoder(MediaRecorder.AudioEncoder.AAC)
+                setOutputFile(outputFile.absolutePath)
+                prepare()
+                start()
+            }
+            voiceRecordingFile = outputFile
+        } catch (_: Exception) {
+            releaseRecorder()
+            outputFile.delete()
+            voiceRecordingState.onTranscriptionFinished()
+            updateVoiceRecordingUI()
+            Toast.makeText(this, "Не удалось начать запись голоса.", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    private fun stopRecordingAndTranscribe() {
+        val audioFile = voiceRecordingFile
+        try {
+            mediaRecorder?.stop()
+        } catch (_: RuntimeException) {
+            audioFile?.delete()
+            voiceRecordingFile = null
+            voiceRecordingState.onTranscriptionFinished()
+            updateVoiceRecordingUI()
+            Toast.makeText(this, "Не удалось записать голосовое сообщение.", Toast.LENGTH_SHORT).show()
+            return
+        } finally {
+            releaseRecorder()
+        }
+
+        if (audioFile == null || !audioFile.exists() || audioFile.length() == 0L) {
+            finishVoiceTranscription(audioFile)
+            Toast.makeText(this, "Не удалось записать голосовое сообщение.", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        transcribeVoiceRecording(audioFile)
+    }
+
+    private fun transcribeVoiceRecording(audioFile: File) {
+        val userId = SessionManager.getUserId(this)
+        if (userId == null) {
+            finishVoiceTranscription(audioFile)
+            Toast.makeText(this, "Войдите в аккаунт для голосового ввода.", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        lifecycleScope.launch {
+            try {
+                val audio = MultipartBody.Part.createFormData(
+                    "audio",
+                    audioFile.name,
+                    RequestBody.create(MediaType.parse("audio/mp4"), audioFile),
+                )
+                val response = RetrofitClient.apiService.transcribeChatAudio(audio, userId)
+                val text = response.body()?.text?.trim()
+                if (response.isSuccessful && !text.isNullOrEmpty()) {
+                    etHomeMessage.setText(text)
+                    etHomeMessage.setSelection(text.length)
+                } else {
+                    val message = if (response.code() == 503) {
+                        "Распознавание речи временно недоступно. Попробуйте позже."
+                    } else {
+                        "Не удалось распознать голосовое сообщение."
+                    }
+                    Toast.makeText(this@MainActivity, message, Toast.LENGTH_SHORT).show()
+                }
+            } catch (_: Exception) {
+                Toast.makeText(
+                    this@MainActivity,
+                    "Не удалось распознать голосовое сообщение. Проверьте подключение к интернету.",
+                    Toast.LENGTH_SHORT,
+                ).show()
+            } finally {
+                finishVoiceTranscription(audioFile)
+            }
+        }
+    }
+
+    private fun finishVoiceTranscription(audioFile: File? = voiceRecordingFile) {
+        audioFile?.delete()
+        if (voiceRecordingFile == audioFile) voiceRecordingFile = null
+        voiceRecordingState.onTranscriptionFinished()
+        updateVoiceRecordingUI()
+    }
+
+    private fun updateVoiceRecordingUI() {
+        val phase = voiceRecordingState.phase
+        val isRecording = phase == VoiceRecordingPhase.RECORDING
+        val isTranscribing = phase == VoiceRecordingPhase.TRANSCRIBING
+
+        btnHomeMic.visibility = if (isTranscribing) View.INVISIBLE else View.VISIBLE
+        progressHomeMic.visibility = if (isTranscribing) View.VISIBLE else View.GONE
+        btnHomeMic.isEnabled = !isTranscribing
+
+        if (isRecording) {
+            btnHomeMic.imageTintList = ColorStateList.valueOf(Color.parseColor("#D32F2F"))
+            if (micBlinkAnimation == null) {
+                micBlinkAnimation = AlphaAnimation(1f, 0.4f).apply {
+                    duration = 600
+                    repeatMode = Animation.REVERSE
+                    repeatCount = Animation.INFINITE
+                }
+                btnHomeMic.startAnimation(micBlinkAnimation)
+            }
+        } else {
+            btnHomeMic.imageTintList = null
+            btnHomeMic.clearAnimation()
+            micBlinkAnimation = null
+        }
+
+        etHomeMessage.isEnabled = !isRecording && !isTranscribing
+        etHomeMessage.hint = when {
+            isRecording -> "Слушаю..."
+            isTranscribing -> "Распознаю голос..."
+            else -> "Сообщение"
+        }
+        btnHomeSend.isEnabled = !isRecording && !isTranscribing
+    }
+
+    private fun releaseRecorder() {
+        mediaRecorder?.release()
+        mediaRecorder = null
+    }
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray,
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if (requestCode == REQUEST_RECORD_AUDIO && grantResults.firstOrNull() == PackageManager.PERMISSION_GRANTED) {
+            onMicrophoneClicked()
+        } else if (requestCode == REQUEST_RECORD_AUDIO) {
+            Toast.makeText(this, "Для голосового ввода нужен доступ к микрофону.", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    override fun onDestroy() {
+        releaseRecorder()
+        voiceRecordingFile?.delete()
+        voiceRecordingFile = null
+        super.onDestroy()
     }
 
     private fun refreshTripAction() {

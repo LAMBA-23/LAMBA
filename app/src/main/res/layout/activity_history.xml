@@ -4,22 +4,31 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#F8F9FA">
+    android:background="@color/theme_surface">
+
+    <View
+        android:id="@+id/headerBackground"
+        android:layout_width="match_parent"
+        android:layout_height="88dp"
+        android:background="@color/theme_surface"
+        android:elevation="4dp"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <ImageButton
         android:id="@+id/btnBack"
-        android:layout_width="44dp"
-        android:layout_height="44dp"
-        android:layout_marginStart="20dp"
-        android:layout_marginTop="24dp"
-        android:background="@drawable/bg_history_back"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:layout_marginStart="14dp"
+        android:background="?attr/selectableItemBackgroundBorderless"
         android:contentDescription="Назад"
-        android:elevation="2dp"
-        android:padding="12dp"
-        android:src="@drawable/abc_ic_ab_back_material"
+        android:elevation="5dp"
+        android:padding="10dp"
+        android:src="@drawable/ic_lamba_arrow_back"
+        app:layout_constraintBottom_toBottomOf="@id/headerBackground"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:tint="@color/theme_icon_primary" />
+        app:layout_constraintTop_toTopOf="@id/headerBackground"
+        app:layout_constraintVertical_bias="0.65"
+        app:tint="@color/theme_navigation_icon" />
 
     <ScrollView
         android:id="@+id/historyScroll"
@@ -28,10 +37,11 @@
         android:clipToPadding="false"
         android:fillViewport="true"
         android:paddingBottom="112dp"
+        android:background="@color/theme_surface"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/btnBack">
+        app:layout_constraintTop_toBottomOf="@id/headerBackground">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
@@ -46,7 +56,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:text="История"
-                android:textColor="#000000"
+                android:textColor="@color/theme_text_primary"
                 android:textSize="34sp"
                 android:textStyle="bold"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -60,7 +70,7 @@
                 android:layout_marginTop="8dp"
                 android:lineSpacingExtra="2dp"
                 android:text="Все, что ты рассказывал машине."
-                android:textColor="#7D7D7D"
+                android:textColor="@color/theme_text_secondary"
                 android:textSize="16sp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"

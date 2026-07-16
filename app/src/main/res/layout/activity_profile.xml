@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#FDFDFD"
+    android:background="@color/theme_surface"
     android:fillViewport="true">
 
     <LinearLayout
@@ -21,14 +21,15 @@
             android:gravity="center_vertical"
             android:orientation="horizontal">
 
-            <ImageView
+            <ImageButton
                 android:id="@+id/btnProfileBack"
-                android:layout_width="52dp"
-                android:layout_height="52dp"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
                 android:contentDescription="Назад"
                 android:padding="10dp"
                 android:src="@drawable/ic_lamba_arrow_back"
-                android:tint="@color/theme_icon_primary"
+                app:tint="@color/theme_navigation_icon"
                 android:translationX="-10dp" />
 
             <Space
@@ -36,14 +37,15 @@
                 android:layout_height="1dp"
                 android:layout_weight="1" />
 
-            <androidx.appcompat.widget.SwitchCompat
-                android:id="@+id/switchTheme"
+            <ImageButton
+                android:id="@+id/btnProfileThemeToggle"
                 android:layout_width="52dp"
-                android:layout_height="36dp"
-                android:contentDescription="Тёмная тема"
-                android:showText="false"
-                app:thumbTint="@color/theme_switch_thumb"
-                app:trackTint="@color/theme_switch_track" />
+                android:layout_height="52dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="Смена темы"
+                android:padding="12dp"
+                android:src="@drawable/ic_lamba_sun"
+                app:tint="@color/theme_accent" />
         </LinearLayout>
 
         <TextView
@@ -51,7 +53,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="24dp"
             android:text="Профиль"
-            android:textColor="#101114"
+            android:textColor="@color/theme_text_primary"
             android:textSize="38sp"
             android:textStyle="bold" />
 
@@ -65,7 +67,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="12dp"
             android:text="Username"
-            android:textColor="#77777E"
+            android:textColor="@color/theme_text_secondary"
             android:textSize="16sp" />
 
         <EditText
@@ -74,7 +76,7 @@
             android:layout_width="match_parent"
             android:enabled="false"
             android:inputType="text"
-            android:textColor="#77777E" />
+            android:textColor="@color/theme_text_secondary" />
 
         <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/btnChangePassword"
@@ -139,7 +141,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="12dp"
             android:text="Марка"
-            android:textColor="#77777E"
+            android:textColor="@color/theme_text_secondary"
             android:textSize="16sp" />
 
         <EditText
@@ -155,7 +157,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="14dp"
             android:text="Модель"
-            android:textColor="#77777E"
+            android:textColor="@color/theme_text_secondary"
             android:textSize="16sp" />
 
         <EditText
@@ -171,7 +173,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="14dp"
             android:text="Год выпуска"
-            android:textColor="#77777E"
+            android:textColor="@color/theme_text_secondary"
             android:textSize="16sp" />
 
         <EditText
@@ -187,7 +189,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="14dp"
             android:text="Текущий пробег, км"
-            android:textColor="#77777E"
+            android:textColor="@color/theme_text_secondary"
             android:textSize="16sp" />
 
         <EditText
