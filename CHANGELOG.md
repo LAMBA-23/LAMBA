@@ -25,6 +25,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - AI chat assistant now responds to greetings and thanks with friendly, emoji-rich messages instead of asking for event details (#316).
 - Android manual trip records now use start and end odometer values instead of
   a single mileage field.
+- Vehicle recommendations now keep dynamic values in Russian backend messages
+  and use occurrence-aware IDs so repeated issues become unread again (#328).
 
 ### Fixed
 

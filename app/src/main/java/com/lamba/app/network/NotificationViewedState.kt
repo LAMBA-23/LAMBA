@@ -12,6 +12,13 @@ object NotificationViewedState {
         return normalizeIds(currentIds).any { it !in viewedIds }
     }
 
+    fun retainActiveViewedIds(
+        currentIds: Iterable<String>,
+        viewedIds: Set<String>,
+    ): Set<String> {
+        return viewedIds intersect normalizeIds(currentIds)
+    }
+
     fun serialize(ids: Set<String>): String {
         return ids
             .map { it.trim() }

@@ -587,6 +587,25 @@ def _format_number(value: int | float | Decimal) -> str:
     return f"{value:,}".replace(",", " ")
 
 
+def _recommendation_occurrence_id(rule_id: str, *event_ids: int | None) -> str:
+    signature = "-".join(
+        str(event_id) for event_id in event_ids if event_id is not None
+    )
+    return f"{rule_id}:{signature}" if signature else rule_id
+
+
+def _format_days_ru(days: int) -> str:
+    if 11 <= days % 100 <= 14:
+        suffix = "дней"
+    elif days % 10 == 1:
+        suffix = "день"
+    elif 2 <= days % 10 <= 4:
+        suffix = "дня"
+    else:
+        suffix = "дней"
+    return f"{days} {suffix}"
+
+
 def _build_recommendations(
     events: list[Event], now: datetime, car: Car
 ) -> list[RecommendationItem]:
@@ -596,10 +615,10 @@ def _build_recommendations(
             RecommendationItem(
                 id="no_events",
                 severity="info",
-                title="Add first vehicle record",
+                title="Добавьте первую запись",
                 message=(
-                    "No events are saved yet. Add fuel, trip, repair, or breakdown "
-                    "records to unlock rule-based maintenance recommendations."
+                    "В истории пока нет событий. Добавьте заправку, поездку, ремонт "
+                    "или поломку, чтобы получать рекомендации по автомобилю."
                 ),
                 source="events_count == 0",
             )
@@ -610,12 +629,13 @@ def _build_recommendations(
     if days_since_latest >= STALE_RECORD_DAYS:
         recommendations.append(
             RecommendationItem(
-                id="stale_records",
+                id=_recommendation_occurrence_id("stale_records", latest_event.id),
                 severity="info",
-                title="Update vehicle history",
+                title="Обновите историю автомобиля",
                 message=(
-                    f"No new records for {days_since_latest} days. Add recent "
-                    "fuel, trip, or service data so statistics stay reliable."
+                    f"Последняя запись была {_format_days_ru(days_since_latest)} назад. "
+                    "Добавьте "
+                    "свежие данные о заправке, поездке или обслуживании."
                 ),
                 source=f"days_since_latest_event >= {STALE_RECORD_DAYS}",
             )
@@ -640,13 +660,16 @@ def _build_recommendations(
         if average_price > FUEL_PRICE_WARNING_RUB_PER_LITER:
             recommendations.append(
                 RecommendationItem(
-                    id="high_fuel_price",
+                    id=_recommendation_occurrence_id(
+                        "high_fuel_price",
+                        *(event.id for event in recent_fuel_events),
+                    ),
                     severity="warning",
-                    title="Fuel price looks high",
+                    title="Высокая стоимость топлива",
                     message=(
-                        "Average fuel price in the latest refuels is "
-                        f"{_format_number(average_price)} RUB/L. Compare stations "
-                        "or check if the entered amount and liters are correct."
+                        "Средняя цена последних заправок — "
+                        f"{_format_number(average_price)} ₽/л. Сравните цены на АЗС "
+                        "или проверьте введённые сумму и объём топлива."
                     ),
                     source=(
                         "sum(last_3_fuel.amount) / sum(last_3_fuel.fuel_liters) "
@@ -656,23 +679,27 @@ def _build_recommendations(
             )
 
     month_start = now - timedelta(days=30)
-    monthly_repair_expenses = sum(
-        event.amount
+    recent_repair_events = [
+        event
         for event in events
         if event.type == "repair"
         and event.amount is not None
         and event.created_at >= month_start
-    )
+    ]
+    monthly_repair_expenses = sum(event.amount for event in recent_repair_events)
     if monthly_repair_expenses > REPAIR_MONTH_WARNING_RUB:
         recommendations.append(
             RecommendationItem(
-                id="high_monthly_repair_cost",
+                id=_recommendation_occurrence_id(
+                    "high_monthly_repair_cost",
+                    *(event.id for event in recent_repair_events),
+                ),
                 severity="warning",
-                title="Repair expenses increased",
+                title="Расходы на ремонт выросли",
                 message=(
-                    "Repair expenses in the last 30 days are "
-                    f"{_format_number(monthly_repair_expenses)} RUB. Review repeated "
-                    "service work and plan a diagnostic check if needed."
+                    "За последние 30 дней на ремонт потрачено "
+                    f"{_format_number(monthly_repair_expenses)} ₽. Проверьте повторные "
+                    "работы и при необходимости запланируйте диагностику."
                 ),
                 source=f"repair_expenses_30d > {REPAIR_MONTH_WARNING_RUB}",
             )
@@ -689,12 +716,12 @@ def _build_recommendations(
     if recent_issue is not None:
         recommendations.append(
             RecommendationItem(
-                id="recent_breakdown",
+                id=_recommendation_occurrence_id("recent_breakdown", recent_issue.id),
                 severity="warning",
-                title="Follow up on recent breakdown",
+                title="Проверьте недавнюю поломку",
                 message=(
-                    "A breakdown/problem was recorded in the last 30 days. Check "
-                    "whether it was diagnosed or repaired before longer trips."
+                    "За последние 30 дней была записана поломка. Перед дальней "
+                    "поездкой убедитесь, что проблема проверена или устранена."
                 ),
                 source="latest_issue.created_at >= now - 30 days",
             )
@@ -718,13 +745,15 @@ def _build_recommendations(
         if mileage_since_fuel >= MILEAGE_SINCE_FUEL_WARNING_KM:
             recommendations.append(
                 RecommendationItem(
-                    id="long_distance_since_fuel",
+                    id=_recommendation_occurrence_id(
+                        "long_distance_since_fuel", latest_fuel.id
+                    ),
                     severity="info",
-                    title="Check fuel level",
+                    title="Проверьте уровень топлива",
                     message=(
-                        f"About {_format_number(mileage_since_fuel)} km were recorded "
-                        "since the latest fuel event. Check fuel level before the "
-                        "next trip."
+                        f"После последней заправки записано около "
+                        f"{_format_number(mileage_since_fuel)} км. Проверьте уровень "
+                        "топлива перед следующей поездкой."
                     ),
                     source=(
                         "current_mileage - latest_fuel.mileage "
