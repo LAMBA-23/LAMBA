@@ -4,6 +4,7 @@ import android.app.AlertDialog
 import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.widget.EditText
 import android.widget.ImageButton
@@ -22,7 +23,9 @@ import com.lamba.app.network.RetrofitClient
 import com.lamba.app.network.SessionManager
 import com.lamba.app.network.Vehicle
 import com.lamba.app.network.VehicleUpdateRequest
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.io.InputStream
 import java.io.OutputStream
 
@@ -112,14 +115,19 @@ class ProfileActivity : AppCompatActivity() {
                 val saved = runCatching {
                     val response = RetrofitClient.apiService.exportVehicleData(userId)
                     if (!response.isSuccessful) {
+                        Log.w(TAG, "Vehicle export failed with HTTP ${response.code()}")
                         return@runCatching false
                     }
-                    response.body()?.use { body ->
-                        contentResolver.openOutputStream(uri)?.use { output ->
-                            ProfileExportWriter.copy(body.byteStream(), output)
-                            true
-                        }
-                    } ?: false
+                    withContext(Dispatchers.IO) {
+                        response.body()?.use { body ->
+                            contentResolver.openOutputStream(uri)?.use { output ->
+                                ProfileExportWriter.copy(body.byteStream(), output)
+                                true
+                            }
+                        } ?: false
+                    }
+                }.onFailure { error ->
+                    Log.e(TAG, "Vehicle export could not be saved", error)
                 }.getOrDefault(false)
                 setBusy(false)
                 if (saved) {
@@ -248,6 +256,10 @@ class ProfileActivity : AppCompatActivity() {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
         })
         finish()
+    }
+
+    private companion object {
+        const val TAG = "ProfileActivity"
     }
 }
 
