@@ -1,0 +1,32 @@
+## Problem Description
+The vehicle data export to Excel was broken after recent UI refactoring. Attempting to export results in an error because FileProvider was not configured, and file operations were performed on the main thread.
+
+## Related Scope
+- Related user story/PBI: #351
+- MVP version impact: MVP v2
+- Sprint impact: Sprint 2
+
+## Reproduction Steps
+1. Open Profile screen.
+2. Tap "Export data" button.
+3. Observe error or app crash.
+
+## Expected Behavior
+The app should download the .xlsx file from the backend, save it to internal storage, and open a file chooser to view the report.
+
+## Actual Behavior
+The export fails due to missing FileProvider configuration or NetworkOnMainThreadException/IllegalStateException.
+
+## Environment
+Android Studio, Android Device/Emulator API 24+
+
+## Acceptance Criteria for Fix
+- [ ] FileProvider is correctly configured in AndroidManifest.xml.
+- [ ] file_paths.xml exists and allows access to internal files.
+- [ ] Export logic in ProfileActivity uses Dispatchers.IO for file operations.
+- [ ] User can successfully open the exported .xlsx file in an external viewer.
+
+## Verification Evidence
+- Linked PR/MR: Will be provided.
+- Tests/checks: Manual verification on device.
+- Screenshots, logs, deployment links, or other evidence: Provided in PR.
