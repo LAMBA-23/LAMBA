@@ -243,9 +243,14 @@ class ProfileActivity : AppCompatActivity() {
                     val response = RetrofitClient.apiService.exportVehicleData(userId)
                     if (response.isSuccessful && response.body() != null) {
                         val fileName = "lamba_profile_${System.currentTimeMillis()}.xlsx"
-                        val outputStream = openFileOutput(fileName, MODE_PRIVATE)
-                        ProfileExportWriter.copy(response.body()!!.byteStream(), outputStream)
-                        outputStream.close()
+                        
+                        kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
+                            val outputStream = openFileOutput(fileName, MODE_PRIVATE)
+                            response.body()!!.use { body ->
+                                ProfileExportWriter.copy(body.byteStream(), outputStream)
+                            }
+                            outputStream.close()
+                        }
                         
                         val intent = Intent(Intent.ACTION_VIEW).apply {
                             val uri = androidx.core.content.FileProvider.getUriForFile(
@@ -258,7 +263,7 @@ class ProfileActivity : AppCompatActivity() {
                         }
                         startActivity(Intent.createChooser(intent, "Открыть отчет"))
                     } else {
-                        android.widget.Toast.makeText(this@ProfileActivity, "Ошибка экспорта", android.widget.Toast.LENGTH_SHORT).show()
+                        android.widget.Toast.makeText(this@ProfileActivity, "Ошибка экспорта: ${response.code()}", android.widget.Toast.LENGTH_SHORT).show()
                     }
                 } catch (e: Exception) {
                     android.widget.Toast.makeText(this@ProfileActivity, "Не удалось экспортировать данные", android.widget.Toast.LENGTH_SHORT).show()
