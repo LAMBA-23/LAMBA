@@ -2,11 +2,14 @@
 
 LAMBA is an Android application for maintaining a digital twin of a car. It allows a vehicle owner to store vehicle information, record trips, refueling, repairs, and breakdowns, review the vehicle history and statistics, and interact with an AI assistant through a conversational interface.
 
-The current public increment is **MVP v3 / Assignment 6 Sprint 4 Trial Release**.
+The current tagged public release is **MVP v3 / Assignment 6 Sprint 4 Trial
+Release** (`v1.3.0`). The current `main` branch also contains reviewed Week 7
+follow-up work after that release, but no newer SemVer release is published yet.
 
 ## Current Product Access
 
 - [GitHub Releases](https://github.com/LAMBA-23/LAMBA/releases)
+- [Latest tagged release: v1.3.0](https://github.com/LAMBA-23/LAMBA/releases/tag/v1.3.0)
 - [Hosted documentation site](https://lamba-23.github.io/LAMBA/)
 - Deployed backend API: `http://186.246.27.211:8000`
 - Deployed Swagger UI: `http://186.246.27.211:8000/docs`
@@ -29,6 +32,13 @@ The current product supports:
 - vehicle timeline;
 - mileage, expense, fuel, and record statistics;
 - local storage of recent chat history;
+- rule-based vehicle recommendations and in-app notification inbox in the
+  current `main` branch;
+- breakdown photos and owner-checked photo retrieval in the current `main`
+  branch;
+- profile screen, local avatar, dark theme, chat style selection, and vehicle
+  data export in the current `main` branch;
+- voice input in chat in the current `main` branch;
 - backend API documentation through Swagger UI.
 
 For planned improvements and remaining work, see the [project roadmap](docs/roadmap.md).
@@ -191,6 +201,7 @@ See the [testing overview](docs/testing.md) for the current verification status 
 - [Quality requirement tests](docs/quality-requirement-tests.md)
 - [User acceptance tests](docs/user-acceptance-tests.md)
 - [Roadmap](docs/roadmap.md)
+- [Week 7 transition status](reports/week7/README.md)
 
 ### Development and Repository Guidance
 
@@ -202,6 +213,7 @@ See the [testing overview](docs/testing.md) for the current verification status 
 
 ### Assignment Reports
 
+- [Week 7 report](reports/week7/README.md)
 - [Week 6 report](reports/week6/README.md)
 - [Week 5 report](reports/week5/README.md)
 - [Week 4 report](reports/week4/README.md)
