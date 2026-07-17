@@ -47,6 +47,7 @@ def test_chat_ask_includes_selected_chat_context(monkeypatch):
         message: str,
         vehicle_context: str | None = None,
         chat_context: str | None = None,
+        style: str | None = None,
     ) -> str:
         captured["message"] = message
         captured["vehicle_context"] = vehicle_context

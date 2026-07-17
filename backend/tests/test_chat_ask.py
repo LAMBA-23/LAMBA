@@ -65,7 +65,9 @@ def _create_event(
 def test_chat_ask_returns_answer(monkeypatch):
     user_id = _register_and_get_user_id("ask-user-1")
 
-    def fake_ask(message: str, vehicle_context: str | None = None) -> str:
+    def fake_ask(
+        message: str, vehicle_context: str | None = None, style: str | None = None
+    ) -> str:
         return f"Ответ на: {message}"
 
     monkeypatch.setattr(main_module, "ask_deepseek", fake_ask)
@@ -106,7 +108,9 @@ def test_chat_ask_includes_vehicle_context(monkeypatch):
 
     captured = {}
 
-    def fake_ask(message: str, vehicle_context: str | None = None) -> str:
+    def fake_ask(
+        message: str, vehicle_context: str | None = None, style: str | None = None
+    ) -> str:
         captured["context"] = vehicle_context
         return "OK"
 
@@ -130,7 +134,9 @@ def test_chat_ask_with_no_events(monkeypatch):
 
     captured = {}
 
-    def fake_ask(message: str, vehicle_context: str | None = None) -> str:
+    def fake_ask(
+        message: str, vehicle_context: str | None = None, style: str | None = None
+    ) -> str:
         captured["context"] = vehicle_context
         return "Нет данных"
 
@@ -172,7 +178,9 @@ def test_chat_ask_limits_context_to_30_events(monkeypatch):
 
     captured = {}
 
-    def fake_ask(message: str, vehicle_context: str | None = None) -> str:
+    def fake_ask(
+        message: str, vehicle_context: str | None = None, style: str | None = None
+    ) -> str:
         captured["context"] = vehicle_context
         return "OK"
 
@@ -224,7 +232,9 @@ def test_chat_ask_rejects_blank_message():
 
 
 def test_chat_ask_nonexistent_user(monkeypatch):
-    def fake_ask(message: str, vehicle_context: str | None = None) -> str:
+    def fake_ask(
+        message: str, vehicle_context: str | None = None, style: str | None = None
+    ) -> str:
         return "OK"
 
     monkeypatch.setattr(main_module, "ask_deepseek", fake_ask)
@@ -571,7 +581,9 @@ def test_chat_ask_keeps_llm_flow_for_non_expense_questions(monkeypatch):
     user_id = _register_and_get_user_id("ask-user-expenses-8")
     captured = {}
 
-    def fake_ask(message: str, vehicle_context: str | None = None) -> str:
+    def fake_ask(
+        message: str, vehicle_context: str | None = None, style: str | None = None
+    ) -> str:
         captured["message"] = message
         captured["context"] = vehicle_context
         return "LLM answer"
