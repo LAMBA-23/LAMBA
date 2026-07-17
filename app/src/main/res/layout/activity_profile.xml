@@ -1,262 +1,447 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/theme_surface"
-    android:fillViewport="true">
+    android:background="@color/theme_surface">
 
-    <LinearLayout
+    <View
+        android:layout_width="260dp"
+        android:layout_height="260dp"
+        android:layout_marginStart="-120dp"
+        android:layout_marginTop="-70dp"
+        android:alpha="0.55"
+        android:background="@drawable/bg_lamba_glow"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <View
+        android:layout_width="300dp"
+        android:layout_height="300dp"
+        android:layout_marginTop="320dp"
+        android:alpha="0.35"
+        android:background="@drawable/bg_lamba_glow"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:paddingStart="34dp"
-        android:paddingTop="18dp"
-        android:paddingEnd="34dp"
-        android:paddingBottom="32dp">
+        android:layout_height="match_parent"
+        android:clipChildren="false"
+        android:clipToPadding="false"
+        android:fillViewport="true">
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="52dp"
-            android:gravity="center_vertical"
-            android:orientation="horizontal">
-
-            <ImageButton
-                android:id="@+id/btnProfileBack"
-                android:layout_width="48dp"
-                android:layout_height="48dp"
-                android:background="?attr/selectableItemBackgroundBorderless"
-                android:contentDescription="Назад"
-                android:padding="10dp"
-                android:src="@drawable/ic_lamba_arrow_back"
-                app:tint="@color/theme_navigation_icon"
-                android:translationX="-10dp" />
-
-            <Space
-                android:layout_width="0dp"
-                android:layout_height="1dp"
-                android:layout_weight="1" />
-
-            <ImageButton
-                android:id="@+id/btnProfileThemeToggle"
-                android:layout_width="52dp"
-                android:layout_height="52dp"
-                android:background="?attr/selectableItemBackgroundBorderless"
-                android:contentDescription="Смена темы"
-                android:padding="12dp"
-                android:src="@drawable/ic_lamba_sun"
-                app:tint="@color/theme_accent" />
-        </LinearLayout>
-
-        <TextView
-            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="24dp"
-            android:text="Профиль"
-            android:textColor="@color/theme_text_primary"
-            android:textSize="38sp"
-            android:textStyle="bold" />
-
-        <TextView
-            style="@style/LambaFormLabel"
-            android:layout_marginTop="28dp"
-            android:text="Аккаунт" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
-            android:text="Username"
-            android:textColor="@color/theme_text_secondary"
-            android:textSize="16sp" />
-
-        <EditText
-            android:id="@+id/etProfileUsername"
-            style="@style/LambaFormInput"
-            android:layout_width="match_parent"
-            android:enabled="false"
-            android:inputType="text"
-            android:textColor="@color/theme_text_secondary" />
-
-        <androidx.appcompat.widget.AppCompatButton
-            android:id="@+id/btnChangePassword"
-            android:layout_width="match_parent"
-            android:layout_height="58dp"
-            android:layout_marginTop="18dp"
-            android:background="@drawable/bg_lamba_send_button"
-            android:text="Изменить пароль"
-            android:textAllCaps="false"
-            android:textColor="#FFFFFF"
-            android:textSize="18sp"
-            android:textStyle="bold" />
-
-        <LinearLayout
-            android:id="@+id/passwordFormContainer"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:clipChildren="false"
+            android:clipToPadding="false"
             android:orientation="vertical"
-            android:visibility="gone">
+            android:paddingStart="24dp"
+            android:paddingTop="18dp"
+            android:paddingEnd="24dp"
+            android:paddingBottom="32dp">
 
-            <EditText
-                android:id="@+id/etCurrentPassword"
-                style="@style/LambaFormInput"
+            <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_marginTop="18dp"
-                android:hint="Текущий пароль"
-                android:inputType="textPassword" />
+                android:layout_height="52dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
 
-            <EditText
-                android:id="@+id/etNewPassword"
-                style="@style/LambaFormInput"
-                android:layout_width="match_parent"
-                android:layout_marginTop="14dp"
-                android:hint="Новый пароль"
-                android:inputType="textPassword" />
+                <ImageButton
+                    android:id="@+id/btnProfileBack"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:contentDescription="Назад"
+                    android:padding="10dp"
+                    android:src="@drawable/ic_lamba_arrow_back"
+                    app:tint="@color/theme_navigation_icon" />
 
-            <EditText
-                android:id="@+id/etNewPasswordConfirmation"
-                style="@style/LambaFormInput"
-                android:layout_width="match_parent"
-                android:layout_marginTop="14dp"
-                android:hint="Повторите новый пароль"
-                android:inputType="textPassword" />
+                <Space
+                    android:layout_width="0dp"
+                    android:layout_height="1dp"
+                    android:layout_weight="1" />
+
+                <ImageButton
+                    android:id="@+id/btnProfileThemeToggle"
+                    android:layout_width="52dp"
+                    android:layout_height="52dp"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:contentDescription="Смена темы"
+                    android:padding="12dp"
+                    android:src="@drawable/ic_lamba_sun"
+                    app:tint="@color/theme_accent" />
+            </LinearLayout>
 
             <TextView
-                android:id="@+id/tvPasswordError"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:layout_gravity="center_horizontal"
+                android:text="Профиль"
+                android:textColor="@color/theme_text_primary"
+                android:textSize="32sp"
+                android:textStyle="bold" />
+
+            <FrameLayout
+                android:layout_width="140dp"
+                android:layout_height="140dp"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="24dp">
+
+                <com.google.android.material.imageview.ShapeableImageView
+                    android:id="@+id/ivProfileAvatar"
+                    android:layout_width="130dp"
+                    android:layout_height="130dp"
+                    android:layout_gravity="center"
+                    android:background="@drawable/bg_lamba_bot_bubble"
+                    android:padding="4dp"
+                    android:scaleType="centerCrop"
+                    android:src="@drawable/ic_lamba_person"
+                    app:shapeAppearanceOverlay="@style/CircleShapeAppearance"
+                    app:strokeColor="@color/theme_accent"
+                    app:strokeWidth="2dp" />
+
+                <ImageButton
+                    android:id="@+id/btnEditAvatar"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:layout_gravity="bottom|end"
+                    android:layout_marginEnd="6dp"
+                    android:layout_marginBottom="6dp"
+                    android:background="@drawable/bg_history_fab"
+                    android:elevation="4dp"
+                    android:padding="10dp"
+                    android:src="@drawable/ic_lamba_add_box"
+                    app:tint="#FFFFFF" />
+            </FrameLayout>
+
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
+                android:layout_marginTop="32dp"
+                android:background="@drawable/bg_lamba_bot_bubble"
+                android:elevation="4dp"
+                android:orientation="vertical"
+                android:padding="20dp">
+
+                <TextView
+                    style="@style/LambaFormLabel"
+                    android:text="Аккаунт" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:text="Имя пользователя"
+                    android:textColor="@color/theme_text_secondary"
+                    android:textSize="14sp" />
+
+                <EditText
+                    android:id="@+id/etProfileUsername"
+                    style="@style/LambaFormInput"
+                    android:layout_width="match_parent"
+                    android:layout_height="52dp"
+                    android:enabled="false"
+                    android:inputType="text"
+                    android:textColor="@color/theme_text_secondary"
+                    android:textSize="16sp" />
+
+                <androidx.appcompat.widget.AppCompatButton
+                    android:id="@+id/btnChangePassword"
+                    android:layout_width="match_parent"
+                    android:layout_height="52dp"
+                    android:layout_marginTop="18dp"
+                    android:background="@drawable/bg_lamba_send_button"
+                    android:elevation="2dp"
+                    android:text="Изменить пароль"
+                    android:textAllCaps="false"
+                    android:textColor="#FFFFFF"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
+
+                <LinearLayout
+                    android:id="@+id/passwordFormContainer"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:visibility="gone">
+
+                    <EditText
+                        android:id="@+id/etCurrentPassword"
+                        style="@style/LambaFormInput"
+                        android:layout_width="match_parent"
+                        android:layout_height="52dp"
+                        android:layout_marginTop="14dp"
+                        android:hint="Текущий пароль"
+                        android:inputType="textPassword"
+                        android:textSize="16sp" />
+
+                    <EditText
+                        android:id="@+id/etNewPassword"
+                        style="@style/LambaFormInput"
+                        android:layout_width="match_parent"
+                        android:layout_height="52dp"
+                        android:layout_marginTop="12dp"
+                        android:hint="Новый пароль"
+                        android:inputType="textPassword"
+                        android:textSize="16sp" />
+
+                    <EditText
+                        android:id="@+id/etNewPasswordConfirmation"
+                        style="@style/LambaFormInput"
+                        android:layout_width="match_parent"
+                        android:layout_height="52dp"
+                        android:layout_marginTop="12dp"
+                        android:hint="Повторите пароль"
+                        android:inputType="textPassword"
+                        android:textSize="16sp" />
+
+                    <TextView
+                        android:id="@+id/tvPasswordError"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:textColor="#960018"
+                        android:textSize="14sp"
+                        android:visibility="gone" />
+                </LinearLayout>
+
+                <TextView
+                    style="@style/LambaFormLabel"
+                    android:layout_marginTop="24dp"
+                    android:text="Стиль общения" />
+
+                <LinearLayout
+                    android:id="@+id/styleOptionFriendly"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:background="@drawable/bg_lamba_style_unselected"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:orientation="vertical"
+                    android:padding="14dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Дружелюбный"
+                        android:textColor="@color/theme_text_primary"
+                        android:textSize="16sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
+                        android:text="Машина общается вежливо и заботливо"
+                        android:textColor="@color/theme_text_secondary"
+                        android:textSize="13sp" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/styleOptionSelfish"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:background="@drawable/bg_lamba_style_unselected"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:orientation="vertical"
+                    android:padding="14dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Эгоистичный"
+                        android:textColor="@color/theme_text_primary"
+                        android:textSize="16sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
+                        android:text="Машина думает прежде всего о своей выгоде"
+                        android:textColor="@color/theme_text_secondary"
+                        android:textSize="13sp" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/styleOptionPragmatic"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:background="@drawable/bg_lamba_style_unselected"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:orientation="vertical"
+                    android:padding="14dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Прагматичный"
+                        android:textColor="@color/theme_text_primary"
+                        android:textSize="16sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
+                        android:text="Только факты и информация, ничего лишнего"
+                        android:textColor="@color/theme_text_secondary"
+                        android:textSize="13sp" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:background="@drawable/bg_lamba_bot_bubble"
+                android:elevation="4dp"
+                android:orientation="vertical"
+                android:padding="20dp">
+
+                <TextView
+                    style="@style/LambaFormLabel"
+                    android:text="Автомобиль" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:text="Марка"
+                    android:textColor="@color/theme_text_secondary"
+                    android:textSize="14sp" />
+
+                <EditText
+                    android:id="@+id/etProfileBrand"
+                    style="@style/LambaFormInput"
+                    android:layout_width="match_parent"
+                    android:layout_height="52dp"
+                    android:hint="Марка"
+                    android:inputType="text"
+                    android:maxLength="64"
+                    android:textSize="16sp" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:text="Модель"
+                    android:textColor="@color/theme_text_secondary"
+                    android:textSize="14sp" />
+
+                <EditText
+                    android:id="@+id/etProfileModel"
+                    style="@style/LambaFormInput"
+                    android:layout_width="match_parent"
+                    android:layout_height="52dp"
+                    android:hint="Модель"
+                    android:inputType="text"
+                    android:maxLength="64"
+                    android:textSize="16sp" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:text="Год выпуска"
+                    android:textColor="@color/theme_text_secondary"
+                    android:textSize="14sp" />
+
+                <EditText
+                    android:id="@+id/etProfileYear"
+                    style="@style/LambaFormInput"
+                    android:layout_width="match_parent"
+                    android:layout_height="52dp"
+                    android:hint="Год выпуска"
+                    android:inputType="number"
+                    android:maxLength="4"
+                    android:textSize="16sp" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:text="Текущий пробег, км"
+                    android:textColor="@color/theme_text_secondary"
+                    android:textSize="14sp" />
+
+                <EditText
+                    android:id="@+id/etProfileMileage"
+                    style="@style/LambaFormInput"
+                    android:layout_width="match_parent"
+                    android:layout_height="52dp"
+                    android:hint="Текущий пробег, км"
+                    android:inputType="number"
+                    android:maxLength="10"
+                    android:textSize="16sp" />
+
+                <TextView
+                    android:id="@+id/tvVehicleError"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:textColor="#960018"
+                    android:textSize="14sp"
+                    android:visibility="gone" />
+
+                <androidx.appcompat.widget.AppCompatButton
+                    android:id="@+id/btnSaveProfileVehicle"
+                    android:layout_width="match_parent"
+                    android:layout_height="52dp"
+                    android:layout_marginTop="18dp"
+                    android:background="@drawable/bg_lamba_send_button"
+                    android:elevation="2dp"
+                    android:text="Сохранить автомобиль"
+                    android:textAllCaps="false"
+                    android:textColor="#FFFFFF"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
+
+            <androidx.appcompat.widget.AppCompatButton
+                android:id="@+id/btnExportProfileData"
+                android:layout_width="match_parent"
+                android:layout_height="54dp"
+                android:layout_marginTop="24dp"
+                android:background="@drawable/bg_lamba_bot_bubble"
+                android:elevation="2dp"
+                android:text="Экспортировать данные"
+                android:textAllCaps="false"
+                android:textColor="@color/theme_text_primary"
+                android:textSize="16sp"
+                android:textStyle="bold" />
+
+            <androidx.appcompat.widget.AppCompatButton
+                android:id="@+id/btnProfileLogout"
+                android:layout_width="match_parent"
+                android:layout_height="54dp"
+                android:layout_marginTop="30dp"
+                android:background="@drawable/bg_lamba_bot_bubble"
+                android:elevation="2dp"
+                android:text="Выйти"
+                android:textAllCaps="false"
                 android:textColor="#960018"
                 android:textSize="16sp"
+                android:textStyle="bold" />
+
+            <ProgressBar
+                android:id="@+id/profileProgressBar"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="18dp"
+                android:indeterminateTint="#960018"
                 android:visibility="gone" />
         </LinearLayout>
+    </ScrollView>
 
-        <TextView
-            style="@style/LambaFormLabel"
-            android:layout_marginTop="30dp"
-            android:text="Стиль общения" />
-
-        <androidx.appcompat.widget.AppCompatButton
-            android:id="@+id/btnChatStyle"
-            android:layout_width="match_parent"
-            android:layout_height="58dp"
-            android:layout_marginTop="12dp"
-            android:background="@drawable/bg_lamba_send_button"
-            android:text="Дружелюбный"
-            android:textAllCaps="false"
-            android:textColor="#FFFFFF"
-            android:textSize="16sp"
-            android:textStyle="bold" />
-
-        <TextView
-            style="@style/LambaFormLabel"
-            android:layout_marginTop="30dp"
-            android:text="Автомобиль" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
-            android:text="Марка"
-            android:textColor="@color/theme_text_secondary"
-            android:textSize="16sp" />
-
-        <EditText
-            android:id="@+id/etProfileBrand"
-            style="@style/LambaFormInput"
-            android:layout_width="match_parent"
-            android:hint="Марка"
-            android:inputType="text"
-            android:maxLength="64" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="14dp"
-            android:text="Модель"
-            android:textColor="@color/theme_text_secondary"
-            android:textSize="16sp" />
-
-        <EditText
-            android:id="@+id/etProfileModel"
-            style="@style/LambaFormInput"
-            android:layout_width="match_parent"
-            android:hint="Модель"
-            android:inputType="text"
-            android:maxLength="64" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="14dp"
-            android:text="Год выпуска"
-            android:textColor="@color/theme_text_secondary"
-            android:textSize="16sp" />
-
-        <EditText
-            android:id="@+id/etProfileYear"
-            style="@style/LambaFormInput"
-            android:layout_width="match_parent"
-            android:hint="Год выпуска"
-            android:inputType="number"
-            android:maxLength="4" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="14dp"
-            android:text="Текущий пробег, км"
-            android:textColor="@color/theme_text_secondary"
-            android:textSize="16sp" />
-
-        <EditText
-            android:id="@+id/etProfileMileage"
-            style="@style/LambaFormInput"
-            android:layout_width="match_parent"
-            android:hint="Текущий пробег, км"
-            android:inputType="number"
-            android:maxLength="10" />
-
-        <TextView
-            android:id="@+id/tvVehicleError"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:textColor="#960018"
-            android:textSize="16sp"
-            android:visibility="gone" />
-
-        <androidx.appcompat.widget.AppCompatButton
-            android:id="@+id/btnSaveProfileVehicle"
-            android:layout_width="match_parent"
-            android:layout_height="58dp"
-            android:layout_marginTop="18dp"
-            android:background="@drawable/bg_lamba_send_button"
-            android:text="Сохранить автомобиль"
-            android:textAllCaps="false"
-            android:textColor="#FFFFFF"
-            android:textSize="18sp"
-            android:textStyle="bold" />
-
-        <androidx.appcompat.widget.AppCompatButton
-            android:id="@+id/btnProfileLogout"
-            android:layout_width="match_parent"
-            android:layout_height="58dp"
-            android:layout_marginTop="30dp"
-            android:background="@drawable/bg_lamba_send_button"
-            android:text="Выйти"
-            android:textAllCaps="false"
-            android:textColor="#FFFFFF"
-            android:textSize="18sp"
-            android:textStyle="bold" />
-
-        <ProgressBar
-            android:id="@+id/profileProgressBar"
-            android:layout_width="32dp"
-            android:layout_height="32dp"
-            android:layout_gravity="center_horizontal"
-            android:layout_marginTop="18dp"
-            android:indeterminateTint="#960018"
-            android:visibility="gone" />
-    </LinearLayout>
-</ScrollView>
+</androidx.constraintlayout.widget.ConstraintLayout>

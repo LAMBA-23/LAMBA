@@ -8,6 +8,7 @@ object SessionManager {
     private const val PREFS_NAME = "lamba_session"
     private const val KEY_USER_ID = "user_id"
     private const val KEY_USER_NAME = "user_name"
+    private const val KEY_USER_AVATAR = "user_avatar_uri"
     private const val KEY_CHAT_STYLE = "chat_style"
     private const val KEY_CHAT_REQUESTS_PREFIX = "chat_requests_"
     private const val KEY_VIEWED_RECOMMENDATIONS_PREFIX = "viewed_recommendations_"
@@ -44,6 +45,18 @@ object SessionManager {
             .getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
             .getString(KEY_USER_NAME, null)
             ?.takeIf { it.isNotBlank() }
+    }
+
+    fun saveUserAvatarUri(context: Context, uri: String?) {
+        context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+            .edit()
+            .putString(KEY_USER_AVATAR, uri)
+            .apply()
+    }
+
+    fun getUserAvatarUri(context: Context): String? {
+        return context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+            .getString(KEY_USER_AVATAR, null)
     }
 
     fun saveChatStyle(context: Context, style: String) {
