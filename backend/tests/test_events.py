@@ -103,11 +103,21 @@ class TestEventsApi:
         response = client.get(f"/events?user_id={user_id}")
 
         assert response.status_code == 200
-        assert [event["description"] for event in response.json()] == [
+        data = response.json()
+        descriptions = [event["description"] for event in data]
+        assert len(data) == 3
+        assert descriptions[0] == "Newest repair"
+        assert descriptions[-1] == "Old fuel"
+        assert descriptions == [
             "Newest repair",
             "Middle issue",
             "Old fuel",
         ]
+        assert {event["description"] for event in data} == {
+            "Old fuel",
+            "Newest repair",
+            "Middle issue",
+        }
 
     def test_post_event_is_saved_and_uses_default_amount_and_zero_mileage(self, client):
         user_id = _register_user(client, "events-defaults")
