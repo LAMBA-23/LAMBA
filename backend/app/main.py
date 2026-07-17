@@ -1381,7 +1381,6 @@ def chat_ask(
         detail="Too many chat requests",
     )
     MAX_CONTEXT_EVENTS = 30
-    now = datetime.now(timezone.utc).replace(tzinfo=None)
     car = get_car_for_user_id(db, user_id)
     all_events = list(
         db.scalars(
@@ -1390,18 +1389,6 @@ def chat_ask(
             .order_by(Event.created_at, Event.id)
         )
     )
-    if _is_statistics_query(payload.message):
-        return ChatAskResponse(
-            answer=_build_statistics_answer(all_events, payload.message, now, car)
-        )
-    if _is_expense_query(payload.message):
-        return ChatAskResponse(
-            answer=_build_expense_answer(all_events, payload.message, now)
-        )
-    if _is_event_query(payload.message):
-        return ChatAskResponse(
-            answer=_build_event_answer(all_events, payload.message, now, car)
-        )
 
     events = list(reversed(all_events[-MAX_CONTEXT_EVENTS:]))
 

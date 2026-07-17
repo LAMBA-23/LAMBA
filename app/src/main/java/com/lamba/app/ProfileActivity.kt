@@ -4,7 +4,6 @@ import android.app.AlertDialog
 import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
-import android.util.Log
 import android.view.View
 import android.widget.EditText
 import android.widget.ImageButton
@@ -12,8 +11,6 @@ import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.ProgressBar
 import android.widget.TextView
-import android.widget.Toast
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.AppCompatButton
 import androidx.lifecycle.lifecycleScope
@@ -23,11 +20,7 @@ import com.lamba.app.network.RetrofitClient
 import com.lamba.app.network.SessionManager
 import com.lamba.app.network.Vehicle
 import com.lamba.app.network.VehicleUpdateRequest
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import java.io.InputStream
-import java.io.OutputStream
 
 class ProfileActivity : AppCompatActivity() {
     private val localChatRepository by lazy { LocalChatService.getRepository(this) }
@@ -58,7 +51,6 @@ class ProfileActivity : AppCompatActivity() {
         val passwordFormContainer = findViewById<LinearLayout>(R.id.passwordFormContainer)
         val progressBar = findViewById<ProgressBar>(R.id.profileProgressBar)
         val btnSaveVehicle = findViewById<AppCompatButton>(R.id.btnSaveProfileVehicle)
-        val btnExport = findViewById<AppCompatButton>(R.id.btnExportProfileData)
         val btnChangePassword = findViewById<AppCompatButton>(R.id.btnChangePassword)
         val btnThemeToggle = findViewById<ImageButton>(R.id.btnProfileThemeToggle)
 
@@ -79,6 +71,41 @@ class ProfileActivity : AppCompatActivity() {
             finish()
         }
 
+        val btnChatStyle = findViewById<AppCompatButton>(R.id.btnChatStyle)
+        val styleLabels = mapOf(
+            SessionManager.STYLE_FRIENDLY to "Дружелюбный",
+            SessionManager.STYLE_SELFISH to "Эгоистичный",
+            SessionManager.STYLE_PRAGMATIC to "Прагматичный",
+        )
+        val styleKeys = listOf(
+            SessionManager.STYLE_FRIENDLY,
+            SessionManager.STYLE_SELFISH,
+            SessionManager.STYLE_PRAGMATIC,
+        )
+
+        fun updateStyleButton() {
+            val currentStyle = SessionManager.getChatStyle(this)
+            btnChatStyle.text = styleLabels[currentStyle] ?: styleLabels[SessionManager.DEFAULT_STYLE]
+        }
+
+        updateStyleButton()
+
+        btnChatStyle.setOnClickListener {
+            val currentStyle = SessionManager.getChatStyle(this)
+            val checkedIndex = styleKeys.indexOf(currentStyle).coerceAtLeast(0)
+            val displayItems = styleKeys.map { styleLabels[it] ?: it }.toTypedArray()
+
+            AlertDialog.Builder(this)
+                .setTitle("Выберите стиль общения")
+                .setSingleChoiceItems(displayItems, checkedIndex) { dialog, which ->
+                    SessionManager.saveChatStyle(this, styleKeys[which])
+                    updateStyleButton()
+                    dialog.dismiss()
+                }
+                .setNegativeButton("Отмена", null)
+                .show()
+        }
+
         fun renderVehicle(current: Vehicle) {
             vehicle = current
             etBrand.setText(current.brand)
@@ -97,54 +124,6 @@ class ProfileActivity : AppCompatActivity() {
             progressBar.visibility = if (busy) View.VISIBLE else View.GONE
             btnSaveVehicle.isEnabled = !busy && vehicle != null
             btnChangePassword.isEnabled = !busy
-            btnExport.isEnabled = !busy
-        }
-
-        val createExportDocument = registerForActivityResult(
-            ActivityResultContracts.CreateDocument(
-                "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-            ),
-        ) { uri ->
-            if (uri == null) {
-                return@registerForActivityResult
-            }
-
-            tvVehicleError.visibility = View.GONE
-            setBusy(true)
-            lifecycleScope.launch {
-                val saved = runCatching {
-                    val response = RetrofitClient.apiService.exportVehicleData(userId)
-                    if (!response.isSuccessful) {
-                        Log.w(TAG, "Vehicle export failed with HTTP ${response.code()}")
-                        return@runCatching false
-                    }
-                    withContext(Dispatchers.IO) {
-                        response.body()?.use { body ->
-                            contentResolver.openOutputStream(uri)?.use { output ->
-                                ProfileExportWriter.copy(body.byteStream(), output)
-                                true
-                            }
-                        } ?: false
-                    }
-                }.onFailure { error ->
-                    Log.e(TAG, "Vehicle export could not be saved", error)
-                }.getOrDefault(false)
-                setBusy(false)
-                if (saved) {
-                    Toast.makeText(
-                        this@ProfileActivity,
-                        "Данные экспортированы",
-                        Toast.LENGTH_SHORT,
-                    ).show()
-                } else {
-                    tvVehicleError.text = "Не удалось экспортировать данные. Попробуйте снова."
-                    tvVehicleError.visibility = View.VISIBLE
-                }
-            }
-        }
-
-        btnExport.setOnClickListener {
-            createExportDocument.launch("LAMBA_export.xlsx")
         }
 
         fun loadVehicle() {
@@ -256,15 +235,5 @@ class ProfileActivity : AppCompatActivity() {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
         })
         finish()
-    }
-
-    private companion object {
-        const val TAG = "ProfileActivity"
-    }
-}
-
-internal object ProfileExportWriter {
-    fun copy(input: InputStream, output: OutputStream) {
-        input.copyTo(output)
     }
 }
