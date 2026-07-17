@@ -263,6 +263,7 @@ class ChatRepositoryTest {
         override suspend fun askQuestion(
             message: String,
             chatContext: List<ChatContextMessage>,
+            style: String? = null,
         ): String {
             askQuestionCalled = true
             lastChatContext = chatContext
