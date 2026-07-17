@@ -3,6 +3,7 @@ package com.lamba.app
 import android.app.AlertDialog
 import android.content.Intent
 import android.graphics.Color
+import android.net.Uri
 import android.os.Bundle
 import android.view.View
 import android.widget.EditText
@@ -11,6 +12,8 @@ import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.ProgressBar
 import android.widget.TextView
+import androidx.activity.result.PickVisualMediaRequest
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.AppCompatButton
 import androidx.lifecycle.lifecycleScope
@@ -27,6 +30,14 @@ class ProfileActivity : AppCompatActivity() {
     private var vehicle: Vehicle? = null
     private var isSaving = false
     private var isPasswordFormVisible = false
+
+    private val pickMedia = registerForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
+        if (uri != null) {
+            contentResolver.takePersistableUriPermission(uri, Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            SessionManager.saveUserAvatarUri(this, uri.toString())
+            findViewById<ImageView>(R.id.ivProfileAvatar).setImageURI(uri)
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -53,9 +64,22 @@ class ProfileActivity : AppCompatActivity() {
         val btnSaveVehicle = findViewById<AppCompatButton>(R.id.btnSaveProfileVehicle)
         val btnChangePassword = findViewById<AppCompatButton>(R.id.btnChangePassword)
         val btnThemeToggle = findViewById<ImageButton>(R.id.btnProfileThemeToggle)
+        val ivAvatar = findViewById<ImageView>(R.id.ivProfileAvatar)
+        val btnEditAvatar = findViewById<ImageButton>(R.id.btnEditAvatar)
 
         etUsername.setText(SessionManager.getUserName(this) ?: "")
         findViewById<ImageView>(R.id.btnProfileBack).setOnClickListener { finish() }
+
+        SessionManager.getUserAvatarUri(this)?.let { uriString ->
+            runCatching {
+                val uri = Uri.parse(uriString)
+                ivAvatar.setImageURI(uri)
+            }
+        }
+
+        btnEditAvatar.setOnClickListener {
+            pickMedia.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
+        }
 
         if (ThemeManager.current(this).isEnabled) {
             btnThemeToggle.setImageResource(R.drawable.ic_lamba_moon)
