@@ -2,22 +2,17 @@ name: Deploy Backend
 
 on:
   workflow_dispatch:
-    inputs:
-      confirm:
-        description: 'Type "deploy" to confirm'
-        required: true
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    if: github.event.inputs.confirm == 'deploy'
     steps:
-      - name: Deploy to server
+      - name: Deploy to server via SSH
         uses: appleboy/ssh-action@v1
         with:
           host: ${{ secrets.DEPLOY_HOST }}
           username: ${{ secrets.DEPLOY_USER }}
-          key: ${{ secrets.DEPLOY_KEY }}
+          key: ${{ secrets.DEPLOY_SSH_KEY }}
           script: |
             cd ${{ secrets.DEPLOY_PATH }}
             git pull origin main
