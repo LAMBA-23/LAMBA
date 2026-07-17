@@ -7,7 +7,11 @@ interface ChatBackend {
 
     suspend fun saveEvent(event: ParsedEventPayload): Event
 
-    suspend fun askQuestion(message: String, chatContext: List<ChatContextMessage>): String
+    suspend fun askQuestion(
+        message: String,
+        chatContext: List<ChatContextMessage>,
+        style: String? = null,
+    ): String
 }
 
 class RetrofitChatBackend(
@@ -45,9 +49,10 @@ class RetrofitChatBackend(
     override suspend fun askQuestion(
         message: String,
         chatContext: List<ChatContextMessage>,
+        style: String?,
     ): String {
         val response = api.chatAsk(
-            ChatAskRequest(message = message, chatContext = chatContext),
+            ChatAskRequest(message = message, chatContext = chatContext, style = style),
             userId,
         )
         if (!response.isSuccessful) {
@@ -67,9 +72,10 @@ class ChatRepository(
     suspend fun sendMessage(
         message: String,
         chatContext: List<ChatContextMessage> = emptyList(),
+        style: String? = null,
     ): ChatSendResult {
         if (isQuestion(message)) {
-            return handleQuestion(message, chatContext)
+            return handleQuestion(message, chatContext, style)
         }
         return handleEventParsing(message)
     }
@@ -146,9 +152,10 @@ class ChatRepository(
     private suspend fun handleQuestion(
         message: String,
         chatContext: List<ChatContextMessage>,
+        style: String? = null,
     ): ChatSendResult {
         val answer = try {
-            backend.askQuestion(message, chatContext)
+            backend.askQuestion(message, chatContext, style)
         } catch (error: CancellationException) {
             throw error
         } catch (_: Exception) {

@@ -260,7 +260,8 @@ class ChatActivity : AppCompatActivity() {
 
         lifecycleScope.launch {
             try {
-                when (val result = repository.sendMessage(message, previousChatContext)) {
+                val chatStyle = SessionManager.getChatStyle(this@ChatActivity)
+                when (val result = repository.sendMessage(message, previousChatContext, chatStyle)) {
                     is ChatSendResult.Saved -> {
                         val responseText = formatSavedEvent(result.event)
                         addMessage(responseText, isFromUser = false)

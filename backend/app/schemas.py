@@ -356,6 +356,7 @@ class RecommendationsResponse(BaseModel):
 class ChatAskRequest(BaseModel):
     message: str = Field(min_length=1)
     chat_context: list["ChatContextMessage"] | None = None
+    style: str | None = None
 
     @field_validator("message")
     @classmethod
