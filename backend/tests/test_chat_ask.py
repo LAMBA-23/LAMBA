@@ -648,7 +648,6 @@ def test_chat_ask_filters_expenses_for_last_n_days(monkeypatch):
 
 def test_chat_ask_returns_latest_events_as_numbered_list_without_llm(monkeypatch):
     user_id = _register_and_get_user_id("ask-user-events-1")
-    today = datetime.now().strftime("%d.%m.%Y")
 
     _create_event(
         user_id,
@@ -732,11 +731,6 @@ def test_chat_ask_returns_events_for_last_n_days_as_numbered_list(monkeypatch):
         )
 
     monkeypatch.setattr(main_module, "ask_deepseek", lambda *a, **kw: "AI OK")
-
-    recent_date_1_obj = now - timedelta(days=1)
-    recent_date_2_obj = now - timedelta(days=1)
-    expected_date_1 = recent_date_1_obj.strftime("%d.%m.%Y")
-    expected_date_2 = recent_date_2_obj.strftime("%d.%m.%Y")
 
     response = client.post(
         f"/chat/ask?user_id={user_id}",

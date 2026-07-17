@@ -1381,7 +1381,6 @@ def chat_ask(
         detail="Too many chat requests",
     )
     MAX_CONTEXT_EVENTS = 30
-    now = datetime.now(timezone.utc).replace(tzinfo=None)
     car = get_car_for_user_id(db, user_id)
     all_events = list(
         db.scalars(

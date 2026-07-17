@@ -18,7 +18,7 @@ def hash_password(password: str) -> str:
         salt.encode("utf-8"),
         PBKDF2_ITERATIONS,
     )
-    return f"{PASSWORD_HASH_PREFIX}${PBKDF2_ITERATIONS}" f"${salt}${digest.hex()}"
+    return f"{PASSWORD_HASH_PREFIX}${PBKDF2_ITERATIONS}${salt}${digest.hex()}"
 
 
 def is_password_hashed(password_value: str) -> bool:
