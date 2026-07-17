@@ -1417,6 +1417,7 @@ def chat_ask(
                 message=payload.message,
                 vehicle_context=vehicle_context,
                 chat_context=chat_context,
+                style=payload.style,
             )
         except TypeError:
             answer = ask_deepseek(
