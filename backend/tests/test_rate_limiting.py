@@ -43,7 +43,7 @@ def _register_and_get_user_id(username: str = "rate-limit-user") -> int:
 def test_chat_ask_is_rate_limited(monkeypatch):
     user_id = _register_and_get_user_id("rate-limit-user-chat")
 
-    def fake_ask(message: str, vehicle_context: str | None = None) -> str:
+    def fake_ask(message: str, vehicle_context: str | None = None, style: str | None = None) -> str:
         return "OK"
 
     monkeypatch.setattr(main_module, "ask_deepseek", fake_ask)
@@ -77,7 +77,7 @@ def test_chat_ask_allows_requests_after_rate_limit_window(monkeypatch):
 
     user_id = _register_and_get_user_id("rate-limit-user-chat-window")
 
-    def fake_ask(message: str, vehicle_context: str | None = None) -> str:
+    def fake_ask(message: str, vehicle_context: str | None = None, style: str | None = None) -> str:
         return "OK"
 
     monkeypatch.setattr(main_module, "ask_deepseek", fake_ask)
