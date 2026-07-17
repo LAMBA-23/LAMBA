@@ -1504,7 +1504,7 @@ def get_events(user_id: int = Query(...), db: Session = Depends(get_db)) -> list
         db.scalars(
             select(Event)
             .where(Event.car_id == car.id, Event.type.in_(EVENT_TYPES))
-            .order_by(Event.id)
+            .order_by(Event.created_at.desc(), Event.id.desc())
         )
     )
 

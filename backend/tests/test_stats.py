@@ -299,8 +299,8 @@ class TestStatsApi:
         assert stats_response.status_code == 200
         assert timeline_response.status_code == 200
         assert [event["type"] for event in timeline_response.json()] == [
-            "repair",
             "issue",
+            "repair",
         ]
         assert data["all_time"]["records_count"] == 2
         assert data["all_time"]["repair_expenses"] == 9000

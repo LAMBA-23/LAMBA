@@ -46,7 +46,7 @@ class TestEventsApi:
         assert response.status_code == 200
         assert [event["type"] for event in response.json()] == ["fuel"]
 
-    def test_get_events_returns_only_user_events_in_stable_order(self, client):
+    def test_get_events_returns_only_user_events_newest_first(self, client):
         first_user_id = _register_user(client, "events-user-1")
         second_user_id = _register_user(client, "events-user-2")
 
@@ -73,11 +73,51 @@ class TestEventsApi:
         assert response.status_code == 200
         data = response.json()
         assert [event["description"] for event in data] == [
-            "First user fuel",
             "First user repair",
+            "First user fuel",
         ]
-        assert [event["id"] for event in data] == sorted(event["id"] for event in data)
+        assert [event["id"] for event in data] == sorted(
+            (event["id"] for event in data),
+            reverse=True,
+        )
         assert "Second user fuel" not in [event["description"] for event in data]
+
+    def test_get_events_orders_existing_records_by_created_at_desc(
+        self, client, db_session
+    ):
+        user_id = _register_user(client, "events-existing-newest-first")
+        car_id = client.get(f"/vehicle?user_id={user_id}").json()["id"]
+        db_session.execute(
+            text(
+                "INSERT INTO events "
+                "(car_id, type, description, amount, fuel_liters, mileage, created_at) "
+                "VALUES "
+                "(:car_id, 'fuel', 'Old fuel', 10, 5, 100, '2026-07-01 10:00:00'), "
+                "(:car_id, 'repair', 'Newest repair', 20, 0, 200, '2026-07-03 10:00:00'), "
+                "(:car_id, 'issue', 'Middle issue', 0, 0, 300, '2026-07-02 10:00:00')"
+            ),
+            {"car_id": car_id},
+        )
+        db_session.commit()
+
+        response = client.get(f"/events?user_id={user_id}")
+
+        assert response.status_code == 200
+        data = response.json()
+        descriptions = [event["description"] for event in data]
+        assert len(data) == 3
+        assert descriptions[0] == "Newest repair"
+        assert descriptions[-1] == "Old fuel"
+        assert descriptions == [
+            "Newest repair",
+            "Middle issue",
+            "Old fuel",
+        ]
+        assert {event["description"] for event in data} == {
+            "Old fuel",
+            "Newest repair",
+            "Middle issue",
+        }
 
     def test_post_event_is_saved_and_uses_default_amount_and_zero_mileage(self, client):
         user_id = _register_user(client, "events-defaults")
@@ -309,7 +349,7 @@ class TestEventsApi:
         timeline_response = client.get(f"/events?user_id={user_id}")
 
         assert timeline_response.status_code == 200
-        assert timeline_response.json() == created_events
+        assert timeline_response.json() == list(reversed(created_events))
 
     def test_post_repair_and_breakdown_records_are_saved_distinctly(self, client):
         user_id = _register_user(client, "events-repair-breakdown")
@@ -348,7 +388,7 @@ class TestEventsApi:
         assert issue["mileage"] == 125050
 
         assert timeline_response.status_code == 200
-        assert timeline_response.json() == [repair, issue]
+        assert timeline_response.json() == [issue, repair]
 
     def test_post_trip_distance_stores_new_odometer_and_keeps_timeline_response(
         self, client
@@ -505,9 +545,9 @@ class TestEventsApi:
         assert issue_note.json()["mileage"] == 61004
         assert second_trip.json()["mileage"] == 76200
         assert [event["mileage"] for event in timeline_response.json()] == [
-            76100,
-            61004,
             76200,
+            61004,
+            76100,
         ]
 
     def test_events_return_expected_errors_for_missing_or_unknown_user(self, client):
