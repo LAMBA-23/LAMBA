@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Local user-avatar selection and persistence in the Profile screen; photos are stored locally on the device and displayed in a circular frame (#351).
+- Interactive card-based chat style selection in Profile with visual feedback and descriptive tooltips (#351).
 - Vehicle-data export to an Excel `.xlsx` file from the Android profile screen,
   including vehicle details, event history, backend statistics, and charts (#339).
 
@@ -35,6 +37,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Profile screen UI redesigned with modern cards, elevation effects, and background glow to match the app's visual identity (#351).
+- System logout dialog replaced with a themed LAMBA confirmation dialog for better UX consistency (#351).
 - Breakdown photos are validated by decoded image content, stripped of embedded
   metadata, orientation-corrected, and replaced with failure-safe cleanup (#332).
 - AI chat assistant now responds to greetings and thanks with friendly, emoji-rich messages instead of asking for event details (#316).

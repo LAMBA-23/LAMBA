@@ -3,9 +3,16 @@ package com.lamba.app
 import android.app.AlertDialog
 import android.content.Intent
 import android.graphics.Color
+import android.app.Dialog
+import android.graphics.Typeface
+import android.graphics.drawable.ColorDrawable
+import android.graphics.drawable.GradientDrawable
 import android.net.Uri
 import android.os.Bundle
+import android.view.Gravity
 import android.view.View
+import android.view.Window
+import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageButton
 import android.widget.ImageView
@@ -16,6 +23,7 @@ import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.AppCompatButton
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
 import com.lamba.app.chat.LocalChatService
 import com.lamba.app.network.ChangePasswordRequest
@@ -24,6 +32,9 @@ import com.lamba.app.network.SessionManager
 import com.lamba.app.network.Vehicle
 import com.lamba.app.network.VehicleUpdateRequest
 import kotlinx.coroutines.launch
+import okhttp3.ResponseBody
+import java.io.InputStream
+import java.io.OutputStream
 
 class ProfileActivity : AppCompatActivity() {
     private val localChatRepository by lazy { LocalChatService.getRepository(this) }
@@ -95,39 +106,29 @@ class ProfileActivity : AppCompatActivity() {
             finish()
         }
 
-        val btnChatStyle = findViewById<AppCompatButton>(R.id.btnChatStyle)
-        val styleLabels = mapOf(
-            SessionManager.STYLE_FRIENDLY to "Дружелюбный",
-            SessionManager.STYLE_SELFISH to "Эгоистичный",
-            SessionManager.STYLE_PRAGMATIC to "Прагматичный",
-        )
-        val styleKeys = listOf(
-            SessionManager.STYLE_FRIENDLY,
-            SessionManager.STYLE_SELFISH,
-            SessionManager.STYLE_PRAGMATIC,
+        val styleOptions = mapOf(
+            SessionManager.STYLE_FRIENDLY to findViewById<View>(R.id.styleOptionFriendly),
+            SessionManager.STYLE_SELFISH to findViewById<View>(R.id.styleOptionSelfish),
+            SessionManager.STYLE_PRAGMATIC to findViewById<View>(R.id.styleOptionPragmatic),
         )
 
-        fun updateStyleButton() {
+        fun updateStyleSelection() {
             val currentStyle = SessionManager.getChatStyle(this)
-            btnChatStyle.text = styleLabels[currentStyle] ?: styleLabels[SessionManager.DEFAULT_STYLE]
+            styleOptions.forEach { (key, view) ->
+                view.setBackgroundResource(
+                    if (key == currentStyle) R.drawable.bg_lamba_style_selected
+                    else R.drawable.bg_lamba_style_unselected
+                )
+            }
         }
 
-        updateStyleButton()
+        updateStyleSelection()
 
-        btnChatStyle.setOnClickListener {
-            val currentStyle = SessionManager.getChatStyle(this)
-            val checkedIndex = styleKeys.indexOf(currentStyle).coerceAtLeast(0)
-            val displayItems = styleKeys.map { styleLabels[it] ?: it }.toTypedArray()
-
-            AlertDialog.Builder(this)
-                .setTitle("Выберите стиль общения")
-                .setSingleChoiceItems(displayItems, checkedIndex) { dialog, which ->
-                    SessionManager.saveChatStyle(this, styleKeys[which])
-                    updateStyleButton()
-                    dialog.dismiss()
-                }
-                .setNegativeButton("Отмена", null)
-                .show()
+        styleOptions.forEach { (key, view) ->
+            view.setOnClickListener {
+                SessionManager.saveChatStyle(this, key)
+                updateStyleSelection()
+            }
         }
 
         fun renderVehicle(current: Vehicle) {
@@ -232,16 +233,140 @@ class ProfileActivity : AppCompatActivity() {
         }
 
         findViewById<AppCompatButton>(R.id.btnProfileLogout).setOnClickListener {
-            AlertDialog.Builder(this)
-                .setTitle("Выйти из аккаунта?")
-                .setMessage("Мы удалим локальные данные этого аккаунта с устройства.")
-                .setNegativeButton("Отмена", null)
-                .setPositiveButton("Выйти") { _, _ -> clearSessionAndOpen(WelcomeActivity::class.java) }
-                .show()
+            showLogoutConfirmationDialog()
+        }
+
+        findViewById<AppCompatButton>(R.id.btnExportProfileData).setOnClickListener {
+            lifecycleScope.launch {
+                setBusy(true)
+                try {
+                    val response = RetrofitClient.apiService.exportVehicleData(userId)
+                    if (response.isSuccessful && response.body() != null) {
+                        val fileName = "lamba_profile_${System.currentTimeMillis()}.xlsx"
+                        val outputStream = openFileOutput(fileName, MODE_PRIVATE)
+                        ProfileExportWriter.copy(response.body()!!.byteStream(), outputStream)
+                        outputStream.close()
+                        
+                        val intent = Intent(Intent.ACTION_VIEW).apply {
+                            val uri = androidx.core.content.FileProvider.getUriForFile(
+                                this@ProfileActivity,
+                                "${packageName}.provider",
+                                java.io.File(filesDir, fileName)
+                            )
+                            setDataAndType(uri, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+                            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                        }
+                        startActivity(Intent.createChooser(intent, "Открыть отчет"))
+                    } else {
+                        android.widget.Toast.makeText(this@ProfileActivity, "Ошибка экспорта", android.widget.Toast.LENGTH_SHORT).show()
+                    }
+                } catch (e: Exception) {
+                    android.widget.Toast.makeText(this@ProfileActivity, "Не удалось экспортировать данные", android.widget.Toast.LENGTH_SHORT).show()
+                } finally {
+                    setBusy(false)
+                }
+            }
         }
 
         loadVehicle()
     }
+
+    private fun showLogoutConfirmationDialog() {
+        val dialog = Dialog(this)
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
+
+        val container = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            gravity = Gravity.CENTER_HORIZONTAL
+            setPadding(24.dp, 24.dp, 24.dp, 24.dp)
+            background = roundedBackground("#FFFFFF", 24.dp.toFloat())
+        }
+
+        container.addView(ImageView(this).apply {
+            layoutParams = LinearLayout.LayoutParams(56.dp, 56.dp)
+            background = roundedBackground("#FFEBEE", 18.dp.toFloat())
+            setImageResource(R.drawable.ic_lamba_close)
+            setColorFilter(android.graphics.Color.parseColor("#960018"))
+            setPadding(14.dp, 14.dp, 14.dp, 14.dp)
+        })
+
+        container.addView(TextView(this).apply {
+            layoutParams = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+            ).apply { topMargin = 16.dp }
+            gravity = Gravity.CENTER
+            text = "Выйти из аккаунта?"
+            setTextColor(android.graphics.Color.parseColor("#101114"))
+            textSize = 20f
+            typeface = Typeface.DEFAULT_BOLD
+        })
+
+        container.addView(TextView(this).apply {
+            layoutParams = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+            ).apply { topMargin = 8.dp }
+            gravity = Gravity.CENTER
+            text = "Локальные данные чатов этого аккаунта будут удалены с устройства."
+            setTextColor(android.graphics.Color.parseColor("#77777E"))
+            textSize = 15f
+        })
+
+        val btnLogout = Button(this).apply {
+            layoutParams = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                54.dp
+            ).apply { topMargin = 24.dp }
+            background = ContextCompat.getDrawable(this@ProfileActivity, R.drawable.bg_lamba_send_button)
+            text = "Выйти"
+            setTextColor(android.graphics.Color.WHITE)
+            textSize = 16f
+            typeface = Typeface.DEFAULT_BOLD
+            isAllCaps = false
+            setOnClickListener {
+                dialog.dismiss()
+                clearSessionAndOpen(WelcomeActivity::class.java)
+            }
+        }
+
+        val btnCancel = Button(this).apply {
+            layoutParams = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                54.dp
+            ).apply { topMargin = 8.dp }
+            background = ContextCompat.getDrawable(this@ProfileActivity, R.drawable.bg_lamba_style_unselected)
+            text = "Отмена"
+            setTextColor(android.graphics.Color.parseColor("#101114"))
+            textSize = 16f
+            typeface = Typeface.DEFAULT_BOLD
+            isAllCaps = false
+            setOnClickListener { dialog.dismiss() }
+        }
+
+        container.addView(btnLogout)
+        container.addView(btnCancel)
+
+        dialog.setContentView(container)
+        dialog.show()
+        dialog.window?.let { window ->
+            window.setBackgroundDrawable(ColorDrawable(android.graphics.Color.TRANSPARENT))
+            window.setLayout(
+                (resources.displayMetrics.widthPixels * 0.85f).toInt(),
+                LinearLayout.LayoutParams.WRAP_CONTENT
+            )
+        }
+    }
+
+    private fun roundedBackground(color: String, radius: Float): GradientDrawable {
+        return GradientDrawable().apply {
+            setColor(android.graphics.Color.parseColor(color))
+            cornerRadius = radius
+        }
+    }
+
+    private val Int.dp: Int
+        get() = (this * resources.displayMetrics.density).toInt()
 
     private fun clearSessionAndOpen(target: Class<out AppCompatActivity>) {
         lifecycleScope.launch {
@@ -259,5 +384,15 @@ class ProfileActivity : AppCompatActivity() {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
         })
         finish()
+    }
+}
+
+object ProfileExportWriter {
+    fun copy(inputStream: InputStream, outputStream: OutputStream) {
+        val buffer = ByteArray(4096)
+        var bytesRead: Int
+        while (inputStream.read(buffer).also { bytesRead = it } != -1) {
+            outputStream.write(buffer, 0, bytesRead)
+        }
     }
 }
