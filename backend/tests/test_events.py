@@ -388,7 +388,7 @@ class TestEventsApi:
         assert issue["mileage"] == 125050
 
         assert timeline_response.status_code == 200
-        assert timeline_response.json() == [repair, issue]
+        assert timeline_response.json() == [issue, repair]
 
     def test_post_trip_distance_stores_new_odometer_and_keeps_timeline_response(
         self, client
@@ -545,9 +545,9 @@ class TestEventsApi:
         assert issue_note.json()["mileage"] == 61004
         assert second_trip.json()["mileage"] == 76200
         assert [event["mileage"] for event in timeline_response.json()] == [
-            76100,
-            61004,
             76200,
+            61004,
+            76100,
         ]
 
     def test_events_return_expected_errors_for_missing_or_unknown_user(self, client):
