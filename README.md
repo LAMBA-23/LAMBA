@@ -2,7 +2,7 @@
 
 LAMBA is an Android application for maintaining a digital twin of a car. It allows a vehicle owner to store vehicle information, record trips, refueling, repairs, and breakdowns, review the vehicle history and statistics, and interact with an AI assistant through a conversational interface.
 
-The current public increment is **MVP v3 / Assignment 6 Sprint 4 Trial Release**.
+The current public increment is **MVP v3 / Assignment 6 Sprint 5 Final Release (v1.4.0)**.
 
 ## Current Product Access
 
