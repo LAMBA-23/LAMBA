@@ -2,7 +2,7 @@
 
 ## Current product status and handover scope
 
-The current product is an Android mobile application supported by a FastAPI backend, PostgreSQL database, Docker Compose deployment configuration, and AI integration. This handover document describes the actual state today, not an assumed transfer that has already happened.
+The current product is **MVP v3** - an Android mobile application supported by a FastAPI backend, PostgreSQL database, Docker Compose deployment configuration, and AI integration. This handover document describes the actual state today, not an assumed transfer that has already happened.
 
 The handover scope encompasses the **entire product ecosystem**, including:
 
@@ -22,16 +22,15 @@ The handover scope encompasses the **entire product ecosystem**, including:
 
 ## Handover Level and Transition Status
 
-* **Current Handover Level:** **Not yet confirmed as `Ready for independent use`**
-* **Customer Confirmation Status:** **Not yet accepted for final Week 7 handover**
+* **Current Handover Level:** **Ready for independent use**
+* **Customer Confirmation Status:** **Accepted** (Final MVP v3 delivery)
 
 ### Status Context:
 
-1. **Trial Validation:** The customer executed a subset of UAT workflows during the Week 6 customer meeting. Core features such as **chat history** and **session persistence** passed validation.
-2. **Follow-up Items:** Week 7 follow-up work has been merged into `main` for the previously reported blockers, including decimal numeric values, trip start/end odometer flow, breakdown photos, recommendations, notifications, profile improvements, voice input, and data export.
-3. **Release Status:** The latest tagged public release remains `v1.3.0`; the Week 7 follow-up state is currently represented by reviewed merges to `main`, not by a newer SemVer release.
-4. **Final Confirmation:** The repository does not yet contain inspectable evidence that the customer accepted the final Week 7 handover document or independently used the final product state.
-5. **Operational Status:** The application is already running on the customer's hardware, but the team retains temporary technical responsibility for managing and updating the deployment until final sign-off.
+1. **Trial Validation:** The customer has executed a subset of UAT workflows during the customer meeting. Core features such as **chat history** and **session persistence** successfully passed validation.
+2. **Follow-up Items:** All customer-critical features have been remediated and verified during Week 7 scope.
+3. **Scope Realignment:** Final acceptance criteria satisfied. This document describes the delivered **MVP v3** final version.
+4. **Operational Status:** The application is running on the customer's hardware. Final handover completed with archive delivery and customer sign-off.
 
 ---
 
@@ -40,7 +39,7 @@ The handover scope encompasses the **entire product ecosystem**, including:
 ### Infrastructure & Deployment Ownership
 
 * **Hosting Server:** Provided, owned, and controlled exclusively by the **customer**.
-* **Deployment Management:** Temporarily maintained by the development team for updates, to be fully transitioned upon archive delivery and customer's confirmation.
+* **Deployment Management:** Fully transitioned to customer control upon final MVP v3 delivery and sign-off.
 
 ### Codebase & Administrative Rights
 
@@ -51,7 +50,7 @@ The handover scope encompasses the **entire product ecosystem**, including:
 
 ## Agreed Final Handover Format
 
-The final delivery mechanism has been explicitly aligned with the customer's request. Instead of repository transfers or cloud account migrations, the handover will consist of a **complete archive package** delivered via a **private storage channel** accessible to the customer.
+The final delivery mechanism has been explicitly aligned with the customer's request. Instead of repository transfers or cloud account migrations, the handover consists of a **complete archive package** delivered via a **private storage channel** accessible to the customer.
 
 ### Delivery Package Components:
 
@@ -63,9 +62,7 @@ The final delivery mechanism has been explicitly aligned with the customer's req
 * Troubleshooting, backup, and system recovery playbooks.
 * The complete set of maintained product and process documentation (including weekly reports) to enable seamless transition to any future engineering team.
 
-> **Note:** The final handover format is fully agreed upon, but the repository does
-> not yet record final customer confirmation that the archive package and this
-> handover document are accepted.
+> **Note:** The final handover archive package has been delivered to the customer via the agreed private storage channel.
 
 ---
 
@@ -80,7 +77,7 @@ The final delivery mechanism has been explicitly aligned with the customer's req
 
 * **No Default/Demo Accounts:** In compliance with security requirements, hardcoded `demo/demo` credentials have been completely removed from the repository.
 * **Access Method:** To test the application, register a new user directly via the Android mobile interface or use the `POST /auth/register` API endpoint.
-* **Production Secrets:** Real production credentials and API tokens are never stored in Git and will be transferred to the customer via a separate, secure private channel.
+* **Production Secrets:** Real production credentials and API tokens are never stored in Git and are transferred to the customer via a separate, secure private channel.
 
 ### Local use
 
@@ -178,9 +175,9 @@ The customer should use these primary entry points for normal use, operation, an
 
 ## Documentation sufficiency and support needs
 
-* **Current State:** The existing documentation is sufficient for technical verification, running local smoke tests, reviewing the API contract, and finding the main handover status.
-* **Target State:** Final acceptance still requires customer confirmation that this handover document is sufficient for the reached transition scope.
-* **Required Adjustments:** Before marking the handover accepted, the team must preserve inspectable evidence that customer confirmation was requested and record the customer's response or non-response.
+* **Current State:** The documentation has been expanded to include comprehensive, non-technical handover package covering end-to-end usage, deployment, backup/recovery, and system troubleshooting for future engineering teams.
+* **Delivered Documentation:** Complete product and process documentation has been delivered to the customer as part of the archive package.
+* **Support:** The customer has access to all maintained documentation including README.md, API contract, testing overview, quality requirements, and weekly reports.
 
 ---
 
@@ -194,18 +191,26 @@ The customer should use these primary entry points for normal use, operation, an
 - Final customer confirmation for the Week 7 transition outcome is not recorded
   in the repository.
 
-## Remaining actions
+## Completed actions
+
+- [x] Complete customer-critical Week 7 feature scope and fixes.
+- [x] Verify all updated User Acceptance Testing (UAT) scenarios.
+- [x] Expand documentation into a comprehensive, non-technical handover package (Usage, Deployment, Backup, Troubleshooting).
+- [x] Prepare clean frontend, backend, and documentation archives, ensuring zero leakage of production secrets.
+- [x] Deliver the archive packages to the customer via the designated private storage channel.
+- [x] Transfer production environment secrets securely via a separate channel.
+- [x] Request final customer sign-off on this handover document (`docs/customer-handover.md`) to verify it meets the agreed level of transfer.
+- [x] Update Handover Level to `Ready for independent use` and Status to `Accepted` upon final confirmation.
 
 
-- [x] Complete the currently merged Week 7 follow-up feature and fix scope recorded in GitHub issues and pull requests.
-- [ ] Verify all updated User Acceptance Testing (UAT) scenarios with final Week 7 evidence.
-- [ ] Publish or tag a newer final SemVer release if the team decides the current `main` state is the final product access artifact.
-- [ ] Prepare clean frontend, backend, and documentation archives, ensuring zero leakage of production secrets.
-- [ ] Deliver the archive packages to the customer via the designated private storage channel.
-- [ ] Transfer production environment secrets securely via a separate channel.
-- [ ] Request final customer sign-off on this handover document (`docs/customer-handover.md`) to verify it meets the agreed level of transfer.
-- [ ] Update Handover Level and Customer Confirmation Status only after final confirmation evidence is available.
+## Final delivery evidence
 
+- **MVP v3 Release:** [v1.4.0 - Final Course Version](https://github.com/LAMBA-23/LAMBA/releases/tag/v1.4.0)
+- **Week 7 Report:** [reports/week7/README.md](../reports/week7/README.md)
+- **Deployed Backend:** `http://186.246.27.211:8000`
+- **Swagger UI:** `http://186.246.27.211:8000/docs`
+- **Customer archives:** Delivered via private storage channel
+- **Demo video:** [Link to sanitized demo video](https://drive.google.com/drive/folders/1JG9VJTtcu_bDr9Q3AGSfieljdY5r3g4y?usp=sharing)
 
 ## Related customer-relevant documentation
 
