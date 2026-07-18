@@ -7,13 +7,13 @@ Authoritative references:
 - User-story registry: [docs/user-stories.md](./user-stories.md)
 - Definition of Done: [docs/definition-of-done.md](./definition-of-done.md)
 - Live backlog and Sprint execution: [GitHub issues](https://github.com/LAMBA-23/LAMBA/issues)
-- Product Backlog and Sprint Backlog board: [GitHub Project](https://github.com/orgs/LAMBA-23/projects?query=is%3Aopen)
+- Product Backlog and Sprint Backlog board: [GitHub Project 1](https://github.com/orgs/LAMBA-23/projects/1)
 
 ## Product Goal
 
-Deliver an Android-first vehicle digital twin that lets a vehicle owner keep a useful history of their car, add structured records, and use an AI-assisted chat experience to understand and update that history.
+Deliver an Android-first vehicle digital twin that lets a vehicle owner maintain a trustworthy vehicle profile and history, record trips, fuel, repairs and breakdowns, inspect statistics, and use an AI-assisted chat to understand that history.
 
-Current product direction for MVP v3 is to make the saved vehicle history more reliable for trial use and final transition. The product should preserve useful manual and AI-assisted record flows, protect account and backend access better, retain recent local chat context on the Android device, keep Statistics readable on different screen sizes, and prepare customer-facing handover materials without overstating unfinished recommendation or notification behavior.
+The implemented MVP v3 direction is a practical single-vehicle owner experience: structured manual and chat-assisted records, decimal numeric input, odometer-based trips, breakdown photos, profile settings, export, rule-based in-app recommendations, and a more conversational assistant. The current course work is to verify this delivered increment with the customer and complete the remaining course evidence; it does not introduce a post-course product version.
 
 ## Sprint 1 - MVP v1 Foundation
 
@@ -142,60 +142,76 @@ The planned MVP v2 scope is selected for customer value, quality improvement, ma
 - Dates: 2026-07-06 to 2026-07-12
 - MVP target: MVP v3 trial release
 - Sprint Goal: Improve MVP v3 transition readiness by stabilizing customer-facing behavior, closing priority security gaps, and preparing the product for more independent customer use.
-- Focus / expected outcome: The team delivers a more secure MVP v3 candidate with safer credential handling, explicit logout, local recent-chat continuity, and a more usable Statistics screen for customer trial use.
 
-Selected Sprint PBIs:
+### Planned Scope
 
-Security and access hardening:
-- [#265 Harden backend auth and rate limiting](https://github.com/LAMBA-23/LAMBA/issues/265)
-- [#271 Bug: add logout from Android account](https://github.com/LAMBA-23/LAMBA/issues/271)
+The milestone description planned customer-agreed readiness work around recommendations and notifications, chat continuity, decimal fuel, AI statistics answers, odometer trips, repair/breakdown records and photo attachments, voice-input removal, icon, session restore, logout, and OWASP hardening. The authoritative execution set is the 13 issues actually assigned to the milestone:
 
-Android continuity and usability:
-- [#277 Save local chat history for the last five dialogs](https://github.com/LAMBA-23/LAMBA/issues/277)
-- [#278 Bug: fix frontend issues](https://github.com/LAMBA-23/LAMBA/issues/278)
-
-Additional Sprint 4 PBIs:
+- [#233 Statistics do not update after history form records](https://github.com/LAMBA-23/LAMBA/issues/233)
+- [#234 Bug: fix frontend issues](https://github.com/LAMBA-23/LAMBA/issues/234)
+- [#238 Bug: unnecessary microphone icon](https://github.com/LAMBA-23/LAMBA/issues/238)
+- [#239 Chat expense answers are unstructured and can report incorrect expense data](https://github.com/LAMBA-23/LAMBA/issues/239)
+- [#242 PBl: add application icon](https://github.com/LAMBA-23/LAMBA/issues/242)
+- [#243 Fix session restore after app restart](https://github.com/LAMBA-23/LAMBA/issues/243)
 - [#245 PBI - allow decimal fuel liters in events](https://github.com/LAMBA-23/LAMBA/issues/245)
 - [#246 PBI - support trip records by odometer start and end](https://github.com/LAMBA-23/LAMBA/issues/246)
 - [#247 PBI - support repair and breakdown event records](https://github.com/LAMBA-23/LAMBA/issues/247)
-- [#242 PBl: add application icon](https://github.com/LAMBA-23/LAMBA/issues/242)
-- [#243 Fix session restore after app restart](https://github.com/LAMBA-23/LAMBA/issues/243)
+- [#265 Harden backend auth and rate limiting](https://github.com/LAMBA-23/LAMBA/issues/265)
+- [#271 Bug: add logout from Android account](https://github.com/LAMBA-23/LAMBA/issues/271)
+- [#277 Save local chat history for the last five dialogs](https://github.com/LAMBA-23/LAMBA/issues/277)
+- [#278 Bug: fix frontend issues](https://github.com/LAMBA-23/LAMBA/issues/278)
 
-### Sprint 4 Outcome
+### Actual Sprint 4 Outcome
 
-The following Sprint 4 items are completed and form the current MVP v3 maintained-documentation baseline:
-
-- [#265 Harden backend auth and rate limiting](https://github.com/LAMBA-23/LAMBA/issues/265): password hashing, unsafe demo-login removal, login/chat rate limiting, and restricted default CORS behavior are implemented and covered by backend tests.
-- [#271 Bug: add logout from Android account](https://github.com/LAMBA-23/LAMBA/issues/271): Android logout clears local account state and local chat data before returning to the welcome flow.
-- [#277 Save local chat history for the last five dialogs](https://github.com/LAMBA-23/LAMBA/issues/277): Android stores recent local chat dialogs through Room, restores the current dialog, supports switching dialogs, and clears local history on logout.
-- [#278 Bug: fix frontend issues](https://github.com/LAMBA-23/LAMBA/issues/278): Statistics UI layout was adjusted for adaptive display and clearer period selection.
-- [#245 PBI - allow decimal fuel liters in events](https://github.com/LAMBA-23/LAMBA/issues/245), [#246 PBI - support trip records by odometer start and end](https://github.com/LAMBA-23/LAMBA/issues/246), [#247 PBI - support repair and breakdown event records](https://github.com/LAMBA-23/LAMBA/issues/247), [#242 PBl: add application icon](https://github.com/LAMBA-23/LAMBA/issues/242), and [#243 Fix session restore after app restart](https://github.com/LAMBA-23/LAMBA/issues/243) are also recorded as completed Sprint 4 work in the milestone.
-
-Open or deferred Sprint 4-related work remains in the issue tracker and is not counted as completed outcome here.
+All 13 milestone issues are closed. The resulting MVP v3 trial increment fixed the manual-record statistics refresh and other Android defects, removed the unused microphone control, improved structured expense answers, added the launcher icon and session restoration, enabled decimal fuel input, supported odometer-trip and repair/breakdown records, hardened authentication and rate limiting, added logout, retained recent chat dialogs locally, and made Statistics more adaptive. The inspectable trial release is [v1.3.0](https://github.com/LAMBA-23/LAMBA/releases/tag/v1.3.0), published as the Sprint 4 MVP v3 trial release.
 
 ## Sprint 5 - Final Transition and Delivery
 
 - Sprint milestone: [Sprint 5 - Final Transition and Delivery](https://github.com/LAMBA-23/LAMBA/milestone/5)
 - Dates: 2026-07-13 to 2026-07-19
-- MVP target: MVP v3 final delivery
+- MVP target: MVP v3 final delivery increment
 - Sprint Goal: Prepare the final course delivery by stabilizing MVP v3 after Sprint 4 feedback, completing realistic APK validation, updating release/deployment evidence, finalizing transition documentation, and deciding what recommendation or notification scope is product-ready.
-- Focus / expected outcome: The team completes follow-up maintenance after the customer trial, fixes remaining blockers, updates customer-facing documentation, prepares final transition evidence, and delivers the MVP v3 release.
+The [Sprint 5 milestone](https://github.com/LAMBA-23/LAMBA/milestone/5) is the authoritative record of selected PBIs. It contains 27 closed issues. The first follow-up set carried forward from the trial roadmap was [#51](https://github.com/LAMBA-23/LAMBA/issues/51), [#52](https://github.com/LAMBA-23/LAMBA/issues/52), [#264](https://github.com/LAMBA-23/LAMBA/issues/264), [#272](https://github.com/LAMBA-23/LAMBA/issues/272), and [#273](https://github.com/LAMBA-23/LAMBA/issues/273); customer-trial follow-up then refined and expanded the Sprint scope below.
 
-Selected Sprint PBIs:
+### Selected Sprint 5 PBIs by Direction
 
-- [#264 PBI: allow decimal fuel liters in event form](https://github.com/LAMBA-23/LAMBA/issues/264)
-- [#272 PBI: Support trip recording using start and end odometer values](https://github.com/LAMBA-23/LAMBA/issues/272)
-- [#273 PBI: Add breakdown records with photo attachment UI](https://github.com/LAMBA-23/LAMBA/issues/273)
-- [#51 US-08: Receive maintenance recommendations](https://github.com/LAMBA-23/LAMBA/issues/51)
-- [#52 US-09: Receive notifications](https://github.com/LAMBA-23/LAMBA/issues/52)
+Numeric fields:
 
-Sprint 5 focus areas:
+- [#264 Decimal fuel liters in the event form](https://github.com/LAMBA-23/LAMBA/issues/264), [#313 Decimal values in applicable numeric fields](https://github.com/LAMBA-23/LAMBA/issues/313), and [#314 Decimal values across vehicle and event numeric fields](https://github.com/LAMBA-23/LAMBA/issues/314).
 
-- Follow-up maintenance after customer trial and Sprint 4 feedback.
-- Fix remaining blockers that prevent realistic customer APK use or final release evidence.
-- Update customer-facing documentation and handover materials.
-- Finalize transition, release, and delivery evidence for MVP v3.
-- Keep any unfinished recommendation or notification behavior tracked honestly instead of including it in completed outcome.
+Recommendations and notifications:
+
+- [#51 US-08: Receive maintenance recommendations](https://github.com/LAMBA-23/LAMBA/issues/51), [#52 US-09: Receive notifications](https://github.com/LAMBA-23/LAMBA/issues/52), [#315 Rule-based recommendations endpoint](https://github.com/LAMBA-23/LAMBA/issues/315), [#325 In-app notifications screen](https://github.com/LAMBA-23/LAMBA/issues/325), and [#328 Recommendation localization and recurring unread state](https://github.com/LAMBA-23/LAMBA/issues/328).
+
+Trips and breakdown photos:
+
+- [#272 Odometer start/end trip recording](https://github.com/LAMBA-23/LAMBA/issues/272), [#273 Breakdown records with photo attachment UI](https://github.com/LAMBA-23/LAMBA/issues/273), [#323 End-to-end breakdown photo feature](https://github.com/LAMBA-23/LAMBA/issues/323), [#331 Trip start/end flow](https://github.com/LAMBA-23/LAMBA/issues/331), [#332 Hardened photo storage and authorized access](https://github.com/LAMBA-23/LAMBA/issues/332), [#337 Photo shown in record details](https://github.com/LAMBA-23/LAMBA/issues/337), and [#340 Full breakdown-photo display](https://github.com/LAMBA-23/LAMBA/issues/340).
+
+Profile:
+
+- [#329 Account profile and vehicle settings](https://github.com/LAMBA-23/LAMBA/issues/329), [#349 Vehicle brand and model selection](https://github.com/LAMBA-23/LAMBA/issues/349), and [#351 Profile UI and local avatar persistence](https://github.com/LAMBA-23/LAMBA/issues/351).
+
+Export:
+
+- [#339 Export vehicle data to Excel](https://github.com/LAMBA-23/LAMBA/issues/339) and [#356 Fix export after UI refactoring](https://github.com/LAMBA-23/LAMBA/issues/356).
+
+Chat improvements:
+
+- [#316 Humanize AI assistant responses](https://github.com/LAMBA-23/LAMBA/issues/316), [#341 Digital-friend persona and markdown-free chat](https://github.com/LAMBA-23/LAMBA/issues/341), [#347 Dynamic AI chat style selector](https://github.com/LAMBA-23/LAMBA/issues/347), and [#353 Pass chat style to AI](https://github.com/LAMBA-23/LAMBA/issues/353).
+
+Usability and bug fixes:
+
+- [#321 Manual-history and notification fixes](https://github.com/LAMBA-23/LAMBA/issues/321), [#326 Trip, notification-page, and attachment UX fixes](https://github.com/LAMBA-23/LAMBA/issues/326), and [#345 Sort History newest first](https://github.com/LAMBA-23/LAMBA/issues/345).
+
+### Actual Sprint 5 Outcome
+
+All 27 issues assigned to the closed milestone are closed. Twenty-three of them have a direct closing pull-request reference; the changes are present on the current `main` tip, including the final export fix in merged [PR #357](https://github.com/LAMBA-23/LAMBA/pull/357). The product outcome is decimal input support, rule-based in-app recommendations and notification inbox, usable odometer-trip and secured breakdown-photo flows, account/profile improvements, Excel export, more natural configurable chat responses, and targeted usability fixes. The repository also has a published [v1.4.0 MVP v3 release](https://github.com/LAMBA-23/LAMBA/releases/tag/v1.4.0); this release artifact does not by itself establish final customer acceptance or handover completion.
+
+## Current MVP v3 Status and Remaining Course Work
+
+Current `main` contains the merged Sprint 5 changes and matches `origin/main` at the time this roadmap was updated. MVP v3 now provides registration and session handling, vehicle setup and settings, manual and chat-assisted history records, timeline and statistics, decimal values, odometer trips, repair/breakdown photos, local chat continuity, recommendations and notifications, profile personalization, vehicle-data export, and configurable assistant style.
+
+The remaining work is course-completion evidence, not another product version: execute and record the Week 7 customer review/UAT and final transition confirmation; prepare the Week 7 report; and complete the agreed final handover archive and confirmation. These are deliberately listed as remaining because the repository has no `reports/week7/` artifact, the Week 7 UAT fields remain unexecuted, and the existing handover document says the comprehensive archive has not yet been delivered. No post-course roadmap is planned here.
 
 ## Continuing Architecture, Quality, and Process Work
 
