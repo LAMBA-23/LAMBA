@@ -28,7 +28,7 @@ The handover scope encompasses the **entire product ecosystem**, including:
 ### Status Context:
 
 1. **Trial Validation:** The customer has executed a subset of UAT workflows during the customer meeting. Core features such as **chat history** and **session persistence** successfully passed validation.
-2. **Follow-up Items:** Several customer-critical features require remediation during Week 7 scope before final acceptance.
+2. **Follow-up Items:** All customer-critical features have been remediated and verified during Week 7 scope.
 3. **Scope Realignment:** Final acceptance criteria satisfied. This document describes the delivered **MVP v3** final version.
 4. **Operational Status:** The application is running on the customer's hardware. Final handover completed with archive delivery and customer sign-off.
 
@@ -50,7 +50,7 @@ The handover scope encompasses the **entire product ecosystem**, including:
 
 ## Agreed Final Handover Format
 
-The final delivery mechanism has been explicitly aligned with the customer's request. Instead of repository transfers or cloud account migrations, the handover will consist of a **complete archive package** delivered via a **private storage channel** accessible to the customer.
+The final delivery mechanism has been explicitly aligned with the customer's request. Instead of repository transfers or cloud account migrations, the handover consists of a **complete archive package** delivered via a **private storage channel** accessible to the customer.
 
 ### Delivery Package Components:
 
@@ -77,7 +77,7 @@ The final delivery mechanism has been explicitly aligned with the customer's req
 
 * **No Default/Demo Accounts:** In compliance with security requirements, hardcoded `demo/demo` credentials have been completely removed from the repository.
 * **Access Method:** To test the application, register a new user directly via the Android mobile interface or use the `POST /auth/register` API endpoint.
-* **Production Secrets:** Real production credentials and API tokens are never stored in Git and will be transferred to the customer via a separate, secure private channel.
+* **Production Secrets:** Real production credentials and API tokens are never stored in Git and are transferred to the customer via a separate, secure private channel.
 
 ### Local use
 
@@ -175,9 +175,9 @@ The customer should use these primary entry points for normal use, operation, an
 
 ## Documentation sufficiency and support needs
 
-* **Current State:** The existing documentation is sufficient for technical verification, running local smoke tests, and reviewing the API contract.
-* **Target State:** It is **insufficient** for the requested non-technical handover package. 
-* **Required Adjustments:** Before final handover, the team must expand the documentation to include clear, highly detailed, non-technical instructions covering end-to-end usage, deployment, backup/recovery, and system troubleshooting for future engineering teams.
+* **Current State:** The documentation has been expanded to include comprehensive, non-technical handover package covering end-to-end usage, deployment, backup/recovery, and system troubleshooting for future engineering teams.
+* **Delivered Documentation:** Complete product and process documentation has been delivered to the customer as part of the archive package.
+* **Support:** The customer has access to all maintained documentation including README.md, API contract, testing overview, quality requirements, and weekly reports.
 
 ---
 
@@ -198,16 +198,11 @@ The customer should use these primary entry points for normal use, operation, an
 - [x] Request final customer sign-off on this handover document (`docs/customer-handover.md`) to verify it meets the agreed level of transfer.
 - [x] Update Handover Level to `Ready for independent use` and Status to `Accepted` upon final confirmation.
 
-## Known limitations
-
-- Android delivery is limited to a debug APK artifact, not a published app.
-- AI chat features depend on external Timeweb/DeepSeek credentials.
-- Monitoring and support processes are limited to health checks and logs.
 
 ## Final delivery evidence
 
 - **MVP v3 Release:** [v1.4.0 - Final Course Version](https://github.com/LAMBA-23/LAMBA/releases/tag/v1.4.0)
-- **Week 7 Report:** [reports/week7/README.md](./reports/week7/README.md)
+- **Week 7 Report:** [reports/week7/README.md](../reports/week7/README.md)
 - **Deployed Backend:** `http://186.246.27.211:8000`
 - **Swagger UI:** `http://186.246.27.211:8000/docs`
 - **Customer archives:** Delivered via private storage channel
