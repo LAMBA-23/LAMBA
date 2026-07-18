@@ -11,11 +11,11 @@ When adding a new user story after migration, assign the next unused stable ID a
 | US-05 | View vehicle timeline | Must Have | [#48](https://github.com/LAMBA-23/LAMBA/issues/48) | Active | Done | [Sprint 2 - Chat Event Capture & Assistant & Statistics](https://github.com/LAMBA-23/LAMBA/milestone/2) |
 | US-06 | Ask AI assistant | Must Have | [#49](https://github.com/LAMBA-23/LAMBA/issues/49) | Active | Done | [Sprint 3 - Maintenance Follow-up](https://github.com/LAMBA-23/LAMBA/milestone/3) |
 | US-07 | View basic statistics | Must Have | [#50](https://github.com/LAMBA-23/LAMBA/issues/50) | Active | Done | [Sprint 2 - Chat Event Capture & Assistant & Statistics](https://github.com/LAMBA-23/LAMBA/milestone/2) |
-| US-08 | Receive maintenance recommendations | Should Have | [#51](https://github.com/LAMBA-23/LAMBA/issues/51) | Active | To Do | [Sprint 4 - Trial Release and Transition Readiness](https://github.com/LAMBA-23/LAMBA/milestone/4) |
-| US-09 | Receive notifications | Should Have | [#52](https://github.com/LAMBA-23/LAMBA/issues/52) | Active | To Do | [Sprint 4 - Trial Release and Transition Readiness](https://github.com/LAMBA-23/LAMBA/milestone/4) |
+| US-08 | Receive maintenance recommendations | Should Have | [#51](https://github.com/LAMBA-23/LAMBA/issues/51) | Active | Done | [Sprint 5 - Final Transition and Delivery](https://github.com/LAMBA-23/LAMBA/milestone/5) |
+| US-09 | Receive notifications | Should Have | [#52](https://github.com/LAMBA-23/LAMBA/issues/52) | Active | Done | [Sprint 5 - Final Transition and Delivery](https://github.com/LAMBA-23/LAMBA/milestone/5) |
 | US-10 | Use voice messages | Could Have | [#53](https://github.com/LAMBA-23/LAMBA/issues/53) | Active | To Do | - |
 | US-11 | Attach repair receipts | Could Have | [#54](https://github.com/LAMBA-23/LAMBA/issues/54) | Active | To Do | - |
 | US-13 | Manage multiple vehicles | Won't Have | [#55](https://github.com/LAMBA-23/LAMBA/issues/55) | Active | To Do | - |
 | US-14 | Transfer vehicle history to a new owner | Won't Have | [#57](https://github.com/LAMBA-23/LAMBA/issues/57) | Active | To Do | - |
-| US-15 | Manage account and vehicle settings | Should Have | [#329](https://github.com/LAMBA-23/LAMBA/issues/329) | Active | In Progress | Sprint 5 |
+| US-15 | Manage account and vehicle settings | Should Have | [#329](https://github.com/LAMBA-23/LAMBA/issues/329) | Active | Done | [Sprint 5 - Final Transition and Delivery](https://github.com/LAMBA-23/LAMBA/milestone/5) |
 | US-12 | OBD-II integration | - | [#59](https://github.com/LAMBA-23/LAMBA/issues/59) | Removed | - | - |
