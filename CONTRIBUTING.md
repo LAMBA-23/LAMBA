@@ -8,6 +8,7 @@ For the broader workflow and completion rules, also see:
 - [Development process](docs/development-process.md)
 - [Definition of Done](docs/definition-of-done.md)
 - [Testing overview](docs/testing.md)
+- [Customer handover](docs/customer-handover.md)
 - [Pull request template](.github/pull_request_template.md)
 
 ## Before You Start
@@ -54,6 +55,10 @@ CI evidence stay easy to inspect.
 - Prefer existing helpers, patterns, and documented APIs over new conventions.
 - Update documentation when setup, API behavior, workflow, deployment,
   verification, or customer-facing instructions change.
+- Keep [README.md](README.md), [docs/customer-handover.md](docs/customer-handover.md),
+  and [AGENTS.md](AGENTS.md) current when product access, release status,
+  handover status, workflow expectations, setup steps, or verification commands
+  change.
 - Add or update tests when the changed behavior needs automated coverage.
 - Do not mix unrelated cleanup with feature, bug, or documentation work.
 
@@ -87,6 +92,11 @@ when local Lychee is not available.
 For documentation-only course tasks, automated product tests may be not
 applicable. In that case, record manual link checking and document review in the
 PR.
+
+Before merging customer-facing documentation, verify that it does not claim
+customer acceptance, final handover, deployment ownership transfer, or a newer
+release unless the claim is backed by inspectable public evidence or explicitly
+identified private submission or customer-delivery evidence.
 
 ## Pull Requests
 
