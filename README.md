@@ -7,7 +7,7 @@ The current public increment is **MVP v3 / Assignment 6 Sprint 5 Final Release (
 ## Current Product Access
 
 - [GitHub Releases](https://github.com/LAMBA-23/LAMBA/releases)
-- [Latest tagged release: v1.3.0](https://github.com/LAMBA-23/LAMBA/releases/tag/v1.3.0)
+- [Latest tagged release: v1.4.0](https://github.com/LAMBA-23/LAMBA/releases/tag/v1.4.0)
 - [Hosted documentation site](https://lamba-23.github.io/LAMBA/)
 - Deployed backend API: `http://186.246.27.211:8000`
 - Deployed Swagger UI: `http://186.246.27.211:8000/docs`
@@ -30,13 +30,11 @@ The current product supports:
 - vehicle timeline;
 - mileage, expense, fuel, and record statistics;
 - local storage of recent chat history;
-- rule-based vehicle recommendations and in-app notification inbox in the
-  current `main` branch;
-- breakdown photos and owner-checked photo retrieval in the current `main`
-  branch;
+- rule-based vehicle recommendations and in-app notification inbox;
+- breakdown photos and owner-checked photo retrieval;
 - profile screen, local avatar, dark theme, chat style selection, and vehicle
-  data export in the current `main` branch;
-- voice input in chat in the current `main` branch;
+  data export;
+- voice input in chat;
 - backend API documentation through Swagger UI.
 
 For planned improvements and remaining work, see the [project roadmap](docs/roadmap.md).

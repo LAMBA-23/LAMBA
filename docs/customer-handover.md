@@ -186,10 +186,8 @@ The customer should use these primary entry points for normal use, operation, an
 - Android delivery is limited to a debug APK artifact, not a published app.
 - AI chat features depend on external Timeweb/DeepSeek credentials.
 - Monitoring and support processes are limited to health checks and logs.
-- The latest tagged release is still `v1.3.0`; later Week 7 work is present on
-  `main` but is not yet represented by a newer SemVer release.
-- Final customer confirmation for the Week 7 transition outcome is not recorded
-  in the repository.
+- Private archive-transfer evidence is not stored in this public repository and
+  belongs only in the private submission or customer-delivery channel.
 
 ## Completed actions
 
