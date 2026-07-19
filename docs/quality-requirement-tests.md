@@ -154,34 +154,98 @@ US-08 maintenance recommendations and US-09 notifications are now implemented. R
 
 ## Sprint 5 Regression Evidence
 
-The following automated regression evidence covers Sprint 5 implemented features. These tests verify behavior introduced in Sprint 5 and run as part of the backend CI pipeline.
+The following evidence covers Sprint 5 implemented features. Evidence is categorized as formal QRT (automated, linked to a QR), automated regression evidence (automated, no dedicated QR), or manual evidence (not automated).
 
 ### Recommendations
 
-**Evidence:** `backend/tests/test_recommendations.py`
+**Type:** Automated regression evidence (not QRT — no dedicated QR exists for recommendation rules)
 
-Automated tests verify the `/recommendations` endpoint returns relevant maintenance recommendations based on vehicle age and mileage. Tests cover recommendation generation, response format, and empty-state handling.
+**Test file:** `backend/tests/test_recommendations.py`
 
-### History Newest-First Ordering
+**What is verified:** Empty-state hint when no events exist; high fuel price flag when average fuel cost exceeds threshold; occurrence ID stability across repeated calls; occurrence ID changes when new recommendations appear; high monthly repair cost flag; recent breakdown flag; stale records flag when events are older than threshold; long distance since fuel flag.
 
-**Evidence:** `backend/tests/test_events.py`
+**Limitations:** Tests verify rule evaluation logic, not recommendation delivery or user-facing display. Push notification delivery is not tested.
 
-Event listing tests verify that events are returned in reverse chronological order (newest first) after the Sprint 5 sorting change. Tests confirm the API returns events sorted by `created_at DESC`.
+### Notifications
 
-### Vehicle Brand and Model Selection
+**Type:** Automated regression evidence (not QRT — no dedicated QR exists for notification delivery)
 
-**Evidence:** `backend/tests/test_vehicle.py`
+**Test file:** `app/src/test/java/com/lamba/app/network/NotificationViewedStateTest.kt`
 
-Vehicle creation and update tests verify that brand and model fields are persisted correctly. Tests cover validation of brand/model input and proper storage in the database.
+**What is verified:** `hasUnread` returns false for empty recommendations; returns true for unviewed recommendations; returns false after marking viewed; returns true when a different recommendation appears (new occurrence ID); inactive viewed IDs are forgotten so repeated rules become unread again; `serialize`/`deserialize` preserves viewed IDs across restart.
 
-### Chat Style Parameter Forwarding
+**Limitations:** Tests verify notification state logic only. Actual notification display, Android notification channel setup, and push delivery are not tested by automated tests.
 
-**Evidence:** `backend/tests/test_chat_ask.py`; `backend/tests/test_chat_title_and_context.py`; `backend/tests/test_rate_limiting.py`
+### Voice Transcription
 
-All `fake_ask` mock functions accept the `style` parameter, verifying that the chat_ask handler forwards the style parameter to `ask_deepseek()`. The `test_chat_ask_includes_selected_chat_context` test confirms the full parameter chain from request to AI call.
+**Type:** Automated regression evidence (not QRT — no dedicated QR for transcription latency)
+
+**Test files:**
+- `backend/tests/test_chat_transcribe.py` — endpoint: cleaned transcript, reject empty audio (400), require audio file (400), reject oversized (413), rate limiting by IP (10/window), TranscriptionKeysExhausted returns 503.
+- `backend/tests/test_mistral_transcription.py` — module: key rotation on 429, no rotation on 500, rotation on quota exceeded, raw transcript on cleanup failure, TranscriptionKeysExhausted when all keys exhausted.
+- `backend/tests/test_transcription_upload_limit.py` — chunked reader stops at configured byte limit.
+- `app/src/test/java/com/lamba/app/chat/VoiceRecordingStateTest.kt` — state machine: permission request, start/stop recording flow, completion restores idle.
+
+**Limitations:** No end-to-end test connecting Android voice recording to backend transcription. Android test covers state machine only.
+
+### Excel Export
+
+**Type:** Automated regression evidence (not QRT — no dedicated QR for export correctness)
+
+**Test file:** `backend/tests/test_data_export.py`
+
+**What is verified:** XLSX content-type and filename; Russian sheet names (Автомобиль, История событий, Статистика); vehicle data in sheet; history with event types and photo column; statistics with indicators and charts; empty history validity; cross-user data isolation.
+
+**Limitations:** Tests verify backend export endpoint only. Android export trigger (profile screen button) is manual evidence.
+
+### Chat Style Forwarding
+
+**Type:** Automated regression evidence (not QRT — no dedicated QR for style propagation)
+
+**Test files:**
+- `backend/tests/test_chat_ask.py::test_chat_ask_forwards_style_parameter_to_ask_deepseek` — sends request with `"style": "selfish"`, captures mock parameter, asserts `captured["style"] == "selfish"`.
+- `backend/tests/test_chat_ask.py::test_chat_ask_forwards_default_style_when_not_provided` — sends request without style, asserts `captured["style"] is None`.
+- `app/src/test/java/com/lamba/app/network/ChatRepositoryTest.kt::questionPassesStyleToBackend` — calls `repository.sendMessage("Привет", emptyList(), "selfish")`, asserts `backend.lastStyle == "selfish"`.
+- `app/src/test/java/com/lamba/app/network/ChatRepositoryTest.kt::questionPassesNullStyleByDefault` — calls `repository.sendMessage("Привет", emptyList())`, asserts `backend.lastStyle == null`.
+
+**Limitations:** Tests verify parameter propagation from request to mock. They do not verify that the style affects the LLM system prompt selection (that requires integration with the actual AI service).
 
 ### Profile and Avatar
 
-**Evidence:** Android JVM tests in `app/src/test/java/com/lamba/app/network/ChatRepositoryTest.kt`
+**Type:** Manual evidence (no automated profile or avatar tests exist)
 
-The `FakeChatBackend` in Android tests accepts the `style` parameter, verifying that the Android client correctly passes the communication style through the repository layer to the backend API.
+**Test file:** `app/src/test/java/com/lamba/app/ProfileFormValidatorTest.kt`
+
+**What is verified (manual):** Profile form validation for vehicle brand, model, year, mileage, and password fields. Avatar selection and local persistence are Android UI features that require manual verification.
+
+**Limitations:** No automated tests for avatar URI persistence, profile data storage, or profile update flow. These are manual-only evidence.
+
+### History Newest-First Ordering
+
+**Type:** Automated regression evidence (not QRT — no dedicated QR for sort order)
+
+**Test file:** `backend/tests/test_events.py`
+
+**What is verified:** Event listing returns events in reverse chronological order (`created_at DESC`). Tests confirm the API returns events sorted newest-first after the Sprint 5 sorting change.
+
+**Limitations:** Tests verify API sort order only. Android UI sort display is manual evidence.
+
+### Vehicle Brand and Model Selection
+
+**Type:** Automated regression evidence (not QRT — no dedicated QR for brand/model validation)
+
+**Test file:** `backend/tests/test_vehicle.py`
+
+**What is verified:** Vehicle creation with brand and model fields; vehicle update preserves brand and model; validation rejects empty brand/model (422); mileage change rejected after history event exists (409).
+
+**Limitations:** Tests verify backend persistence and validation only. Android dropdown UI behavior is manual evidence.
+
+### Event Photos
+
+**Type:** Automated regression evidence (not QRT — no dedicated QR for photo storage)
+
+**Test files:**
+- `backend/tests/test_event_photos.py` — upload, replace, delete, ownership check, invalid MIME rejection, oversized rejection, WebP support, EXIF stripping, thumbnail generation.
+- `backend/tests/test_photo_storage.py` — local storage save/read/delete, S3 adapter behavior.
+
+**Limitations:** Tests verify backend photo operations only. Android photo capture and display are manual evidence.

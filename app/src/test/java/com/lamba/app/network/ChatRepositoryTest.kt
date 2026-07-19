@@ -4,6 +4,7 @@ import java.io.IOException
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
@@ -236,6 +237,28 @@ class ChatRepositoryTest {
         assertEquals(chatContext, backend.lastChatContext)
     }
 
+    @Test
+    fun questionPassesStyleToBackend() = runBlocking {
+        val backend = FakeChatBackend()
+        val repository = ChatRepository(backend)
+
+        val result = repository.sendMessage("Привет", emptyList(), "selfish")
+
+        assertEquals(ChatSendResult.Answer("OK"), result)
+        assertEquals("selfish", backend.lastStyle)
+    }
+
+    @Test
+    fun questionPassesNullStyleByDefault() = runBlocking {
+        val backend = FakeChatBackend()
+        val repository = ChatRepository(backend)
+
+        val result = repository.sendMessage("Привет", emptyList())
+
+        assertEquals(ChatSendResult.Answer("OK"), result)
+        assertNull(backend.lastStyle)
+    }
+
     private class FakeChatBackend(
         private val parseResponse: ChatParseResponse? = null,
         private val savedEvent: Event? = null,
@@ -245,6 +268,7 @@ class ChatRepositoryTest {
 
         val savedEvents = mutableListOf<ParsedEventPayload>()
         var lastChatContext: List<ChatContextMessage>? = null
+        var lastStyle: String? = null
         var parseMessageCalled = false
         var askQuestionCalled = false
 
@@ -267,6 +291,7 @@ class ChatRepositoryTest {
         ): String {
             askQuestionCalled = true
             lastChatContext = chatContext
+            lastStyle = style
             return "OK"
         }
     }
