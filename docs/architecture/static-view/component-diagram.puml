@@ -45,7 +45,7 @@ skinparam note {
 actor "End user" as User
 
 package "Android mobile app" #EEF2FF {
-  component "Presentation layer\n\nLoginActivity\nRegisterActivity\nAddVehicleActivity\nChatActivity\nHistoryActivity\nStatisticsActivity" as AndroidPresentation
+  component "Presentation layer\n\nLoginActivity\nRegisterActivity\nAddVehicleActivity\nChatActivity\nHistoryActivity\nStatisticsActivity\nProfileActivity\nNotificationsActivity\nVoiceRecording\nExcelExport" as AndroidPresentation
   component "State / session layer\n\nSessionManager\ncurrent user\ncurrent chat id" as AndroidState
   component "Repository layer\n\nChatRepository\nLocalChatHistoryRepository\nAPI-bound client logic" as AndroidRepository
   component "Local chat store\n\nLocalChatDao\nLocalChatEntity\nLocalChatMessageEntity\nRoomLocalChatStore" as AndroidLocalStore

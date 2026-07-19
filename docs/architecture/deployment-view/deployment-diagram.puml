@@ -79,7 +79,7 @@ cloud "Private S3-compatible\nphoto bucket (optional)" as PhotoBucket
 node "Development / CI boundary" as DevCi #F8FAFC {
   cloud "GitHub" as GitHub {
     component "Repository" as Repo
-    component "GitHub Actions\nbackend CI + link check" as Ci
+    component "GitHub Actions\nbackend CI + Android CI + link check" as Ci
   }
 }
 
