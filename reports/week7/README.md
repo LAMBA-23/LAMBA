@@ -119,3 +119,41 @@ The customer executed UAT during the Week 7 meeting. Core features including cha
 ## 23. Public Sanitized Demo Video
 
 - [MVP v3 Demo Video](https://drive.google.com/drive/folders/1JG9VJTtcu_bDr9Q3AGSfieljdY5r3g4y?usp=sharing)
+
+## 24. Demo Day Preparation
+
+The team has completed the required Week 7 lab rehearsal preparation. The slide deck and rehearsed presentation video have been prepared for the Week 7 lab rehearsal and Week 8 Demo Day presentation. The pre-recorded demo video under 2 minutes is included in the public demo video linked above.
+
+## 25. Sprint Review Transcript
+
+- [Sprint Review Transcript](sprint-review-transcript.md)
+
+## 26. Sprint Review Summary
+
+- [Sprint Review Summary](sprint-review-summary.md)
+
+## 27. Reflection
+
+- [Week 7 Reflection](reflection.md)
+
+## 28. Retrospective
+
+- [Week 7 Retrospective](retrospective.md)
+
+## 29. LLM Report
+
+- [Week 7 LLM Report](llm-report.md)
+
+## 30. Final Product Status
+
+MVP v3 is the final course version. The product includes:
+- Android application with vehicle profile, chat, history, statistics, and settings
+- FastAPI backend with AI integration, event parsing, and expense tracking
+- Dynamic chat style switching (Friendly, Selfish, Pragmatic)
+- Voice input with Mistral transcription
+- Vehicle data export to Excel
+- Profile personalization with avatar
+- Deployed on customer-controlled infrastructure at `http://186.246.27.211:8000`
+- All 168 backend tests passing
+- All Android unit tests passing
+- CI checks green (backend, Android, link-check)
