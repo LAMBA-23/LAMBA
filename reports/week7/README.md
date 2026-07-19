@@ -154,6 +154,35 @@ MVP v3 is the final course version. The product includes:
 - Vehicle data export to Excel
 - Profile personalization with avatar
 - Deployed on customer-controlled infrastructure at `http://186.246.27.211:8000`
-- All 168 backend tests passing
+- All 174 backend tests passing
 - All Android unit tests passing
 - CI checks green (backend, Android, link-check)
+
+## 31. Contribution Traceability
+
+| Team member | Issues / PRs / evidence | Contribution area |
+|---|---|---|
+| @vanya630 | #347, #353, #341, #316, #342, #348, #355, #371, #373, #377, #382, #319, #352 | AI chat style, LABMA persona, style fix, retrospective, reflection, LLM report, Week 7 README, quality/testing/DoD/architecture docs, server deployment, Demo Day slides |
+| @Erusiaaa | #332, #328, #326, #321, #315, #314, #51, #319, #322, #330, #333, #359, #320, #327, #334, #367, #369, #371 | Backend photo storage, recommendations, notifications, trip flow, decimal values, backend tests, code review |
+| @vasilisatumakina29 | #351, #339, #329, #356, #335, #336, #344, #352, #357, #363, #365, #350, #362, #324, #338, #343, #346, #342, #348, #355, #373, #377, #382 | Profile, avatar, voice input, Excel export, dark theme, transcript, summary, roadmap, code review, Demo Day slides |
+| @mariachizhikova08 | #345, #340, #337, #331, #325, #323, #273, #272, #264, #313, #52, #320, #324, #327, #334, #338, #343, #346, #367, #369, #322, #330, #333, #359 | History sorting, breakdown photos, trip UI, notifications, decimal values, agent guidance, UAT docs, code review |
+| @Elis-bett | #349, #350, #362, #335, #336, #344, #357, #363, #365 | Vehicle brand/model selection, CHANGELOG, README, customer-handover, code review, Demo Day slides |
+
+## 32. Embedded Screenshots
+
+Screenshots are stored in [reports/week7/images/](images/).
+
+To add screenshots:
+
+1. Take screenshots from the links below
+2. Save them as PNG files in `reports/week7/images/`
+3. Name them: `sprint5-milestone.png`, `release-v1.4.0.png`, `product-access.png`, `example-pr.png`, `profile-style.png`
+4. Reference them below
+
+| Screenshot | Source |
+|---|---|
+| Sprint 5 milestone | [Sprint 5 — Final Transition and Delivery](https://github.com/LAMBA-23/LAMBA/milestone/5) |
+| Final release v1.4.0 | [v1.4.0 — MVP v3 Final Version](https://github.com/LAMBA-23/LAMBA/releases/tag/v1.4.0) |
+| Product access (deployed backend) | http://186.246.27.211:8000/docs |
+| Example PR (issue-linked) | [PR #355 — fix: pass style parameter](https://github.com/LAMBA-23/LAMBA/pull/355) |
+| Android Profile with style selector | On emulator: Profile → Communication Style |
