@@ -170,19 +170,12 @@ MVP v3 is the final course version. The product includes:
 
 ## 32. Embedded Screenshots
 
-Screenshots are stored in [reports/week7/images/](images/).
-
-To add screenshots:
-
-1. Take screenshots from the links below
-2. Save them as PNG files in `reports/week7/images/`
-3. Name them: `sprint5-milestone.png`, `release-v1.4.0.png`, `product-access.png`, `example-pr.png`, `profile-style.png`
-4. Reference them below
-
-| Screenshot | Source |
+| Screenshot | Link |
 |---|---|
-| Sprint 5 milestone | [Sprint 5 — Final Transition and Delivery](https://github.com/LAMBA-23/LAMBA/milestone/5) |
-| Final release v1.4.0 | [v1.4.0 — MVP v3 Final Version](https://github.com/LAMBA-23/LAMBA/releases/tag/v1.4.0) |
-| Product access (deployed backend) | http://186.246.27.211:8000/docs |
-| Example PR (issue-linked) | [PR #355 — fix: pass style parameter](https://github.com/LAMBA-23/LAMBA/pull/355) |
-| Android Profile with style selector | On emulator: Profile → Communication Style |
+| Sprint 5 milestone | ![Sprint 5 milestone](images/sprint-milestone.png) |
+| Release v1.4.0 — description | ![Release v1.4.0 description](images/releasees1.png) |
+| Release v1.4.0 — assets | ![Release v1.4.0 assets](images/releases2.png) |
+| Product access (Swagger) | ![Product access](images/product-access.png) |
+| Example PR #355 | ![Example PR](images/pr-example.png) |
+| Product Backlog (Sprint 5) | ![Product backlog](images/product-backlog.png) |
+| Sprint Backlog | ![Sprint backlog](images/sprint-backlog.png) |
