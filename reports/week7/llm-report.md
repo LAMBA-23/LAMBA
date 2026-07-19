@@ -2,30 +2,57 @@
 
 ## Tools used
 
-- **MiMo Code (AI coding assistant)** — used throughout Sprint 5 for code implementation, debugging, testing, and documentation.
+The team used multiple AI tools throughout Sprint 5: MiMo Code (mimo-auto), Codex 26.616.6631.0, Codex 5.6 Terra, Chat GPT 5.0, Chat GPT 5.6 Sol, and Gemini 3.5 Flash.
 
-## Forms of use
+## Team member contributions
 
-### Coding
-- Implemented the dynamic chat style switching feature across Android (SessionManager, ProfileActivity, ChatRepository, Models) and backend (deepseek_chat.py, schemas.py, main.py).
-- Fixed the `style` parameter forwarding bug in `main.py`.
-- Updated all `fake_ask` mock functions in test files to accept the new `style` parameter.
-- Fixed ruff formatting issues in test files.
+### @vanya630
 
-### Debugging
-- Identified that the deployed backend at 186.246.27.211 was running old code without style support.
-- Traced the full request chain from Android → Retrofit → ChatRepository → backend → ask_deepseek to find the missing `style` parameter.
-- Diagnosed CI failures caused by locale-dependent decimal formatting and mock function signature mismatches.
+**Model:** MiMo Code (mimo-auto)
 
-### Documentation
-- Created Sprint Retrospective, Reflection, and LLM Report artifacts for Week 7.
-- Updated CHANGELOG.md and docs/customer-handover.md with style feature documentation.
-- Created issues and PRs following the project template format.
+- Implemented dynamic chat style switching across Android and backend layers
+- Fixed the `style` parameter forwarding bug in `main.py`
+- Updated test mock functions to accept the new `style` parameter
+- Diagnosed CI failures caused by locale-dependent formatting and mock signature mismatches
+- Created Sprint Retrospective, Reflection, and LLM Report artifacts for Week 7
+- Updated CHANGELOG, customer-handover, and architecture documentation
+- Created issues and PRs following the project template format
+- Verified deployed backend accepts the style parameter
 
-### Research
-- Analyzed the server deployment workflow to understand how to update the backend.
-- Verified that the deployed backend accepts the `style` parameter by testing with curl.
+### @Erusiaaa
+
+**Model:** Codex 26.616.6631.0
+
+- Clarified the usage of framework methods during implementation
+- Helped investigate the causes of several development issues
+- Suggested minor code improvements before submitting changes
+
+### @mariachizhikova08 
+
+**Model:** Codex 26.616.6631.0, Chat GPT 5.0
+
+- Checking code for merge conflicts
+- Reviewing a teammate's pull request and providing recommendations for fixes if there are any issues
+- Finalizing the app interface design, development and generation of an interface for the odometer trip
+- Consultation with the problem of unmounting a photo in the breakdown section
+
+### @vasilisatumakina29
+
+**Model:** Codex 5.6 Terra, Chat GPT 5.6 Sol, Gemini 3.5 Flash
+
+- Checking code for merge conflicts
+- Fixing design issues
+- Fixing issue with export to excel in app
+
+### @Elis-bett
+
+**Model:** Codex 26.616.6631.0
+
+- Search for critical bugs in Kotlin code
+- Make Kotlin code more structured and clean
+- Refining .xml files
+- Grammar check for documentation file
 
 ## Impact
 
-The AI assistant significantly accelerated the implementation, debugging, and documentation work during Sprint 5. The main contribution was identifying and fixing the one-line bug where `style` was not forwarded to `ask_deepseek()`, which was the root cause of the style feature not working in production.
+AI tools accelerated implementation, debugging, and documentation work during Sprint 5. The main contribution was identifying and fixing the one-line bug where `style` was not forwarded to `ask_deepseek()`, which was the root cause of the style feature not working in production.
