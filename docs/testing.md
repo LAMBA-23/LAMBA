@@ -252,7 +252,7 @@ Manual smoke checklist for Sprint 5 Android follow-up:
 
 | Required document | Status | Notes |
 |---|---|---|
-| `docs/quality-requirements.md` | Maintained | QR-007 and QR-008 added for Sprint 4; Sprint 5 features documented |
+| `docs/quality-requirements.md` | Maintained | QR-007 and QR-008 added; Sprint 5 features documented |
 | `docs/quality-requirement-tests.md` | Maintained | QRT-007 and QRT-008 added with automated backend evidence |
 | `docs/testing.md` | Maintained | Current canonical testing status artifact for active baseline gates plus Assignment 6 follow-up evidence |
 | `docs/definition-of-done.md` | Maintained | Current completion standard aligned with active QR/QRT evidence |

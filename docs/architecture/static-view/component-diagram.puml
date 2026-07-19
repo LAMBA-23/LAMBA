@@ -60,7 +60,7 @@ package "Android mobile app" #EEF2FF {
 }
 
 package "FastAPI backend" #ECFDF5 {
-  component "API layer\n\n/auth\n/vehicle\n/events\n/stats\n/chat" as BackendApi
+  component "API layer\n\n/auth\n/vehicle\n/events\n/stats\n/chat\n/recommendations\n/chat/transcribe" as BackendApi
   component "Security layer\n\npassword hashing\nfixed-window rate limiter\nCORS config" as BackendSecurity
   component "Validation layer\n\nPydantic schemas" as BackendValidation
   component "Service layer\n\nvehicle history\nstatistics\nchat parsing\nAI answers" as BackendServices
