@@ -150,4 +150,4 @@ The repository now contains implemented password hashing and request-rate limiti
 
 CORS behavior is covered by `backend/tests/test_cors.py` as automated regression evidence. It is not documented as a separate QRT because the current automated tests verify default denied-origin behavior but do not yet verify an explicitly allowed origin configured through `CORS_ALLOWED_ORIGINS`.
 
-US-08 maintenance recommendations and US-09 notifications are now implemented. Recommendations are served via `/recommendations` endpoint and notifications via the in-app notifications screen. These features are covered by existing QRT scenarios for API response time and data integrity.
+US-08 maintenance recommendations and US-09 notifications are now implemented. Recommendations are served via `/recommendations` endpoint and notifications via the in-app notifications screen. Dedicated QRT coverage for these features should be added when automated tests for recommendation and notification workflows are introduced.

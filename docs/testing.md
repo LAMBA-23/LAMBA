@@ -1,6 +1,6 @@
 # Testing
 
-This document is the maintained testing status artifact for the repository. It keeps the previously established backend, CI, coverage, and documentation gates active and records the current verification evidence for Assignment 6 / Part 6 follow-up work after MVP v3 Sprint 4 changes.
+This document is the maintained testing status artifact for the repository. It keeps the previously established backend, CI, coverage, and documentation gates active and records the current verification evidence for Assignment 6 / Part 6 follow-up work after MVP v3 Sprint 5 changes.
 
 ## Contents
 
@@ -32,9 +32,8 @@ This document is the maintained testing status artifact for the repository. It k
 |---|---|---|---|---|
 | Vehicle-data Excel export | Owner-scoped XLSX response, Russian workbook structure, event translation, statistics, charts, empty history, and exclusion of other users' or technical data | `docker compose run --rm backend pytest tests/test_data_export.py -q` | Passed locally on 2026-07-16: 3 tests passed | `backend/tests/test_data_export.py` |
 | Android Excel export writer | Stream-copy behavior used when saving the backend XLSX response to the user-selected Android document URI | `./gradlew :app:testDebugUnitTest --tests com.lamba.app.ProfileExportWriterTest` | Passed locally on 2026-07-16 | `app/src/test/java/com/lamba/app/ProfileExportWriterTest.kt` |
-| Backend regression suite | Backend business logic, API behavior, and persistence flows in `backend/tests` | `python -m coverage run -m pytest tests` from `backend/`; Backend CI equivalent | Passed locally on 2026-07-16: 171 tests passed | `backend/tests` and `.github/workflows/backend-ci.yml` |
-| Backend event-photo suite | Owner-checked upload/retrieval, image normalization, thumbnail generation, replacement/deletion compensation, local storage, and S3 adapter behavior | `python -m pytest tests/test_event_photos.py tests/test_photo_storage.py -q` from `backend/`; included in the full backend suite | Passed locally on 2026-07-15: 23 tests passed | `backend/tests/test_event_photos.py`; `backend/tests/test_photo_storage.py` |
-| Backend targeted Sprint 4 suite | Security and assistant regression around authentication, CORS, rate limiting, and chat answers | `python -m pytest tests/test_auth.py tests/test_cors.py tests/test_rate_limiting.py tests/test_chat_ask.py -q` from `backend/`; included in the full backend suite | Included in the 2026-07-12 full backend suite; `backend/tests/test_rate_limiting.py::test_chat_ask_allows_requests_after_rate_limit_window` now verifies chat rate-limit recovery without a real 60-second wait | `backend/tests/test_auth.py`; `backend/tests/test_cors.py`; `backend/tests/test_rate_limiting.py`; `backend/tests/test_chat_ask.py` |
+| Backend regression suite | Backend business logic, API behavior, and persistence flows in `backend/tests` | `python -m coverage run -m pytest tests` from `backend/`; Backend CI equivalent | Passed locally on 2026-07-19: 172 tests passed | `backend/tests` and `.github/workflows/backend-ci.yml` |
+| Backend targeted Sprint 5 suite | Security, assistant, style, and regression around authentication, CORS, rate limiting, chat answers, and style switching | `python -m pytest tests/test_auth.py tests/test_cors.py tests/test_rate_limiting.py tests/test_chat_ask.py -q` from `backend/`; included in the full backend suite | Included in the 2026-07-19 full backend suite; `backend/tests/test_rate_limiting.py::test_chat_ask_allows_requests_after_rate_limit_window` now verifies chat rate-limit recovery without a real 60-second wait | `backend/tests/test_auth.py`; `backend/tests/test_cors.py`; `backend/tests/test_rate_limiting.py`; `backend/tests/test_chat_ask.py` |
 | Backend unit tests | Isolated parser, AI adapter, statistics helper, and model behavior covered by backend pytest files | Included in `docker compose run --rm backend pytest tests -q` and the `Backend CI` pytest step | Active | `backend/tests/test_chat_parse.py`; `backend/tests/test_chat_parser.py`; `backend/tests/test_chat_parser_deepseek.py`; `backend/tests/test_deepseek_chat.py`; `backend/tests/test_stats.py` |
 | Backend integration tests | FastAPI routes with test persistence through `TestClient` for authentication, vehicle, event, assistant, statistics, CORS, rate limiting, and QRT flows | Included in `docker compose run --rm backend pytest tests -q` and the `Backend CI` pytest step | Active | `backend/tests/test_auth.py`; `backend/tests/test_vehicle.py`; `backend/tests/test_events.py`; `backend/tests/test_chat_ask.py`; `backend/tests/test_cors.py`; `backend/tests/test_rate_limiting.py`; `backend/tests/test_quality_requirements.py` |
 | Coverage gate | Full backend suite plus critical-module coverage threshold | `python -m coverage run -m pytest tests`; `python -m coverage report --include="app/*" --fail-under=30` from `backend/`; Backend CI equivalent | Passed locally on 2026-07-15 with total `app/*` coverage of 88%; photo processing 92% and photo storage 88% | Local coverage output and `.github/workflows/backend-ci.yml` |
@@ -61,7 +60,7 @@ The canonical detailed QRT artifact remains `docs/quality-requirement-tests.md`.
 
 ## Assignment 6 MVP v3 Follow-up Verification
 
-This section records the changed-area verification for Assignment 6 / Part 6 follow-up work after Sprint 4 changes. It supplements the earlier baseline gates instead of replacing them.
+This section records the changed-area verification for Assignment 6 / Part 6 follow-up work after Sprint 5 changes. It supplements the earlier baseline gates instead of replacing them.
 
 ### Coverage Summary
 
@@ -165,7 +164,7 @@ Excel export follow-up evidence on 2026-07-16:
 - Backend image build completed successfully with `openpyxl==3.1.5`.
 - Ruff lint and format checks passed, and `backend/tests/test_data_export.py`
   passed with 3 tests.
-- The complete backend suite passed with 171 tests.
+- The complete backend suite passed with 172 tests.
 - Android JVM tests and debug APK assembly passed after adding the profile export
   stream writer and Storage Access Framework integration.
 
@@ -238,9 +237,9 @@ The protected default branch is `main`.
 | Evidence | Scope | Result | Follow-up |
 |---|---|---|---|
 | Smoke-check procedure in `README.md` | Manual verification of local backend startup, auth, vehicle, events, stats, and chat endpoints | Available for repeatable manual regression checks | Useful as manual support evidence only |
-| Sprint 4 Android manual follow-up checklist | Manual verification of logout, local chat history UI, and adaptive Statistics UI behavior | Available as repeatable release evidence | Does not count as QRT because it is manual |
+| Sprint 5 Android manual follow-up checklist | Manual verification of logout, local chat history UI, adaptive Statistics UI, profile, avatar, style selector, and vehicle brand/model selection behavior | Available as repeatable release evidence | Does not count as QRT because it is manual |
 
-Manual smoke checklist for Sprint 4 Android follow-up:
+Manual smoke checklist for Sprint 5 Android follow-up:
 
 1. Log in or register, open the main screen, and confirm the logout action is visible from the side menu.
 2. Confirm logout clears the local session, returns to `WelcomeActivity`, and does not restore the previous session after app restart.
@@ -253,7 +252,7 @@ Manual smoke checklist for Sprint 4 Android follow-up:
 
 | Required document | Status | Notes |
 |---|---|---|
-| `docs/quality-requirements.md` | Maintained | QR-007 and QR-008 added for Sprint 4 password storage and request-rate protection |
+| `docs/quality-requirements.md` | Maintained | QR-007 and QR-008 added for Sprint 4; Sprint 5 features documented |
 | `docs/quality-requirement-tests.md` | Maintained | QRT-007 and QRT-008 added with automated backend evidence |
 | `docs/testing.md` | Maintained | Current canonical testing status artifact for active baseline gates plus Assignment 6 follow-up evidence |
 | `docs/definition-of-done.md` | Maintained | Current completion standard aligned with active QR/QRT evidence |

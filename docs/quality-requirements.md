@@ -136,4 +136,4 @@ The implemented MVP v3 Sprint 5 repository state includes all Sprint 4 features 
 
 CORS is covered as automated regression evidence in `docs/testing.md` through `backend/tests/test_cors.py`. It is not yet documented as a separate QR because the current automated tests verify the default denied-origin behavior but do not verify a configured allowed origin from `CORS_ALLOWED_ORIGINS`.
 
-US-08 maintenance recommendations and US-09 notifications are now implemented in Sprint 5. Recommendations are served via the `/recommendations` endpoint and notifications are displayed in the in-app notifications screen. These features are covered by existing QR scenarios for data integrity and API response time.
+US-08 maintenance recommendations and US-09 notifications are now implemented in Sprint 5. Recommendations are served via the `/recommendations` endpoint and notifications are displayed in the in-app notifications screen. Dedicated QRT coverage for these features should be added when automated tests for recommendation and notification workflows are introduced.
