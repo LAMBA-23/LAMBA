@@ -33,16 +33,16 @@ The current repository contains:
 - `backend/` - FastAPI backend source, SQLAlchemy models, Pydantic schemas, database setup, chat parsing, assistant integration, Dockerfile, Python dependencies, and pytest suite.
 - `docs/` - Maintained project documentation, including API contract, development process, Definition of Done, testing status, quality requirements, user stories, UAT, roadmap, and architecture.
 - `docs/architecture/` - Architecture entry point, PlantUML diagrams, and ADRs for frontend/backend boundaries, backend stack, and Docker Compose deployment.
-- `reports/` - Assignment reports and evidence organized by week. The current repository contains `week2` through `week5`.
+- `reports/` - Assignment reports and evidence organized by week. The current repository contains `week2` through `week7`.
 - `.github/ISSUE_TEMPLATE/` - Structured GitHub issue templates for user stories, PBIs, bug reports, and course tasks.
 - `.github/workflows/` - CI and publishing workflows for backend checks, Android unit tests, Markdown link checks, and hosted documentation.
 - `README.md` - Product overview, setup instructions, smoke checks, release notes, and runnable artifact information.
+- `CONTRIBUTING.md` - Contribution workflow, pre-PR verification, review expectations, and changelog guidance.
 - `CHANGELOG.md` - Keep a Changelog style release history for user-visible changes.
+- `docs/customer-handover.md` - Current transition, deployment, recovery, verification, and customer handover guidance.
 - `docker-compose.yml` - Local backend and PostgreSQL runtime definition.
 - `build.gradle.kts`, `settings.gradle.kts`, `gradle/`, `gradlew`, `gradlew.bat` - Android Gradle build configuration and wrapper.
 - `index.md`, `_config.yml`, `_layouts/` - Hosted documentation site entry point and Jekyll configuration.
-
-`CONTRIBUTING.md`, `docs/customer-handover.md`, `reports/week6/`, and `reports/week7/` are not present in the current repository snapshot. Add links to them only after those files or directories exist.
 
 ## Technology Stack
 
@@ -110,9 +110,8 @@ When functionality changes, check whether each document needs an update:
 - `docs/architecture/README.md`
 - `docs/roadmap.md`
 - `docs/user-stories.md`
-- `reports/week5/README.md`
 - `docs/customer-handover.md`
-- `reports/week6/`
+- `reports/week*/README.md`
 
 ## Testing Expectations
 
@@ -121,6 +120,7 @@ A change is ready for review only when the relevant completion evidence is in pl
 - The changed project area builds successfully.
 - Relevant backend, Android, documentation, or link checks pass.
 - CI-equivalent checks are run locally when practical, or the reason for not running them is recorded.
+- Checks that could not be run and the reason must be reported.
 - Acceptance criteria from the linked issue are satisfied and have observable evidence.
 - Documentation is updated where the change affects setup, behavior, API contracts, verification, process, roadmap, architecture, or assignment evidence.
 - The change does not introduce secrets, private evidence, or unsupported public data.
@@ -131,37 +131,12 @@ For documentation-only changes, at minimum run `git diff --check` and consider t
 
 Use only commands that are documented or configured in the repository.
 
-Backend and database runtime:
-
-```bash
-docker compose up --build
-docker compose down
-```
-
-Backend tests from the Compose environment:
-
-```bash
-docker compose run --rm backend pytest tests -q
-docker compose run --rm backend pytest tests/test_events.py tests/test_stats.py tests/test_chat_ask.py -q
-docker compose run --rm backend sh -lc "coverage run -m pytest tests && coverage report --include='app/*' --fail-under=30"
-```
-
-Backend CI commands from `backend/`:
-
-```bash
-python -m ruff check app tests
-python -m ruff format --check app tests
-python -m coverage run -m pytest tests
-python -m coverage report --include="app/*" --fail-under=30
-python -m pip check
-```
-
-Android checks:
-
-```powershell
-.\gradlew.bat testDebugUnitTest
-.\gradlew.bat assembleDebug
-```
+- Use `README.md` for current setup, run, and access guidance.
+- Use `docs/customer-handover.md` for transition, deployment, recovery, and customer verification guidance.
+- Use `docs/testing.md` for current verification commands and targeted test suites.
+- Use `CONTRIBUTING.md` for contribution and pre-PR verification expectations.
+- Use `.github/workflows/` as the source of truth for exact CI commands.
+- Run the checks relevant to the changed area and report any checks that could not be run.
 
 Markdown and diff hygiene:
 
@@ -207,6 +182,7 @@ The following actions require explicit confirmation before execution:
 - Creating issues.
 - Creating pull requests.
 - Creating commits.
+- Pushing branches or changes.
 - Creating releases.
 - Modifying milestones.
 - Modifying repository workflow.
@@ -225,7 +201,10 @@ The following actions require explicit confirmation before execution:
 
 Current Assignment-related documentation in this repository:
 
-- [Week 5 report](reports/week5/README.md)
+- [Week 6 report](reports/week6/README.md)
+- [Week 7 report](reports/week7/README.md)
+- [Contribution guidelines](CONTRIBUTING.md)
+- [Customer handover](docs/customer-handover.md)
 - [Testing status](docs/testing.md)
 - [User acceptance tests](docs/user-acceptance-tests.md)
 - [Definition of Done](docs/definition-of-done.md)
@@ -234,7 +213,9 @@ Current Assignment-related documentation in this repository:
 ## References
 
 - [README](README.md)
+- [Contribution guidelines](CONTRIBUTING.md)
 - [CHANGELOG](CHANGELOG.md)
+- [Customer handover](docs/customer-handover.md)
 - [Development process](docs/development-process.md)
 - [Definition of Done](docs/definition-of-done.md)
 - [Testing](docs/testing.md)
@@ -245,7 +226,8 @@ Current Assignment-related documentation in this repository:
 - [User stories](docs/user-stories.md)
 - [Roadmap](docs/roadmap.md)
 - [Architecture](docs/architecture/README.md)
-- [Week 5 report](reports/week5/README.md)
+- [Week 6 report](reports/week6/README.md)
+- [Week 7 report](reports/week7/README.md)
 - [Pull request template](.github/pull_request_template.md)
 - [Backend CI workflow](.github/workflows/backend-ci.yml)
 - [Android CI workflow](.github/workflows/android-ci.yml)
