@@ -51,21 +51,19 @@ The default evidence sources for `Done` are:
 
 If later project work changes the product stack, CI configuration, quality requirements, quality requirement tests, or critical modules, this Definition of Done and the related testing evidence must be updated so the completion standard stays current.
 
-For MVP v3 / Sprint 4 and final repository cleanup work, `docs/testing.md`, `docs/quality-requirements.md`, and `docs/quality-requirement-tests.md` must be updated when authentication, rate limiting, local chat history, logout, session restore, statistics behavior, assistant behavior, manual event records, deployment, handover, maintenance recommendations, notifications, or related architecture decisions introduce new verification needs.
+For MVP v3 / Sprint 5 and final handover work, `docs/testing.md`, `docs/quality-requirements.md`, and `docs/quality-requirement-tests.md` must be updated when authentication, rate limiting, local chat history, logout, session restore, statistics behavior, assistant behavior, manual event records, deployment, handover, maintenance recommendations, notifications, profile management, voice input, Excel export, style switching, or related architecture decisions introduce new verification needs.
 
 After Assignment 5 architecture documentation is introduced, PBIs and user stories must preserve traceability to the relevant ADRs or explicitly document that no ADR applies.
 
-## MVP v3 / Sprint 4 Completion Standard
+## MVP v3 / Sprint 5 Completion Standard
 
-As of this update, the implemented MVP v3 / Sprint 4 work extends product behavior and repository evidence around password hashing, removal of unsafe demo login, login and chat request-rate protection, restricted default CORS behavior, Android logout, local chat history for the last five dialogs, session restore, adaptive Statistics UI, customer-provided backend deployment, customer handover documentation, contributor guidance, and agent guidance.
+As of this update, the implemented MVP v3 / Sprint 5 work extends product behavior and repository evidence around all Sprint 4 features plus profile management with avatar support, maintenance recommendations via `/recommendations` endpoint, in-app notifications screen, voice input with Mistral transcription, vehicle-data Excel export, dynamic chat style switching, vehicle brand and model selection, and history sorting by newest events first.
 
 The current completion standard therefore remains the Assignment 4 and Assignment 5 Definition of Done baseline plus these active Assignment 6 documentation and evidence expectations:
 
 - applicable QR and QRT traceability must remain current for QR-001 through QR-008
-- changed backend behavior must remain covered by the backend regression suite, targeted Sprint 4 security and assistant regression tests when applicable, and the critical-module coverage gate
+- changed backend behavior must remain covered by the backend regression suite, targeted Sprint 5 security, assistant, and style regression tests when applicable, and the critical-module coverage gate
 - changed Android behavior must remain covered by relevant JVM unit tests or debug assembly evidence when UI/resource behavior cannot be verified by JVM tests alone
 - deployment, customer-handover, contributor, agent-guidance, and assignment-reporting documentation must stay synchronized with the current repository state
 - ADR traceability must be preserved for the quality requirements affected by the change, or the issue or PR must explicitly record that no ADR applies
 - manual-only evidence, including UAT and customer-trial observations, may support release readiness but does not replace automated QRT evidence
-
-If later Sprint 5 or final handover implementation adds recommendation services, notification workflow logic, photo-attachment persistence, monetary precision changes, account-data migration behavior, new deployment or archive-delivery instructions, workflow changes, or CI changes, this Definition of Done must be updated again so it still describes the current completion standard.

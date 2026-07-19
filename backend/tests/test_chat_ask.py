@@ -83,6 +83,54 @@ def test_chat_ask_returns_answer(monkeypatch):
     assert data["answer"] == "Ответ на: Какой пробег?"
 
 
+def test_chat_ask_forwards_style_parameter_to_ask_deepseek(monkeypatch):
+    user_id = _register_and_get_user_id("ask-user-style-1")
+    captured = {}
+
+    def fake_ask(
+        message: str,
+        vehicle_context: str | None = None,
+        chat_context: str | None = None,
+        style: str | None = None,
+    ) -> str:
+        captured["style"] = style
+        return "OK"
+
+    monkeypatch.setattr(main_module, "ask_deepseek", fake_ask)
+
+    resp = client.post(
+        f"/chat/ask?user_id={user_id}",
+        json={"message": "Привет", "style": "selfish"},
+    )
+
+    assert resp.status_code == 200
+    assert captured["style"] == "selfish"
+
+
+def test_chat_ask_forwards_default_style_when_not_provided(monkeypatch):
+    user_id = _register_and_get_user_id("ask-user-style-2")
+    captured = {}
+
+    def fake_ask(
+        message: str,
+        vehicle_context: str | None = None,
+        chat_context: str | None = None,
+        style: str | None = None,
+    ) -> str:
+        captured["style"] = style
+        return "OK"
+
+    monkeypatch.setattr(main_module, "ask_deepseek", fake_ask)
+
+    resp = client.post(
+        f"/chat/ask?user_id={user_id}",
+        json={"message": "Привет"},
+    )
+
+    assert resp.status_code == 200
+    assert captured["style"] is None
+
+
 def test_chat_ask_includes_vehicle_context(monkeypatch):
     user_id = _register_and_get_user_id("ask-user-2")
 

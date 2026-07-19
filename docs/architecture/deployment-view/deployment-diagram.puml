@@ -73,12 +73,13 @@ node "Docker Compose host\n(local or deployed server)" as Host #ECFDF5 {
 }
 
 cloud "Timeweb Cloud\nAI Agent API" as Ai
+cloud "Mistral\nVoice Transcription API" as Mistral
 cloud "Private S3-compatible\nphoto bucket (optional)" as PhotoBucket
 
 node "Development / CI boundary" as DevCi #F8FAFC {
   cloud "GitHub" as GitHub {
     component "Repository" as Repo
-    component "GitHub Actions\nbackend CI + link check" as Ci
+    component "GitHub Actions\nbackend CI + Android CI + link check" as Ci
   }
 }
 
@@ -93,7 +94,9 @@ Db -down-> Volume : persistent data
 Backend -down-> PhotoVolume : local photo mode
 Backend -right-> PhotoBucket : S3 photo mode\nHTTPS object API
 Backend -right-> Ai : HTTPS AI request
+Backend -right-> Mistral : HTTPS transcription
 Ai -left-> Backend : AI response
+Mistral -left-> Backend : transcription response
 
 Repo -down-> Ci : push / PR
 Ci -up-> Repo : checks
@@ -105,6 +108,8 @@ TIMEWEB_API_KEY
 TIMEWEB_AGENT_ID
 TIMEWEB_MODEL
 TIMEWEB_TIMEOUT_SECONDS
+MISTRAL_API_KEYS
+MISTRAL_TRANSCRIPTION_MODEL
 CORS_ALLOWED_ORIGINS
 LOGIN_RATE_LIMIT
 CHAT_RATE_LIMIT
