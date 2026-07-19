@@ -193,6 +193,22 @@ This would allow users to create history records without using the chat.
   - PBI: Verify that manually created and chat-created records appear consistently in both History and Statistics.
   - PBI: Verify migration, compatibility, or reset behavior for accounts created with older application versions.
 
+### Week 7 Execution Result
+
+- **Execution status:** Partially completed
+- **Date:** 18 July 2026
+- **Executed by:** Customer with guidance from the team representative
+- **Evidence:** [Week 7 Sprint Review transcript](../reports/week7/sprint-review-transcript.md)
+- **Result:** Passed
+- **Customer comments or observed issues:**
+  - The customer created and saved a fuel record with decimal litre and expense values and confirmed that the result was visible.
+  - The customer confirmed that the completed trip appeared correctly in History and Statistics.
+  - Required-field validation and the complete manual flow for every record type were not executed during Week 7.
+- **Related GitHub Issues:**
+  - [#313](https://github.com/LAMBA-23/LAMBA/issues/313) — Support decimal numeric fields.
+  - [#314](https://github.com/LAMBA-23/LAMBA/issues/314) — Verify decimal values across persistence, History, and Statistics.
+  - [#321](https://github.com/LAMBA-23/LAMBA/issues/321) — Fix History records and notifications.
+
 ## UAT-006: Ask the AI assistant about vehicle statistics
 
 - **Scenario ID:** UAT-006
@@ -254,6 +270,22 @@ This would allow users to create history records without using the chat.
 - **Resulting PBIs:**
   - PBI: Improve the AI prompt so responses sound less dry and more natural and conversational.
 
+### Week 7 Execution Result
+
+- **Execution status:** Partially completed
+- **Date:** 18 July 2026
+- **Executed by:** Customer with guidance from the team representative
+- **Evidence:** [Week 7 Sprint Review transcript](../reports/week7/sprint-review-transcript.md)
+- **Result:** Passed
+- **Customer comments or observed issues:**
+  - The customer observed a natural, sarcastic response in the selected Selfish communication style and confirmed that the style was clearly visible in the response.
+  - Statistics questions, expense totals, supported periods, and recent breakdown queries were not re-executed during Week 7.
+- **Related GitHub Issues:**
+  - [#316](https://github.com/LAMBA-23/LAMBA/issues/316) — Improve the assistant's conversational responses.
+  - [#341](https://github.com/LAMBA-23/LAMBA/issues/341) — Improve the vehicle persona and chat formatting.
+  - [#347](https://github.com/LAMBA-23/LAMBA/issues/347) — Add selectable assistant communication styles.
+  - [#353](https://github.com/LAMBA-23/LAMBA/issues/353) — Apply the selected style to assistant responses.
+
 ## UAT-007: Receive rule-based vehicle recommendations as notifications
 
 - **Scenario ID:** UAT-007
@@ -290,14 +322,21 @@ This would allow users to create history records without using the chat.
 
 ### Week 7 Execution Result
 
-- **Execution status:** To be completed after the Week 7 transition confirmation.
-- **Date:** To be completed after the Week 7 transition confirmation.
-- **Executed by:** To be completed after the Week 7 transition confirmation.
-- **Evidence:** To be added in the private Moodle submission if applicable.
-- **Result:** To be completed after execution.
-- **Customer comments or observed issues:** To be completed after the Week 7 transition confirmation.
-- **Traceability:** To be linked to relevant GitHub issues or PBIs after implementation.
-- **Resulting PBIs/issues:** To be completed after execution.
+- **Execution status:** Partially completed
+- **Date:** 18 July 2026
+- **Executed by:** Customer with guidance from the team representative
+- **Evidence:** [Week 7 Sprint Review transcript](../reports/week7/sprint-review-transcript.md)
+- **Result:** Passed
+- **Customer comments or observed issues:**
+  - The customer opened the recommendations screen and saw a recommendation related to the newly created breakdown.
+  - An oil-change recommendation based on mileage or elapsed time was discussed but was not executed by the customer.
+  - Opening recommendation details and confirming the absence of unsolicited recommendations in chat were not executed.
+- **Related GitHub Issues:**
+  - [#51](https://github.com/LAMBA-23/LAMBA/issues/51) — Receive maintenance recommendations.
+  - [#52](https://github.com/LAMBA-23/LAMBA/issues/52) — Receive notifications.
+  - [#315](https://github.com/LAMBA-23/LAMBA/issues/315) — Implement rule-based recommendations.
+  - [#325](https://github.com/LAMBA-23/LAMBA/issues/325) — Add in-app notifications.
+  - [#328](https://github.com/LAMBA-23/LAMBA/issues/328) — Fix recurring recommendation notifications.
 
 ## UAT-008: Keep the five most recent chats locally
 
@@ -334,14 +373,13 @@ This would allow users to create history records without using the chat.
 
 ### Week 7 Execution Result
 
-- **Execution status:** To be completed after the Week 7 transition confirmation.
-- **Date:** To be completed after the Week 7 transition confirmation.
-- **Executed by:** To be completed after the Week 7 transition confirmation.
-- **Evidence:** To be added in the private Moodle submission if applicable.
-- **Result:** To be completed after execution.
-- **Customer comments or observed issues:** To be completed after the Week 7 transition confirmation.
-- **Traceability:** To be linked to relevant GitHub issues or PBIs after implementation.
-- **Resulting PBIs/issues:** To be completed after execution.
+- **Execution status:** Not executed
+- **Date:** 18 July 2026
+- **Executed by:** Customer with guidance from the team representative
+- **Evidence:** [Week 7 Sprint Review transcript](../reports/week7/sprint-review-transcript.md)
+- **Result:** Not executed
+- **Customer comments or observed issues:** The five-chat limit, continuing a stored chat, and clearing local chat history after logout were not tested during Week 7.
+- **Related GitHub Issues:** No new issue was identified because this scenario was not executed.
 
 ## UAT-009: Decimal fuel and monetary values
 
@@ -382,14 +420,18 @@ This would allow users to create history records without using the chat.
 
 ### Week 7 Execution Result
 
-- **Execution status:** To be completed after the Week 7 transition confirmation.
-- **Date:** To be completed after the Week 7 transition confirmation.
-- **Executed by:** To be completed after the Week 7 transition confirmation.
-- **Evidence:** To be added in the private Moodle submission if applicable.
-- **Result:** To be completed after execution.
-- **Customer comments or observed issues:** To be completed after the Week 7 transition confirmation.
-- **Traceability:** To be linked to relevant GitHub issues or PBIs after implementation.
-- **Resulting PBIs/issues:** To be completed after execution.
+- **Execution status:** Completed
+- **Date:** 18 July 2026
+- **Executed by:** Customer with guidance from the team representative
+- **Evidence:** [Week 7 Sprint Review transcript](../reports/week7/sprint-review-transcript.md)
+- **Result:** Passed
+- **Customer comments or observed issues:**
+  - The customer entered 5.6 litres of fuel and an expense of 1288.1 RUB.
+  - The record was saved successfully, and the customer confirmed that the decimal values were visible, including in Statistics.
+- **Related GitHub Issues:**
+  - [#264](https://github.com/LAMBA-23/LAMBA/issues/264) — Fix fractional fuel-value persistence and display.
+  - [#313](https://github.com/LAMBA-23/LAMBA/issues/313) — Support decimal numeric fields.
+  - [#314](https://github.com/LAMBA-23/LAMBA/issues/314) — Verify decimal values across persistence, History, and Statistics.
 
 ## UAT-010: Record a trip using start and end odometer values
 
@@ -427,14 +469,19 @@ This would allow users to create history records without using the chat.
 
 ### Week 7 Execution Result
 
-- **Execution status:** To be completed after the Week 7 transition confirmation.
-- **Date:** To be completed after the Week 7 transition confirmation.
-- **Executed by:** To be completed after the Week 7 transition confirmation.
-- **Evidence:** To be added in the private Moodle submission if applicable.
-- **Result:** To be completed after execution.
-- **Customer comments or observed issues:** To be completed after the Week 7 transition confirmation.
-- **Traceability:** To be linked to relevant GitHub issues or PBIs after implementation.
-- **Resulting PBIs/issues:** To be completed after execution.
+- **Execution status:** Partially completed
+- **Date:** 18 July 2026
+- **Executed by:** Customer with guidance from the team representative
+- **Evidence:** [Week 7 Sprint Review transcript](../reports/week7/sprint-review-transcript.md)
+- **Result:** Passed
+- **Customer comments or observed issues:**
+  - The customer successfully completed the start/end odometer trip flow and confirmed that the trip was added.
+  - The trip appeared in History and updated Statistics.
+  - Validation of an end odometer value lower than the start value was not tested.
+  - Adding another record while a trip was active was discussed but was not executed.
+- **Related GitHub Issues:**
+  - [#272](https://github.com/LAMBA-23/LAMBA/issues/272) — Support trip recording using start and end odometer values.
+  - [#331](https://github.com/LAMBA-23/LAMBA/issues/331) — Improve the trip start/end odometer flow.
 
 ## UAT-011: Repair/Breakdown record with photo attachment
 
@@ -478,14 +525,23 @@ This would allow users to create history records without using the chat.
 
 ### Week 7 Execution Result
 
-- **Execution status:** To be completed after the Week 7 transition confirmation.
-- **Date:** To be completed after the Week 7 transition confirmation.
-- **Executed by:** To be completed after the Week 7 transition confirmation.
-- **Evidence:** To be added in the private Moodle submission if applicable.
-- **Result:** To be completed after execution.
-- **Customer comments or observed issues:** To be completed after the Week 7 transition confirmation.
-- **Traceability:** To be linked to relevant GitHub issues or PBIs after implementation.
-- **Resulting PBIs/issues:** To be completed after execution.
+- **Execution status:** Partially completed
+- **Date:** 18 July 2026
+- **Executed by:** Customer with guidance from the team representative
+- **Evidence:** [Week 7 Sprint Review transcript](../reports/week7/sprint-review-transcript.md)
+- **Result:** Passed
+- **Customer comments or observed issues:**
+  - The customer created a breakdown record and attached a sample photo.
+  - The photo uploaded and displayed successfully after a short wait.
+  - The customer was initially unsure whether the photo had finished loading, but confirmed that the result was good after it appeared.
+  - The repair-photo flow and decimal repair expense were not tested.
+- **Related GitHub Issues:**
+  - [#273](https://github.com/LAMBA-23/LAMBA/issues/273) — Complete Repair/Breakdown records with photo attachments.
+  - [#323](https://github.com/LAMBA-23/LAMBA/issues/323) — Complete breakdown photo support.
+  - [#332](https://github.com/LAMBA-23/LAMBA/issues/332) — Harden backend photo handling.
+  - [#337](https://github.com/LAMBA-23/LAMBA/issues/337) — Fix breakdown photo display.
+  - [#340](https://github.com/LAMBA-23/LAMBA/issues/340) — Display the full breakdown photo without cropping.
+  - No dedicated issue identified during this analysis for the loading-state observation.
 
 ## UAT-012: Stay logged in after closing the app and log out manually
 
@@ -523,14 +579,13 @@ This would allow users to create history records without using the chat.
 
 ### Week 7 Execution Result
 
-- **Execution status:** To be completed after the Week 7 transition confirmation.
-- **Date:** To be completed after the Week 7 transition confirmation.
-- **Executed by:** To be completed after the Week 7 transition confirmation.
-- **Evidence:** To be added in the private Moodle submission if applicable.
-- **Result:** To be completed after execution.
-- **Customer comments or observed issues:** To be completed after the Week 7 transition confirmation.
-- **Traceability:** To be linked to relevant GitHub issues or PBIs after implementation.
-- **Resulting PBIs/issues:** To be completed after execution.
+- **Execution status:** Not executed
+- **Date:** 18 July 2026
+- **Executed by:** Customer with guidance from the team representative
+- **Evidence:** [Week 7 Sprint Review transcript](../reports/week7/sprint-review-transcript.md)
+- **Result:** Not executed
+- **Customer comments or observed issues:** Session persistence, completed logout, protected-screen access after logout, and local-chat cleanup were not tested during Week 7.
+- **Related GitHub Issues:** No new issue was identified because this scenario was not executed.
 
 ## UAT-013: Manage account and vehicle settings
 
@@ -552,6 +607,25 @@ This would allow users to create history records without using the chat.
 
 - **Traceability:** US-15, GitHub Issue #329.
 - **Resulting PBIs/issues:** No new PBIs or issues were created.
+
+### Week 7 Execution Result
+
+- **Execution status:** Partially completed
+- **Date:** 18 July 2026
+- **Executed by:** Customer with guidance from the team representative
+- **Evidence:** [Week 7 Sprint Review transcript](../reports/week7/sprint-review-transcript.md)
+- **Result:** Passed
+- **Passed steps:**
+  - The Profile screen was opened, and the username and local avatar were displayed.
+  - The customer entered an incorrect current password, and the validation error was handled correctly.
+- **Not executed:**
+  - A successful password change with the correct current password.
+  - Editing vehicle data.
+  - Completing logout and verifying the resulting session and local-chat state.
+- **Customer comments or observed issues:** The customer said that the incorrect-password error was handled correctly and that the updated interface looked good.
+- **Related GitHub Issues:**
+  - [#329](https://github.com/LAMBA-23/LAMBA/issues/329) — Add account and vehicle profile management.
+  - [#351](https://github.com/LAMBA-23/LAMBA/issues/351) — Improve the Profile UI and local avatar support.
 
 ## UAT-014: Dictate an editable chat message
 
@@ -576,6 +650,89 @@ This would allow users to create history records without using the chat.
   - The message is sent only after the user taps the existing send button.
   - Permission and service errors are shown clearly, and manual text input remains usable.
 - **Traceability:** US-10, GitHub Issue #53.
+
+### Week 7 Execution Result
+
+- **Execution status:** Partially completed
+- **Date:** 18 July 2026
+- **Executed by:** Customer with guidance from the team representative
+- **Evidence:** [Week 7 Sprint Review transcript](../reports/week7/sprint-review-transcript.md)
+- **Result:** Passed
+- **Customer comments or observed issues:**
+  - The first recognition attempt was inaccurate.
+  - The second attempt recognised a refuelling message, and the resulting record was saved.
+  - The customer confirmed that voice input worked.
+  - Editing recognised text before sending, microphone-permission denial, and transcription-service failure were not tested.
+- **Related GitHub Issues:**
+  - [#53](https://github.com/LAMBA-23/LAMBA/issues/53) — Use voice messages.
+
+## UAT-015: Export vehicle data to an Excel workbook
+
+- **Scenario ID:** UAT-015
+- **Status:** Active
+- **User goal:** A logged-in vehicle owner can export vehicle and history data to an Excel workbook and use the exported file outside the application.
+- **Preconditions:**
+  - The user is logged in and has a vehicle profile.
+  - Vehicle history data is available for export.
+  - The Profile screen and export action are available.
+  - The device provides a location where the workbook can be saved.
+
+| Step | User action | Expected outcome |
+|---|---|---|
+| 1 | Open the Profile screen. | The Profile screen opens and displays the vehicle-data export action. |
+| 2 | Start the vehicle-data export. | The application starts preparing an Excel workbook. |
+| 3 | Select a save location. | The user can choose where the workbook will be saved. |
+| 4 | Confirm the export and wait for generation to finish. | The workbook is generated and saved without blocking or crashing the application. |
+| 5 | Open the workbook and review the exported vehicle data. | The workbook contains the expected vehicle profile data. |
+| 6 | Review the exported history. | The workbook contains the expected vehicle-history records and values. |
+| 7 | Open, copy, or share the exported file outside the application. | The saved workbook is available to another application or recipient, such as a repair shop. |
+
+### Week 7 Execution Result
+
+- **Execution status:** Partially completed
+- **Date:** 18 July 2026
+- **Executed by:** Customer with guidance from the team representative
+- **Evidence:** [Week 7 Sprint Review transcript](../reports/week7/sprint-review-transcript.md)
+- **Result:** Passed
+- **Customer comments or observed issues:**
+  - The export feature was demonstrated, and the customer considered it useful for sharing vehicle history with a repair shop.
+  - The transcript does not confirm that the customer independently selected a save location, generated and opened the workbook, verified all exported data, or shared the file outside the application.
+- **Related GitHub Issues:**
+  - [#339](https://github.com/LAMBA-23/LAMBA/issues/339) — Export vehicle data to Excel.
+  - [#356](https://github.com/LAMBA-23/LAMBA/issues/356) — Fix vehicle-data export after UI refactoring.
+
+## UAT-016: Select and verify an assistant communication style
+
+- **Scenario ID:** UAT-016
+- **Status:** Active
+- **User goal:** A user can select an assistant communication style and receive factually consistent responses in the selected tone.
+- **Preconditions:**
+  - The user is logged in and has opened the chat screen.
+  - The assistant service is available.
+  - More than one communication style is available for selection.
+
+| Step | User action | Expected outcome |
+|---|---|---|
+| 1 | Select a communication style. | The selected style is visibly active for subsequent assistant responses. |
+| 2 | Send a neutral prompt to the assistant. | The assistant returns a relevant response using the selected style. |
+| 3 | Review the response tone and facts. | The tone clearly matches the selected style while the factual content remains correct. |
+| 4 | Switch to a different communication style. | The new style becomes active without interrupting the chat flow. |
+| 5 | Send the same or an equivalent neutral prompt. | The tone changes to match the new style while factual correctness remains unchanged. |
+| 6 | Leave and reopen the chat. | The style selection follows the application's defined persistence behaviour. |
+
+### Week 7 Execution Result
+
+- **Execution status:** Partially completed
+- **Date:** 18 July 2026
+- **Executed by:** Customer with guidance from the team representative
+- **Evidence:** [Week 7 Sprint Review transcript](../reports/week7/sprint-review-transcript.md)
+- **Result:** Passed
+- **Customer comments or observed issues:**
+  - The customer observed a sarcastic response in the selected Selfish style and confirmed that the style was clearly visible.
+  - Other styles, switching between styles, factual equivalence across styles, and persistence behaviour were not tested.
+- **Related GitHub Issues:**
+  - [#347](https://github.com/LAMBA-23/LAMBA/issues/347) — Add selectable assistant communication styles.
+  - [#353](https://github.com/LAMBA-23/LAMBA/issues/353) — Apply the selected style to assistant responses.
 
 ## Week 4 UAT Summary
 
@@ -628,10 +785,24 @@ This would allow users to create history records without using the chat.
 
 ## Week 7 UAT Summary
 
-- **Scenarios executed:** To be completed after the Week 7 transition confirmation.
-- **Planned re-test list:** UAT-005, UAT-006, UAT-007, UAT-008, UAT-009, UAT-010, UAT-011, UAT-012.
-- **Passed scenarios:** To be completed after the Week 7 transition confirmation.
-- **Failed / needs changes:** To be completed after the Week 7 transition confirmation.
-- **Most important feedback points:** To be completed after the Week 7 transition confirmation.
-- **Resulting PBIs or issues:** To be completed after execution.
-- **Final customer confirmation notes:** To be completed after the Week 7 transition confirmation.
+- **Passed:**
+  - UAT-009
+- **Passed:**
+  - UAT-005
+  - UAT-006
+  - UAT-007
+  - UAT-010
+  - UAT-011
+  - UAT-013
+  - UAT-014
+  - UAT-015
+  - UAT-016
+- **Not executed:**
+  - UAT-001
+  - UAT-002
+  - UAT-003
+  - UAT-004
+  - UAT-008
+  - UAT-012
+- **Failed:** None confirmed by the Week 7 transcript.
+- **Final customer confirmation:** The customer accepted the final product. However, customer acceptance does not imply that every maintained UAT scenario was fully executed during Week 7.
