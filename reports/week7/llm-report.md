@@ -27,7 +27,7 @@ The team used multiple AI tools throughout Sprint 5: MiMo Code (mimo-auto), Code
 - Helped investigate the causes of several development issues
 - Suggested minor code improvements before submitting changes
 
-### @vasilisatumakina29
+### @mariachizhikova08 
 
 **Model:** Codex 26.616.6631.0, Chat GPT 5.0
 
@@ -36,7 +36,7 @@ The team used multiple AI tools throughout Sprint 5: MiMo Code (mimo-auto), Code
 - Finalizing the app interface design, development and generation of an interface for the odometer trip
 - Consultation with the problem of unmounting a photo in the breakdown section
 
-### @mariachizhikova08
+### @vasilisatumakina29
 
 **Model:** Codex 5.6 Terra, Chat GPT 5.6 Sol, Gemini 3.5 Flash
 
