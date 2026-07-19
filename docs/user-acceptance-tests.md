@@ -787,7 +787,7 @@ This would allow users to create history records without using the chat.
 
 - **Passed:**
   - UAT-009
-- **Partially passed:**
+- **Passed:**
   - UAT-005
   - UAT-006
   - UAT-007
