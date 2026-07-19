@@ -161,6 +161,8 @@ The backend requires the following configuration:
 | `LOGIN_RATE_LIMIT_WINDOW_SECONDS` | Login rate-limit window in seconds | Environment override; code default is 60 |
 | `CHAT_RATE_LIMIT` | Chat and chat-title request limit per client within the configured window | Environment override; code default is 20 |
 | `CHAT_RATE_LIMIT_WINDOW_SECONDS` | Chat and chat-title rate-limit window in seconds | Environment override; code default is 60 |
+| `MISTRAL_API_KEYS` | Mistral API keys for voice transcription (comma-separated for rotation) | GitHub Secrets / `.env` |
+| `MISTRAL_TRANSCRIPTION_MODEL` | Mistral transcription model name | Docker Compose default / `.env` |
 
 ### Secrets Handling
 
