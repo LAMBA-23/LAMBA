@@ -43,6 +43,7 @@ end box
 box "Data and external services" #F7F7F7
 database "PostgreSQL" as DB
 participant "Timeweb Cloud\nAI Agent API" as TimewebAI
+participant "Mistral\nVoice Transcription API" as Mistral
 end box
 
 User -> UI : open chat
@@ -58,17 +59,17 @@ else New dialog
 end
 
 User -> UI : send message
-UI -> Repo : ask assistant with local context
-Repo -> Retrofit : POST /chat/ask
-Retrofit -> API : message + recent dialog context
+UI -> Repo : ask assistant with local context and selected style
+Repo -> Retrofit : POST /chat/ask (message + context + style)
+Retrofit -> API : message + recent dialog context + style parameter
 API -> Security : enforce CORS and chat rate limit
 Security --> API : accepted request
 API -> Persistence : load vehicle and events
 Persistence -> DB : SELECT car/events
 DB --> Persistence : vehicle history
 Persistence --> API : context data
-API -> Assistant : build answer
-Assistant -> TimewebAI : AI request when needed
+API -> Assistant : build answer with style-based system prompt
+Assistant -> TimewebAI : AI request with style prompt when needed
 TimewebAI --> Assistant : AI response
 Assistant --> API : assistant answer
 API --> Retrofit : answer
@@ -110,6 +111,17 @@ opt User logs out
   LocalRepo -> RoomDb : DELETE user chats and messages
   UI -> Session : clear local session and current chat id
   UI --> User : open welcome screen
+end
+
+opt User sends voice message
+  User -> UI : record audio
+  UI -> Retrofit : POST /chat/transcribe (multipart audio)
+  Retrofit -> API : audio file
+  API -> Mistral : transcribe audio
+  Mistral --> API : transcription text
+  API --> Retrofit : editable text
+  Retrofit --> UI : show transcription for editing
+  User -> UI : confirm or edit text, then send
 end
 
 @enduml

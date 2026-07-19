@@ -63,7 +63,7 @@ package "FastAPI backend" #ECFDF5 {
   component "API layer\n\n/auth\n/vehicle\n/events\n/stats\n/chat\n/recommendations\n/chat/transcribe" as BackendApi
   component "Security layer\n\npassword hashing\nfixed-window rate limiter\nCORS config" as BackendSecurity
   component "Validation layer\n\nPydantic schemas" as BackendValidation
-  component "Service layer\n\nvehicle history\nstatistics\nchat parsing\nAI answers" as BackendServices
+  component "Service layer\n\nvehicle history\nstatistics\nchat parsing\nAI answers\nrecommendations\nnotifications\nvoice transcription" as BackendServices
   component "Photo service\n\nPillow validation\nmetadata stripping\nthumbnail generation\nstorage adapter" as PhotoService
   component "Persistence layer\n\nSQLAlchemy models\ndatabase sessions" as BackendPersistence
 

@@ -151,3 +151,37 @@ The repository now contains implemented password hashing and request-rate limiti
 CORS behavior is covered by `backend/tests/test_cors.py` as automated regression evidence. It is not documented as a separate QRT because the current automated tests verify default denied-origin behavior but do not yet verify an explicitly allowed origin configured through `CORS_ALLOWED_ORIGINS`.
 
 US-08 maintenance recommendations and US-09 notifications are now implemented. Recommendations are served via `/recommendations` endpoint and notifications via the in-app notifications screen. Dedicated QRT coverage for these features should be added when automated tests for recommendation and notification workflows are introduced.
+
+## Sprint 5 Regression Evidence
+
+The following automated regression evidence covers Sprint 5 implemented features. These tests verify behavior introduced in Sprint 5 and run as part of the backend CI pipeline.
+
+### Recommendations
+
+**Evidence:** `backend/tests/test_recommendations.py`
+
+Automated tests verify the `/recommendations` endpoint returns relevant maintenance recommendations based on vehicle age and mileage. Tests cover recommendation generation, response format, and empty-state handling.
+
+### History Newest-First Ordering
+
+**Evidence:** `backend/tests/test_events.py`
+
+Event listing tests verify that events are returned in reverse chronological order (newest first) after the Sprint 5 sorting change. Tests confirm the API returns events sorted by `created_at DESC`.
+
+### Vehicle Brand and Model Selection
+
+**Evidence:** `backend/tests/test_vehicle.py`
+
+Vehicle creation and update tests verify that brand and model fields are persisted correctly. Tests cover validation of brand/model input and proper storage in the database.
+
+### Chat Style Parameter Forwarding
+
+**Evidence:** `backend/tests/test_chat_ask.py`; `backend/tests/test_chat_title_and_context.py`; `backend/tests/test_rate_limiting.py`
+
+All `fake_ask` mock functions accept the `style` parameter, verifying that the chat_ask handler forwards the style parameter to `ask_deepseek()`. The `test_chat_ask_includes_selected_chat_context` test confirms the full parameter chain from request to AI call.
+
+### Profile and Avatar
+
+**Evidence:** Android JVM tests in `app/src/test/java/com/lamba/app/network/ChatRepositoryTest.kt`
+
+The `FakeChatBackend` in Android tests accepts the `style` parameter, verifying that the Android client correctly passes the communication style through the repository layer to the backend API.
