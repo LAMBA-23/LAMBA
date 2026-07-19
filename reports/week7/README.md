@@ -30,11 +30,11 @@
 
 Sprint 5 addressed follow-up items from the Week 6 customer trial:
 
-- Fixed the `style` parameter not being forwarded to `ask_deepseek()` in the chat_ask handler (#353).
-- Added dynamic chat style switching with three modes: Friendly, Selfish, Pragmatic (#347).
-- Enhanced profile UI with avatar support and local persistence (#351).
-- Added vehicle brand and model selection (#349).
-- Sorted history by newest events first (#345).
+- Fixed the `style` parameter not being forwarded to `ask_deepseek()` in the chat_ask handler ([#353](https://github.com/LAMBA-23/LAMBA/issues/353)).
+- Added dynamic chat style switching with three modes: Friendly, Selfish, Pragmatic ([#347](https://github.com/LAMBA-23/LAMBA/issues/347)).
+- Enhanced profile UI with avatar support and local persistence ([#351](https://github.com/LAMBA-23/LAMBA/issues/351)).
+- Added vehicle brand and model selection ([#349](https://github.com/LAMBA-23/LAMBA/issues/349)).
+- Sorted history by newest events first ([#345](https://github.com/LAMBA-23/LAMBA/issues/345)).
 - Updated CHANGELOG, customer-handover, and roadmap documentation.
 - Created Sprint Retrospective, Reflection, and LLM Report for Week 7.
 
@@ -99,10 +99,10 @@ The customer's server at `186.246.27.211` is running the deployed backend. The c
 
 | Feedback Point | Response | Status |
 |---|---|---|
-| Style switching does not work | Fixed `style` parameter forwarding in chat_ask handler (#353) | Resolved |
-| Profile UI needs improvement | Added avatar support, card-based style selector (#351) | Resolved |
-| Vehicle brand/model selection | Added dropdown lists with popular car brands (#349) | Resolved |
-| History ordering | Sorted by newest events first (#345) | Resolved |
+| Style switching does not work | Fixed `style` parameter forwarding in chat_ask handler ([#353](https://github.com/LAMBA-23/LAMBA/issues/353)) | Resolved |
+| Profile UI needs improvement | Added avatar support, card-based style selector ([#351](https://github.com/LAMBA-23/LAMBA/issues/351)) | Resolved |
+| Vehicle brand/model selection | Added dropdown lists with popular car brands ([#349](https://github.com/LAMBA-23/LAMBA/issues/349)) | Resolved |
+| History ordering | Sorted by newest events first ([#345](https://github.com/LAMBA-23/LAMBA/issues/345)) | Resolved |
 
 ## 20. Week 7 UAT Results
 
@@ -162,11 +162,11 @@ MVP v3 is the final course version. The product includes:
 
 | Team member | Issues / PRs / evidence | Contribution area |
 |---|---|---|
-| @vanya630 | #347, #353, #341, #316, #342, #348, #355, #371, #373, #377, #382, #319, #352 | AI chat style, LABMA persona, style fix, retrospective, reflection, LLM report, Week 7 README, quality/testing/DoD/architecture docs, server deployment, Demo Day slides |
-| @Erusiaaa | #332, #328, #326, #321, #315, #314, #51, #319, #322, #330, #333, #359, #320, #327, #334, #367, #369, #371 | Backend photo storage, recommendations, notifications, trip flow, decimal values, backend tests, code review |
-| @vasilisatumakina29 | #351, #339, #329, #356, #335, #336, #344, #352, #357, #363, #365, #350, #362, #324, #338, #343, #346, #342, #348, #355, #373, #377, #382 | Profile, avatar, voice input, Excel export, dark theme, transcript, summary, roadmap, code review, Demo Day slides |
-| @mariachizhikova08 | #345, #340, #337, #331, #325, #323, #273, #272, #264, #313, #52, #320, #324, #327, #334, #338, #343, #346, #367, #369, #322, #330, #333, #359 | History sorting, breakdown photos, trip UI, notifications, decimal values, agent guidance, UAT docs, code review |
-| @Elis-bett | #349, #350, #362, #335, #336, #344, #357, #363, #365 | Vehicle brand/model selection, CHANGELOG, README, customer-handover, code review, Demo Day slides |
+| @vanya630 | [#347](https://github.com/LAMBA-23/LAMBA/issues/347), [#353](https://github.com/LAMBA-23/LAMBA/issues/353), [#341](https://github.com/LAMBA-23/LAMBA/issues/341), [#316](https://github.com/LAMBA-23/LAMBA/issues/316), [#342](https://github.com/LAMBA-23/LAMBA/pull/342), [#348](https://github.com/LAMBA-23/LAMBA/pull/348), [#355](https://github.com/LAMBA-23/LAMBA/pull/355), [#371](https://github.com/LAMBA-23/LAMBA/pull/371), [#373](https://github.com/LAMBA-23/LAMBA/pull/373), [#377](https://github.com/LAMBA-23/LAMBA/pull/377), [#382](https://github.com/LAMBA-23/LAMBA/pull/382), [#319](https://github.com/LAMBA-23/LAMBA/pull/319), [#352](https://github.com/LAMBA-23/LAMBA/pull/352) | AI chat style, LABMA persona, style fix, retrospective, reflection, LLM report, Week 7 README, quality/testing/DoD/architecture docs, server deployment, Demo Day slides |
+| @Erusiaaa | [#332](https://github.com/LAMBA-23/LAMBA/issues/332), [#328](https://github.com/LAMBA-23/LAMBA/issues/328), [#326](https://github.com/LAMBA-23/LAMBA/issues/326), [#321](https://github.com/LAMBA-23/LAMBA/pull/321), [#315](https://github.com/LAMBA-23/LAMBA/issues/315), [#314](https://github.com/LAMBA-23/LAMBA/issues/314), [#51](https://github.com/LAMBA-23/LAMBA/issues/51), [#319](https://github.com/LAMBA-23/LAMBA/pull/319), [#322](https://github.com/LAMBA-23/LAMBA/pull/322), [#330](https://github.com/LAMBA-23/LAMBA/pull/330), [#333](https://github.com/LAMBA-23/LAMBA/pull/333), [#359](https://github.com/LAMBA-23/LAMBA/pull/359), [#320](https://github.com/LAMBA-23/LAMBA/pull/320), [#327](https://github.com/LAMBA-23/LAMBA/pull/327), [#334](https://github.com/LAMBA-23/LAMBA/pull/334), [#367](https://github.com/LAMBA-23/LAMBA/pull/367), [#369](https://github.com/LAMBA-23/LAMBA/pull/369), [#371](https://github.com/LAMBA-23/LAMBA/pull/371) | Backend photo storage, recommendations, notifications, trip flow, decimal values, backend tests, code review |
+| @vasilisatumakina29 | [#351](https://github.com/LAMBA-23/LAMBA/issues/351), [#339](https://github.com/LAMBA-23/LAMBA/issues/339), [#329](https://github.com/LAMBA-23/LAMBA/issues/329), [#356](https://github.com/LAMBA-23/LAMBA/issues/356), [#335](https://github.com/LAMBA-23/LAMBA/pull/335), [#336](https://github.com/LAMBA-23/LAMBA/pull/336), [#344](https://github.com/LAMBA-23/LAMBA/pull/344), [#352](https://github.com/LAMBA-23/LAMBA/pull/352), [#357](https://github.com/LAMBA-23/LAMBA/pull/357), [#363](https://github.com/LAMBA-23/LAMBA/pull/363), [#365](https://github.com/LAMBA-23/LAMBA/pull/365), [#350](https://github.com/LAMBA-23/LAMBA/pull/350), [#362](https://github.com/LAMBA-23/LAMBA/pull/362), [#324](https://github.com/LAMBA-23/LAMBA/pull/324), [#338](https://github.com/LAMBA-23/LAMBA/pull/338), [#343](https://github.com/LAMBA-23/LAMBA/pull/343), [#346](https://github.com/LAMBA-23/LAMBA/pull/346), [#342](https://github.com/LAMBA-23/LAMBA/pull/342), [#348](https://github.com/LAMBA-23/LAMBA/pull/348), [#355](https://github.com/LAMBA-23/LAMBA/pull/355), [#373](https://github.com/LAMBA-23/LAMBA/pull/373), [#377](https://github.com/LAMBA-23/LAMBA/pull/377), [#382](https://github.com/LAMBA-23/LAMBA/pull/382) | Profile, avatar, voice input, Excel export, dark theme, transcript, summary, roadmap, code review, Demo Day slides |
+| @mariachizhikova08 | [#345](https://github.com/LAMBA-23/LAMBA/issues/345), [#340](https://github.com/LAMBA-23/LAMBA/issues/340), [#337](https://github.com/LAMBA-23/LAMBA/issues/337), [#331](https://github.com/LAMBA-23/LAMBA/issues/331), [#325](https://github.com/LAMBA-23/LAMBA/issues/325), [#323](https://github.com/LAMBA-23/LAMBA/pull/323), [#273](https://github.com/LAMBA-23/LAMBA/issues/273), [#272](https://github.com/LAMBA-23/LAMBA/issues/272), [#264](https://github.com/LAMBA-23/LAMBA/issues/264), [#313](https://github.com/LAMBA-23/LAMBA/issues/313), [#52](https://github.com/LAMBA-23/LAMBA/issues/52), [#320](https://github.com/LAMBA-23/LAMBA/pull/320), [#324](https://github.com/LAMBA-23/LAMBA/pull/324), [#327](https://github.com/LAMBA-23/LAMBA/pull/327), [#334](https://github.com/LAMBA-23/LAMBA/pull/334), [#338](https://github.com/LAMBA-23/LAMBA/pull/338), [#343](https://github.com/LAMBA-23/LAMBA/pull/343), [#346](https://github.com/LAMBA-23/LAMBA/pull/346), [#367](https://github.com/LAMBA-23/LAMBA/pull/367), [#369](https://github.com/LAMBA-23/LAMBA/pull/369), [#322](https://github.com/LAMBA-23/LAMBA/pull/322), [#330](https://github.com/LAMBA-23/LAMBA/pull/330), [#333](https://github.com/LAMBA-23/LAMBA/pull/333), [#359](https://github.com/LAMBA-23/LAMBA/pull/359) | History sorting, breakdown photos, trip UI, notifications, decimal values, agent guidance, UAT docs, code review |
+| @Elis-bett | [#349](https://github.com/LAMBA-23/LAMBA/issues/349), [#350](https://github.com/LAMBA-23/LAMBA/pull/350), [#362](https://github.com/LAMBA-23/LAMBA/pull/362), [#335](https://github.com/LAMBA-23/LAMBA/pull/335), [#336](https://github.com/LAMBA-23/LAMBA/pull/336), [#344](https://github.com/LAMBA-23/LAMBA/pull/344), [#357](https://github.com/LAMBA-23/LAMBA/pull/357), [#363](https://github.com/LAMBA-23/LAMBA/pull/363), [#365](https://github.com/LAMBA-23/LAMBA/pull/365) | Vehicle brand/model selection, CHANGELOG, README, customer-handover, code review, Demo Day slides |
 
 ## 32. Embedded Screenshots
 
@@ -176,6 +176,6 @@ MVP v3 is the final course version. The product includes:
 | Release v1.4.0 — description | ![Release v1.4.0 description](images/releasees1.png) |
 | Release v1.4.0 — assets | ![Release v1.4.0 assets](images/releases2.png) |
 | Product access (Swagger) | ![Product access](images/product-access.png) |
-| Example PR #355 | ![Example PR](images/pr-example.png) |
+| Example PR [#355](https://github.com/LAMBA-23/LAMBA/pull/355) | ![Example PR](images/pr-example.png) |
 | Product Backlog (Sprint 5) | ![Product backlog](images/product-backlog.png) |
 | Sprint Backlog | ![Sprint backlog](images/sprint-backlog.png) |
