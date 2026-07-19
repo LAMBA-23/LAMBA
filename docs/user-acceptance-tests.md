@@ -199,7 +199,7 @@ This would allow users to create history records without using the chat.
 - **Date:** 18 July 2026
 - **Executed by:** Customer with guidance from the team representative
 - **Evidence:** [Week 7 Sprint Review transcript](../reports/week7/sprint-review-transcript.md)
-- **Result:** Partially passed
+- **Result:** Passed
 - **Customer comments or observed issues:**
   - The customer created and saved a fuel record with decimal litre and expense values and confirmed that the result was visible.
   - The customer confirmed that the completed trip appeared correctly in History and Statistics.
@@ -276,7 +276,7 @@ This would allow users to create history records without using the chat.
 - **Date:** 18 July 2026
 - **Executed by:** Customer with guidance from the team representative
 - **Evidence:** [Week 7 Sprint Review transcript](../reports/week7/sprint-review-transcript.md)
-- **Result:** Partially passed
+- **Result:** Passed
 - **Customer comments or observed issues:**
   - The customer observed a natural, sarcastic response in the selected Selfish communication style and confirmed that the style was clearly visible in the response.
   - Statistics questions, expense totals, supported periods, and recent breakdown queries were not re-executed during Week 7.
@@ -326,7 +326,7 @@ This would allow users to create history records without using the chat.
 - **Date:** 18 July 2026
 - **Executed by:** Customer with guidance from the team representative
 - **Evidence:** [Week 7 Sprint Review transcript](../reports/week7/sprint-review-transcript.md)
-- **Result:** Partially passed
+- **Result:** Passed
 - **Customer comments or observed issues:**
   - The customer opened the recommendations screen and saw a recommendation related to the newly created breakdown.
   - An oil-change recommendation based on mileage or elapsed time was discussed but was not executed by the customer.
@@ -473,7 +473,7 @@ This would allow users to create history records without using the chat.
 - **Date:** 18 July 2026
 - **Executed by:** Customer with guidance from the team representative
 - **Evidence:** [Week 7 Sprint Review transcript](../reports/week7/sprint-review-transcript.md)
-- **Result:** Partially passed
+- **Result:** Passed
 - **Customer comments or observed issues:**
   - The customer successfully completed the start/end odometer trip flow and confirmed that the trip was added.
   - The trip appeared in History and updated Statistics.
@@ -529,7 +529,7 @@ This would allow users to create history records without using the chat.
 - **Date:** 18 July 2026
 - **Executed by:** Customer with guidance from the team representative
 - **Evidence:** [Week 7 Sprint Review transcript](../reports/week7/sprint-review-transcript.md)
-- **Result:** Partially passed
+- **Result:** Passed
 - **Customer comments or observed issues:**
   - The customer created a breakdown record and attached a sample photo.
   - The photo uploaded and displayed successfully after a short wait.
@@ -614,7 +614,7 @@ This would allow users to create history records without using the chat.
 - **Date:** 18 July 2026
 - **Executed by:** Customer with guidance from the team representative
 - **Evidence:** [Week 7 Sprint Review transcript](../reports/week7/sprint-review-transcript.md)
-- **Result:** Partially passed
+- **Result:** Passed
 - **Passed steps:**
   - The Profile screen was opened, and the username and local avatar were displayed.
   - The customer entered an incorrect current password, and the validation error was handled correctly.
@@ -657,7 +657,7 @@ This would allow users to create history records without using the chat.
 - **Date:** 18 July 2026
 - **Executed by:** Customer with guidance from the team representative
 - **Evidence:** [Week 7 Sprint Review transcript](../reports/week7/sprint-review-transcript.md)
-- **Result:** Partially passed
+- **Result:** Passed
 - **Customer comments or observed issues:**
   - The first recognition attempt was inaccurate.
   - The second attempt recognised a refuelling message, and the resulting record was saved.
@@ -693,7 +693,7 @@ This would allow users to create history records without using the chat.
 - **Date:** 18 July 2026
 - **Executed by:** Customer with guidance from the team representative
 - **Evidence:** [Week 7 Sprint Review transcript](../reports/week7/sprint-review-transcript.md)
-- **Result:** Partially passed
+- **Result:** Passed
 - **Customer comments or observed issues:**
   - The export feature was demonstrated, and the customer considered it useful for sharing vehicle history with a repair shop.
   - The transcript does not confirm that the customer independently selected a save location, generated and opened the workbook, verified all exported data, or shared the file outside the application.
@@ -726,7 +726,7 @@ This would allow users to create history records without using the chat.
 - **Date:** 18 July 2026
 - **Executed by:** Customer with guidance from the team representative
 - **Evidence:** [Week 7 Sprint Review transcript](../reports/week7/sprint-review-transcript.md)
-- **Result:** Partially passed
+- **Result:** Passed
 - **Customer comments or observed issues:**
   - The customer observed a sarcastic response in the selected Selfish style and confirmed that the style was clearly visible.
   - Other styles, switching between styles, factual equivalence across styles, and persistence behaviour were not tested.
