@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- Pass style parameter to ask_deepseek in chat_ask handler so AI responds in the selected communication style (#353).
+
 ## [1.4.0] - 2026-07-18
 
 ### Added
