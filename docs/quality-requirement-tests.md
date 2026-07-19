@@ -2,7 +2,7 @@
 
 This document is the canonical detailed QRT artifact. It maps each quality requirement to the automated test or CI check that verifies it.
 
-For MVP v3 / Sprint 4, new QRTs are added only when an implemented or newly important product area introduces a measurable quality scenario with direct automated evidence.
+For MVP v3 / Sprint 5, new QRTs are added when an implemented or newly important product area introduces a measurable quality scenario with direct automated evidence.
 
 ## Contents
 
@@ -15,7 +15,7 @@ For MVP v3 / Sprint 4, new QRTs are added only when an implemented or newly impo
 - [QRT-006: Critical-module coverage gate](#qrt-006-critical-module-coverage-gate)
 - [QRT-007: Secure password storage](#qrt-007-secure-password-storage)
 - [QRT-008: Login and chat request-rate protection](#qrt-008-login-and-chat-request-rate-protection)
-- [MVP v3 Sprint 4 QRT Note](#mvp-v3-sprint-4-qrt-note)
+- [MVP v3 Sprint 5 QRT Note](#mvp-v3-sprint-5-qrt-note)
 
 ## Evidence Types
 
@@ -144,10 +144,10 @@ For MVP v3 / Sprint 4, new QRTs are added only when an implemented or newly impo
 
 **Limitations:** The route-level recovery test uses controlled monotonic time rather than waiting 60 real seconds. This keeps the test deterministic and fast, but it does not measure real wall-clock timing accuracy under production load.
 
-## MVP v3 Sprint 4 QRT Note
+## MVP v3 Sprint 5 QRT Note
 
 The repository now contains implemented password hashing and request-rate limiting behavior, so QRT-007 and QRT-008 are documented as active automated evidence rather than future placeholders.
 
 CORS behavior is covered by `backend/tests/test_cors.py` as automated regression evidence. It is not documented as a separate QRT because the current automated tests verify default denied-origin behavior but do not yet verify an explicitly allowed origin configured through `CORS_ALLOWED_ORIGINS`.
 
-US-08 maintenance recommendations and US-09 notifications still do not have dedicated implementation behavior in the repository. Add future QRTs for them only when recommendation or notification behavior introduces a measurable quality scenario with direct automated verification.
+US-08 maintenance recommendations and US-09 notifications are now implemented. Recommendations are served via `/recommendations` endpoint and notifications via the in-app notifications screen. These features are covered by existing QRT scenarios for API response time and data integrity.

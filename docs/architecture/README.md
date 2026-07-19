@@ -46,7 +46,8 @@ Maintainability implications:
 - SQLAlchemy models centralize persistent entities, making data ownership easier to reason about.
 - AI integration is isolated in chat-specific modules, which limits the blast radius of external-service changes.
 - Photo decoding and storage are isolated from route orchestration, so local and S3-compatible storage use the same API and database metadata.
-- Password hashing, login/chat rate limiting, and restrictive default CORS behavior reduce Sprint 4 security risk, while the current `user_id` query parameter approach still constrains future security hardening because it is not token-based authorization.
+- Password hashing, login/chat rate limiting, and restrictive default CORS behavior reduce security risk, while the current `user_id` query parameter approach still constrains future security hardening because it is not token-based authorization.
+- Profile management, recommendations, notifications, voice input, Excel export, and style switching extend the backend API surface while maintaining the same layered architecture.
 - The layered view makes future refactoring paths clear: route handlers can be split into dedicated service modules when the MVP grows.
 
 Quality requirements supported or constrained:
@@ -65,7 +66,7 @@ Quality requirements supported or constrained:
 
 Source: [dynamic-view/chat-event-sequence.puml](dynamic-view/chat-event-sequence.puml)
 
-The dynamic view documents the local chat-dialog workflow. This scenario is important because Sprint 4 added Room-backed persistence for the latest five local dialogs while the assistant still relies on backend vehicle history and external AI access.
+The dynamic view documents the local chat-dialog workflow. This scenario is important because Sprint 4 added Room-backed persistence for the latest five local dialogs while the assistant still relies on backend vehicle history and external AI access. Sprint 5 extended this with dynamic style switching and Mistral voice transcription.
 
 Scenario:
 

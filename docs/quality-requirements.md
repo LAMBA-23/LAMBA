@@ -2,7 +2,7 @@
 
 This document defines measurable quality requirements for the current LAMBA MVP and the automated quality requirement tests that verify them.
 
-For MVP v3 / Sprint 4, Assignment 4 and Assignment 5 quality requirements remain active and are extended with security-focused QR coverage for password storage and request-rate protection. US-08 maintenance recommendations and US-09 notifications are still planned rather than implemented, so they do not yet justify separate QR sections.
+For MVP v3 / Sprint 5, all earlier quality requirements remain active and are extended with Sprint 5 implemented features including profile management, maintenance recommendations, in-app notifications, voice input, vehicle-data Excel export, and dynamic chat style switching.
 
 ## Contents
 
@@ -15,7 +15,7 @@ For MVP v3 / Sprint 4, Assignment 4 and Assignment 5 quality requirements remain
 - [QR-007: Secure password storage](#qr-007-secure-password-storage)
 - [QR-008: Login and chat request-rate protection](#qr-008-login-and-chat-request-rate-protection)
 - [Architecture Decision Traceability](#architecture-decision-traceability)
-- [MVP v3 / Sprint 4 Note](#mvp-v3--sprint-4-note)
+- [MVP v3 / Sprint 5 Note](#mvp-v3--sprint-5-note)
 
 ## QR-001: Vehicle event data integrity
 
@@ -130,10 +130,10 @@ For MVP v3 / Sprint 4, Assignment 4 and Assignment 5 quality requirements remain
 | [QR-007: Secure password storage](#qr-007-secure-password-storage) | [ADR-001](architecture/adr/001-use-backend-owned-rest-api-boundary.md), [ADR-002](architecture/adr/002-use-fastapi-pydantic-sqlalchemy-backend.md), [ADR-003](architecture/adr/003-use-docker-compose-for-backend-and-database.md) |
 | [QR-008: Login and chat request-rate protection](#qr-008-login-and-chat-request-rate-protection) | [ADR-001](architecture/adr/001-use-backend-owned-rest-api-boundary.md), [ADR-002](architecture/adr/002-use-fastapi-pydantic-sqlalchemy-backend.md), [ADR-003](architecture/adr/003-use-docker-compose-for-backend-and-database.md) |
 
-## MVP v3 / Sprint 4 Note
+## MVP v3 / Sprint 5 Note
 
-The implemented MVP v3 Sprint 4 repository state includes password hashing, removal of the unsafe demo-login path, login and chat rate limiting, and restricted default CORS behavior. Password storage and rate limiting now have dedicated QR coverage because they are measurable security-sensitive product qualities with automated evidence.
+The implemented MVP v3 Sprint 5 repository state includes all Sprint 4 features plus profile management with avatar support, maintenance recommendations via `/recommendations` endpoint, in-app notifications screen, voice input with Mistral transcription, vehicle-data Excel export, dynamic chat style switching (Friendly/Selfish/Pragmatic), vehicle brand and model selection, and history sorting by newest events first. The backend now exposes `/auth`, `/vehicle`, `/events`, `/stats`, `/chat`, `/recommendations`, and `/chat/transcribe` endpoints. External AI services include both Timeweb/DeepSeek for chat and Mistral for voice transcription.
 
 CORS is covered as automated regression evidence in `docs/testing.md` through `backend/tests/test_cors.py`. It is not yet documented as a separate QR because the current automated tests verify the default denied-origin behavior but do not verify a configured allowed origin from `CORS_ALLOWED_ORIGINS`.
 
-US-08 maintenance recommendations and US-09 notifications themselves are still planned and do not yet have dedicated recommendation or notification workflow logic in the repository. When those features are implemented, this document should be extended only if they introduce new measurable quality scenarios not already covered by QR-001 through QR-008.
+US-08 maintenance recommendations and US-09 notifications are now implemented in Sprint 5. Recommendations are served via the `/recommendations` endpoint and notifications are displayed in the in-app notifications screen. These features are covered by existing QR scenarios for data integrity and API response time.
