@@ -95,7 +95,8 @@ PR.
 
 Before merging customer-facing documentation, verify that it does not claim
 customer acceptance, final handover, deployment ownership transfer, or a newer
-release unless the repository contains inspectable evidence for that statement.
+release unless the claim is backed by inspectable public evidence or explicitly
+identified private submission or customer-delivery evidence.
 
 ## Pull Requests
 

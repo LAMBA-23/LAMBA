@@ -69,7 +69,7 @@ Sprint 5 addressed follow-up items from the Week 6 customer trial:
 
 ## 15. Final Transition Outcome
 
-- **Handover Level:** Ready for independent use
+- **Handover Level:** Deployed or operated on customer side
 - **Customer Confirmation Status:** Accepted
 
 The customer confirmed acceptance of MVP v3 during the Week 7 meeting. The product is deployed on customer-controlled infrastructure at `http://186.246.27.211:8000`.
@@ -93,7 +93,7 @@ See [docs/customer-handover.md](../../docs/customer-handover.md) for full detail
 
 ## 18. Customer Deployment Evidence
 
-The customer's server at `186.246.27.211` is running the deployed backend. The customer confirmed the product is operational and accepted for independent use.
+The customer's server at `186.246.27.211` is running the deployed backend. The customer confirmed the product is operational and accepted the team's withdrawal from server management.
 
 ## 19. Customer Feedback Response Table
 

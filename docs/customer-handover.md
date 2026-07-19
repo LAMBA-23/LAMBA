@@ -23,15 +23,16 @@ The handover scope encompasses the **entire product ecosystem**, including:
 
 ## Handover Level and Transition Status
 
-* **Current Handover Level:** **Ready for independent use**
-* **Customer Confirmation Status:** **Accepted** (Final MVP v3 delivery)
+* **Current Handover Level:** **Deployed or operated on customer side**
+* **Customer Confirmation Status:** **Accepted** (Final MVP v3 operational acceptance)
 
 ### Status Context:
 
 1. **Trial Validation:** The customer has executed a subset of UAT workflows during the customer meeting. Core features such as **chat history** and **session persistence** successfully passed validation.
 2. **Follow-up Items:** All customer-critical features have been remediated and verified during Week 7 scope.
 3. **Scope Realignment:** Final acceptance criteria satisfied. This document describes the delivered **MVP v3** final version.
-4. **Operational Status:** The application is running on the customer's hardware. Final handover completed with archive delivery and customer sign-off.
+4. **Operational Status:** The application is running on the customer's hardware. The customer accepted MVP v3 operation on customer-controlled infrastructure and the team's withdrawal from server management.
+5. **Archive Status:** The final archive package remains a separate private-channel delivery action until delivery and checksum evidence are preserved outside the public repository.
 
 ---
 
@@ -51,7 +52,7 @@ The handover scope encompasses the **entire product ecosystem**, including:
 
 ## Agreed Final Handover Format
 
-The final delivery mechanism has been explicitly aligned with the customer's request. Instead of repository transfers or cloud account migrations, the handover consists of a **complete archive package** delivered via a **private storage channel** accessible to the customer.
+The final delivery mechanism has been explicitly aligned with the customer's request. Instead of repository transfers or cloud account migrations, the handover package is a **complete archive package** to be delivered via a **private storage channel** accessible to the customer.
 
 ### Delivery Package Components:
 
@@ -63,7 +64,10 @@ The final delivery mechanism has been explicitly aligned with the customer's req
 * Troubleshooting, backup, and system recovery playbooks.
 * The complete set of maintained product and process documentation (including weekly reports) to enable seamless transition to any future engineering team.
 
-> **Note:** The final handover archive package has been delivered to the customer via the agreed private storage channel.
+> **Note:** The Week 7 review evidence records operational customer acceptance.
+> Archive delivery and checksum evidence remain private-channel actions and must
+> not be claimed as completed in the public repository until that private
+> evidence exists.
 
 ---
 
@@ -177,7 +181,7 @@ The customer should use these primary entry points for normal use, operation, an
 ## Documentation sufficiency and support needs
 
 * **Current State:** The documentation has been expanded to include comprehensive, non-technical handover package covering end-to-end usage, deployment, backup/recovery, and system troubleshooting for future engineering teams.
-* **Delivered Documentation:** Complete product and process documentation has been delivered to the customer as part of the archive package.
+* **Prepared Documentation:** Complete product and process documentation is maintained in the repository and is included in the planned archive package.
 * **Support:** The customer has access to all maintained documentation including README.md, API contract, testing overview, quality requirements, and weekly reports.
 
 ---
@@ -195,11 +199,11 @@ The customer should use these primary entry points for normal use, operation, an
 - [x] Complete customer-critical Week 7 feature scope and fixes.
 - [x] Verify all updated User Acceptance Testing (UAT) scenarios.
 - [x] Expand documentation into a comprehensive, non-technical handover package (Usage, Deployment, Backup, Troubleshooting).
-- [x] Prepare clean frontend, backend, and documentation archives, ensuring zero leakage of production secrets.
-- [x] Deliver the archive packages to the customer via the designated private storage channel.
-- [x] Transfer production environment secrets securely via a separate channel.
-- [x] Request final customer sign-off on this handover document (`docs/customer-handover.md`) to verify it meets the agreed level of transfer.
-- [x] Update Handover Level to `Ready for independent use` and Status to `Accepted` upon final confirmation.
+- [ ] Prepare clean frontend, backend, and documentation archives, ensuring zero leakage of production secrets.
+- [ ] Deliver the archive packages to the customer via the designated private storage channel.
+- [ ] Transfer production environment secrets securely via a separate channel.
+- [x] Request final customer sign-off on the operational MVP v3 transition scope.
+- [x] Update Handover Level to `Deployed or operated on customer side` and Status to `Accepted` based on Week 7 customer confirmation.
 
 
 ## Final delivery evidence
@@ -208,7 +212,7 @@ The customer should use these primary entry points for normal use, operation, an
 - **Week 7 Report:** [reports/week7/README.md](../reports/week7/README.md)
 - **Deployed Backend:** `http://186.246.27.211:8000`
 - **Swagger UI:** `http://186.246.27.211:8000/docs`
-- **Customer archives:** Delivered via private storage channel
+- **Customer archives:** Pending private delivery with checksum evidence
 - **Demo video:** [Link to sanitized demo video](https://drive.google.com/drive/folders/1JG9VJTtcu_bDr9Q3AGSfieljdY5r3g4y?usp=sharing)
 
 ## Related customer-relevant documentation
