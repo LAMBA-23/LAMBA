@@ -11,6 +11,7 @@ The handover scope encompasses the **entire product ecosystem**, including:
 * **Database:** PostgreSQL with migration configurations.
 * **Deployment Configuration:** Docker Compose orchestration.
 * **AI Integration:** DeepSeek-chat integration via Timeweb.
+* **Dynamic Chat Style:** Three communication styles (Friendly, Selfish, Pragmatic) selectable in Profile, applied to all AI responses including expenses, statistics, and events.
 * **Documentation:** Technical specifications, user guides, and process history.
 
 ### Component Locations & Runtime
